@@ -2410,6 +2410,17 @@ function syncUserDataOnLogin(userData) {
         squadFormation = userData.squadFormation || {};
         leagueRound = userData.leagueRound || 1;
         
+        // CARDS_DATABASE 기준 최신 구조 동기화 (하이드레이션)
+        if (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE) {
+            Object.keys(playerDeck).forEach(key => {
+                if (CARDS_DATABASE[key]) {
+                    playerDeck[key].card = CARDS_DATABASE[key];
+                } else {
+                    delete playerDeck[key];
+                }
+            });
+        }
+        
         if (userData.leagueTeams && userData.leagueTeams.length > 0) {
             leagueTeams = userData.leagueTeams;
         } else {
