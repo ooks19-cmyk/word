@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FC STAR CARD - 축구 카드 수집 게임</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase Compat SDK Modules (Benchmarked from Racer Game) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="logo" id="appLogo">
+            <img src="img/mark_jb.svg" alt="전북 현대" class="logo-emblem">
+            <span>FC STAR CARD</span>
+        </div>
+        <div class="nav-tabs">
+            <button class="tab-btn active" id="tabPackBtn" onclick="switchTab('pack')">
+                <i class="fa-solid fa-box-open" style="margin-right: 6px;"></i>카드 뽑기
+            </button>
+            <button class="tab-btn" id="tabQuizBtn" onclick="switchTab('quiz')">
+                <i class="fa-solid fa-graduation-cap" style="margin-right: 6px;"></i>단어 퀴즈
+            </button>
+            <button class="tab-btn" id="tabDeckBtn" onclick="switchTab('deck')">
+                <i class="fa-solid fa-id-card" style="margin-right: 6px;"></i>내 컬렉션 (덱)
+            </button>
+            <button class="tab-btn" id="tabSquadBtn" onclick="switchTab('squad')">
+                <i class="fa-solid fa-people-group" style="margin-right: 6px;"></i>포메이션
+            </button>
+            <button class="tab-btn" id="tabMatchBtn" onclick="switchTab('match')">
+                <i class="fa-solid fa-gamepad" style="margin-right: 6px;"></i>경기 진행
+            </button>
+            <button class="tab-btn" id="tabFameBtn" onclick="switchTab('fame')">
+                <i class="fa-solid fa-award" style="margin-right: 6px;"></i>명예의 전당
+            </button>
+        </div>
+        
+        <!-- 개발자 모드 토글 (ooks12 한정) -->
+        <div id="devToggleContainer" style="display: none; align-items: center; gap: 8px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: bold; color: #ff8888; margin-right: 10px;">
+            <i class="fa-solid fa-code"></i>
+            <span>개발자 모드</span>
+            <label class="dev-switch" style="position: relative; display: inline-block; width: 34px; height: 20px; cursor: pointer; margin-left: 2px;">
+                <input type="checkbox" id="devModeCheckbox" onchange="toggleDeveloperMode(this.checked)" style="opacity: 0; width: 0; height: 0;">
+                <span class="dev-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); transition: .3s; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2);"></span>
+            </label>
+        </div>
+
+        <div class="header-points" id="headerPointsWidget" onclick="developerSetPoints()" title="클릭하여 포인트 강제 설정 (개발용)" style="cursor: pointer;">
+            <i class="fa-solid fa-coins" style="color: #ffd700; margin-right: 6px;"></i>
+            <span>보유 포인트: <strong id="userPointsVal" style="color:#ffd700;">0</strong> FP</span>
+        </div>
+        <button class="header-auth-btn" id="headerAuthBtn" onclick="toggleAuthModal()">
+            <i class="fa-solid fa-user-lock"></i>
+            <span id="headerAuthText">로그인</span>
+        </button>
+    </header>
+
+    <!-- Main Game Container -->
+    <main>
+
+        <!-- 1. PACK OPENING SECTION -->
+        <section id="packSection" class="page-section active">
+            <div class="pack-container">
+                <div class="pack-wrapper" id="packWrapper" onclick="openPack()">
+                    <div class="pack-glow"></div>
+                    <div class="pack-card">
+                        <span class="pack-badge">Legendary</span>
+                        <div class="pack-art">
+                            <i class="fa-solid fa-fire-flame-curved"></i>
+                        </div>
+                        <div class="pack-info">
+                            <h2 class="pack-title">프리미엄 K-스타 팩</h2>
+                            <p class="pack-desc">클릭하여 선수를 획득하세요!</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-open-pack" id="openPackBtn" onclick="openPack()">카드 팩 열기</button>
+                <div class="pack-points-info" style="margin-top: 1.5rem; color: var(--text-light); font-size: 0.95rem; font-weight: 700; background: rgba(255, 215, 0, 0.08); padding: 0.5rem 1.5rem; border-radius: 20px; border: 1px solid rgba(255, 215, 0, 0.3);">
+                    <i class="fa-solid fa-coins" style="color: #ffd700; margin-right: 6px;"></i>
+                    보유 포인트: <span id="packUserPointsVal" style="color: #ffd700; font-weight: 800;">0</span> FP
+                </div>
+                <div class="pack-cost-info" style="margin-top: 0.6rem; color: var(--text-muted); font-size: 0.95rem; font-weight: 600; background: rgba(255, 255, 255, 0.03); padding: 0.5rem 1.5rem; border-radius: 20px; border: 1px solid var(--glass-border);">
+                    <i class="fa-solid fa-circle-info" style="color: #ffd700; margin-right: 6px;"></i>
+                    개봉 비용: <span style="color: #ffd700; font-weight: 800;">1 FP</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 단어 퀴즈 섹션 -->
+        <section id="quizSection" class="page-section">
+            <div class="quiz-container">
+                <div class="quiz-header">
+                    <div class="quiz-header-left">
+                        <h2 class="deck-title"><i class="fa-solid fa-graduation-cap" style="margin-right: 10px; color: #ffd700;"></i>영어 단어 퀴즈</h2>
+                        <button class="btn-reset-quiz" onclick="resetQuizOffset()" title="퀴즈 순서 초기화 (최신 단어부터 다시 출제)">
+                            <i class="fa-solid fa-rotate-left"></i> 순서 초기화
+                        </button>
+                    </div>
+                    <div class="deck-count">
+                        <span id="quizLevelWidget" onclick="developerSetLevel()" title="클릭하여 레벨 강제 설정 (개발용)" style="margin-right: 10px; cursor: pointer;">레벨: <strong id="quizLevelVal" style="color: #ffd700; font-weight: 800;">1</strong></span>
+                        진행도: <span id="quizProgressText" style="color: #ffd700; font-weight: 800;">1 / 10</span>
+                    </div>
+                </div>
+
+                <!-- Quiz Progress Bar -->
+                <div class="quiz-progress-wrapper">
+                    <div class="quiz-progress-track">
+                        <div class="quiz-progress-bar" id="quizProgressBar" style="width: 10%;"></div>
+                    </div>
+                </div>
+
+                <!-- Quiz Arena Area -->
+                <div class="quiz-arena">
+                    <div class="quiz-card">
+                        <div class="quiz-card-glow"></div>
+                        <div class="quiz-question-container">
+                            <span class="quiz-question-label">다음 영어 단어의 뜻을 입력하세요</span>
+                            <h1 class="quiz-question-word" id="quizQuestionWord">apple</h1>
+                        </div>
+                        
+                        <div class="quiz-input-wrapper">
+                            <input type="text" id="quizAnswerInput" placeholder="한국어 뜻을 입력하세요..." autocomplete="off" spellcheck="false">
+                            <div class="quiz-input-glow"></div>
+                        </div>
+
+                        <!-- Pass 정답 공개 피드백 창 (기본 숨김) -->
+                        <div class="quiz-feedback-box" id="quizFeedbackBox" style="display: none;">
+                            <div class="feedback-icon" id="feedbackIcon"><i class="fa-solid fa-circle-info"></i></div>
+                            <div class="feedback-message" id="feedbackMessage">정답은 <strong>apple</strong> 입니다! 다음 기회에 다시 시도해보세요.</div>
+                        </div>
+
+                        <div class="quiz-action-buttons">
+                            <button class="btn-quiz btn-pass" id="btnQuizPass" onclick="passQuizQuestion()">
+                                <i class="fa-solid fa-forward"></i> 모름 (Pass)
+                            </button>
+                            <button class="btn-quiz btn-submit" id="btnQuizSubmit" onclick="submitQuizAnswer()">
+                                제출 (Enter) <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quiz Completed Success Screen (기본 숨김) -->
+                <div class="quiz-complete-overlay" id="quizCompleteOverlay" style="display: none;">
+                    <div class="quiz-complete-card">
+                        <div class="success-icon-wrapper">
+                            <i class="fa-solid fa-medal success-medal"></i>
+                        </div>
+                        <h2>퀴즈 완료! 🎉</h2>
+                        <p>10문제를 모두 올바르게 해결하였습니다.</p>
+                        <div class="reward-box">
+                            <i class="fa-solid fa-coins reward-coin"></i>
+                            <span>+1 FP (가차 포인트) 획득!</span>
+                        </div>
+                        <div style="font-size: 1.2rem; font-weight: 800; color: #ffd700; margin-top: 0.5rem; background: rgba(255, 215, 0, 0.08); padding: 0.4rem 1.5rem; border-radius: 20px; border: 1px solid rgba(255, 215, 0, 0.3); display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-arrow-trend-up"></i>
+                            <span>레벨 업! <strong style="color: #fff;">Lv. <span id="completeLevelVal">2</span></strong> 달성 🚀</span>
+                        </div>
+                        <button class="btn-open-pack" onclick="startNewQuizRound()" style="margin-top: 1.5rem; width: 100%;">
+                            새로운 퀴즈 풀기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. DECK / COLLECTION SECTION -->
+        <section id="deckSection" class="page-section">
+            <div class="deck-container">
+                <div class="deck-header">
+                    <h2 class="deck-title"><i class="fa-solid fa-layer-group" style="margin-right: 10px; color: #ffd700;"></i>나의 선수 컬렉션</h2>
+                    <div class="deck-count" id="deckCountContainer">
+                        총 카드 수: <span id="totalCardsCount">0</span>장
+                    </div>
+                </div>
+                
+                <!-- Deck Cards Grid -->
+                <div class="deck-grid" id="deckGrid">
+                    <!-- Cards will be dynamically inserted here via JS -->
+                    <div class="empty-deck" id="emptyDeckPlaceholder">
+                        <i class="fa-regular fa-folder-open"></i>
+                        <h3>아직 수집한 카드가 없습니다</h3>
+                        <p>'카드 뽑기' 탭으로 이동하여 축구 스타 카드를 수집해보세요!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. SQUAD FORMATION SECTION -->
+        <section id="squadSection" class="page-section">
+            <div class="squad-container">
+                <div class="squad-header">
+                    <h2 class="deck-title"><i class="fa-solid fa-people-group" style="margin-right: 10px; color: #ffd700;"></i>베스트 11 스쿼드 포메이션 (4-3-3)</h2>
+                    <div class="deck-count" id="squadStatsContainer">
+                        팀 평균 OVR: <span id="teamOvrVal" style="color:#ffd700; font-weight:900;">70</span>
+                    </div>
+                </div>
+                
+                <!-- Football Pitch -->
+                <div class="pitch-outer-wrapper">
+                    <div class="football-pitch">
+                        <!-- Pitch Line markings -->
+                        <div class="pitch-line pitch-center-circle"></div>
+                        <div class="pitch-line pitch-half-line"></div>
+                        <div class="pitch-line pitch-penalty-area-top"></div>
+                        <div class="pitch-line pitch-penalty-area-bottom"></div>
+                        <div class="pitch-line pitch-center-spot"></div>
+                        
+                        <!-- 11 Position Slots -->
+                        <!-- Attackers -->
+                        <div class="pitch-slot" id="slot-LW" onclick="openCardSelector('LW')" style="top: 15%; left: 15%;"></div>
+                        <div class="pitch-slot" id="slot-ST" onclick="openCardSelector('ST')" style="top: 8%; left: 50%;"></div>
+                        <div class="pitch-slot" id="slot-RW" onclick="openCardSelector('RW')" style="top: 15%; left: 85%;"></div>
+                        
+                        <!-- Midfielders -->
+                        <div class="pitch-slot" id="slot-LCM" onclick="openCardSelector('LCM')" style="top: 44%; left: 22%;"></div>
+                        <div class="pitch-slot" id="slot-CM" onclick="openCardSelector('CM')" style="top: 50%; left: 50%;"></div>
+                        <div class="pitch-slot" id="slot-RCM" onclick="openCardSelector('RCM')" style="top: 44%; left: 78%;"></div>
+                        
+                        <!-- Defenders -->
+                        <div class="pitch-slot" id="slot-LB" onclick="openCardSelector('LB')" style="top: 73%; left: 12%;"></div>
+                        <div class="pitch-slot" id="slot-LCB" onclick="openCardSelector('LCB')" style="top: 77%; left: 36%;"></div>
+                        <div class="pitch-slot" id="slot-RCB" onclick="openCardSelector('RCB')" style="top: 77%; left: 64%;"></div>
+                        <div class="pitch-slot" id="slot-RB" onclick="openCardSelector('RB')" style="top: 73%; left: 88%;"></div>
+                        
+                        <!-- Goalkeeper -->
+                        <div class="pitch-slot" id="slot-GK" onclick="openCardSelector('GK')" style="top: 90%; left: 50%;"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. MATCH SIMULATOR SECTION -->
+        <section id="matchSection" class="page-section">
+            <div class="match-layout">
+                <!-- Left panel: Match Simulator Board -->
+                <div class="match-simulator-panel">
+                    <div class="squad-header">
+                        <h2 class="deck-title"><i class="fa-solid fa-circle-play" style="margin-right: 10px; color: #ffd700;"></i>K리그1 라운드 시뮬레이터</h2>
+                        <div class="deck-count" id="matchRoundContainer">
+                            라운드: <span id="matchRoundVal">1</span>/11
+                        </div>
+                    </div>
+                    
+                    <!-- Scoreboard Board -->
+                    <div class="scoreboard-container">
+                        <div class="team-vs-display">
+                            <div class="sb-team sb-home">
+                                <div class="sb-emblem" id="homeEmblem"><i class="fa-solid fa-shield-halved"></i></div>
+                                <h3 id="homeTeamName">전북 현대</h3>
+                                <span class="sb-ovr-tag">OVR <span id="homeTeamOvr">70</span></span>
+                            </div>
+                            <div class="sb-score-board">
+                                <div class="sb-time" id="sbTimeDisplay">VS</div>
+                                <div class="sb-scores">
+                                    <span id="homeScore">0</span> - <span id="awayScore">0</span>
+                                </div>
+                                <div class="sb-match-venue" id="matchVenueDisplay">HOME ADVANTAGE</div>
+                            </div>
+                            <div class="sb-team sb-away">
+                                <div class="sb-emblem" id="awayEmblem"><i class="fa-solid fa-shield-halved"></i></div>
+                                <h3 id="awayTeamName">울산 HD</h3>
+                                <span class="sb-ovr-tag">OVR <span id="awayTeamOvr">80</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Live Text Broadcast Commentary Box -->
+                    <div class="commentary-box-wrapper">
+                        <div class="commentary-header">
+                            <span><i class="fa-solid fa-radio"></i> 문자 중계 라이브</span>
+                            <span class="live-pulse" id="livePulseIndicator">LIVE</span>
+                        </div>
+                        <div class="commentary-scroll" id="commentaryScroll">
+                            <div class="comm-item comm-system">경기를 시작하려면 아래 '경기 시작' 버튼을 누르세요.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="match-controls">
+                        <button class="btn-open-pack" id="btnStartMatch" onclick="startMatchSimulation()" style="width: 100%; margin-top: 1.5rem;">
+                            <i class="fa-solid fa-play" style="margin-right: 8px;"></i>경기 시작 (10초 소요)
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Right panel: K League Standings Table & Stats -->
+                <div class="league-table-panel">
+                    <div class="squad-header" style="border-bottom: 1px solid var(--glass-border); padding-bottom: 0.8rem; margin-bottom: 1rem;">
+                        <h3 class="deck-title" style="font-size: 1.25rem;" id="leagueTableTitle"><i class="fa-solid fa-ranking-star" style="margin-right: 8px; color: #ffd700;"></i>2026 K리그1 실시간 순위</h3>
+                        <button class="tab-btn" onclick="resetLeagueSeason()" style="font-size: 0.75rem; padding: 0.3rem 0.8rem; border-radius: 12px; background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); color: #ff8888; font-weight:700; cursor:pointer;">시즌 리셋</button>
+                    </div>
+                    
+                    <div class="league-table-wrapper">
+                        <table class="league-table">
+                            <thead>
+                                <tr>
+                                    <th>순위</th>
+                                    <th style="text-align: left;">팀명</th>
+                                    <th>경기</th>
+                                    <th>승점</th>
+                                    <th>승</th>
+                                    <th>무</th>
+                                    <th>패</th>
+                                    <th>득실</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leagueTableBody">
+                                <!-- Populated dynamically by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- League Stats: Goals & Assists Leaders -->
+                    <div class="league-stats-container" style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+                        <!-- Goals Leaderboard -->
+                        <div class="league-stat-col" style="flex: 1; background: rgba(10, 14, 26, 0.25); padding: 0.8rem; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05); display: flex; flex-direction: column;">
+                            <h4 style="font-size: 0.85rem; font-weight: 800; margin-bottom: 0.5rem; color: #ffd700; display: flex; align-items: center; gap: 6px;">
+                                <i class="fa-solid fa-circle-play" style="color: #ffd700; font-size: 0.75rem;"></i> 득점 순위 (Top 5)
+                            </h4>
+                            <table class="league-stats-table" style="width: 100%; border-collapse: collapse; font-size: 0.78rem; text-align: left;">
+                                <thead>
+                                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8;">
+                                        <th style="padding: 4px; text-align: center; width: 15%;">#</th>
+                                        <th style="padding: 4px;">선수</th>
+                                        <th style="padding: 4px;">소속팀</th>
+                                        <th style="padding: 4px; text-align: center; width: 20%;">골</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leagueGoalsBody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Assists Leaderboard -->
+                        <div class="league-stat-col" style="flex: 1; background: rgba(10, 14, 26, 0.25); padding: 0.8rem; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05); display: flex; flex-direction: column;">
+                            <h4 style="font-size: 0.85rem; font-weight: 800; margin-bottom: 0.5rem; color: #00ff87; display: flex; align-items: center; gap: 6px;">
+                                <i class="fa-regular fa-star" style="color: #00ff87; font-size: 0.75rem;"></i> 도움 순위 (Top 5)
+                            </h4>
+                            <table class="league-stats-table" style="width: 100%; border-collapse: collapse; font-size: 0.78rem; text-align: left;">
+                                <thead>
+                                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8;">
+                                        <th style="padding: 4px; text-align: center; width: 15%;">#</th>
+                                        <th style="padding: 4px;">선수</th>
+                                        <th style="padding: 4px;">소속팀</th>
+                                        <th style="padding: 4px; text-align: center; width: 20%;">도움</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leagueAssistsBody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 명예의 전당 섹션 -->
+        <section id="fameSection" class="page-section">
+            <div class="fame-container" style="width: 100%; padding: 1rem 0;">
+                <div class="deck-header">
+                    <h2 class="deck-title"><i class="fa-solid fa-award" style="margin-right: 10px; color: #ffd700;"></i>명예의 전당 (Hall of Fame)</h2>
+                    <div class="deck-count">
+                        참가한 시즌: <span id="fameSeasonCount" style="color: #ffd700; font-weight: 800;">0</span>개
+                    </div>
+                </div>
+                
+                <div class="fame-grid" id="fameGrid">
+                    <!-- Loaded dynamically via app.js -->
+                    <div class="empty-deck" id="emptyFamePlaceholder">
+                        <i class="fa-solid fa-crown" style="font-size: 3.5rem; color: var(--text-muted); opacity: 0.6; margin-bottom: 1.5rem;"></i>
+                        <h3>명예의 전당이 비어있습니다</h3>
+                        <p>K리그 시즌을 진행하고 종료되면 각 시즌별 최종 순위와 전적 기록이 이곳에 영구 보존됩니다!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- CARD SELECTION DRAWER -->
+    <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()">
+        <div class="selector-drawer" onclick="event.stopPropagation()">
+            <div class="drawer-header">
+                <h3>선수 배치하기 (<span id="drawerPositionTitle">ST</span>)</h3>
+                <button class="btn-close-drawer" onclick="closeDrawer()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="drawer-content" id="drawerContent">
+                <!-- Loaded via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- GLOBAL particles-container FOR ALL SCREENS (Gacha & Quiz Celebration) -->
+    <div class="particles-container" id="particlesContainer" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 999;"></div>
+
+    <!-- DRAMATIC REVEAL MODAL (Gacha Screen) -->
+    <div class="reveal-modal" id="revealModal">
+        <div class="flash-overlay" id="flashOverlay"></div>
+        
+        <div class="reveal-stage">
+            <div class="card-3d-wrapper" id="card3dWrapper">
+                <div class="fut-card" id="futCard" onclick="flipRevealedCard()">
+                    <!-- Card Back -->
+                    <div class="card-back">
+                        <div class="card-back-pattern"></div>
+                        <div class="card-back-logo">
+                            <i class="fa-solid fa-fire-flame-curved"></i>
+                            <span>FC STAR</span>
+                        </div>
+                    </div>
+                    <!-- Card Front -->
+                    <div class="card-front" id="cardFrontContainer">
+                        <!-- Loaded dynamically via app.js -->
+                    </div>
+                </div>
+            </div>
+            <button class="btn-collect" id="btnCollect" onclick="collectCard()" style="display: none;">
+                <i class="fa-solid fa-star" style="margin-right: 6px;"></i>내 구단으로 영입하기
+            </button>
+        </div>
+    </div>
+            
+    <!-- Toast Notification Container -->
+    <div class="toast" id="toastContainer">
+        <i class="fa-solid fa-circle-info"></i>
+        <span id="toastMessage">메시지</span>
+    </div>
+
+    <!-- REAL-TIME USER AUTH MODAL (Glassmorphism Modal) -->
+    <div class="drawer-overlay" id="authModal" onclick="closeAuthModal()">
+        <div class="selector-drawer auth-modal-drawer" onclick="event.stopPropagation()">
+            <div class="drawer-header">
+                <h3 id="authModalTitle"><i class="fa-solid fa-user-shield" style="margin-right: 8px; color: #ffd700;"></i>계정 로그인</h3>
+                <button class="btn-close-drawer" onclick="closeAuthModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="drawer-content auth-modal-content">
+                <!-- User Logged In State Screen (기본 숨김) -->
+                <div id="authLoggedInState" style="display: none; text-align: center; padding: 2rem 1rem;">
+                    <div class="success-icon-wrapper" style="margin-bottom: 1.5rem;">
+                        <i class="fa-solid fa-user-check" style="font-size: 4rem; color: #00ff87; filter: drop-shadow(0 0 15px rgba(0,255,135,0.4));"></i>
+                    </div>
+                    <h2 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 0.8rem;">환영합니다, <span id="loggedInUserText" style="color: #00ff87;">ID</span>님!</h2>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">
+                        현재 클라우드 동기화 모드로 안전하게 로그인되어 있습니다.<br>
+                        모든 게임 정보는 실시간으로 클라우드에 자동 세이브됩니다.
+                    </p>
+                    <button class="btn-open-pack" onclick="handleLogout()" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #ff6b6b; box-shadow: none; font-weight: 700; width: 100%;">
+                        <i class="fa-solid fa-right-from-bracket" style="margin-right: 6px;"></i>로그아웃
+                    </button>
+                </div>
+
+                <!-- User Logged Out State Input Form -->
+                <div id="authLoggedOutState" style="display: flex; flex-direction: column; gap: 1.5rem; padding: 1rem 0;">
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; text-align: center; margin-bottom: 0.5rem;">
+                        아이디 로그인 시 나의 선수 컬렉션, 포메이션 및 리그 정보가 클라우드에 자동 백업되며 다른 기기에서도 동기화됩니다!
+                    </p>
+                    
+                    <div class="quiz-input-wrapper">
+                        <label class="quiz-question-label" style="text-align: left; margin-bottom: 0.5rem; font-size: 0.85rem;">계정 아이디 (ID)</label>
+                        <input type="text" id="authUserIdInput" placeholder="아이디를 입력하세요..." autocomplete="off" style="text-align: left; font-size:1.1rem; padding: 0.8rem 1rem; letter-spacing:0.5px;">
+                    </div>
+                    
+                    <div class="quiz-input-wrapper">
+                        <label class="quiz-question-label" style="text-align: left; margin-bottom: 0.5rem; font-size: 0.85rem;">비밀번호 (Password)</label>
+                        <input type="password" id="authUserPasswordInput" placeholder="비밀번호를 입력하세요..." style="text-align: left; font-size:1.1rem; padding: 0.8rem 1rem; letter-spacing:0.5px;">
+                    </div>
+
+                    <button class="btn-open-pack" id="btnSubmitAuth" onclick="handleAuthSubmit()" style="width: 100%; margin-top: 1rem;">
+                        <i class="fa-solid fa-key" style="margin-right: 6px;"></i>로그인 완료
+                    </button>
+
+                    <!-- Toggle Mode Link -->
+                    <div style="text-align: center; margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">
+                        <span id="authToggleHint">아직 계정이 없으신가요?</span>
+                        <a href="javascript:void(0)" id="authToggleBtn" onclick="toggleAuthMode()" style="color: #ffd700; font-weight: 700; text-decoration: underline; margin-left: 5px;">회원가입 하기</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- USER LEVEL REWARD ALERT MODAL (Glassmorphism Modal) -->
+    <div class="drawer-overlay" id="levelRewardModal" onclick="closeLevelRewardModal()">
+        <div class="selector-drawer auth-modal-drawer" style="max-width: 420px; text-align: center; padding: 2rem 1.5rem; height: auto !important; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); border-radius: 24px;" onclick="event.stopPropagation()">
+            <div class="drawer-header" style="justify-content: center; border-bottom: none; padding-bottom: 0;">
+                <h3 id="levelRewardTitle" style="font-size: 1.45rem; font-weight: 800; background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 1px;">🎉 특별 알림 🎉</h3>
+            </div>
+            <div class="drawer-content" style="display: flex; flex-direction: column; gap: 1.2rem; padding: 1.5rem 0.5rem 0.5rem 0.5rem;">
+                <div class="success-icon-wrapper" style="margin: 0 auto 0.5rem auto; width: 80px; height: 80px; background: rgba(255, 215, 0, 0.1); border: 2px solid #ffd700;">
+                    <i class="fa-solid fa-gift" style="font-size: 2.2rem; color: #ffd700; animation: float 3s ease-in-out infinite;"></i>
+                </div>
+                <h4 style="font-size: 1.2rem; font-weight: 800; color: #fff; margin-bottom: 0.2rem;" id="levelRewardSubtitle">레벨업 축하!</h4>
+                <p id="levelRewardMessage" style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; word-break: keep-all; text-align: center; margin: 0;"></p>
+                <div style="font-size: 0.82rem; color: #ffd700; font-weight: 700; background: rgba(255, 255, 255, 0.03); padding: 0.5rem 1rem; border-radius: 12px; border: 1px solid var(--glass-border); text-align: center; margin-top: 0.5rem;">
+                    <i class="fa-solid fa-circle-info" style="margin-right: 4px;"></i> 레벨 10마다 '특별한' 카드가 제공됩니다.
+                </div>
+                <button class="btn-open-pack" onclick="closeLevelRewardModal()" style="width: 100%; margin-top: 1rem; padding: 0.8rem;">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="player/player_data.js"></script>
+    <script src="player/quiz_data.js"></script>
+    <script src="player/other_teams_data.js"></script>
+    <script src="db.js"></script>
+    <script src="sound.js"></script>
+    <script src="quiz.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
