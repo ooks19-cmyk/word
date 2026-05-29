@@ -108,6 +108,15 @@ const dbService = {
             leagueTeams: [], // K리그 12팀 실시간 승점 상태 (비어있으면 로컬 프리셋으로 자동초기화)
             quizOffset: 0, // 단어 퀴즈 현재 공부 진도 오프셋
             quizLastDate: "", // 마지막 단어 퀴즈 턴 실행 날짜
+            quizQueue: [], // 퀴즈 대기열
+            quizSolvedCount: 0, // 퀴즈 정답 맞춘 개수
+            quizCurrentIndex: 0, // 퀴즈 현재 진행 인덱스
+            matchLastDate: "", // 마지막 경기 진행 날짜
+            matchTodayCount: 0, // 오늘의 경기 진행 수
+            leagueYear: 2026, // 리그 연도
+            hallOfFame: [], // 명예의 전당 기록
+            leaguePlayerStats: {}, // 리그 선수 개인 스탯 기록
+            careerStats: { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} }, // 통산 성적
             updatedAt: new Date().toISOString()
         };
 
