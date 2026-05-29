@@ -506,6 +506,30 @@ const CARDS_DATABASE = {
             def: 40,
             phy: 68
         }
+    },
+    "jeon_jin_woo": {
+        id: "jeon_jin_woo",
+        name: "전진우",
+        rating: 80,
+        position: "LW",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "JEONBUK",
+        image: "player/전진우.webp",
+        description: "폭발적인 가속도와 유려한 개인 드리블 기술을 장착한 전북 현대의 다재다능한 공격수입니다. 상대 측면을 허물고 안쪽으로 꺾어 들어오는 과감한 침투와 위협적인 연계 플레이에 강점이 있습니다.",
+        theme: {
+            primary: "#005a3c",
+            secondary: "#ffffff",
+            glow: "#00d2ff"
+        },
+        stats: {
+            pac: 86,
+            sho: 75,
+            pas: 72,
+            dri: 81,
+            def: 38,
+            phy: 62
+        }
     }
 };
 
