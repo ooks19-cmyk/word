@@ -66,6 +66,7 @@ let isAuthSubmitting = false;
 let isDeveloperMode = false;
 let leagueYear = 2026;
 let hallOfFame = [];
+let careerStats = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
 
 
 
@@ -1206,6 +1207,13 @@ function initLeague() {
         if (savedYear) leagueYear = parseInt(savedYear) || 2026;
         if (savedFame) hallOfFame = JSON.parse(savedFame) || [];
         if (savedMatchDate) matchLastDate = savedMatchDate;
+        
+        const savedCareer = localStorage.getItem('fc_star_career_stats');
+        if (savedCareer) {
+            careerStats = JSON.parse(savedCareer);
+        } else {
+            careerStats = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+        }
     } catch(e) {
         resetLeagueSeasonState();
     }
@@ -1215,6 +1223,7 @@ function initLeague() {
     renderLeagueTable();
     updateMatchPreviewBoard();
     renderLeagueStats();
+    renderCareerStats();
 }
 
 function syncJeonbukOvr() {
@@ -1819,6 +1828,26 @@ function simulateOtherMatches(opponentId) {
     simulateOtherPlayersStats();
 }
 
+function getTopScorerAndAssister() {
+    const playersArray = Object.values(leaguePlayerStats || {});
+    if (playersArray.length === 0) return { topScorer: null, topAssister: null };
+    
+    const sortedGoals = [...playersArray].sort((a, b) => {
+        if (b.goals !== a.goals) return b.goals - a.goals;
+        return b.assists - a.assists;
+    });
+    
+    const sortedAssists = [...playersArray].sort((a, b) => {
+        if (b.assists !== a.assists) return b.assists - a.assists;
+        return b.goals - a.goals;
+    });
+    
+    const topScorer = sortedGoals[0] && sortedGoals[0].goals > 0 ? sortedGoals[0] : null;
+    const topAssister = sortedAssists[0] && sortedAssists[0].assists > 0 ? sortedAssists[0] : null;
+    
+    return { topScorer, topAssister };
+}
+
 // 7. CHECK SEASON WINNER CELEBRATION
 function checkSeasonChampion() {
     const sorted = [...leagueTeams].sort((a, b) => {
@@ -1837,6 +1866,8 @@ function checkSeasonChampion() {
     document.getElementById('sbTimeDisplay').innerText = "끝";
     
     // 1. 명예의 전당에 전적 기록 등록
+    const { topScorer, topAssister } = getTopScorerAndAssister();
+    
     const record = {
         year: leagueYear,
         jeonbukRank: jbRank,
@@ -1846,14 +1877,38 @@ function checkSeasonChampion() {
             l: jb.l,
             pts: jb.pts
         },
-        champion: champion.name
+        champion: champion.name,
+        topScorer: (topScorer && topScorer.teamId === 'jeonbuk') ? { name: topScorer.name, goals: topScorer.goals } : null,
+        topAssister: (topAssister && topAssister.teamId === 'jeonbuk') ? { name: topAssister.name, assists: topAssister.assists } : null
     };
     
     // 중복 방지 검증 후 추가
     if (!hallOfFame.some(r => r.year === leagueYear)) {
         hallOfFame.push(record);
+        
+        // Accumulate Club Career Stats
+        if (!careerStats) careerStats = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+        careerStats.w += jb.w;
+        careerStats.d += jb.d;
+        careerStats.l += jb.l;
+        careerStats.gf += jb.gf;
+        careerStats.ga += jb.ga;
+        
+        // Accumulate player goals (Jeonbuk players only)
+        const playersArray = Object.values(leaguePlayerStats || {});
+        playersArray.forEach(p => {
+            if (p.teamId === 'jeonbuk' && p.goals > 0) {
+                if (!careerStats.playerGoals) careerStats.playerGoals = {};
+                if (!careerStats.playerGoals[p.id]) {
+                    careerStats.playerGoals[p.id] = { name: p.name, goals: 0 };
+                }
+                careerStats.playerGoals[p.id].goals += p.goals;
+            }
+        });
+        
         try {
             localStorage.setItem('fc_star_hall_of_fame', JSON.stringify(hallOfFame));
+            localStorage.setItem('fc_star_career_stats', JSON.stringify(careerStats));
         } catch (e) {}
     }
     
@@ -1999,6 +2054,18 @@ function renderHallOfFame() {
             badgeIcon = '<i class="fa-solid fa-shield-halved"></i>';
         }
         
+        let awardHtml = '';
+        if (record.topScorer || record.topAssister) {
+            awardHtml += `<div class="fame-card-awards" style="margin-top: 0.6rem; padding-top: 0.5rem; border-top: 1px dashed rgba(255, 255, 255, 0.1); font-size: 0.76rem; display: flex; flex-direction: column; gap: 4px; line-height: 1.4;">`;
+            if (record.topScorer) {
+                awardHtml += `<div style="color: #ffd700;"><i class="fa-solid fa-soccer-ball" style="margin-right: 4px;"></i> 리그 득점왕: <strong>${record.topScorer.name}</strong> (${record.topScorer.goals}골)</div>`;
+            }
+            if (record.topAssister) {
+                awardHtml += `<div style="color: #00ff87;"><i class="fa-solid fa-star" style="margin-right: 4px;"></i> 리그 도움왕: <strong>${record.topAssister.name}</strong> (${record.topAssister.assists}도움)</div>`;
+            }
+            awardHtml += `</div>`;
+        }
+        
         card.innerHTML = `
             <div class="fame-card-badge ${badgeClass}">
                 ${badgeIcon}
@@ -2011,11 +2078,93 @@ function renderHallOfFame() {
                     <span>시즌 전적: <strong>11전 ${record.jeonbukRecord.w}승 ${record.jeonbukRecord.d}무 ${record.jeonbukRecord.l}패</strong></span>
                     <span>시즌 우승팀: <strong>${record.champion}</strong></span>
                 </div>
+                ${awardHtml}
             </div>
         `;
         
         gridEl.appendChild(card);
     });
+    
+    renderCareerStats();
+}
+
+function renderCareerStats() {
+    const dashboardEl = document.getElementById('careerStatsDashboard');
+    if (!dashboardEl) return;
+    
+    if (hallOfFame.length === 0) {
+        dashboardEl.style.display = 'none';
+        return;
+    }
+    
+    dashboardEl.style.display = 'block';
+    
+    const gd = careerStats.gf - careerStats.ga;
+    const gdSign = gd > 0 ? `+${gd}` : gd;
+    
+    // Sort players for top 3 scorers
+    const topScorers = Object.values(careerStats.playerGoals || {})
+        .filter(p => p.goals > 0)
+        .sort((a, b) => b.goals - a.goals)
+        .slice(0, 3);
+        
+    let scorersHtml = '';
+    if (topScorers.length === 0) {
+        scorersHtml = `<div style="text-align: center; color: #64748b; padding: 10px; font-size: 0.8rem;">득점 기록 없음</div>`;
+    } else {
+        scorersHtml = topScorers.map((p, idx) => {
+            let medalColor = '#ffd700'; // 1st
+            if (idx === 1) medalColor = '#c0c0c0'; // 2nd
+            if (idx === 2) medalColor = '#cd7f32'; // 3rd
+            return `
+                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.82rem; padding: 6px 10px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid rgba(255,255,255,0.02);">
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-medal" style="color: ${medalColor};"></i>
+                        <strong>${p.name}</strong>
+                    </span>
+                    <span style="color: #ffd700; font-weight: 800;">${p.goals}골</span>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    dashboardEl.innerHTML = `
+        <div style="background: linear-gradient(135deg, rgba(8, 10, 16, 0.6) 0%, rgba(15, 19, 34, 0.6) 100%); border: 1.5px solid rgba(255, 215, 0, 0.35); border-radius: 20px; padding: 1.2rem; margin-bottom: 1.5rem; box-shadow: var(--card-shadow); backdrop-filter: blur(10px);">
+            <h3 style="font-size: 1.1rem; font-weight: 900; background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-chart-line" style="color: #ffd700;"></i> 클럽 통산 누적 성적 (All-Time Career Stats)
+            </h3>
+            
+            <div style="display: flex; gap: 1.2rem; flex-wrap: wrap;">
+                <!-- Left Column: Match & Goal Stats -->
+                <div style="flex: 1.3; min-width: 250px; display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.6rem;">
+                    <div style="background: rgba(255,255,255,0.03); padding: 0.6rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); text-align: center; display: flex; flex-direction: column; justify-content: center;">
+                        <div style="font-size: 0.72rem; color: #94a3b8; margin-bottom: 0.2rem;">통산 경기</div>
+                        <div style="font-size: 1.3rem; font-weight: 900; color: #fff;">${careerStats.w + careerStats.d + careerStats.l}전</div>
+                    </div>
+                    <div style="background: rgba(0, 255, 135, 0.04); padding: 0.6rem; border-radius: 12px; border: 1px solid rgba(0, 255, 135, 0.12); text-align: center; display: flex; flex-direction: column; justify-content: center;">
+                        <div style="font-size: 0.72rem; color: #00ff87; margin-bottom: 0.2rem;">통산 전적</div>
+                        <div style="font-size: 1.05rem; font-weight: 800; color: #fff; margin-top: 0.1rem;">${careerStats.w}승 ${careerStats.d}무 ${careerStats.l}패</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); padding: 0.6rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); text-align: center; display: flex; flex-direction: column; justify-content: center;">
+                        <div style="font-size: 0.72rem; color: #94a3b8; margin-bottom: 0.2rem;">통산 득/실점</div>
+                        <div style="font-size: 1.05rem; font-weight: 800; color: #fff; margin-top: 0.1rem;">${careerStats.gf}득 / ${careerStats.ga}실</div>
+                    </div>
+                    <div style="background: rgba(255, 215, 0, 0.04); padding: 0.6rem; border-radius: 12px; border: 1px solid rgba(255, 215, 0, 0.12); text-align: center; display: flex; flex-direction: column; justify-content: center;">
+                        <div style="font-size: 0.72rem; color: #ffd700; margin-bottom: 0.2rem;">통산 골득실</div>
+                        <div style="font-size: 1.3rem; font-weight: 900; color: #ffd700;">${gdSign}</div>
+                    </div>
+                </div>
+                
+                <!-- Right Column: Top Scorers -->
+                <div style="flex: 1; min-width: 220px; background: rgba(10,14,26,0.3); border: 1px solid rgba(255,255,255,0.05); padding: 0.8rem; border-radius: 16px; display: flex; flex-direction: column; gap: 0.4rem;">
+                    <h4 style="font-size: 0.82rem; font-weight: 800; color: #ffd700; margin-bottom: 0.2rem; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-fire-flame-curved"></i> 클럽 통산 득점 랭킹 (Top 3)
+                    </h4>
+                    ${scorersHtml}
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 // 10. INITIALIZATION
@@ -2025,6 +2174,15 @@ document.addEventListener('DOMContentLoaded', () => {
     initLeague();           // Initialize K League Standing & Fixtures
     renderUserPoints();     // Sync user gacha points on load
     renderUserLevel();      // Sync user level on load
+    
+    // Register PWA Service Worker
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker registered successfully!', reg))
+                .catch(err => console.error('Service Worker registration failed.', err));
+        });
+    }
     
     // Bind Enter key to quiz input
     const quizInput = document.getElementById('quizAnswerInput');
@@ -2191,7 +2349,8 @@ function saveUserProgress() {
         matchLastDate: matchLastDate,
         leagueYear: leagueYear,
         hallOfFame: hallOfFame,
-        leaguePlayerStats: leaguePlayerStats
+        leaguePlayerStats: leaguePlayerStats,
+        careerStats: careerStats
     };
     
     dbService.saveProgress(currentUser, progressData);
@@ -2228,6 +2387,8 @@ function syncUserDataOnLogin(userData) {
             initLeaguePlayerStats();
         }
         
+        careerStats = userData.careerStats || { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+        
         // Sync local storage so it serves as offline cache
         localStorage.setItem('fc_star_user_points', userPoints.toString());
         localStorage.setItem('fc_star_user_level', userLevel.toString());
@@ -2241,6 +2402,7 @@ function syncUserDataOnLogin(userData) {
         localStorage.setItem('fc_star_league_year', leagueYear.toString());
         localStorage.setItem('fc_star_hall_of_fame', JSON.stringify(hallOfFame));
         localStorage.setItem('fc_star_league_stats', JSON.stringify(leaguePlayerStats));
+        localStorage.setItem('fc_star_career_stats', JSON.stringify(careerStats));
         
         // 개발자 모드 UI 연동 복원
         updateDevModeUI();
@@ -2254,6 +2416,7 @@ function syncUserDataOnLogin(userData) {
         updateMatchPreviewBoard();
         renderLeagueTable();
         renderLeagueStats();
+        renderCareerStats();
         
         // Refresh Auth Badge
         updateAuthBadgeUI();

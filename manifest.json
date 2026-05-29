@@ -1,0 +1,30 @@
+{
+  "name": "FC STAR 축구 카드",
+  "short_name": "FC STAR",
+  "description": "K리그 최강 전북 현대 카드를 모으고 퀴즈를 풀며 나만의 전설적인 스쿼드를 구축해보세요!",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#080a10",
+  "theme_color": "#005a3c",
+  "icons": [
+    {
+      "src": "img/mark_jb.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "img/mark_jb.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "img/mark_jb.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

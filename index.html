@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FC STAR CARD - 축구 카드 수집 게임</title>
     <link rel="stylesheet" href="style.css">
+    <!-- PWA Web App Manifest & iOS App Capabilities -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#005a3c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FC STAR">
+    <link rel="apple-touch-icon" href="img/mark_jb.svg">
     <!-- FontAwesome for Premium Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Firebase Compat SDK Modules (Benchmarked from Racer Game) -->
@@ -376,6 +383,9 @@
                         참가한 시즌: <span id="fameSeasonCount" style="color: #ffd700; font-weight: 800;">0</span>개
                     </div>
                 </div>
+                
+                <!-- Club Career Stats Dashboard -->
+                <div id="careerStatsDashboard" class="career-stats-dashboard" style="display: none; width: 100%;"></div>
                 
                 <div class="fame-grid" id="fameGrid">
                     <!-- Loaded dynamically via app.js -->
