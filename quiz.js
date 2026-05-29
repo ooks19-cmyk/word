@@ -6,6 +6,39 @@ let quizCurrentIndex = 0;
 let quizSolvedCount = 0;
 let isQuizAnswering = false;
 
+// 로컬스토리지로부터 진행 상태 복원 시도
+try {
+    const savedQueue = localStorage.getItem('fc_star_quiz_queue');
+    if (savedQueue) quizQueue = JSON.parse(savedQueue) || [];
+    
+    const savedSolvedCount = localStorage.getItem('fc_star_quiz_solved_count');
+    if (savedSolvedCount !== null) quizSolvedCount = parseInt(savedSolvedCount) || 0;
+    
+    const savedCurrentIndex = localStorage.getItem('fc_star_quiz_current_index');
+    if (savedCurrentIndex !== null) quizCurrentIndex = parseInt(savedCurrentIndex) || 0;
+} catch (e) {
+    console.warn("로컬 퀴즈 진행 상태 복원 실패:", e);
+}
+
+// 퀴즈 진행 상태 저장 및 클라우드 동기화 함수
+function saveQuizState() {
+    try {
+        localStorage.setItem('fc_star_quiz_queue', JSON.stringify(quizQueue));
+        localStorage.setItem('fc_star_quiz_solved_count', quizSolvedCount.toString());
+        localStorage.setItem('fc_star_quiz_current_index', quizCurrentIndex.toString());
+        localStorage.setItem('fc_star_quiz_offset', quizOffset.toString());
+        localStorage.setItem('fc_star_quiz_last_date', quizLastDate);
+        
+        // 로그인 상태인 경우 클라우드에 즉시 백업 저장
+        if (typeof currentUser !== 'undefined' && currentUser) {
+            saveUserProgress();
+        }
+    } catch (e) {
+        console.warn("퀴즈 진행 상태 로컬 저장 실패:", e);
+    }
+}
+
+
 // 한국어 정답 유사도 검증 함수 (동사, 형용사 대략 비슷하게 적어도 정답 판정)
 function checkKoreanAnswer(userAns, correctAns) {
     if (!userAns || !correctAns) return false;
@@ -135,7 +168,7 @@ function initQuizRound() {
         console.log("initQuizRound() 시작");
         if (!QUIZ_WORDS || QUIZ_WORDS.length === 0) {
             showToast("오류: 단어 데이터를 불러오지 못했습니다.");
-            alert("단어 데이터 QUIZ_WORDS가 정의되지 않았거나 비어있습니다. player/quiz_data.js가 정상적으로 로드되었는지 확인해주세요.");
+            alert("단어 데이터 QUIZ_WORDS가 정의되지 않았거나 비어있습니다. quiz_data.js가 정상적으로 로드되었는지 확인해주세요.");
             return;
         }
 
@@ -169,22 +202,21 @@ function initQuizRound() {
         } catch (dateErr) {
             console.warn("날짜 확인 중 오류 발생, 메모리상의 quizOffset을 사용합니다.", dateErr);
         }
-        // 60개의 최신 단어 풀 설정 및 순환 출제 적용
-        const poolSize = Math.min(60, QUIZ_WORDS.length);
+        // 최근 20개의 단어 풀 설정 및 무작위 5개 추출
+        const poolSize = Math.min(20, QUIZ_WORDS.length);
         const recentPool = QUIZ_WORDS.slice(-poolSize).reverse(); // 최신 등록 단어가 우선이 되도록 역순 배치
 
-        if (poolSize <= 10) {
-            quizQueue = [...recentPool];
-            quizOffset = 0;
-        } else {
-            if (quizOffset + 10 > poolSize) {
-                quizOffset = 0; // 60개 단어 범위를 초과하면 다시 최신 단어부터 반복 순환
-            }
-            quizQueue = recentPool.slice(quizOffset, quizOffset + 10);
-            
-            // 다음 라운드를 위해 오프셋을 10만큼 증가
-            quizOffset += 10;
+        // Fisher-Yates 무작위 셔플 알고리즘 적용
+        const shuffled = [...recentPool];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
         }
+        
+        // 무작위 5개 단어를 퀴즈 큐로 선정 (단어가 5개보다 적다면 전체 복사)
+        const selectCount = Math.min(5, shuffled.length);
+        quizQueue = shuffled.slice(0, selectCount);
+        quizOffset = 0; // 더 이상 순차 오프셋은 불필요하므로 0으로 기본화
 
         // Save progress to Firebase or LocalStorage
         try {
@@ -194,15 +226,18 @@ function initQuizRound() {
                 saveUserProgress();
             } else {
                 localStorage.setItem('fc_star_quiz_last_date', todayStr);
-                localStorage.setItem('fc_star_quiz_offset', quizOffset.toString());
+                localStorage.setItem('fc_star_quiz_offset', '0');
             }
         } catch (saveErr) {
-            console.warn("퀴즈 오프셋 저장 실패:", saveErr);
+            console.warn("퀴즈 진행 상태 저장 실패:", saveErr);
         }
         
         quizCurrentIndex = 0;
         quizSolvedCount = 0;
         isQuizAnswering = false;
+
+        // Save State locally & cloud
+        saveQuizState();
 
         // Reset UI displays
         const feedbackBox = document.getElementById('quizFeedbackBox');
@@ -245,16 +280,16 @@ function renderQuizCurrent() {
             qWordEl.innerText = currentItem.word || "";
         }
         
-        // Set Progress text e.g. "1 / 10"
+        // Set Progress text e.g. "1 / 5"
         const qProgTextEl = document.getElementById('quizProgressText');
         if (qProgTextEl) {
-            qProgTextEl.innerText = `${quizSolvedCount + 1} / 10`;
+            qProgTextEl.innerText = `${Math.min(5, quizSolvedCount + 1)} / 5`;
         }
         
         // Set Progress bar percentage width
         const qBarEl = document.getElementById('quizProgressBar');
         if (qBarEl) {
-            const pct = (quizSolvedCount / 10) * 100;
+            const pct = (quizSolvedCount / 5) * 100;
             qBarEl.style.width = `${pct}%`;
         }
 
@@ -321,10 +356,10 @@ function submitQuizAnswer() {
                     // Remove correctly solved word from the active queue
                     quizQueue.splice(quizCurrentIndex, 1);
                     
-                    if (quizSolvedCount >= 10) {
+                    if (quizSolvedCount >= 5) {
                         // QUIZ COMPLETED!
                         userPoints += 1;
-                        userLevel += 1; // 10문제를 완전 풀이 시 레벨 1 증가
+                        userLevel += 1; // 5문제를 완전 풀이 시 레벨 1 증가
                         
                         try {
                             localStorage.setItem('fc_star_user_points', userPoints.toString());
@@ -344,8 +379,8 @@ function submitQuizAnswer() {
                         playSound('reveal');
                         createSparkParticles(true, '#ffd700');
                         
-                        // Auto-save user data to cloud after quiz rewards
-                        saveUserProgress();
+                        // Save State locally & cloud
+                        saveQuizState();
                     } else {
                         // Proceed to next
                         isQuizAnswering = false;
@@ -354,6 +389,9 @@ function submitQuizAnswer() {
                         if (quizCurrentIndex >= quizQueue.length) {
                             quizCurrentIndex = 0;
                         }
+                        
+                        // Save State locally & cloud
+                        saveQuizState();
                         
                         renderQuizCurrent();
                     }
@@ -410,15 +448,6 @@ function passQuizQuestion() {
         
         playSound('rumble');
 
-        // Show correct answer in feedback box
-        const feedbackBox = document.getElementById('quizFeedbackBox');
-        const feedbackMsg = document.getElementById('feedbackMessage');
-        
-        if (feedbackBox && feedbackMsg) {
-            feedbackMsg.innerHTML = `정답은 <strong>${currentItem.meaning}</strong> 입니다! 단어는 이번 라운드 후반부에 다시 출제됩니다.`;
-            feedbackBox.style.display = 'flex';
-        }
-
         // Move passed word to the end of queue to re-appear later
         const passedWord = quizQueue[quizCurrentIndex];
         quizQueue.push(passedWord);
@@ -430,16 +459,26 @@ function passQuizQuestion() {
             quizCurrentIndex = 0;
         }
 
-        setTimeout(() => {
-            try {
-                if (feedbackBox) feedbackBox.style.display = 'none';
+        // Save State locally & cloud
+        saveQuizState();
+
+        // Show correct answer in feedback box with click-to-close handler
+        const feedbackBox = document.getElementById('quizFeedbackBox');
+        const feedbackMsg = document.getElementById('feedbackMessage');
+        
+        if (feedbackBox && feedbackMsg) {
+            feedbackMsg.innerHTML = `정답은 <strong>${currentItem.meaning}</strong> 입니다!<br><span style="font-size: 0.8rem; opacity: 0.8; font-weight: normal; display: block; margin-top: 5px; color: #ffd700;"><i class="fa-solid fa-hand-pointer"></i> 화면(여기)을 누르면 다음 문제로 진행합니다</span>`;
+            feedbackBox.style.display = 'flex';
+            feedbackBox.style.cursor = 'pointer';
+            
+            // 클릭 이벤트 리스너 바인딩
+            feedbackBox.onclick = () => {
+                feedbackBox.style.display = 'none';
+                feedbackBox.onclick = null; // 이벤트 제거
                 isQuizAnswering = false;
                 renderQuizCurrent();
-            } catch(innerErr) {
-                console.error("패스 복구 타이머 오류:", innerErr);
-                isQuizAnswering = false;
-            }
-        }, 2200); // Give user enough time to read and memorize the correct answer
+            };
+        }
     } catch(e) {
         console.error("passQuizQuestion 에러 발생:", e);
         alert("퀴즈 패스(Pass) 중 에러 발생: " + e.message);

@@ -7,9 +7,9 @@ const ASSETS = [
   './sound.js',
   './quiz.js',
   './manifest.json',
-  './player/player_data.js',
-  './player/quiz_data.js',
-  './player/other_teams_data.js',
+  './player_data.js',
+  './quiz_data.js',
+  './other_teams_data.js',
   './img/mark_jb.svg'
 ];
 

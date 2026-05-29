@@ -56,6 +56,7 @@ let isFlipped = false;
 let quizOffset = 0;
 let quizLastDate = "";
 let matchLastDate = "";
+let matchTodayCount = 0;
 
 // REAL-TIME USER AUTH & DATA SYNC STATE
 let currentUser = null;
@@ -120,7 +121,17 @@ function switchTab(tabName) {
         updateMatchPreviewBoard();
         renderLeagueTable();
     } else if (tabName === 'quiz') {
-        initQuizRound();
+        if (!quizQueue || quizQueue.length === 0) {
+            initQuizRound();
+        } else {
+            const completeOverlay = document.getElementById('quizCompleteOverlay');
+            if (quizSolvedCount >= 5) {
+                if (completeOverlay) completeOverlay.style.display = 'flex';
+            } else {
+                if (completeOverlay) completeOverlay.style.display = 'none';
+                renderQuizCurrent();
+            }
+        }
         renderUserLevel();
     } else if (tabName === 'fame') {
         renderHallOfFame();
@@ -1207,6 +1218,8 @@ function initLeague() {
         if (savedYear) leagueYear = parseInt(savedYear) || 2026;
         if (savedFame) hallOfFame = JSON.parse(savedFame) || [];
         if (savedMatchDate) matchLastDate = savedMatchDate;
+        const savedMatchTodayCount = localStorage.getItem('fc_star_match_today_count');
+        if (savedMatchTodayCount) matchTodayCount = parseInt(savedMatchTodayCount) || 0;
         
         const savedCareer = localStorage.getItem('fc_star_career_stats');
         if (savedCareer) {
@@ -1296,6 +1309,14 @@ function getTeamEmblemPath(teamId) {
 }
 
 function updateMatchPreviewBoard() {
+    // 오늘의 경기 진행 횟수 UI 업데이트
+    const matchTodayCountValEl = document.getElementById('matchTodayCountVal');
+    if (matchTodayCountValEl) {
+        const todayStr = new Date().toLocaleDateString('ko-KR');
+        const displayCount = (matchLastDate === todayStr) ? matchTodayCount : 0;
+        matchTodayCountValEl.innerText = displayCount;
+    }
+
     if (leagueRound > 11) {
         // Season completed
         document.getElementById('matchRoundVal').innerText = "11";
@@ -1394,9 +1415,15 @@ function startMatchSimulation() {
     
     const todayStr = new Date().toLocaleDateString('ko-KR');
     
-    // 일 단위 경기 진행 제한 체크 (개발자 모드 아닐 시 하루 한 경기만 가능)
-    if (!isDeveloperMode && matchLastDate === todayStr) {
-        showToast("⚠️ 경기는 하루에 한 경기만 진행할 수 있습니다! 내일 다시 도전해 주세요.");
+    // 날짜가 변경되었을 경우 오늘의 경기 진행수 초기화
+    if (matchLastDate !== todayStr) {
+        matchTodayCount = 0;
+        localStorage.setItem('fc_star_match_today_count', '0');
+    }
+    
+    // 일 단위 경기 진행 제한 체크 (개발자 모드 아닐 시 하루 3경기만 가능)
+    if (!isDeveloperMode && matchTodayCount >= 3) {
+        showToast("⚠️ 경기는 하루에 최대 3경기만 진행할 수 있습니다! 내일 다시 도전해 주세요.");
         return;
     }
     
@@ -1558,7 +1585,12 @@ function startMatchSimulation() {
         leagueRound += 1;
 
         // 경기 완료 데이터 및 날짜 저장
-        matchLastDate = todayStr;
+        if (matchLastDate !== todayStr) {
+            matchLastDate = todayStr;
+            matchTodayCount = 1;
+        } else {
+            matchTodayCount += 1;
+        }
         
         // 경기 승패 무관 1 FP 지급
         userPoints += 1;
@@ -1567,6 +1599,7 @@ function startMatchSimulation() {
             localStorage.setItem('fc_star_league_teams', JSON.stringify(leagueTeams));
             localStorage.setItem('fc_star_league_round', leagueRound.toString());
             localStorage.setItem('fc_star_match_last_date', matchLastDate);
+            localStorage.setItem('fc_star_match_today_count', matchTodayCount.toString());
             localStorage.setItem('fc_star_user_points', userPoints.toString());
         } catch(e) {}
 
@@ -1727,7 +1760,12 @@ function startMatchSimulation() {
             leagueRound += 1;
             
             // 하루 제한용 일시 기록
-            matchLastDate = todayStr;
+            if (matchLastDate !== todayStr) {
+                matchLastDate = todayStr;
+                matchTodayCount = 1;
+            } else {
+                matchTodayCount += 1;
+            }
             
             // 경기 승패 무관 1 FP 지급
             userPoints += 1;
@@ -1736,6 +1774,7 @@ function startMatchSimulation() {
                 localStorage.setItem('fc_star_league_teams', JSON.stringify(leagueTeams));
                 localStorage.setItem('fc_star_league_round', leagueRound.toString());
                 localStorage.setItem('fc_star_match_last_date', matchLastDate);
+                localStorage.setItem('fc_star_match_today_count', matchTodayCount.toString());
                 localStorage.setItem('fc_star_user_points', userPoints.toString());
             } catch(e) {
                 console.warn("Saving standing failed", e);
@@ -1760,7 +1799,7 @@ function startMatchSimulation() {
                 // Update match preview for next round
                 setTimeout(() => {
                     updateMatchPreviewBoard();
-                    showToast(`🏆 경기 완료 보상으로 +1 FP 획득! (하루 한 경기 제한)`);
+                    showToast(`🏆 경기 완료 보상으로 +1 FP 획득! (하루 최대 3경기 제한)`);
                 }, 2000);
             }
             
@@ -2346,7 +2385,11 @@ function saveUserProgress() {
         leagueTeams: leagueTeams,
         quizOffset: quizOffset,
         quizLastDate: quizLastDate,
+        quizQueue: quizQueue,
+        quizSolvedCount: quizSolvedCount,
+        quizCurrentIndex: quizCurrentIndex,
         matchLastDate: matchLastDate,
+        matchTodayCount: matchTodayCount,
         leagueYear: leagueYear,
         hallOfFame: hallOfFame,
         leaguePlayerStats: leaguePlayerStats,
@@ -2377,7 +2420,11 @@ function syncUserDataOnLogin(userData) {
         // Firebase에 보관된 퀴즈 진도 데이터 동기화
         quizOffset = userData.quizOffset || 0;
         quizLastDate = userData.quizLastDate || "";
+        quizQueue = userData.quizQueue || [];
+        quizSolvedCount = userData.quizSolvedCount || 0;
+        quizCurrentIndex = userData.quizCurrentIndex || 0;
         matchLastDate = userData.matchLastDate || "";
+        matchTodayCount = userData.matchTodayCount || 0;
         
         // 리그 연도 및 명예의 전당 클라우드 데이터 복원
         leagueYear = userData.leagueYear || 2026;
@@ -2398,7 +2445,11 @@ function syncUserDataOnLogin(userData) {
         localStorage.setItem('fc_star_league_round', leagueRound.toString());
         localStorage.setItem('fc_star_quiz_offset', quizOffset.toString());
         localStorage.setItem('fc_star_quiz_last_date', quizLastDate);
+        localStorage.setItem('fc_star_quiz_queue', JSON.stringify(quizQueue));
+        localStorage.setItem('fc_star_quiz_solved_count', quizSolvedCount.toString());
+        localStorage.setItem('fc_star_quiz_current_index', quizCurrentIndex.toString());
         localStorage.setItem('fc_star_match_last_date', matchLastDate);
+        localStorage.setItem('fc_star_match_today_count', matchTodayCount.toString());
         localStorage.setItem('fc_star_league_year', leagueYear.toString());
         localStorage.setItem('fc_star_hall_of_fame', JSON.stringify(hallOfFame));
         localStorage.setItem('fc_star_league_stats', JSON.stringify(leaguePlayerStats));

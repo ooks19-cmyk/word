@@ -110,14 +110,14 @@
                     </div>
                     <div class="deck-count">
                         <span id="quizLevelWidget" onclick="developerSetLevel()" title="클릭하여 레벨 강제 설정 (개발용)" style="margin-right: 10px; cursor: pointer;">레벨: <strong id="quizLevelVal" style="color: #ffd700; font-weight: 800;">1</strong></span>
-                        진행도: <span id="quizProgressText" style="color: #ffd700; font-weight: 800;">1 / 10</span>
+                        진행도: <span id="quizProgressText" style="color: #ffd700; font-weight: 800;">1 / 5</span>
                     </div>
                 </div>
 
                 <!-- Quiz Progress Bar -->
                 <div class="quiz-progress-wrapper">
                     <div class="quiz-progress-track">
-                        <div class="quiz-progress-bar" id="quizProgressBar" style="width: 10%;"></div>
+                        <div class="quiz-progress-bar" id="quizProgressBar" style="width: 0%;"></div>
                     </div>
                 </div>
 
@@ -159,7 +159,7 @@
                             <i class="fa-solid fa-medal success-medal"></i>
                         </div>
                         <h2>퀴즈 완료! 🎉</h2>
-                        <p>10문제를 모두 올바르게 해결하였습니다.</p>
+                        <p>5문제를 모두 올바르게 해결하였습니다.</p>
                         <div class="reward-box">
                             <i class="fa-solid fa-coins reward-coin"></i>
                             <span>+1 FP (가차 포인트) 획득!</span>
@@ -250,7 +250,7 @@
                     <div class="squad-header">
                         <h2 class="deck-title"><i class="fa-solid fa-circle-play" style="margin-right: 10px; color: #ffd700;"></i>K리그1 라운드 시뮬레이터</h2>
                         <div class="deck-count" id="matchRoundContainer">
-                            라운드: <span id="matchRoundVal">1</span>/11
+                            라운드: <span id="matchRoundVal">1</span>/11 | 오늘 경기: <span id="matchTodayCountVal">0</span>/3
                         </div>
                     </div>
                     
@@ -524,9 +524,9 @@
         </div>
     </div>
 
-    <script src="player/player_data.js"></script>
-    <script src="player/quiz_data.js"></script>
-    <script src="player/other_teams_data.js"></script>
+    <script src="player_data.js"></script>
+    <script src="quiz_data.js"></script>
+    <script src="other_teams_data.js"></script>
     <script src="db.js"></script>
     <script src="sound.js"></script>
     <script src="quiz.js"></script>
