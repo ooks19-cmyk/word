@@ -1557,6 +1557,31 @@ main {
     color: var(--text-light);
 }
 
+.league-team-col {
+    text-align: left;
+    font-weight: 700;
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 4px 8px !important;
+    white-space: nowrap;
+}
+
+.league-team-col img {
+    height: 20px;
+    width: 20px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    flex-shrink: 0;
+}
+
+.league-team-col span {
+    display: inline-block;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
 .league-table tbody tr {
     transition: all 0.3s;
 }
@@ -1619,6 +1644,35 @@ main {
     
     .league-table-panel {
         flex: 1;
+    }
+}
+
+/* K-League Table Mobile Responsiveness */
+@media (max-width: 640px) {
+    .league-table th, 
+    .league-table td {
+        padding: 0.5rem 0.2rem !important;
+        font-size: 0.72rem !important;
+    }
+    
+    .league-team-col {
+        gap: 4px !important;
+        padding: 4px 2px !important;
+    }
+    
+    .league-team-col img {
+        height: 16px !important;
+        width: 16px !important;
+    }
+
+    /* Hide Win, Draw, Loss columns to maximize space for team name */
+    .league-table th:nth-child(5), /* 승 */
+    .league-table td:nth-child(5),
+    .league-table th:nth-child(6), /* 무 */
+    .league-table td:nth-child(6),
+    .league-table th:nth-child(7), /* 패 */
+    .league-table td:nth-child(7) {
+        display: none !important;
     }
 }
 

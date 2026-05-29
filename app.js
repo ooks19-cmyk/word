@@ -1268,6 +1268,24 @@ function resetLeagueSeason() {
     saveUserProgress();
 }
 
+function getTeamEmblemPath(teamId) {
+    const mapping = {
+        "jeonbuk": "img/mark_jb.svg",
+        "ulsan": "img/mark_ulsan.png",
+        "seoul": "img/mark_seoul.png",
+        "pohang": "img/mark_pohang.png",
+        "gangwon": "img/mark_gangwon.png",
+        "gwangju": "img/mark_gwangju.png",
+        "gimcheon": "img/mark_kc.png",
+        "bucheon_fc": "img/mark_buchn.png",
+        "jeju": "img/mark_jeju.png",
+        "daejeon": "img/mark_dj.png",
+        "anyang": "img/mark_anyang.png",
+        "incheon": "img/mark_incheon.png"
+    };
+    return mapping[teamId] || "img/mark_jb.svg";
+}
+
 function updateMatchPreviewBoard() {
     if (leagueRound > 11) {
         // Season completed
@@ -1297,13 +1315,13 @@ function updateMatchPreviewBoard() {
         
         document.getElementById('awayTeamName').innerText = opponent.name;
         document.getElementById('awayTeamOvr').innerText = opponent.rating;
-        document.getElementById('awayEmblem').innerHTML = `<i class="fa-solid fa-shield-halved"></i>`;
+        document.getElementById('awayEmblem').innerHTML = `<img src="${getTeamEmblemPath(opponent.id)}" alt="${opponent.name}" class="match-emblem-img" style="height: 48px; width: 48px; filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.35)); object-fit: contain;">`;
         
         document.getElementById('matchVenueDisplay').innerText = "홈 경기 (전주성) - HOME ADVANTAGE +3 OVR";
     } else {
         document.getElementById('homeTeamName').innerText = opponent.name;
         document.getElementById('homeTeamOvr').innerText = opponent.rating;
-        document.getElementById('homeEmblem').innerHTML = `<i class="fa-solid fa-shield-halved"></i>`;
+        document.getElementById('homeEmblem').innerHTML = `<img src="${getTeamEmblemPath(opponent.id)}" alt="${opponent.name}" class="match-emblem-img" style="height: 48px; width: 48px; filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.35)); object-fit: contain;">`;
         
         document.getElementById('awayTeamName').innerText = jeonbuk.name;
         document.getElementById('awayTeamOvr').innerText = jeonbuk.rating;
@@ -1341,7 +1359,10 @@ function renderLeagueTable() {
         
         row.innerHTML = `
             <td class="league-row-rank">${rank}</td>
-            <td style="text-align: left; font-weight:700;">${team.name}</td>
+            <td class="league-team-col">
+                <img src="${getTeamEmblemPath(team.id)}" alt="${team.name}">
+                <span>${team.name}</span>
+            </td>
             <td>${team.p}</td>
             <td class="league-row-pts">${team.pts}</td>
             <td>${team.w}</td>

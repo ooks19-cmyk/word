@@ -292,7 +292,6 @@
                 <div class="league-table-panel">
                     <div class="squad-header" style="border-bottom: 1px solid var(--glass-border); padding-bottom: 0.8rem; margin-bottom: 1rem;">
                         <h3 class="deck-title" style="font-size: 1.25rem;" id="leagueTableTitle"><i class="fa-solid fa-ranking-star" style="margin-right: 8px; color: #ffd700;"></i>2026 K리그1 실시간 순위</h3>
-                        <button class="tab-btn" onclick="resetLeagueSeason()" style="font-size: 0.75rem; padding: 0.3rem 0.8rem; border-radius: 12px; background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); color: #ff8888; font-weight:700; cursor:pointer;">시즌 리셋</button>
                     </div>
                     
                     <div class="league-table-wrapper">
@@ -356,6 +355,13 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+
+                    <!-- Season Reset Button relocated to the absolute bottom of the panel -->
+                    <div style="display: flex; justify-content: flex-end; margin-top: 1rem; padding-right: 0.2rem;">
+                        <button class="tab-btn" onclick="resetLeagueSeason()" style="white-space: nowrap; font-size: 0.72rem; padding: 0.35rem 0.8rem; border-radius: 12px; background: rgba(220, 38, 38, 0.08); border: 1px solid rgba(220, 38, 38, 0.2); color: #ff8888; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                            <i class="fa-solid fa-arrow-rotate-left"></i> 시즌 리셋
+                        </button>
                     </div>
                 </div>
             </div>
