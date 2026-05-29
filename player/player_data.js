@@ -50,6 +50,31 @@ const CARDS_DATABASE = {
             phy: 62
         }
     },
+    "lee_kang_in": {
+        id: "lee_kang_in",
+        name: "이강인",
+        rating: 86,
+        position: "RW",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "PARIS SG",
+        image: "player/이강인.png",
+        rarity: "legend",
+        description: "세계 최고의 명문 구단 중 하나인 파리 생제르맹(PSG)에서 활약 중인 대한민국의 대표 미드필더입니다. 압도적인 탈압박과 전매특허인 왼발 정밀 크로스, 그리고 그라운드를 종횡무진하는 마술 같은 시야로 경기를 주도하는 월드클래스 천재 크랙입니다.",
+        theme: {
+            primary: "#0052b4",   // PSG 로얄 블루
+            secondary: "#e30613", // PSG 레드
+            glow: "#ffd700"       // 골드 아우라 광채
+        },
+        stats: {
+            pac: 83,
+            sho: 82,
+            pas: 89,
+            dri: 89,
+            def: 45,
+            phy: 68
+        }
+    },
     "oberdan": {
         id: "oberdan",
         name: "오베르단",

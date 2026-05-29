@@ -2661,7 +2661,7 @@ function checkLevelUpRewards(level) {
         showLevelRewardModal(
             "🚀 특별 목표 알림 🚀",
             "Lv. 2 달성을 축하합니다!",
-            "레벨 10이 되면 전북 현대의 슈퍼스타 <strong>'이승우'</strong> 선수카드를 즉시 받으실 수 있습니다!<br><br>열심히 단어 공부를 하고 특별한 혜택을 쟁취해보세요!"
+            "레벨 10이 되면 특급 윙어 <strong>'이승우'</strong>, 레벨 20이 되면 월드클래스 <strong>'손흥민'</strong>, 레벨 30이 되면 파리의 마술사 <strong>'이강인'</strong> 전설 카드 등 특별한 보상을 즉시 받으실 수 있습니다!<br><br>열심히 단어 공부를 하고 특별한 혜택을 쟁취해보세요!"
         );
     } else if (level > 0 && level % 10 === 0) {
         let cardId = "";
@@ -2671,6 +2671,8 @@ function checkLevelUpRewards(level) {
             cardId = "lee_seung_woo";
         } else if (level === 20) {
             cardId = "son_heung_min";
+        } else if (level === 30) {
+            cardId = "lee_kang_in";
         } else {
             // Award random card
             if (typeof CARDS_DATABASE !== 'undefined') {
@@ -2716,6 +2718,8 @@ function checkLevelUpRewards(level) {
                 awardMessage = `축하합니다! 레벨 10 도달 기념으로 전북 현대 최고의 특급 윙어 <strong>'이승우'</strong> 선수카드가 지급되었습니다!<br><br>${detailMsg}`;
             } else if (level === 20) {
                 awardMessage = `축하합니다! 레벨 20 도달 기념으로 대한민국 최고의 월드클래스 슈퍼스타 <strong>'손흥민'</strong> 선수카드가 지급되었습니다!<br><br>${detailMsg}`;
+            } else if (level === 30) {
+                awardMessage = `축하합니다! 레벨 30 도달 기념으로 파리 생제르맹(PSG)의 보석이자 천재 미드필더 <strong>'이강인'</strong> 전설 카드가 지급되었습니다!<br><br>${detailMsg}`;
             } else {
                 awardMessage = `축하합니다! 레벨 ${level} 도달 기념으로 K리그 최고의 스타 <strong>'${cardObj.name}'</strong> 선수카드가 무작위 특별 보상으로 지급되었습니다!<br><br>${detailMsg}`;
             }
