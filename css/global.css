@@ -1,0 +1,461 @@
+/* css/global.css - FC STAR CARD Global Layout & Base Styling */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&family=Outfit:wght@300;400;600;700;800&display=swap');
+
+:root {
+    --bg-primary: #080a10;
+    --bg-secondary: #0f1322;
+    --accent-gold: #ffd700;
+    --accent-gold-glow: rgba(255, 215, 0, 0.4);
+    --gold-gradient: linear-gradient(135deg, #ffd700 0%, #b8860b 50%, #ffd700 100%);
+    --card-gold-bg: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(184, 134, 11, 0.05) 50%, rgba(255, 215, 0, 0.02) 100%);
+    --text-light: #f3f4f6;
+    --text-muted: #9ca3af;
+    --card-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.08);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Outfit', 'Montserrat', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background: radial-gradient(circle at 50% 0%, #151c33 0%, var(--bg-primary) 70%);
+    color: var(--text-light);
+    min-height: 100vh;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    width: 100%;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(8, 10, 16, 0.8);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.5rem;
+    font-weight: 800;
+    background: var(--gold-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.logo i {
+    background: var(--gold-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.logo-emblem {
+    height: 38px;
+    width: 38px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 6px rgba(0, 255, 135, 0.5));
+    animation: emblemPulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes emblemPulse {
+    0% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(0, 255, 135, 0.4)); }
+    100% { transform: scale(1.05); filter: drop-shadow(0 0 12px rgba(0, 255, 135, 0.7)); }
+}
+
+.nav-tabs {
+    display: flex;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.25rem;
+    border-radius: 30px;
+    border: 1px solid var(--glass-border);
+    position: fixed;
+    top: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 101;
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 0.6rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tab-btn:hover {
+    color: var(--text-light);
+}
+
+.tab-btn.active {
+    background: var(--gold-gradient);
+    color: #000;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+}
+
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.page-section {
+    display: none;
+    width: 100%;
+    animation: fadeIn 0.6s ease-out forwards;
+}
+
+.page-section.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Toast Notification */
+.toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: rgba(15, 19, 34, 0.9);
+    border: 1px solid var(--accent-gold);
+    color: #fff;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 15px rgba(255,215,0,0.1);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.toast i {
+    color: #ffd700;
+    font-size: 1.2rem;
+}
+
+/* Header Authentication Account Button */
+.header-auth-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-border);
+    color: var(--text-muted);
+    padding: 0.55rem 1.3rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.header-auth-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255,255,255,0.05);
+}
+
+.header-auth-btn.logged-in {
+    background: rgba(0, 255, 135, 0.06);
+    border-color: rgba(0, 255, 135, 0.35);
+    color: #00ff87;
+    box-shadow: 0 0 15px rgba(0, 255, 135, 0.15);
+}
+
+.header-auth-btn.logged-in:hover {
+    background: rgba(0, 255, 135, 0.12);
+    border-color: rgba(0, 255, 135, 0.6);
+    box-shadow: 0 0 25px rgba(0, 255, 135, 0.3);
+}
+
+/* Auth Modal Specific Layout Tweaks */
+.auth-modal-drawer {
+    max-width: 440px !important;
+    height: auto !important;
+    border-radius: 24px !important;
+    border: 2px solid var(--glass-border) !important;
+    background: linear-gradient(135deg, rgba(10, 14, 26, 0.95) 0%, rgba(20, 29, 51, 0.98) 100%) !important;
+    position: fixed;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) scale(0.9) !important;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 50px rgba(255, 215, 0, 0.03) !important;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    pointer-events: none;
+}
+
+.drawer-overlay.active .auth-modal-drawer {
+    transform: translate(-50%, -50%) scale(1) !important;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.auth-modal-content {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 2rem 2.2rem 2.2rem !important;
+}
+
+.auth-modal-content input {
+    background: rgba(8, 10, 16, 0.8) !important;
+    border: 1.5px solid var(--glass-border) !important;
+    border-radius: 12px !important;
+    padding: 0.85rem 1.1rem !important;
+    color: #fff !important;
+    font-size: 1.05rem !important;
+    font-weight: 600 !important;
+    width: 100% !important;
+    transition: all 0.3s !important;
+}
+
+.auth-modal-content input:focus {
+    border-color: #ffd700 !important;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.2) !important;
+    background: rgba(8, 10, 16, 0.95) !important;
+}
+
+/* Premium Developer Mode Switch Styling */
+.dev-slider::before {
+    position: absolute;
+    content: "";
+    height: 12px;
+    width: 12px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+}
+input:checked + .dev-slider {
+    background-color: #ef4444 !important;
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.7);
+    border-color: rgba(239, 68, 68, 0.5) !important;
+}
+input:checked + .dev-slider::before {
+    transform: translateX(14px);
+}
+
+/* ==========================================================================
+   MOBILE RESPONSIVE OVERRIDES
+   ========================================================================== */
+
+/* 1. Bottom Navigation Bar */
+@media (max-width: 768px) {
+    body {
+        height: 100vh !important;
+        height: 100dvh !important;
+        overflow: hidden !important;
+        padding-bottom: 0 !important;
+    }
+    
+    main {
+        flex: 1 !important;
+        width: 100% !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 90px !important;
+    }
+    
+    header {
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 0.5rem 1rem !important;
+        gap: 0 !important;
+        flex-wrap: nowrap !important;
+        height: 52px !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: rgba(8, 10, 16, 0.98) !important;
+    }
+    
+    .logo {
+        order: 1 !important;
+        margin-bottom: 0 !important;
+    }
+    
+    .logo span {
+        display: none !important; /* Hide "FC STAR CARD" text on mobile */
+    }
+    
+    .logo-emblem {
+        height: 30px !important;
+        width: 30px !important;
+    }
+    
+    .header-auth-btn {
+        order: 3 !important;
+        margin-bottom: 0 !important;
+        padding: 0.35rem 0.7rem !important;
+        font-size: 0.78rem !important;
+        height: 28px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.4rem !important;
+    }
+
+    .header-points {
+        order: 2 !important;
+        width: auto !important;
+        justify-content: center !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        padding: 0.35rem 0.7rem !important;
+        font-size: 0.78rem !important;
+        height: 28px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    
+    .nav-tabs {
+        position: fixed !important;
+        bottom: 0 !important;
+        top: auto !important;
+        left: 0 !important;
+        transform: none !important;
+        width: 100% !important;
+        background: rgba(10, 14, 26, 0.95) !important;
+        backdrop-filter: blur(12px) !important;
+        border-top: 1px solid var(--glass-border) !important;
+        border-radius: 0 !important;
+        padding: 0.5rem 0 !important;
+        margin: 0 !important;
+        display: flex !important;
+        justify-content: space-around !important;
+        z-index: 1000 !important;
+        box-shadow: 0 -5px 20px rgba(0,0,0,0.5) !important;
+    }
+    
+    .tab-btn {
+        flex-direction: column;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        padding: 0.3rem;
+        border-radius: 10px;
+        width: 18%;
+    }
+    
+    .tab-btn i {
+        margin-right: 0 !important;
+        margin-bottom: 4px;
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 640px) {
+    header {
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 0.4rem 0.8rem !important;
+        gap: 0 !important;
+        flex-wrap: nowrap !important;
+        height: 48px !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: rgba(8, 10, 16, 0.98) !important;
+    }
+}
+
+@media (max-width: 480px) {
+    main {
+        padding: 1rem;
+    }
+    .auth-modal-drawer {
+        width: 90% !important;
+        max-width: 90% !important;
+    }
+}
+
+/* 3. Ultra Small Screens (360x800 Mobile Optimization) */
+@media (max-width: 380px) {
+    main {
+        padding: 0.5rem;
+    }
+    
+    header {
+        padding: 0.35rem 0.6rem !important;
+        height: 44px !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: rgba(8, 10, 16, 0.98) !important;
+    }
+    
+    .logo-emblem {
+        height: 26px !important;
+        width: 26px !important;
+    }
+    
+    .header-auth-btn {
+        padding: 0.3rem 0.5rem !important;
+        font-size: 0.72rem !important;
+        height: 24px !important;
+    }
+    
+    .header-points {
+        padding: 0.3rem 0.5rem !important;
+        font-size: 0.72rem !important;
+        height: 24px !important;
+    }
+    
+    .nav-tabs {
+        padding: 0.3rem 0;
+    }
+    
+    .tab-btn {
+        width: 16%;
+        font-size: 0.65rem;
+        padding: 0.2rem;
+    }
+    
+    .tab-btn i {
+        font-size: 1rem;
+        margin-bottom: 2px;
+    }
+}

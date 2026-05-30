@@ -1,7 +1,13 @@
-const CACHE_NAME = 'fc-star-v13';
+const CACHE_NAME = 'fc-star-v22';
 const ASSETS = [
   './index.html',
   './style.css',
+  './css/global.css',
+  './css/card.css',
+  './css/pack.css',
+  './css/squad.css',
+  './css/quiz.css',
+  './css/match.css',
   './app.js',
   './db.js',
   './sound.js',

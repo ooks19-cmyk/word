@@ -26,26 +26,6 @@
             <img src="img/mark_jb.svg" alt="전북 현대" class="logo-emblem">
             <span>FC STAR CARD</span>
         </div>
-        <div class="nav-tabs">
-            <button class="tab-btn active" id="tabPackBtn" onclick="switchTab('pack')">
-                <i class="fa-solid fa-box-open" style="margin-right: 6px;"></i>카드 뽑기
-            </button>
-            <button class="tab-btn" id="tabQuizBtn" onclick="switchTab('quiz')">
-                <i class="fa-solid fa-graduation-cap" style="margin-right: 6px;"></i>단어 퀴즈
-            </button>
-            <button class="tab-btn" id="tabDeckBtn" onclick="switchTab('deck')">
-                <i class="fa-solid fa-id-card" style="margin-right: 6px;"></i>내 컬렉션 (덱)
-            </button>
-            <button class="tab-btn" id="tabSquadBtn" onclick="switchTab('squad')">
-                <i class="fa-solid fa-people-group" style="margin-right: 6px;"></i>포메이션
-            </button>
-            <button class="tab-btn" id="tabMatchBtn" onclick="switchTab('match')">
-                <i class="fa-solid fa-gamepad" style="margin-right: 6px;"></i>경기 진행
-            </button>
-            <button class="tab-btn" id="tabFameBtn" onclick="switchTab('fame')">
-                <i class="fa-solid fa-award" style="margin-right: 6px;"></i>명예의 전당
-            </button>
-        </div>
         
         <!-- 개발자 모드 토글 (ooks12 한정) -->
         <div id="devToggleContainer" style="display: none; align-items: center; gap: 8px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: bold; color: #ff8888; margin-right: 10px;">
@@ -67,6 +47,28 @@
         </button>
     </header>
 
+    <!-- Navigation Tabs (Outside header to prevent containing block constraints on mobile viewports) -->
+    <div class="nav-tabs">
+        <button class="tab-btn active" id="tabPackBtn" onclick="switchTab('pack')">
+            <i class="fa-solid fa-box-open" style="margin-right: 6px;"></i>카드 뽑기
+        </button>
+        <button class="tab-btn" id="tabQuizBtn" onclick="switchTab('quiz')">
+            <i class="fa-solid fa-graduation-cap" style="margin-right: 6px;"></i>단어 퀴즈
+        </button>
+        <button class="tab-btn" id="tabDeckBtn" onclick="switchTab('deck')">
+            <i class="fa-solid fa-id-card" style="margin-right: 6px;"></i>내 컬렉션 (덱)
+        </button>
+        <button class="tab-btn" id="tabSquadBtn" onclick="switchTab('squad')">
+            <i class="fa-solid fa-people-group" style="margin-right: 6px;"></i>포메이션
+        </button>
+        <button class="tab-btn" id="tabMatchBtn" onclick="switchTab('match')">
+            <i class="fa-solid fa-gamepad" style="margin-right: 6px;"></i>경기 진행
+        </button>
+        <button class="tab-btn" id="tabFameBtn" onclick="switchTab('fame')">
+            <i class="fa-solid fa-award" style="margin-right: 6px;"></i>명예의 전당
+        </button>
+    </div>
+
     <!-- Main Game Container -->
     <main>
 
@@ -87,13 +89,9 @@
                     </div>
                 </div>
                 <button class="btn-open-pack" id="openPackBtn" onclick="openPack()">카드 팩 열기</button>
-                <div class="pack-points-info" style="margin-top: 1.5rem; color: var(--text-light); font-size: 0.95rem; font-weight: 700; background: rgba(255, 215, 0, 0.08); padding: 0.5rem 1.5rem; border-radius: 20px; border: 1px solid rgba(255, 215, 0, 0.3);">
-                    <i class="fa-solid fa-coins" style="color: #ffd700; margin-right: 6px;"></i>
-                    보유 포인트: <span id="packUserPointsVal" style="color: #ffd700; font-weight: 800;">0</span> FP
-                </div>
-                <div class="pack-cost-info" style="margin-top: 0.6rem; color: var(--text-muted); font-size: 0.95rem; font-weight: 600; background: rgba(255, 255, 255, 0.03); padding: 0.5rem 1.5rem; border-radius: 20px; border: 1px solid var(--glass-border);">
-                    <i class="fa-solid fa-circle-info" style="color: #ffd700; margin-right: 6px;"></i>
-                    개봉 비용: <span style="color: #ffd700; font-weight: 800;">1 FP</span>
+                <div class="pack-cost-subtext" style="margin-top: 0.6rem; font-size: 0.85rem; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 5px;">
+                    <i class="fa-solid fa-circle-info" style="color: var(--accent-gold);"></i>
+                    개봉 비용: <span style="color: var(--accent-gold); font-weight: 800;">1 FP</span>
                 </div>
             </div>
         </section>
@@ -103,7 +101,6 @@
             <div class="quiz-container">
                 <div class="quiz-header">
                     <div class="quiz-header-left">
-                        <h2 class="deck-title"><i class="fa-solid fa-graduation-cap" style="margin-right: 10px; color: #ffd700;"></i>영어 단어 퀴즈</h2>
                         <button class="btn-reset-quiz" onclick="resetQuizOffset()" title="퀴즈 순서 초기화 (최신 단어부터 다시 출제)">
                             <i class="fa-solid fa-rotate-left"></i> 순서 초기화
                         </button>
@@ -179,8 +176,7 @@
         <!-- 2. DECK / COLLECTION SECTION -->
         <section id="deckSection" class="page-section">
             <div class="deck-container">
-                <div class="deck-header">
-                    <h2 class="deck-title"><i class="fa-solid fa-layer-group" style="margin-right: 10px; color: #ffd700;"></i>나의 선수 컬렉션</h2>
+                <div class="deck-header" style="justify-content: flex-end;">
                     <div class="deck-count" id="deckCountContainer">
                         총 카드 수: <span id="totalCardsCount">0</span>장
                     </div>
@@ -201,8 +197,7 @@
         <!-- 3. SQUAD FORMATION SECTION -->
         <section id="squadSection" class="page-section">
             <div class="squad-container">
-                <div class="squad-header">
-                    <h2 class="deck-title"><i class="fa-solid fa-people-group" style="margin-right: 10px; color: #ffd700;"></i>베스트 11 스쿼드 포메이션 (4-3-3)</h2>
+                <div class="squad-header" style="justify-content: flex-end;">
                     <div class="squad-header-right" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                         <!-- 실시간 전술 퀵 뷰 아이콘 배지 -->
                         <div class="header-tactic-icons" style="display: flex; gap: 8px;">
@@ -258,8 +253,7 @@
             <div class="match-layout">
                 <!-- Left panel: Match Simulator Board -->
                 <div class="match-simulator-panel">
-                    <div class="squad-header">
-                        <h2 class="deck-title"><i class="fa-solid fa-circle-play" style="margin-right: 10px; color: #ffd700;"></i>K리그1 라운드 시뮬레이터</h2>
+                    <div class="squad-header" style="justify-content: flex-end;">
                         <div class="deck-count" id="matchRoundContainer">
                             라운드: <span id="matchRoundVal">1</span>/33 | 오늘 경기: <span id="matchTodayCountVal">0</span>/5
                         </div>
@@ -392,8 +386,7 @@
         <!-- 명예의 전당 섹션 -->
         <section id="fameSection" class="page-section">
             <div class="fame-container" style="width: 100%; padding: 1rem 0;">
-                <div class="deck-header">
-                    <h2 class="deck-title"><i class="fa-solid fa-award" style="margin-right: 10px; color: #ffd700;"></i>명예의 전당 (Hall of Fame)</h2>
+                <div class="deck-header" style="justify-content: flex-end;">
                     <div class="deck-count">
                         참가한 시즌: <span id="fameSeasonCount" style="color: #ffd700; font-weight: 800;">0</span>개
                     </div>

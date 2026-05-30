@@ -1,0 +1,651 @@
+/* css/card.css - FC STAR CARD Player Card & Deck Component Styling */
+
+/* Football Card Design (FUT Premium Style) */
+.card-3d-wrapper {
+    width: 320px;
+    height: 480px;
+    perspective: 1000px;
+    z-index: 5;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.card-3d-wrapper.reveal {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.fut-card {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+}
+
+.fut-card.flipped {
+    transform: rotateY(180deg);
+}
+
+.card-front, .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 18px;
+    box-shadow: var(--card-shadow);
+}
+
+/* Card Back Design */
+.card-back {
+    background: linear-gradient(135deg, #0a0e1a 0%, #151b2e 100%);
+    border: 3px solid #b8860b;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.card-back-pattern {
+    position: absolute;
+    width: 85%;
+    height: 90%;
+    border: 1px solid rgba(255, 215, 0, 0.15);
+    border-radius: 12px;
+    pointer-events: none;
+}
+
+.card-back-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.card-back-logo i {
+    font-size: 4rem;
+    background: var(--gold-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.4));
+}
+
+.card-back-logo span {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #ffd700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+/* Card Front (Actual Football Card) */
+.card-front {
+    transform: rotateY(180deg);
+    background: var(--card-gold-bg);
+    border: 3px solid #ffd700;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    backdrop-filter: blur(10px);
+}
+
+.card-shine {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(125deg, transparent 40%, rgba(255, 255, 255, 0.15) 45%, rgba(255, 255, 255, 0.25) 50%, rgba(255, 255, 255, 0.15) 55%, transparent 60%);
+    background-size: 200% 200%;
+    background-position: 0% 0%;
+    transition: background-position 0.1s;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.card-header-stats {
+    position: absolute;
+    top: 2.2rem;
+    left: 1.8rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 3;
+}
+
+.card-rating {
+    font-size: 2.8rem;
+    font-weight: 900;
+    line-height: 1;
+    background: var(--gold-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+.card-position {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-light);
+    margin-top: 0.1rem;
+    letter-spacing: 1px;
+}
+
+.card-nation {
+    width: 28px;
+    height: 18px;
+    margin-top: 0.6rem;
+    border-radius: 2px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    background-size: cover;
+    background-position: center;
+}
+
+.card-club {
+    font-size: 1.4rem;
+    color: #ffd700;
+    margin-top: 0.5rem;
+}
+
+.card-image-container {
+    width: 100%;
+    height: 260px;
+    position: relative;
+    margin-top: 1rem;
+    overflow: hidden;
+}
+
+/* Card Grades Background Themes */
+.card-image-container.grade-legend {
+    background: radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.25) 0%, rgba(8, 10, 16, 0.95) 100%);
+    border-bottom: 1.5px solid rgba(255, 215, 0, 0.4);
+}
+.card-image-container.grade-elite {
+    background: radial-gradient(circle at 50% 50%, rgba(255, 0, 127, 0.18) 0%, rgba(8, 10, 16, 0.95) 100%);
+    border-bottom: 1.5px solid rgba(255, 0, 127, 0.4);
+}
+.card-image-container.grade-gold {
+    background: radial-gradient(circle at 50% 50%, rgba(0, 242, 254, 0.1) 0%, rgba(8, 10, 16, 0.95) 100%);
+    border-bottom: 1.5px solid rgba(0, 242, 254, 0.3);
+}
+
+.avatar-ring {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.player-silhouette {
+    pointer-events: none;
+    transition: transform 0.3s ease;
+}
+
+.fut-card:hover .player-silhouette {
+    transform: scale(1.05) translateY(-3px);
+}
+
+.card-badge-glow {
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+    pointer-events: none;
+}
+
+.card-info-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(10, 14, 26, 0.85);
+    border-top: 1px solid rgba(255, 215, 0, 0.3);
+    padding: 1rem 1.5rem 1.5rem 1.5rem;
+    z-index: 3;
+    position: relative;
+}
+
+.card-name {
+    font-size: 1.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.8rem;
+    background: var(--gold-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.card-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    width: 100%;
+    gap: 0.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 0.8rem;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-val {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text-light);
+}
+
+.stat-lbl {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-top: 0.1rem;
+    letter-spacing: 0.5px;
+}
+
+.btn-collect {
+    margin-top: 2rem;
+    background: var(--gold-gradient);
+    color: #000;
+    border: none;
+    padding: 0.8rem 2.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+    z-index: 10;
+    transition: all 0.3s;
+}
+
+.btn-collect:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
+}
+
+/* My Collection Deck Screen */
+.deck-container {
+    width: 100%;
+    padding: 1rem 0;
+}
+
+.deck-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 1rem;
+}
+
+.deck-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.deck-count {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.deck-count span {
+    color: #ffd700;
+    font-weight: 800;
+}
+
+.empty-deck {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 5rem 2rem;
+    background: var(--glass-bg);
+    border: 1px dashed var(--glass-border);
+    border-radius: 20px;
+    text-align: center;
+}
+
+.empty-deck i {
+    font-size: 3.5rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    opacity: 0.6;
+}
+
+.empty-deck h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+}
+
+.empty-deck p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.deck-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2.5rem;
+    justify-items: center;
+    padding: 1rem 0;
+}
+
+/* Deck item wrapper with quantity indicator */
+.deck-card-wrapper {
+    position: relative;
+    perspective: 1000px;
+}
+
+.quantity-badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: var(--gold-gradient);
+    color: #000;
+    font-weight: 900;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid var(--bg-primary);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    z-index: 20;
+    font-size: 0.95rem;
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
+}
+
+.deck-card-wrapper .fut-card {
+    width: 280px;
+    height: 420px;
+}
+
+.deck-card-wrapper .card-image-container {
+    height: 210px;
+}
+
+.deck-card-wrapper .card-rating {
+    font-size: 2.4rem;
+}
+
+.deck-card-wrapper .card-name {
+    font-size: 1.4rem;
+}
+
+.deck-card-wrapper .stat-val {
+    font-size: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .deck-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .card-3d-wrapper {
+        width: 290px;
+        height: 435px;
+    }
+    
+    .card-front .card-image-container {
+        height: 220px;
+    }
+}
+
+/* Premium Player Portrait Decoration Styling */
+.card-portrait-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+.portrait-grid {
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(0, 255, 135, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 135, 0.05) 1px, transparent 1px);
+    background-size: 15px 15px;
+    opacity: 0.4;
+    animation: gridPulse 4s ease-in-out infinite alternate;
+}
+
+@keyframes gridPulse {
+    0% { opacity: 0.2; }
+    100% { opacity: 0.5; }
+}
+
+.card-player-img {
+    height: 110%;
+    width: auto;
+    max-width: 100%;
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    object-fit: contain;
+    mask-image: linear-gradient(to bottom, black 65%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 65%, transparent 100%);
+    z-index: 1;
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.7));
+    transition: transform 0.3s ease;
+}
+
+.fut-card:hover .card-player-img {
+    transform: translateX(-50%) scale(1.05);
+}
+
+/* Premium Card Awakening Badge Styling & Keyframes */
+.card-awakening-badge {
+    animation: pulseAwk 1.8s infinite alternate ease-in-out;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    letter-spacing: 0.5px;
+    font-family: 'Outfit', sans-serif;
+}
+
+@keyframes pulseAwk {
+    0% {
+        box-shadow: 0 0 8px rgba(255, 215, 0, 0.5), 0 2px 4px rgba(0,0,0,0.5);
+        transform: scale(1);
+    }
+    100% {
+        box-shadow: 0 0 16px rgba(255, 215, 0, 0.9), 0 2px 8px rgba(0,0,0,0.6);
+        transform: scale(1.04);
+    }
+}
+
+/* Premium Hall of Fame Card Styling */
+.fame-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2.5rem;
+    width: 100%;
+    padding: 1.5rem 0;
+}
+
+.fame-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 1.8rem;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(12px);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.fame-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.03) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.fame-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(255, 215, 0, 0.4);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 215, 0, 0.08);
+}
+
+.fame-card-badge {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    font-size: 2.8rem;
+    z-index: 1;
+}
+
+.fame-card-badge.gold-crown {
+    color: #ffd700;
+    filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.6));
+    animation: float 3s ease-in-out infinite alternate;
+}
+
+.fame-card-badge.silver-medal {
+    color: #c0c0c0;
+    filter: drop-shadow(0 0 15px rgba(192, 192, 192, 0.4));
+}
+
+.fame-card-badge.bronze-medal {
+    color: #cd7f32;
+    filter: drop-shadow(0 0 15px rgba(205, 127, 50, 0.4));
+}
+
+.fame-card-badge.other-medal {
+    color: var(--text-muted);
+    opacity: 0.5;
+}
+
+.fame-card-content {
+    position: relative;
+    z-index: 2;
+}
+
+.fame-card-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.6rem;
+    color: #fff;
+    background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.fame-card-rank {
+    font-size: 1.8rem;
+    font-weight: 900;
+    margin-bottom: 1.2rem;
+    background: var(--gold-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.fame-card-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 1rem;
+}
+
+.fame-card-stats span {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.fame-card-stats span strong {
+    color: var(--text-light);
+    font-weight: 700;
+}
+
+@media (max-width: 380px) {
+    .pack-wrapper, .card-3d-wrapper {
+        transform: scale(0.75);
+        transform-origin: center top;
+        margin-bottom: -120px;
+    }
+    
+    .deck-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1rem;
+    }
+    
+    .deck-card-wrapper .fut-card {
+        width: 240px;
+        height: 360px;
+    }
+    
+    .deck-card-wrapper .card-image-container {
+        height: 180px;
+    }
+    
+    .deck-card-wrapper .card-rating {
+        font-size: 2rem;
+    }
+    
+    .deck-card-wrapper .card-name {
+        font-size: 1.2rem;
+    }
+    
+    .fame-card {
+        padding: 1.2rem;
+    }
+    
+    .fame-card-title {
+        font-size: 1.1rem;
+    }
+    
+    .fame-card-rank {
+        font-size: 1.4rem;
+    }
+}
+
+/* 카드 뽑기 연출 모달용 - 플립(뒤집기) 모션 및 회전 강제 제거 오버라이드 */
+#revealModal .fut-card {
+    transform: none !important;
+    transition: none !important;
+}
+#revealModal .card-front {
+    transform: none !important;
+    backface-visibility: visible !important;
+}
+#revealModal .card-back {
+    display: none !important;
+}

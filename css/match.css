@@ -1,0 +1,518 @@
+/* css/match.css - FC STAR CARD Match Simulator Component Styling */
+
+/* MATCH SIMULATOR & STANDINGS TABLE STYLING */
+.match-layout {
+    display: flex;
+    gap: 2rem;
+    width: 100%;
+    margin-top: 1.5rem;
+}
+
+.match-simulator-panel {
+    flex: 1.6;
+    background: rgba(10, 14, 26, 0.4);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: var(--card-shadow);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+}
+
+.league-table-panel {
+    flex: 1.2;
+    background: rgba(10, 14, 26, 0.4);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: var(--card-shadow);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+}
+
+/* SCOREBOARD CONTAINER STYLING */
+.scoreboard-container {
+    width: 100%;
+    background: linear-gradient(135deg, rgba(8, 10, 16, 0.95) 0%, rgba(15, 19, 34, 0.95) 100%);
+    border: 1.5px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.5rem 1rem;
+    margin: 1.2rem 0;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.scoreboard-container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(0, 255, 135, 0.05) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.team-vs-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.sb-team {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: center;
+}
+
+.sb-emblem {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1.5px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.sb-emblem i {
+    font-size: 1.8rem;
+    color: var(--text-muted);
+}
+
+/* Specific emblem colors */
+.sb-home .sb-emblem {
+    border-color: #00ff87;
+    background: rgba(0, 90, 60, 0.15);
+}
+.sb-home .sb-emblem i {
+    color: #00ff87;
+    filter: drop-shadow(0 0 5px rgba(0,255,135,0.4));
+}
+
+.sb-away .sb-emblem {
+    border-color: #00d2ff;
+    background: rgba(0, 71, 171, 0.15);
+}
+.sb-away .sb-emblem i {
+    color: #00d2ff;
+    filter: drop-shadow(0 0 5px rgba(0,210,255,0.4));
+}
+
+.sb-team h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+}
+
+.sb-ovr-tag {
+    font-size: 0.75rem;
+    font-weight: 800;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--glass-border);
+    padding: 0.15rem 0.5rem;
+    border-radius: 12px;
+    color: var(--text-muted);
+}
+
+.sb-home .sb-ovr-tag {
+    color: #00ff87;
+    border-color: rgba(0,255,135,0.2);
+}
+
+.sb-away .sb-ovr-tag {
+    color: #ffd700;
+    border-color: rgba(255,215,0,0.2);
+}
+
+.sb-score-board {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    min-width: 140px;
+}
+
+.sb-time {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    background: rgba(255,255,255,0.03);
+    padding: 0.2rem 0.8rem;
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+    letter-spacing: 1px;
+}
+
+.sb-time.live-ticking {
+    color: #00ff87;
+    border-color: rgba(0,255,135,0.3);
+    box-shadow: 0 0 8px rgba(0,255,135,0.15);
+}
+
+.sb-scores {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 4px;
+    font-family: monospace, sans-serif;
+    text-shadow: 0 0 10px rgba(255,255,255,0.1);
+}
+
+.sb-match-venue {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #ffd700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* LIVE TEXT BROADCAST COMMENTARY BOX */
+.commentary-box-wrapper {
+    width: 100%;
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(8, 10, 16, 0.6);
+}
+
+.commentary-header {
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid var(--glass-border);
+    padding: 0.8rem 1.2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.live-pulse {
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: #ff3366;
+    border: 1px solid rgba(255, 51, 102, 0.3);
+    padding: 0.1rem 0.5rem;
+    border-radius: 4px;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+}
+
+.commentary-scroll {
+    height: 220px;
+    overflow-y: auto;
+    padding: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar for Commentary */
+.commentary-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+.commentary-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+.commentary-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+}
+.commentary-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.comm-item {
+    font-size: 0.9rem;
+    line-height: 1.45;
+    padding: 0.6rem 0.8rem;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    animation: slideUp 0.3s ease-out forwards;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.comm-item.comm-system {
+    color: var(--text-muted);
+    border-left: 3px solid var(--text-muted);
+    background: rgba(255,255,255,0.01);
+}
+
+.comm-item.comm-normal {
+    color: var(--text-light);
+    border-left: 3px solid rgba(255,255,255,0.15);
+}
+
+.comm-item.comm-attack {
+    color: #ffdf00;
+    border-left: 3px solid #ffdf00;
+    background: rgba(255, 223, 0, 0.03);
+    font-weight: 600;
+}
+
+.comm-item.comm-goal {
+    color: #00ff87;
+    border: 1px solid rgba(0,255,135,0.3);
+    border-left: 5px solid #00ff87;
+    background: linear-gradient(90deg, rgba(0, 90, 60, 0.3) 0%, rgba(8, 10, 16, 0.8) 100%);
+    font-weight: 800;
+    box-shadow: 0 4px 15px rgba(0, 255, 135, 0.1);
+    animation: goalPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* K LEAGUE STANDINGS TABLE STYLING */
+.league-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.league-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+.league-table th {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    padding: 0.75rem 0.5rem;
+    border-bottom: 1.5px solid var(--glass-border);
+}
+
+.league-table td {
+    font-size: 0.88rem;
+    padding: 0.75rem 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    color: var(--text-light);
+}
+
+.league-team-col {
+    text-align: left;
+    font-weight: 700;
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 4px 8px !important;
+    white-space: nowrap;
+}
+
+.league-team-col img {
+    height: 20px;
+    width: 20px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    flex-shrink: 0;
+}
+
+.league-team-col span {
+    display: inline-block;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.league-table tbody tr {
+    transition: all 0.3s;
+}
+
+.league-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* Rank Numbers */
+.league-row-rank {
+    font-weight: 800;
+    color: var(--text-muted);
+}
+
+.league-table tbody tr:nth-child(1) .league-row-rank {
+    color: #ffd700; /* 1st place gold */
+}
+.league-table tbody tr:nth-child(2) .league-row-rank {
+    color: #c0c0c0; /* 2nd place silver */
+}
+.league-table tbody tr:nth-child(3) .league-row-rank {
+    color: #cd7f32; /* 3rd place bronze */
+}
+
+/* Highlights for player's team (전북 현대) */
+.league-row-jeonbuk {
+    background: linear-gradient(90deg, rgba(0, 90, 60, 0.15) 0%, rgba(0, 90, 60, 0.05) 100%) !important;
+    border: 1px solid rgba(0, 255, 135, 0.2) !important;
+    font-weight: 700;
+    box-shadow: inset 0 0 10px rgba(0, 255, 135, 0.05);
+}
+
+.league-row-jeonbuk td {
+    color: #fff;
+    border-bottom: 1px solid rgba(0, 255, 135, 0.15);
+}
+
+.league-row-jeonbuk .league-row-rank {
+    color: #00ff87 !important;
+}
+
+.league-row-jeonbuk td:nth-child(2) {
+    color: #00ff87 !important;
+}
+
+.league-row-pts {
+    font-weight: 900;
+    color: #fff;
+}
+
+/* League Leaderboards CSS styling */
+.league-stats-container {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1.2rem;
+    width: 100%;
+}
+
+.league-stat-col {
+    flex: 1;
+    background: rgba(10, 14, 26, 0.25);
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.league-stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+    text-align: left;
+}
+
+.league-stats-table tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* Standings table and panels mobile responsiveness */
+@media (max-width: 992px) {
+    .match-layout {
+        flex-direction: column;
+    }
+    
+    .match-simulator-panel {
+        flex: 1;
+    }
+    
+    .league-table-panel {
+        flex: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .league-stats-container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
+
+/* K-League Table Mobile Responsiveness */
+@media (max-width: 640px) {
+    .league-table th, 
+    .league-table td {
+        padding: 0.5rem 0.2rem !important;
+        font-size: 0.72rem !important;
+    }
+    
+    .league-team-col {
+        gap: 4px !important;
+        padding: 4px 2px !important;
+    }
+    
+    .league-team-col img {
+        height: 16px !important;
+        width: 16px !important;
+    }
+
+    /* Hide Win, Draw, Loss columns to maximize space for team name */
+    .league-table th:nth-child(5), /* 승 */
+    .league-table td:nth-child(5),
+    .league-table th:nth-child(6), /* 무 */
+    .league-table td:nth-child(6),
+    .league-table th:nth-child(7), /* 패 */
+    .league-table td:nth-child(7) {
+        display: none !important;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Scoreboard adjustments */
+    .scoreboard-container {
+        padding: 1rem 0.5rem;
+    }
+    .sb-scores {
+        font-size: 1.8rem;
+    }
+    .sb-emblem {
+        width: 40px;
+        height: 40px;
+    }
+    .sb-emblem i {
+        font-size: 1.2rem;
+    }
+    .sb-team h3 {
+        font-size: 0.85rem;
+        max-width: 90px;
+    }
+}
+
+@media (max-width: 380px) {
+    .scoreboard-container {
+        padding: 0.8rem 0.4rem;
+    }
+    
+    .sb-emblem {
+        width: 34px;
+        height: 34px;
+    }
+    
+    .sb-emblem i {
+        font-size: 1rem;
+    }
+    
+    .sb-team h3 {
+        font-size: 0.75rem;
+        max-width: 70px;
+    }
+    
+    .sb-scores {
+        font-size: 1.4rem;
+        letter-spacing: 2px;
+    }
+    
+    .sb-time {
+        font-size: 0.7rem;
+        padding: 0.15rem 0.5rem;
+    }
+}
