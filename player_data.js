@@ -102,7 +102,7 @@ const CARDS_DATABASE = {
     "song_bum_keun": {
         id: "song_bum_keun",
         name: "송범근",
-        rating: 80,
+        rating: 82,
         position: "GK",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
@@ -119,7 +119,7 @@ const CARDS_DATABASE = {
             sho: 79,
             pas: 75,
             dri: 82,
-            def: 50,
+            def: 82,
             phy: 81
         }
     },
@@ -486,7 +486,7 @@ const CARDS_DATABASE = {
     "lee_ju_hyeon": {
         id: "lee_ju_hyeon",
         name: "이주현",
-        rating: 70,
+        rating: 77,
         position: "GK",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
@@ -502,8 +502,8 @@ const CARDS_DATABASE = {
             pac: 70,
             sho: 68,
             pas: 65,
-            dri: 72,
-            def: 40,
+            dri: 77,
+            def: 77,
             phy: 68
         }
     },
@@ -558,7 +558,7 @@ const CARDS_DATABASE = {
     "jo_hyeon_woo": {
         id: "jo_hyeon_woo",
         name: "조현우",
-        rating: 84,
+        rating: 85,
         position: "GK",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
@@ -575,8 +575,8 @@ const CARDS_DATABASE = {
             pac: 85,
             sho: 83,
             pas: 75,
-            dri: 87,
-            def: 52,
+            dri: 85,
+            def: 85,
             phy: 82
         }
     }

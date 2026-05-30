@@ -21,6 +21,100 @@ try {
 // 11 Key tactical board positions
 const TACTICAL_POSITIONS = ["GK", "LB", "LCB", "RCB", "RB", "LCM", "CM", "RCM", "LW", "ST", "RW"];
 
+// 각 포메이션별 11개 슬롯 좌표 정보 정의
+const FORMATION_COORDINATES = {
+    '4-4-2': {
+        'ST': { top: '10%', left: '35%' },
+        'RW': { top: '10%', left: '65%' },
+        'LW': { top: '45%', left: '12%' },
+        'LCM': { top: '48%', left: '35%' },
+        'RCM': { top: '48%', left: '65%' },
+        'CM': { top: '45%', left: '88%' },
+        'LB': { top: '74%', left: '15%' },
+        'LCB': { top: '77%', left: '38%' },
+        'RCB': { top: '77%', left: '62%' },
+        'RB': { top: '74%', left: '85%' },
+        'GK': { top: '90%', left: '50%' }
+    },
+    '4-3-3': {
+        'LW': { top: '15%', left: '15%' },
+        'ST': { top: '8%', left: '50%' },
+        'RW': { top: '15%', left: '85%' },
+        'LCM': { top: '44%', left: '22%' },
+        'CM': { top: '50%', left: '50%' },
+        'RCM': { top: '44%', left: '78%' },
+        'LB': { top: '73%', left: '12%' },
+        'LCB': { top: '77%', left: '36%' },
+        'RCB': { top: '77%', left: '64%' },
+        'RB': { top: '73%', left: '88%' },
+        'GK': { top: '90%', left: '50%' }
+    },
+    '3-4-3': {
+        'ST': { top: '8%', left: '50%' },
+        'LW': { top: '15%', left: '20%' },
+        'RW': { top: '15%', left: '80%' },
+        'CM': { top: '34%', left: '50%' },
+        'LB': { top: '48%', left: '15%' },
+        'RB': { top: '48%', left: '85%' },
+        'RCM': { top: '55%', left: '50%' },
+        'LCB': { top: '74%', left: '28%' },
+        'RCB': { top: '74%', left: '72%' },
+        'LCM': { top: '76%', left: '50%' },
+        'GK': { top: '90%', left: '50%' }
+    },
+    '5-4-1': {
+        'ST': { top: '8%', left: '50%' },
+        'LW': { top: '36%', left: '15%' },
+        'RW': { top: '36%', left: '85%' },
+        'LCM': { top: '42%', left: '35%' },
+        'RCM': { top: '42%', left: '65%' },
+        'LB': { top: '65%', left: '12%' },
+        'LCB': { top: '74%', left: '30%' },
+        'CM': { top: '73%', left: '50%' },
+        'RCB': { top: '74%', left: '70%' },
+        'RB': { top: '65%', left: '88%' },
+        'GK': { top: '90%', left: '50%' }
+    }
+};
+
+// 포메이션 활성화 조건 충족 여부 검사 헬퍼 함수
+function validateFormation(formationType) {
+    if (formationType === '4-4-2') return true;
+    
+    if (formationType === '4-3-3') {
+        const cmCardId = squadFormation['CM'];
+        if (!cmCardId) return false;
+        const cmCard = getAwakenedCard(cmCardId);
+        return cmCard && cmCard.stats && cmCard.stats.pas >= 80;
+    }
+    
+    if (formationType === '3-4-3') {
+        const cmCardId = squadFormation['CM'];
+        if (!cmCardId) return false;
+        const cmCard = getAwakenedCard(cmCardId);
+        return cmCard && cmCard.stats && cmCard.stats.dri >= 80;
+    }
+    
+    if (formationType === '5-4-1') {
+        const lwCardId = squadFormation['LW'];
+        const rwCardId = squadFormation['RW'];
+        let hasValidWinger = false;
+        
+        if (lwCardId) {
+            const lwCard = getAwakenedCard(lwCardId);
+            if (lwCard && lwCard.stats && lwCard.stats.pac >= 80) hasValidWinger = true;
+        }
+        if (rwCardId) {
+            const rwCard = getAwakenedCard(rwCardId);
+            if (rwCard && rwCard.stats && rwCard.stats.pac >= 80) hasValidWinger = true;
+        }
+        return hasValidWinger;
+    }
+    
+    return false;
+}
+
+
 function renderSquadFormation() {
     let totalOvr = 0;
     
@@ -28,11 +122,38 @@ function renderSquadFormation() {
         const slotEl = document.getElementById(`slot-${pos}`);
         if (!slotEl) return;
         
+        // 2. 피치 위 동적 포지션 재배치
+        const coord = FORMATION_COORDINATES[currentFormation][pos];
+        if (coord) {
+            slotEl.style.top = coord.top;
+            slotEl.style.left = coord.left;
+        }
+        
+        // 3. 핵심 포지션 골드 아우라 하이라이팅
+        let isKeySlot = false;
+        if (currentFormation === '4-3-3' && pos === 'CM') isKeySlot = true;
+        else if (currentFormation === '3-4-3' && pos === 'CM') isKeySlot = true;
+        else if (currentFormation === '5-4-1' && (pos === 'LW' || pos === 'RW')) isKeySlot = true;
+        
+        if (isKeySlot) {
+            slotEl.classList.add('key-player-slot');
+        } else {
+            slotEl.classList.remove('key-player-slot');
+        }
+        
         const cardId = squadFormation[pos];
         let cardData = null;
         
         if (cardId && CARDS_DATABASE[cardId]) {
             cardData = getAwakenedCard(cardId);
+        }
+        
+        let displayPos = pos;
+        if (currentFormation === '5-4-1') {
+            if (pos === 'LW') displayPos = 'LM';
+            else if (pos === 'RW') displayPos = 'RM';
+        } else if (currentFormation === '3-4-3') {
+            if (pos === 'RCM') displayPos = 'DM';
         }
         
         if (cardData) {
@@ -42,7 +163,7 @@ function renderSquadFormation() {
             slotEl.innerHTML = `
                 <div class="mini-player-card active-placed">
                     <div class="mini-card-ovr-badge">${cardData.rating}${starIndicator}</div>
-                    <div class="mini-card-position-badge">${pos}</div>
+                    <div class="mini-card-position-badge">${displayPos}</div>
                     <div class="mini-card-portrait">
                         <img src="${cardData.image}" alt="${cardData.name}" onerror="this.src='https://placehold.co/80x80/005a3c/ffd700?text=${encodeURIComponent(cardData.name)}'">
                     </div>
@@ -55,7 +176,7 @@ function renderSquadFormation() {
             slotEl.innerHTML = `
                 <div class="mini-player-card anonymous">
                     <div class="mini-card-ovr-badge">70</div>
-                    <div class="mini-card-position-badge">${pos}</div>
+                    <div class="mini-card-position-badge">${displayPos}</div>
                     <div class="mini-card-portrait">
                         <i class="fa-solid fa-user-ninja"></i>
                     </div>
@@ -67,7 +188,44 @@ function renderSquadFormation() {
     
     // Calculate and display average team OVR rating
     const avgOvr = Math.round(totalOvr / 11);
-    document.getElementById('teamOvrVal').innerText = avgOvr;
+    
+    // 4. 헤더의 포메이션 설정 버튼 내 라벨 및 스타일 동적 갱신
+    const activeLabelEl = document.getElementById('activeFormationLabel');
+    if (activeLabelEl) {
+        if (currentFormation === '4-4-2') {
+            activeLabelEl.innerText = "4-4-2 무전술";
+            activeLabelEl.style.color = '#cbd5e1';
+        } else if (currentFormation === '4-3-3') {
+            activeLabelEl.innerText = "4-3-3 빌드업";
+            activeLabelEl.style.color = '#ffd700';
+        } else if (currentFormation === '3-4-3') {
+            activeLabelEl.innerText = "3-4-3 스위칭";
+            activeLabelEl.style.color = '#00ff87';
+        } else if (currentFormation === '5-4-1') {
+            activeLabelEl.innerText = "5-4-1 역습";
+            activeLabelEl.style.color = '#ff3e6c';
+        }
+    }
+    
+    // 전북 현대 OVR 동기화 (K리그 매치 탭 연결)
+    if (typeof syncJeonbukOvr === 'function') {
+        syncJeonbukOvr();
+    } else {
+        const teamOvrValEl = document.getElementById('teamOvrVal');
+        if (teamOvrValEl) {
+            teamOvrValEl.innerText = avgOvr;
+        }
+    }
+    
+    // 5. 팀 평균 파라미터 6종 실시간 UI 갱신
+    const stats6 = ['pac', 'sho', 'pas', 'dri', 'def', 'phy'];
+    stats6.forEach(s => {
+        if (typeof getTeamAverageStat === 'function') {
+            const val = getTeamAverageStat(s);
+            const el = document.getElementById(`teamAvg-${s}`);
+            if (el) el.innerText = val;
+        }
+    });
     
     // Check and update squad tactics status
     checkSquadTactics();
@@ -106,8 +264,12 @@ function checkSquadTactics() {
         }
     });
 
-    // 3명이 모두 다 차있고, 세 미드필더 전부 패스가 75 이상이어야 함
-    isTikitakaActive = (placedMidfieldersCount === 3 && passMidfieldersCount === 3);
+    // 5-4-1 역습 전술에서는 중앙 미드필더 부족(LM/RM 제외 실질적 2명 기용)으로 티키타카 사용 불가
+    if (currentFormation === '5-4-1') {
+        isTikitakaActive = false;
+    } else {
+        isTikitakaActive = (placedMidfieldersCount === 3 && passMidfieldersCount === 3);
+    }
 
     // 3. UI 업데이트 (최상단 헤더 아이콘 배지 점등)
     const headerGegen = document.getElementById('headerTacticGegen');
@@ -158,7 +320,13 @@ function checkSquadTactics() {
     const textTiki = document.getElementById('tacticCountTextTiki');
     
     if (boxTiki && badgeTiki && textTiki) {
-        if (isTikitakaActive) {
+        if (currentFormation === '5-4-1') {
+            boxTiki.classList.remove('active');
+            badgeTiki.innerText = "사용 불가";
+            badgeTiki.className = "tactic-status-badge inactive";
+            textTiki.innerText = "5-4-1 역습 포메이션에서는 사용 불가 (중앙 미드필더 부족)";
+            textTiki.style.color = "#ff3e6c";
+        } else if (isTikitakaActive) {
             boxTiki.classList.add('active');
             badgeTiki.innerText = "ON (활성)";
             badgeTiki.className = "tactic-status-badge active tiki";
@@ -234,11 +402,53 @@ function openCardSelector(position) {
     const title = document.getElementById('drawerPositionTitle');
     const content = document.getElementById('drawerContent');
     
-    title.innerText = position;
+    let displayTitle = position;
+    if (currentFormation === '5-4-1') {
+        if (position === 'LW') displayTitle = 'LM';
+        else if (position === 'RW') displayTitle = 'RM';
+    } else if (currentFormation === '3-4-3') {
+        if (position === 'RCM') displayTitle = 'DM';
+    }
+    title.innerText = displayTitle;
     overlay.classList.add('active');
     
     // Clear and render choices
     content.innerHTML = '';
+    
+    // 핵심 포지션 가이드 배너 추가
+    let bannerHtml = '';
+    if (currentFormation === '4-3-3' && position === 'CM') {
+        bannerHtml = `
+            <div style="background: rgba(255, 215, 0, 0.1); border: 1.5px solid rgba(255, 215, 0, 0.3); padding: 0.8rem 1rem; border-radius: 12px; font-size: 0.8rem; color: #ffd700; line-height: 1.45; font-weight: bold; margin-bottom: 1rem; text-align: left; word-break: keep-all;">
+                <i class="fa-solid fa-star" style="margin-right: 4px; animation: keyPlayerLabelPulse 1.5s infinite alternate;"></i> 
+                <strong>[4-3-3 빌드업 핵심 자리 - CM]</strong><br>
+                패스(PAS)가 <strong>80 이상</strong>인 선수를 기용하면 전술이 활성화되며, 핵심 선수 패스 수치 비례 <strong>공격권 획득 확률 보너스</strong>를 획득합니다! (80 초과 1점당 +0.5%)
+            </div>
+        `;
+    } else if (currentFormation === '3-4-3' && position === 'CM') {
+        bannerHtml = `
+            <div style="background: rgba(0, 255, 135, 0.1); border: 1.5px solid rgba(0, 255, 135, 0.3); padding: 0.8rem 1rem; border-radius: 12px; font-size: 0.8rem; color: #00ff87; line-height: 1.45; font-weight: bold; margin-bottom: 1rem; text-align: left; word-break: keep-all;">
+                <i class="fa-solid fa-star" style="margin-right: 4px; animation: keyPlayerLabelPulse 1.5s infinite alternate;"></i> 
+                <strong>[3-4-3 스위칭 핵심 자리 - CM (CAM)]</strong><br>
+                드리블(DRI)이 <strong>80 이상</strong>인 선수를 기용하면 전술이 활성화되며, 핵심 선수 드리블 수치 비례 <strong>공격권 획득 확률 보너스</strong>를 획득합니다! (80 초과 1점당 +0.5%)
+            </div>
+        `;
+    } else if (currentFormation === '5-4-1' && (position === 'LW' || position === 'RW')) {
+        const displayWingerPos = position === 'LW' ? 'LM' : 'RM';
+        bannerHtml = `
+            <div style="background: rgba(255, 62, 108, 0.1); border: 1.5px solid rgba(255, 62, 108, 0.3); padding: 0.8rem 1rem; border-radius: 12px; font-size: 0.8rem; color: #ff3e6c; line-height: 1.45; font-weight: bold; margin-bottom: 1rem; text-align: left; word-break: keep-all;">
+                <i class="fa-solid fa-star" style="margin-right: 4px; animation: keyPlayerLabelPulse 1.5s infinite alternate;"></i> 
+                <strong>[5-4-1 역습 핵심 자리 - ${displayWingerPos}]</strong><br>
+                속도(PAC)가 <strong>80 이상</strong>인 선수를 이 자리(${displayWingerPos})에 기용하면 전술이 활성화되며, 핵심 LM/RM 속도 비례 <strong>득점 성공 확률 보너스</strong>를 획득합니다! (80 초과 1점당 +0.5%)
+            </div>
+        `;
+    }
+    
+    if (bannerHtml) {
+        const bannerContainer = document.createElement('div');
+        bannerContainer.innerHTML = bannerHtml;
+        content.appendChild(bannerContainer);
+    }
     
     // If a player is already assigned, show the Release button first
     const assignedPlayerId = squadFormation[position];
@@ -250,8 +460,16 @@ function openCardSelector(position) {
         content.appendChild(releaseBtn);
     }
     
-    // Retrieve all collected cards from deck
-    const deckKeys = Object.keys(playerDeck).filter(k => playerDeck[k].quantity > 0);
+    // Retrieve all collected cards from deck and sort by rating (OVR) in descending order
+    const deckKeys = Object.keys(playerDeck)
+        .filter(k => playerDeck[k].quantity > 0)
+        .sort((a, b) => {
+            const cardA = getAwakenedCard(a);
+            const cardB = getAwakenedCard(b);
+            const ratingA = cardA ? cardA.rating : 0;
+            const ratingB = cardB ? cardB.rating : 0;
+            return ratingB - ratingA;
+        });
     
     if (deckKeys.length === 0) {
         content.innerHTML += `
@@ -283,17 +501,42 @@ function openCardSelector(position) {
         // Check if this card is already assigned *to this specific slot*
         const isCurrentSlot = assignedPlayerId === key;
         
+        // 추천 태그 및 OVR 조건 충족 배지 삽입
+        let recTagHtml = '';
+        if (currentFormation === '4-3-3' && position === 'CM') {
+            if (card.stats && card.stats.pas >= 80) {
+                recTagHtml = `<span style="font-size: 0.65rem; background: rgba(255, 215, 0, 0.2); color: #ffd700; border: 1px solid #ffd700; padding: 1px 5px; border-radius: 4px; font-weight: 800; margin-left: 6px;">[PAS 80+ 추천]</span>`;
+            }
+        } else if (currentFormation === '3-4-3' && position === 'CM') {
+            if (card.stats && card.stats.dri >= 80) {
+                recTagHtml = `<span style="font-size: 0.65rem; background: rgba(0, 255, 135, 0.2); color: #00ff87; border: 1px solid #00ff87; padding: 1px 5px; border-radius: 4px; font-weight: 800; margin-left: 6px;">[DRI 80+ 추천]</span>`;
+            }
+        } else if (currentFormation === '5-4-1' && (position === 'LW' || position === 'RW')) {
+            if (card.stats && card.stats.pac >= 80) {
+                recTagHtml = `<span style="font-size: 0.65rem; background: rgba(255, 62, 108, 0.2); color: #ff3e6c; border: 1px solid #ff3e6c; padding: 1px 5px; border-radius: 4px; font-weight: 800; margin-left: 6px;">[PAC 80+ 추천]</span>`;
+            }
+        }
+        
         const awkLabel = card.awakening > 0 ? `<span style="color: #ffd700; font-weight: 800; font-size: 0.8rem; margin-left: 5px;">★ ${card.awakening}</span>` : '';
         const statusText = availableCount > 0 ? `<span style="color: #00ff87; font-weight: 600;">기용 가능</span>` : `<span style="color: var(--text-muted);">다른 자리에 배치됨</span>`;
         
+        const stats = card.stats || { pac: 70, sho: 70, pas: 70, dri: 70, def: 70, phy: 70 };
         row.innerHTML = `
-            <div class="drawer-card-info">
-                <div class="drawer-card-thumb" style="background: radial-gradient(circle, ${card.theme.glow}22 0%, #0c1122 100%);">
+            <div class="drawer-card-info" style="align-items: flex-start;">
+                <div class="drawer-card-thumb" style="background: radial-gradient(circle, ${card.theme.glow}22 0%, #0c1122 100%); margin-top: 4px;">
                     <img src="${card.image}" alt="${card.name}" onerror="this.src='https://placehold.co/48x48/005a3c/ffd700?text=${encodeURIComponent(card.name)}'">
                 </div>
                 <div class="drawer-card-details">
-                    <h4>${card.name} (OVR ${card.rating})${awkLabel}</h4>
-                    <p>${card.position} | 상태: ${statusText}</p>
+                    <h4 style="margin: 0 0 4px 0; display: flex; align-items: center; flex-wrap: wrap; gap: 4px;">${card.name} (OVR ${card.rating})${awkLabel}${recTagHtml}</h4>
+                    <p style="margin: 0 0 6px 0; font-size: 0.78rem;">${card.position} | 상태: ${statusText}</p>
+                    <div class="drawer-card-stats" style="display: flex; gap: 4px; flex-wrap: wrap;">
+                        <span style="font-size: 0.62rem; font-weight: 700; background: rgba(255, 62, 108, 0.15); border: 1px solid rgba(255, 62, 108, 0.3); padding: 1px 4px; border-radius: 4px; color: #ff3e6c;">속도 ${stats.pac}</span>
+                        <span style="font-size: 0.62rem; font-weight: 700; background: rgba(255, 159, 67, 0.15); border: 1px solid rgba(255, 159, 67, 0.3); padding: 1px 4px; border-radius: 4px; color: #ff9f43;">슈팅 ${stats.sho}</span>
+                        <span style="font-size: 0.62rem; font-weight: 700; background: rgba(255, 215, 0, 0.15); border: 1px solid rgba(255, 215, 0, 0.3); padding: 1px 4px; border-radius: 4px; color: #ffd700;">패스 ${stats.pas}</span>
+                        <span style="font-size: 0.62rem; font-weight: 700; background: rgba(0, 255, 135, 0.15); border: 1px solid rgba(0, 255, 135, 0.3); padding: 1px 4px; border-radius: 4px; color: #00ff87;">드리블 ${stats.dri}</span>
+                        <span style="font-size: 0.62rem; font-weight: 700; background: rgba(0, 210, 252, 0.15); border: 1px solid rgba(0, 210, 252, 0.3); padding: 1px 4px; border-radius: 4px; color: #00d2fc;">수비 ${stats.def}</span>
+                        <span style="font-size: 0.62rem; font-weight: 700; background: rgba(165, 88, 234, 0.15); border: 1px solid rgba(165, 88, 234, 0.3); padding: 1px 4px; border-radius: 4px; color: #a55eea;">피지컬 ${stats.phy}</span>
+                    </div>
                 </div>
             </div>
         `;
@@ -411,3 +654,131 @@ function closeTacticModal() {
         tacticModal.classList.remove('active');
     }
 }
+
+// ==========================================
+// 포메이션 설정 모달 제어 및 변경 엔진
+// ==========================================
+function openFormationModal() {
+    const modal = document.getElementById('formationModal');
+    if (modal) {
+        modal.classList.add('active');
+        updateFormationModalUI();
+    }
+}
+
+function closeFormationModal() {
+    const modal = document.getElementById('formationModal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+}
+
+function updateFormationModalUI() {
+    const formations = ['4-4-2', '4-3-3', '3-4-3', '5-4-1'];
+    formations.forEach(f => {
+        const cardEl = document.getElementById(`formCard-${f}`);
+        const statusEl = document.getElementById(`formStatus-${f}`);
+        if (!cardEl || !statusEl) return;
+        
+        const isValid = validateFormation(f);
+        const isActive = (currentFormation === f);
+        
+        // 초기화
+        cardEl.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+        cardEl.style.background = 'rgba(255, 255, 255, 0.02)';
+        cardEl.style.boxShadow = 'none';
+        
+        if (isActive) {
+            // 현재 선택된 활성 포메이션 스타일
+            if (f === '4-4-2') {
+                cardEl.style.borderColor = '#cbd5e1';
+                cardEl.style.boxShadow = '0 0 15px rgba(203, 213, 225, 0.3)';
+            } else if (f === '4-3-3') {
+                cardEl.style.borderColor = '#ffd700';
+                cardEl.style.boxShadow = '0 0 15px rgba(255, 215, 0, 0.3)';
+            } else if (f === '3-4-3') {
+                cardEl.style.borderColor = '#00ff87';
+                cardEl.style.boxShadow = '0 0 15px rgba(0, 255, 133, 0.3)';
+            } else if (f === '5-4-1') {
+                cardEl.style.borderColor = '#ff3e6c';
+                cardEl.style.boxShadow = '0 0 15px rgba(255, 62, 108, 0.3)';
+            }
+            cardEl.style.background = 'rgba(255, 255, 255, 0.05)';
+            
+            // 뱃지 상태 업데이트
+            statusEl.className = "tactic-status-badge active";
+            if (f === '4-4-2') {
+                statusEl.innerText = "사용 중";
+                statusEl.style.background = 'rgba(255,255,255,0.08)';
+                statusEl.style.color = '#fff';
+                statusEl.style.borderColor = 'rgba(255,255,255,0.2)';
+            } else {
+                if (isValid) {
+                    statusEl.innerText = "사용 중 (보너스 활성)";
+                    if (f === '4-3-3') {
+                        statusEl.style.background = 'rgba(255, 215, 0, 0.18)';
+                        statusEl.style.color = '#ffd700';
+                        statusEl.style.borderColor = '#ffd700';
+                    } else if (f === '3-4-3') {
+                        statusEl.style.background = 'rgba(0, 255, 135, 0.18)';
+                        statusEl.style.color = '#00ff87';
+                        statusEl.style.borderColor = '#00ff87';
+                    } else if (f === '5-4-1') {
+                        statusEl.style.background = 'rgba(255, 62, 108, 0.18)';
+                        statusEl.style.color = '#ff3e6c';
+                        statusEl.style.borderColor = '#ff3e6c';
+                    }
+                } else {
+                    statusEl.innerText = "사용 중 (보너스 미활성)";
+                    statusEl.style.background = 'rgba(255, 255, 255, 0.05)';
+                    statusEl.style.color = '#ff8888';
+                    statusEl.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+                }
+            }
+        } else {
+            // 선택되지 않은 포메이션 스타일
+            if (f === '4-4-2' || isValid) {
+                statusEl.innerText = f === '4-4-2' ? "선택 가능" : "선택 가능 (보너스 준비)";
+                statusEl.className = "tactic-status-badge active";
+                statusEl.style.background = 'rgba(255, 255, 255, 0.05)';
+                statusEl.style.color = '#cbd5e1';
+                statusEl.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+            } else {
+                statusEl.innerText = "선택 가능 (보너스 미활성)";
+                statusEl.className = "tactic-status-badge inactive";
+                statusEl.style.background = 'rgba(255, 255, 255, 0.02)';
+                statusEl.style.color = 'var(--text-muted)';
+                statusEl.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+            }
+        }
+    });
+}
+
+function changeFormation(type) {
+    if (type === currentFormation) {
+        closeFormationModal();
+        return;
+    }
+    
+    currentFormation = type;
+    try {
+        localStorage.setItem('fc_star_current_formation', type);
+    } catch (e) {}
+    
+    closeFormationModal();
+    renderSquadFormation();
+    if (typeof syncJeonbukOvr === 'function') {
+        syncJeonbukOvr();
+    }
+    
+    const isValid = validateFormation(type);
+    if (isValid) {
+        showToast(`⚽ 포메이션이 '${type}'(으)로 변경되었습니다! (전술 보너스 활성)`);
+    } else {
+        showToast(`⚽ 포메이션이 '${type}'(으)로 변경되었습니다. (핵심 조건 미달로 보너스 비활성)`);
+    }
+    
+    // Auto-save
+    saveUserProgress();
+}
+

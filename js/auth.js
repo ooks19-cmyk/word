@@ -102,6 +102,7 @@ function saveUserProgress() {
         userLevel: userLevel,
         playerDeck: playerDeck,
         squadFormation: squadFormation,
+        currentFormation: currentFormation,
         leagueRound: leagueRound,
         leagueTeams: leagueTeams,
         quizOffset: quizOffset,
@@ -129,6 +130,7 @@ function syncUserDataOnLogin(userData) {
         userLevel = userData.userLevel || 1;
         playerDeck = userData.playerDeck || {};
         squadFormation = userData.squadFormation || {};
+        currentFormation = userData.currentFormation || '4-4-2';
         leagueRound = userData.leagueRound || 1;
         
         // CARDS_DATABASE 기준 최신 구조 동기화 (하이드레이션)
@@ -173,6 +175,7 @@ function syncUserDataOnLogin(userData) {
         localStorage.setItem('fc_star_user_level', userLevel.toString());
         localStorage.setItem('fc_star_player_deck', JSON.stringify(playerDeck));
         localStorage.setItem('fc_star_squad_formation', JSON.stringify(squadFormation));
+        localStorage.setItem('fc_star_current_formation', currentFormation);
         localStorage.setItem('fc_star_league_teams', JSON.stringify(leagueTeams));
         localStorage.setItem('fc_star_league_round', leagueRound.toString());
         localStorage.setItem('fc_star_quiz_offset', quizOffset.toString());

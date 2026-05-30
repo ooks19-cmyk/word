@@ -148,3 +148,25 @@ function createSparkParticles(isExplosion = false, themeGlow = '#ffd700') {
         container.appendChild(spark);
     }
 }
+
+// 팀 전체 능력치의 평균값을 계산하는 헬퍼 함수
+function getTeamAverageStat(statName) {
+    let totalStat = 0;
+    const TACTICAL_POSITIONS = ["GK", "LB", "LCB", "RCB", "RB", "LCM", "CM", "RCM", "LW", "ST", "RW"];
+    
+    TACTICAL_POSITIONS.forEach(pos => {
+        const cardId = squadFormation[pos];
+        if (cardId && CARDS_DATABASE[cardId]) {
+            const card = getAwakenedCard(cardId);
+            if (card && card.stats && card.stats[statName] !== undefined) {
+                totalStat += card.stats[statName];
+            } else {
+                totalStat += 70;
+            }
+        } else {
+            totalStat += 70;
+        }
+    });
+    return Math.round(totalStat / 11);
+}
+

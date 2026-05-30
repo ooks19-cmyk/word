@@ -511,8 +511,35 @@
         letter-spacing: 2px;
     }
     
-    .sb-time {
-        font-size: 0.7rem;
-        padding: 0.15rem 0.5rem;
-    }
+}
+
+/* 실시간 순위표 팀 OVR 툴팁 스타일 */
+.league-team-col {
+    position: relative;
+    cursor: pointer;
+}
+
+.league-team-ovr-badge {
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: rgba(255, 215, 0, 0.18);
+    color: #ffd700;
+    border: 1px solid rgba(255, 215, 0, 0.35);
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: none;
+    white-space: nowrap;
+    margin-left: 6px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* 마우스 호버 및 모바일 태핑(active) 시 OVR 배지 팝업 */
+.league-team-col:hover .league-team-ovr-badge,
+.league-team-col:active .league-team-ovr-badge {
+    opacity: 1;
+    transform: scale(1);
 }

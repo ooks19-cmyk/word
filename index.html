@@ -208,8 +208,11 @@
                                 <i class="fa-solid fa-arrows-spin"></i> 티키타카
                             </div>
                         </div>
+                        <button class="header-tactic-badge active" id="btnOpenFormationSettings" onclick="openFormationModal()" style="cursor: pointer; border: 1px solid rgba(255, 215, 0, 0.4); background: rgba(0, 0, 0, 0.4); color: #ffd700; font-weight: 800; padding: 0.35rem 0.8rem; border-radius: 12px; font-size: 0.75rem; display: flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-gears"></i> 포메이션 설정 (<span id="activeFormationLabel">4-4-2</span>)
+                        </button>
                         <div class="deck-count" id="squadStatsContainer">
-                            팀 평균 OVR: <span id="teamOvrVal" style="color:#ffd700; font-weight:900;">70</span>
+                            팀 OVR: <span id="teamOvrVal" style="color:#ffd700; font-weight:900;">70</span>
                         </div>
                     </div>
                 </div>
@@ -243,6 +246,58 @@
                         
                         <!-- Goalkeeper -->
                         <div class="pitch-slot" id="slot-GK" onclick="openCardSelector('GK')" style="top: 90%; left: 50%;"></div>
+                    </div>
+                </div>
+
+                <!-- 실시간 전술 보너스 현황판 -->
+                <div class="tactic-bonus-status-board" style="width: 100%; max-width: 760px; margin: 1rem auto 0 auto; background: rgba(10, 14, 26, 0.45); border: 1px solid var(--glass-border); border-radius: 20px; padding: 1.2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.4); backdrop-filter: blur(10px); display: flex; flex-direction: column; gap: 0.8rem;">
+                    <h4 style="font-size: 0.95rem; font-weight: 800; color: #fff; margin: 0; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-gift" style="color: #ffd700;"></i> 실시간 전술 완성 보너스 현황 (최대 +2 OVR)</h4>
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap; width: 100%;">
+                        <div id="bonus-key-player" style="flex: 1; min-width: 200px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 0.6rem 1rem; border-radius: 12px; display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-size: 0.8rem; color: var(--text-light); font-weight: 700;"><i class="fa-solid fa-user-check" style="margin-right: 6px; color: #ffd700;"></i> 핵심 선수 조건 (OVR +1)</span>
+                            <span id="bonus-key-status" style="font-size: 0.75rem; font-weight: 800; padding: 3px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #cbd5e1;">비활성 ❌</span>
+                        </div>
+                        <div id="bonus-team-average" style="flex: 1; min-width: 200px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 0.6rem 1rem; border-radius: 12px; display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-size: 0.8rem; color: var(--text-light); font-weight: 700;"><i class="fa-solid fa-users" style="margin-right: 6px; color: #ffd700;"></i> 팀 평균 속성 조건 (OVR +1)</span>
+                            <span id="bonus-team-status" style="font-size: 0.75rem; font-weight: 800; padding: 3px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #cbd5e1;">비활성 ❌</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 팀 평균 파라미터 현황판 -->
+                <div class="team-average-stats-board" style="width: 100%; max-width: 760px; margin: 1rem auto 0 auto; background: rgba(10, 14, 26, 0.45); border: 1px solid var(--glass-border); border-radius: 20px; padding: 1.2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.4); backdrop-filter: blur(10px); display: flex; flex-direction: column; gap: 0.8rem;">
+                    <h4 style="font-size: 0.95rem; font-weight: 800; color: #fff; margin: 0; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-chart-simple" style="color: #ffd700;"></i> 베스트 11 팀 평균 능력치 현황</h4>
+                    <div class="team-avg-grid" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;">
+                        <!-- PAC -->
+                        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); padding: 0.6rem; border-radius: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-bottom: 2.5px solid #ff3e6c;">
+                            <span style="font-size: 0.68rem; color: var(--text-muted); font-weight: 700;">PAC (속도)</span>
+                            <span id="teamAvg-pac" style="font-size: 1.1rem; font-weight: 900; color: #ff3e6c;">70</span>
+                        </div>
+                        <!-- SHO -->
+                        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); padding: 0.6rem; border-radius: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-bottom: 2.5px solid #ff9f43;">
+                            <span style="font-size: 0.68rem; color: var(--text-muted); font-weight: 700;">SHO (슛)</span>
+                            <span id="teamAvg-sho" style="font-size: 1.1rem; font-weight: 900; color: #ff9f43;">70</span>
+                        </div>
+                        <!-- PAS -->
+                        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); padding: 0.6rem; border-radius: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-bottom: 2.5px solid #ffd700;">
+                            <span style="font-size: 0.68rem; color: var(--text-muted); font-weight: 700;">PAS (패스)</span>
+                            <span id="teamAvg-pas" style="font-size: 1.1rem; font-weight: 900; color: #ffd700;">70</span>
+                        </div>
+                        <!-- DRI -->
+                        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); padding: 0.6rem; border-radius: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-bottom: 2.5px solid #00ff87;">
+                            <span style="font-size: 0.68rem; color: var(--text-muted); font-weight: 700;">DRI (드리블)</span>
+                            <span id="teamAvg-dri" style="font-size: 1.1rem; font-weight: 900; color: #00ff87;">70</span>
+                        </div>
+                        <!-- DEF -->
+                        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); padding: 0.6rem; border-radius: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-bottom: 2.5px solid #00d2fc;">
+                            <span style="font-size: 0.68rem; color: var(--text-muted); font-weight: 700;">DEF (수비)</span>
+                            <span id="teamAvg-def" style="font-size: 1.1rem; font-weight: 900; color: #00d2fc;">70</span>
+                        </div>
+                        <!-- PHY -->
+                        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); padding: 0.6rem; border-radius: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-bottom: 2.5px solid #a55eea;">
+                            <span style="font-size: 0.68rem; color: var(--text-muted); font-weight: 700;">PHY (피지컬)</span>
+                            <span id="teamAvg-phy" style="font-size: 1.1rem; font-weight: 900; color: #a55eea;">70</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -615,6 +670,84 @@
 
                 <div style="font-size: 0.82rem; color: #ffd700; font-weight: 700; background: rgba(255, 255, 255, 0.03); padding: 0.6rem 1rem; border-radius: 12px; border: 1px solid var(--glass-border); text-align: center; margin-top: 1.2rem;">
                     <i class="fa-solid fa-circle-info" style="margin-right: 4px;"></i> 팁: 전술 조건을 만족하면 카드가 아름다운 네온빛으로 빛납니다!
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- FORMATION SETTING MODAL -->
+    <div class="drawer-overlay" id="formationModal" onclick="closeFormationModal()">
+        <div class="tactic-modal-drawer" style="max-width: 420px; height: auto !important; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); border-radius: 24px;" onclick="event.stopPropagation()">
+            <div class="drawer-header">
+                <h3 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin: 0; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-gears" style="color: #ffd700;"></i> 포메이션 설정</h3>
+                <button class="btn-close-drawer" onclick="closeFormationModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="drawer-content" style="padding: 1.2rem; max-height: 80vh; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem;">
+                
+                <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin: 0 0 0.5rem 0; word-break: keep-all; line-height: 1.5;">
+                    원하는 전술 포메이션을 선택하세요. 핵심 포지션에 조건(OVR 80이상)을 충족하는 선수가 기용되어야 활성화가 가능합니다.
+                </p>
+
+                <!-- 포메이션 리스트 -->
+                <!-- 1. 4-4-2 기본 -->
+                <div class="tactic-info-box" id="formCard-4-4-2" onclick="changeFormation('4-4-2')" style="cursor: pointer; padding: 1rem !important; border-radius: 16px !important; background: rgba(255,255,255,0.02); border: 1.5px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 0.5rem; transition: all 0.3s;">
+                    <div class="tactic-card-header" style="border-bottom: none; padding-bottom: 0;">
+                        <div class="tactic-title-wrapper">
+                            <i class="fa-solid fa-square-poll-vertical" style="color: #cbd5e1; font-size: 1.2rem;"></i>
+                            <h3 style="font-size: 1rem;">무전술 기본 포메이션 (<span style="color: #cbd5e1;">4-4-2</span>)</h3>
+                        </div>
+                        <span class="tactic-status-badge active" style="font-size: 0.65rem; padding: 0.15rem 0.5rem; background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); color: #fff;" id="formStatus-4-4-2">활성 가능</span>
+                    </div>
+                    <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0; line-height: 1.4; word-break: keep-all;">기본 배치만 제공하며, 어떠한 전술 요구사항이나 보너스 혜택도 없습니다.</p>
+                </div>
+
+                <!-- 2. 4-3-3 정정용 -->
+                <div class="tactic-info-box" id="formCard-4-3-3" onclick="changeFormation('4-3-3')" style="cursor: pointer; padding: 1rem !important; border-radius: 16px !important; background: rgba(255,255,255,0.02); border: 1.5px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 0.5rem; transition: all 0.3s;">
+                    <div class="tactic-card-header" style="border-bottom: none; padding-bottom: 0;">
+                        <div class="tactic-title-wrapper">
+                            <i class="fa-solid fa-futbol" style="color: #ffd700; font-size: 1.2rem;"></i>
+                            <h3 style="font-size: 1rem;">빌드업 중시 (<span style="color: #ffd700;">4-3-3</span>)</h3>
+                        </div>
+                        <span class="tactic-status-badge inactive" style="font-size: 0.65rem; padding: 0.15rem 0.5rem;" id="formStatus-4-3-3">조건 미달</span>
+                    </div>
+                    <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0; line-height: 1.4; word-break: keep-all;"><strong>정정용 감독 스타일</strong>: 패스(PAS) 위주의 안정적인 후방 빌드업</p>
+                    <div style="font-size: 0.74rem; background: rgba(255,255,255,0.02); padding: 0.5rem 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); display: flex; flex-direction: column; gap: 4px; line-height: 1.45; text-align: left; color: #94a3b8;">
+                        <div><i class="fa-solid fa-star" style="color:#ffd700; margin-right: 4px;"></i> 전술 보너스: <strong>핵심선수(CM) 패스 80이상</strong>, <strong>팀 평균 패스 70이상</strong> (각 +1 OVR)</div>
+                        <div style="color: #00ff87;"><i class="fa-solid fa-chart-line" style="margin-right: 4px;"></i> 핵심선수의 패스 능력이 높을수록 <strong>골 찬스가 많이 나와요!</strong> (1점당 +0.5%)</div>
+                    </div>
+                </div>
+
+                <!-- 3. 3-4-3 서울 -->
+                <div class="tactic-info-box" id="formCard-3-4-3" onclick="changeFormation('3-4-3')" style="cursor: pointer; padding: 1rem !important; border-radius: 16px !important; background: rgba(255,255,255,0.02); border: 1.5px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 0.5rem; transition: all 0.3s;">
+                    <div class="tactic-card-header" style="border-bottom: none; padding-bottom: 0;">
+                        <div class="tactic-title-wrapper">
+                            <i class="fa-solid fa-arrows-spin" style="color: #00ff87; font-size: 1.2rem;"></i>
+                            <h3 style="font-size: 1rem;">유기적 스위칭 (<span style="color: #00ff87;">3-4-3</span>)</h3>
+                        </div>
+                        <span class="tactic-status-badge inactive" style="font-size: 0.65rem; padding: 0.15rem 0.5rem;" id="formStatus-3-4-3">조건 미달</span>
+                    </div>
+                    <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0; line-height: 1.4; word-break: keep-all;"><strong>FC 서울 스타일</strong>: 짧은 패스와 유기적 위치 스위칭 축구</p>
+                    <div style="font-size: 0.74rem; background: rgba(255,255,255,0.02); padding: 0.5rem 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); display: flex; flex-direction: column; gap: 4px; line-height: 1.45; text-align: left; color: #94a3b8;">
+                        <div><i class="fa-solid fa-star" style="color:#00ff87; margin-right: 4px;"></i> 전술 보너스: <strong>핵심선수(CM) 드리블 80이상</strong>, <strong>팀 평균 드리블 70이상</strong> (각 +1 OVR)</div>
+                        <div style="color: #00ff87;"><i class="fa-solid fa-chart-line" style="margin-right: 4px;"></i> 핵심선수의 드리블 능력이 높을수록 <strong>골 찬스가 많이 나와요!</strong> (1점당 +0.5%)</div>
+                    </div>
+                </div>
+
+                <!-- 4. 5-4-1 포항 -->
+                <div class="tactic-info-box" id="formCard-5-4-1" onclick="changeFormation('5-4-1')" style="cursor: pointer; padding: 1rem !important; border-radius: 16px !important; background: rgba(255,255,255,0.02); border: 1.5px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 0.5rem; transition: all 0.3s;">
+                    <div class="tactic-card-header" style="border-bottom: none; padding-bottom: 0;">
+                        <div class="tactic-title-wrapper">
+                            <i class="fa-solid fa-bolt" style="color: #ff3e6c; font-size: 1.2rem;"></i>
+                            <h3 style="font-size: 1rem;">역습 (<span style="color: #ff3e6c;">5-4-1</span>)</h3>
+                        </div>
+                        <span class="tactic-status-badge inactive" style="font-size: 0.65rem; padding: 0.15rem 0.5rem;" id="formStatus-5-4-1">조건 미달</span>
+                    </div>
+                    <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0; line-height: 1.4; word-break: keep-all;"><strong>포항 스틸러스 스타일</strong>: 촘촘한 수비벽 구축 후 벼락같은 측면 역습</p>
+                    <div style="font-size: 0.74rem; background: rgba(255,255,255,0.02); padding: 0.5rem 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); display: flex; flex-direction: column; gap: 4px; line-height: 1.45; text-align: left; color: #94a3b8;">
+                        <div><i class="fa-solid fa-star" style="color:#ff3e6c; margin-right: 4px;"></i> 전술 보너스: <strong>핵심선수(LM/RM) 속도 80이상</strong>, <strong>팀 평균 수비 60이상</strong> (각 +1 OVR)</div>
+                        <div style="color: #00ff87;"><i class="fa-solid fa-chart-line" style="margin-right: 4px;"></i> 핵심선수의 속도 능력이 높을수록 <strong>골 성공 확률(득점력)이 올라가요!</strong> (1점당 +0.5%)</div>
+                    </div>
                 </div>
 
             </div>

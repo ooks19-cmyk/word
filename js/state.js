@@ -68,3 +68,13 @@ let isDeveloperMode = false;
 let leagueYear = 2026;
 let hallOfFame = [];
 let careerStats = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+
+let currentFormation = '4-4-2';
+try {
+    const savedFormation = localStorage.getItem('fc_star_current_formation');
+    if (savedFormation) {
+        currentFormation = savedFormation;
+    }
+} catch (e) {
+    currentFormation = '4-4-2';
+}

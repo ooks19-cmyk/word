@@ -715,3 +715,60 @@
         font-size: 1.1rem;
     }
 }
+
+/* 핵심 선수 황금 아우라 강조 표시 및 애니메이션 */
+.pitch-slot.key-player-slot::after {
+    content: "★핵심";
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
+    color: #000;
+    font-size: 0.55rem;
+    font-weight: 900;
+    padding: 1px 6px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+    z-index: 12;
+    white-space: nowrap;
+    border: 1px solid #fff;
+    animation: keyPlayerLabelPulse 1.5s infinite alternate;
+}
+
+.pitch-slot.key-player-slot .mini-player-card {
+    border: 2.5px solid #ffd700 !important;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.75) !important;
+    animation: keyPlayerPulse 1.5s infinite alternate;
+}
+
+@keyframes keyPlayerPulse {
+    0% {
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+        transform: scale(1);
+    }
+    100% {
+        box-shadow: 0 0 22px rgba(255, 215, 0, 0.95);
+        transform: scale(1.02);
+    }
+}
+
+@keyframes keyPlayerLabelPulse {
+    0% {
+        transform: translateX(-50%) scale(1);
+        box-shadow: 0 0 5px rgba(255, 215, 0, 0.6);
+    }
+    100% {
+        transform: translateX(-50%) scale(1.08);
+        box-shadow: 0 0 12px rgba(255, 215, 0, 0.9);
+    }
+}
+
+/* 팀 평균 파라미터 반응형 그리드 */
+@media (max-width: 640px) {
+    .team-avg-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 6px !important;
+    }
+}
+
