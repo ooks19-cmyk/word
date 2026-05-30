@@ -203,8 +203,19 @@
             <div class="squad-container">
                 <div class="squad-header">
                     <h2 class="deck-title"><i class="fa-solid fa-people-group" style="margin-right: 10px; color: #ffd700;"></i>베스트 11 스쿼드 포메이션 (4-3-3)</h2>
-                    <div class="deck-count" id="squadStatsContainer">
-                        팀 평균 OVR: <span id="teamOvrVal" style="color:#ffd700; font-weight:900;">70</span>
+                    <div class="squad-header-right" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                        <!-- 실시간 전술 퀵 뷰 아이콘 배지 -->
+                        <div class="header-tactic-icons" style="display: flex; gap: 8px;">
+                            <div class="header-tactic-badge inactive" id="headerTacticGegen" onclick="openTacticModal('gegen')" style="cursor: pointer;" title="전방압박 작전: 클릭하여 비밀 작전 보드 열기">
+                                <i class="fa-solid fa-bolt"></i> 전방압박
+                            </div>
+                            <div class="header-tactic-badge inactive" id="headerTacticTiki" onclick="openTacticModal('tiki')" style="cursor: pointer;" title="티키타카 작전: 클릭하여 비밀 작전 보드 열기">
+                                <i class="fa-solid fa-arrows-spin"></i> 티키타카
+                            </div>
+                        </div>
+                        <div class="deck-count" id="squadStatsContainer">
+                            팀 평균 OVR: <span id="teamOvrVal" style="color:#ffd700; font-weight:900;">70</span>
+                        </div>
                     </div>
                 </div>
                 
@@ -266,6 +277,10 @@
                                 <div class="sb-time" id="sbTimeDisplay">VS</div>
                                 <div class="sb-scores">
                                     <span id="homeScore">0</span> - <span id="awayScore">0</span>
+                                </div>
+                                <div class="match-board-tactics" style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-top: 4px;">
+                                    <div id="matchTacticBadge" style="display: none; font-size: 0.65rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 12px; background: rgba(255, 215, 0, 0.15); border: 1px solid rgba(255, 215, 0, 0.4); color: #ffd700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.15); letter-spacing: 0.5px;">⚡ 전방압박</div>
+                                    <div id="matchTikiBadge" style="display: none; font-size: 0.65rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 12px; background: rgba(0, 255, 135, 0.15); border: 1px solid rgba(0, 255, 135, 0.4); color: #00ff87; box-shadow: 0 0 10px rgba(0, 255, 135, 0.15); letter-spacing: 0.5px;">🌀 티키타카</div>
                                 </div>
                                 <div class="sb-match-venue" id="matchVenueDisplay">HOME ADVANTAGE</div>
                             </div>
@@ -520,6 +535,95 @@
                     <i class="fa-solid fa-circle-info" style="margin-right: 4px;"></i> 레벨 10마다 '특별한' 카드가 제공됩니다.
                 </div>
                 <button class="btn-open-pack" onclick="closeLevelRewardModal()" style="width: 100%; margin-top: 1rem; padding: 0.8rem;">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TACTICS BOARD MODAL (비밀 작전 보드 팝업창) -->
+    <div class="drawer-overlay" id="tacticModal" onclick="closeTacticModal()">
+        <div class="tactic-modal-drawer" style="max-width: 350px; height: auto !important; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); border-radius: 24px;" onclick="event.stopPropagation()">
+            <div class="drawer-header">
+                <h3 id="tacticModalTitleText"><i class="fa-solid fa-wand-magic-sparkles" style="color: #ffd700; margin-right: 8px;"></i> 우리 팀의 비밀 작전 보드</h3>
+                <button class="btn-close-drawer" onclick="closeTacticModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="drawer-content" style="padding: 1rem 0.5rem 0.5rem 0.5rem; max-height: 80vh; overflow-y: auto;">
+                
+                <div class="tactic-dashboard-grid">
+                    <!-- 1. 전방압박 전술 카드 -->
+                    <div class="tactic-info-box" id="tacticBoxGegen">
+                        <div class="tactic-card-header">
+                            <div class="tactic-title-wrapper">
+                                <i class="fa-solid fa-bolt tactic-icon" style="color: #ffd700;"></i>
+                                <h3>작전 1: <strong style="color: #ffd700;">전방압박 (Gegenpressing)</strong></h3>
+                            </div>
+                            <span class="tactic-status-badge inactive" id="tacticStatusBadgeGegen">꺼짐</span>
+                        </div>
+                        <p class="tactic-desc">
+                            🏃‍♂️ <strong>와다다! 번개처럼 달려가기!</strong><br>
+                            상대 선수가 공을 가지고 있을 때, 우리 공격수들이 번개처럼 빠르게 우다다 달려가서 공을 뺏는 작전이에요! 기회가 많이 생겨요! 🚀
+                        </p>
+                        <div class="tactic-conditions">
+                            <div class="condition-item">
+                                <i class="fa-solid fa-circle-info" style="color: #ffd700;"></i>
+                                <span>조건: <strong>공격수(LW, ST, RW) 중 2명 이상</strong> 속도가 <strong>80 이상</strong>이어야 해요!</span>
+                            </div>
+                            <div class="condition-item">
+                                <i class="fa-solid fa-arrows-spin" style="color: #00ff87;"></i>
+                                <span>현재 상태: <strong id="tacticCountTextGegen" style="color: #ff8888;">0 / 2명 달성</strong></span>
+                            </div>
+                            <div class="condition-item">
+                                <i class="fa-solid fa-gift" style="color: #ffd700;"></i>
+                                <span>보너스: <strong>경기 중 공격 찬스를 잡을 확률 +6% (최대 90%)</strong></span>
+                            </div>
+                        </div>
+                        <div class="tactic-recommend-box">
+                            <h4>⚡ 추천 공격수 리스트 (속도 80이상):</h4>
+                            <div class="tactic-player-list" id="tacticPlayerListGegen">
+                                <!-- Loaded dynamically via app.js -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. 티키타카 전술 카드 -->
+                    <div class="tactic-info-box" id="tacticBoxTiki">
+                        <div class="tactic-card-header">
+                            <div class="tactic-title-wrapper">
+                                <i class="fa-solid fa-arrows-spin tactic-icon" style="color: #00ff87;"></i>
+                                <h3>작전 2: <strong style="color: #00ff87;">티키타카 (Tiki-Taka)</strong></h3>
+                            </div>
+                            <span class="tactic-status-badge inactive" id="tacticStatusBadgeTiki">꺼짐</span>
+                        </div>
+                        <p class="tactic-desc">
+                            🌀 <strong>패스! 패스! 슉슉! 돌리기!</strong><br>
+                            공을 슉슉 빠르게 돌리면서 수비수들을 정신없게 만드는 전술이에요! 패스가 잘 이어져서 골을 넣기가 훨씬 더 쉬워져요! ⚽
+                        </p>
+                        <div class="tactic-conditions">
+                            <div class="condition-item">
+                                <i class="fa-solid fa-circle-info" style="color: #ffd700;"></i>
+                                <span>조건: <strong>미드필더(LCM, CM, RCM) 3명 모두</strong> 패스가 <strong>75 이상</strong>이어야 해요!</span>
+                            </div>
+                            <div class="condition-item">
+                                <i class="fa-solid fa-arrows-spin" style="color: #00ff87;"></i>
+                                <span>현재 상태: <strong id="tacticCountTextTiki" style="color: #ff8888;">0 / 3명 달성</strong></span>
+                            </div>
+                            <div class="condition-item">
+                                <i class="fa-solid fa-gift" style="color: #ffd700;"></i>
+                                <span>보너스: <strong>찬스 상황에서 골 성공 확률 +5% 상승!</strong></span>
+                            </div>
+                        </div>
+                        <div class="tactic-recommend-box">
+                            <h4>🌀 추천 미드필더 리스트 (패스 75이상):</h4>
+                            <div class="tactic-player-list" id="tacticPlayerListTiki">
+                                <!-- Loaded dynamically via app.js -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="font-size: 0.82rem; color: #ffd700; font-weight: 700; background: rgba(255, 255, 255, 0.03); padding: 0.6rem 1rem; border-radius: 12px; border: 1px solid var(--glass-border); text-align: center; margin-top: 1.2rem;">
+                    <i class="fa-solid fa-circle-info" style="margin-right: 4px;"></i> 팁: 전술 조건을 만족하면 카드가 아름다운 네온빛으로 빛납니다!
+                </div>
+
             </div>
         </div>
     </div>
