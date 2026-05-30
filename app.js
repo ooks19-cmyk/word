@@ -386,37 +386,38 @@ function openPack() {
         playSound('reveal');
     }, 600);
 
-    // Apply interactive 3D Tilt after card enters
+    // Automated Flash and Spark Explosion (Replaces manual flip)
+    setTimeout(() => {
+        // White flash effect
+        const flash = document.getElementById('flashOverlay');
+        if (flash) {
+            flash.classList.add('trigger');
+            setTimeout(() => {
+                flash.classList.remove('trigger');
+            }, 800);
+        }
+        
+        // Sound and explosion particles
+        playSound('flip');
+        createSparkParticles(true, activePulledCard.theme.glow);
+        
+        // Show collect button automatically
+        const btn = document.getElementById('btnCollect');
+        if (btn) {
+            btn.style.display = 'block';
+            btn.style.animation = 'fadeIn 0.4s ease-out forwards';
+        }
+    }, 1100);
+
+    // Apply interactive 3D Tilt after card enters and flash completes
     setTimeout(() => {
         apply3DTiltEffect(document.getElementById('futCard'));
-    }, 1200);
+    }, 1500);
 }
 
-// Trigger Flip Card
+// Trigger Flip Card (Disabled/No-op since card is revealed automatically)
 function flipRevealedCard() {
-    if (isFlipped) return;
-    isFlipped = true;
-    
-    playSound('flip');
-    
-    const futCard = document.getElementById('futCard');
-    futCard.classList.add('flipped');
-    
-    const flash = document.getElementById('flashOverlay');
-    flash.classList.add('trigger');
-    
-    setTimeout(() => {
-        flash.classList.remove('trigger');
-    }, 800);
-    
-    // Exploding spark particles matching player neon theme
-    createSparkParticles(true, activePulledCard.theme.glow);
-    
-    setTimeout(() => {
-        const btn = document.getElementById('btnCollect');
-        btn.style.display = 'block';
-        btn.style.animation = 'fadeIn 0.4s ease-out forwards';
-    }, 600);
+    // No-op
 }
 
 // Save Card to local deck
@@ -1421,9 +1422,9 @@ function startMatchSimulation() {
         localStorage.setItem('fc_star_match_today_count', '0');
     }
     
-    // 일 단위 경기 진행 제한 체크 (개발자 모드 아닐 시 하루 3경기만 가능)
-    if (!isDeveloperMode && matchTodayCount >= 3) {
-        showToast("⚠️ 경기는 하루에 최대 3경기만 진행할 수 있습니다! 내일 다시 도전해 주세요.");
+    // 일 단위 경기 진행 제한 체크 (개발자 모드 아닐 시 하루 5경기만 가능)
+    if (!isDeveloperMode && matchTodayCount >= 5) {
+        showToast("⚠️ 경기는 하루에 최대 5경기만 진행할 수 있습니다! 내일 다시 도전해 주세요.");
         return;
     }
     
@@ -1799,7 +1800,7 @@ function startMatchSimulation() {
                 // Update match preview for next round
                 setTimeout(() => {
                     updateMatchPreviewBoard();
-                    showToast(`🏆 경기 완료 보상으로 +1 FP 획득! (하루 최대 3경기 제한)`);
+                    showToast(`🏆 경기 완료 보상으로 +1 FP 획득! (하루 최대 5경기 제한)`);
                 }, 2000);
             }
             

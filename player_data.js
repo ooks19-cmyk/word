@@ -58,7 +58,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "PARIS SG",
-        image: "player/이강인.png",
+        image: "player/이강인.webp",
         rarity: "legend",
         description: "세계 최고의 명문 구단 중 하나인 파리 생제르맹(PSG)에서 활약 중인 대한민국의 대표 미드필더입니다. 압도적인 탈압박과 전매특허인 왼발 정밀 크로스, 그리고 그라운드를 종횡무진하는 마술 같은 시야로 경기를 주도하는 월드클래스 천재 크랙입니다.",
         theme: {
@@ -529,6 +529,55 @@ const CARDS_DATABASE = {
             dri: 81,
             def: 38,
             phy: 62
+        }
+    },
+    "park_ji_soo": {
+        id: "park_ji_soo",
+        name: "박지수",
+        rating: 81,
+        position: "CB",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "JEONBUK",
+        image: "player/박지수.webp",
+        description: "대한민국 축구 국가대표팀 출신의 피지컬이 압도적인 철벽 센터백입니다. 빠른 발을 활용한 커버 플레이와 탁월한 대인 방어 능력, 그리고 제공권 장악으로 팀의 최후방을 든든하게 지켜줍니다.",
+        theme: {
+            primary: "#005a3c",
+            secondary: "#ffffff",
+            glow: "#00ff87"
+        },
+        stats: {
+            pac: 75,
+            sho: 48,
+            pas: 68,
+            dri: 67,
+            def: 82,
+            phy: 83
+        }
+    },
+    "jo_hyeon_woo": {
+        id: "jo_hyeon_woo",
+        name: "조현우",
+        rating: 84,
+        position: "GK",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "ULSAN HD",
+        image: "player/조현우.webp",
+        rarity: "legend",
+        description: "대한민국의 독보적인 넘버원 거미손 골키퍼입니다. 2018 러시아 월드컵 독일전의 신화를 쓴 주역으로, 믿기지 않는 동물적인 반사신경과 눈부신 공중볼 커버, 그리고 1대1 상황에서의 탁월한 선방 능력으로 골문을 완벽히 통제합니다.",
+        theme: {
+            primary: "#002d62",   // 울산 블루
+            secondary: "#fec913", // 울산 골드
+            glow: "#ffd700"       // 골드 아우라 광채
+        },
+        stats: {
+            pac: 85,
+            sho: 83,
+            pas: 75,
+            dri: 87,
+            def: 52,
+            phy: 82
         }
     }
 };

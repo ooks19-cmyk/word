@@ -2622,4 +2622,17 @@ input:checked + .dev-slider::before {
     }
 }
 
+/* 카드 뽑기 연출 모달용 - 플립(뒤집기) 모션 및 회전 강제 제거 오버라이드 */
+#revealModal .fut-card {
+    transform: none !important;
+    transition: none !important;
+}
+#revealModal .card-front {
+    transform: none !important;
+    backface-visibility: visible !important;
+}
+#revealModal .card-back {
+    display: none !important;
+}
+
 
