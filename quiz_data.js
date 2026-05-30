@@ -122,7 +122,7 @@ const QUIZ_WORDS = [
 
     /* === [New Additions - 이미지 1, 2, 3 추가분 하단 배치] === */
     { word: "activity", meaning: "활동, 사용 기록 (예: 게임 이용 내역)" },
-    { word: "asleep", meaning: "잠이 든, 자고 있는" },
+    { word: "asleep", meaning: "잠이 든, 잠든, 자고 있는" },
     { word: "bedtime", meaning: "잘 시간, 취침 시간" },
     { word: "before", meaning: "~ 전에, ~의 앞에" },
     { word: "brain", meaning: "뇌, 두뇌, (불빛으로 자극받는) 머리" },
@@ -139,7 +139,7 @@ const QUIZ_WORDS = [
     { word: "screen", meaning: "화면, 액정, 스크린" },
     { word: "sleepy", meaning: "졸린, 잠오는" },
     { word: "soon", meaning: "곧, 금방" },
-    { word: "wake up", meaning: "잠에서 깨우다, 깨어나다, 활성화하다" },
+    { word: "wake up", meaning: "잠에서 깨우다, 일어나다, 깨어나다, 활성화하다" },
     { word: "warm", meaning: "따뜻한, 데운, 따스하게 하다" },
     { word: "watch", meaning: "(주의 깊게) 보다, 지켜보다, 손목시계" },
     { word: "work", meaning: "효과가 있다, (방법 등이) 먹히다, 일하다" }
