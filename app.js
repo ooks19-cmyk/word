@@ -987,6 +987,7 @@ const K_LEAGUE_TEAMS_PRESET = [
 ];
 
 const JEONBUK_FIXTURES = [
+    // 1회차 (라운드 1~11)
     { round: 1, opponent: "ulsan", isHome: false },
     { round: 2, opponent: "seoul", isHome: true },
     { round: 3, opponent: "pohang", isHome: false },
@@ -997,7 +998,31 @@ const JEONBUK_FIXTURES = [
     { round: 8, opponent: "jeju", isHome: true },
     { round: 9, opponent: "daejeon", isHome: false },
     { round: 10, opponent: "anyang", isHome: true },
-    { round: 11, opponent: "incheon", isHome: false }
+    { round: 11, opponent: "incheon", isHome: false },
+    // 2회차 (라운드 12~22, 홈/원정 반대)
+    { round: 12, opponent: "ulsan", isHome: true },
+    { round: 13, opponent: "seoul", isHome: false },
+    { round: 14, opponent: "pohang", isHome: true },
+    { round: 15, opponent: "gangwon", isHome: false },
+    { round: 16, opponent: "gwangju", isHome: true },
+    { round: 17, opponent: "gimcheon", isHome: false },
+    { round: 18, opponent: "bucheon_fc", isHome: true },
+    { round: 19, opponent: "jeju", isHome: false },
+    { round: 20, opponent: "daejeon", isHome: true },
+    { round: 21, opponent: "anyang", isHome: false },
+    { round: 22, opponent: "incheon", isHome: true },
+    // 3회차 (라운드 23~33, 홈/원정 배분)
+    { round: 23, opponent: "ulsan", isHome: false },
+    { round: 24, opponent: "seoul", isHome: true },
+    { round: 25, opponent: "pohang", isHome: false },
+    { round: 26, opponent: "gangwon", isHome: true },
+    { round: 27, opponent: "gwangju", isHome: false },
+    { round: 28, opponent: "gimcheon", isHome: true },
+    { round: 29, opponent: "bucheon_fc", isHome: false },
+    { round: 30, opponent: "jeju", isHome: true },
+    { round: 31, opponent: "daejeon", isHome: false },
+    { round: 32, opponent: "anyang", isHome: true },
+    { round: 33, opponent: "incheon", isHome: false }
 ];
 
 function initLeaguePlayerStats() {
@@ -1318,9 +1343,9 @@ function updateMatchPreviewBoard() {
         matchTodayCountValEl.innerText = displayCount;
     }
 
-    if (leagueRound > 11) {
+    if (leagueRound > 33) {
         // Season completed
-        document.getElementById('matchRoundVal').innerText = "11";
+        document.getElementById('matchRoundVal').innerText = "33";
         document.getElementById('sbTimeDisplay').innerText = "끝";
         document.getElementById('homeTeamName').innerText = "시즌";
         document.getElementById('awayTeamName').innerText = "종료";
@@ -1409,7 +1434,7 @@ function renderLeagueTable() {
 // 12. HIGH-FIDELITY MATCH TEXT BROADCAST SIMULATOR
 function startMatchSimulation() {
     if (isMatchRunning) return;
-    if (leagueRound > 11) {
+    if (leagueRound > 33) {
         showToast("시즌이 종료되었습니다. 우측 상단의 '시즌 리셋'을 진행해주세요!");
         return;
     }
@@ -1613,7 +1638,7 @@ function startMatchSimulation() {
         startBtn.style.color = '';
         startBtn.style.cursor = '';
 
-        if (leagueRound > 11) {
+        if (leagueRound > 33) {
             checkSeasonChampion();
         } else {
             updateMatchPreviewBoard();
@@ -1792,7 +1817,7 @@ function startMatchSimulation() {
             startBtn.style.cursor = '';
             
             // Check season completion celebrating
-            if (leagueRound > 11) {
+            if (leagueRound > 33) {
                 setTimeout(() => {
                     checkSeasonChampion();
                 }, 1000);
@@ -2115,7 +2140,7 @@ function renderHallOfFame() {
                 <div class="fame-card-rank">최종 순위: ${record.jeonbukRank}위</div>
                 <div class="fame-card-stats">
                     <span>최종 승점: <strong>${record.jeonbukRecord.pts} 점</strong></span>
-                    <span>시즌 전적: <strong>11전 ${record.jeonbukRecord.w}승 ${record.jeonbukRecord.d}무 ${record.jeonbukRecord.l}패</strong></span>
+                    <span>시즌 전적: <strong>33전 ${record.jeonbukRecord.w}승 ${record.jeonbukRecord.d}무 ${record.jeonbukRecord.l}패</strong></span>
                     <span>시즌 우승팀: <strong>${record.champion}</strong></span>
                 </div>
                 ${awardHtml}
