@@ -3,8 +3,7 @@
 // 9. SQUAD FORMATION BOARD LOGIC
 let squadFormation = {};
 let activeSelectorPosition = null;
-let isGegenpressingActive = false;
-let isTikitakaActive = false;
+
 
 try {
     const savedFormation = localStorage.getItem('fc_star_squad_formation');
@@ -260,8 +259,7 @@ function renderSquadFormation() {
         }
     });
     
-    // Check and update squad tactics status
-    checkSquadTactics();
+
 
     // 6. 구단 주장 셀렉터 및 UI 실시간 동기화
     if (typeof updateCaptainSelectorUI === 'function') {
@@ -269,169 +267,7 @@ function renderSquadFormation() {
     }
 }
 
-function checkSquadTactics() {
-    // 1. 전방압박 (Gegenpressing) 검사
-    let fastForwardsCount = 0;
-    const forwards = ["LW", "ST", "RW"];
-    
-    forwards.forEach(pos => {
-        const cardId = squadFormation[pos];
-        if (cardId && CARDS_DATABASE[cardId]) {
-            const cardData = getAwakenedCard(cardId);
-            if (cardData && cardData.stats && cardData.stats.pac >= 80) {
-                fastForwardsCount++;
-            }
-        }
-    });
 
-    isGegenpressingActive = (fastForwardsCount >= 2);
-    
-    // 2. 티키타카 (Tiki-Taka) 검사
-    let passMidfieldersCount = 0;
-    let placedMidfieldersCount = 0;
-    const midfielders = ["LCM", "CM", "RCM"];
-    
-    midfielders.forEach(pos => {
-        const cardId = squadFormation[pos];
-        if (cardId && CARDS_DATABASE[cardId]) {
-            placedMidfieldersCount++;
-            const cardData = getAwakenedCard(cardId);
-            if (cardData && cardData.stats && cardData.stats.pas >= 75) {
-                passMidfieldersCount++;
-            }
-        }
-    });
-
-    // 5-4-1 역습 전술에서는 중앙 미드필더 부족(LM/RM 제외 실질적 2명 기용)으로 티키타카 사용 불가
-    if (currentFormation === '5-4-1') {
-        isTikitakaActive = false;
-    } else {
-        isTikitakaActive = (placedMidfieldersCount === 3 && passMidfieldersCount === 3);
-    }
-
-    // 3. UI 업데이트 (최상단 헤더 아이콘 배지 점등)
-    const headerGegen = document.getElementById('headerTacticGegen');
-    const headerTiki = document.getElementById('headerTacticTiki');
-    
-    if (headerGegen) {
-        if (isGegenpressingActive) {
-            headerGegen.className = "header-tactic-badge active gegen";
-        } else {
-            headerGegen.className = "header-tactic-badge inactive";
-        }
-    }
-    
-    if (headerTiki) {
-        if (isTikitakaActive) {
-            headerTiki.className = "header-tactic-badge active tiki";
-        } else {
-            headerTiki.className = "header-tactic-badge inactive";
-        }
-    }
-
-    // 4. 하단 전술판 대시보드 UI 업데이트
-    
-    // 4-A. 전방압박 카드 업데이트
-    const boxGegen = document.getElementById('tacticBoxGegen');
-    const badgeGegen = document.getElementById('tacticStatusBadgeGegen');
-    const textGegen = document.getElementById('tacticCountTextGegen');
-    
-    if (boxGegen && badgeGegen && textGegen) {
-        if (isGegenpressingActive) {
-            boxGegen.classList.add('active');
-            badgeGegen.innerText = "ON (활성)";
-            badgeGegen.className = "tactic-status-badge active gegen";
-            textGegen.innerText = `${fastForwardsCount} / 2명 달성 🎉 (작전 발동!)`;
-            textGegen.style.color = "#ffd700";
-        } else {
-            boxGegen.classList.remove('active');
-            badgeGegen.innerText = "OFF (꺼짐)";
-            badgeGegen.className = "tactic-status-badge inactive";
-            textGegen.innerText = `${fastForwardsCount} / 2명 달성`;
-            textGegen.style.color = "#ff8888";
-        }
-    }
-
-    // 4-B. 티키타카 카드 업데이트
-    const boxTiki = document.getElementById('tacticBoxTiki');
-    const badgeTiki = document.getElementById('tacticStatusBadgeTiki');
-    const textTiki = document.getElementById('tacticCountTextTiki');
-    
-    if (boxTiki && badgeTiki && textTiki) {
-        if (currentFormation === '5-4-1') {
-            boxTiki.classList.remove('active');
-            badgeTiki.innerText = "사용 불가";
-            badgeTiki.className = "tactic-status-badge inactive";
-            textTiki.innerText = "5-4-1 역습 포메이션에서는 사용 불가 (중앙 미드필더 부족)";
-            textTiki.style.color = "#ff3e6c";
-        } else if (isTikitakaActive) {
-            boxTiki.classList.add('active');
-            badgeTiki.innerText = "ON (활성)";
-            badgeTiki.className = "tactic-status-badge active tiki";
-            textTiki.innerText = `${passMidfieldersCount} / 3명 달성 🎉 (작전 발동!)`;
-            textTiki.style.color = "#00ff87";
-        } else {
-            boxTiki.classList.remove('active');
-            badgeTiki.innerText = "OFF (꺼짐)";
-            badgeTiki.className = "tactic-status-badge inactive";
-            textTiki.innerText = `${passMidfieldersCount} / 3명 달성 (미드필더 3명 배치 & 패스 75이상 필요)`;
-            textTiki.style.color = "#ff8888";
-        }
-    }
-
-    // 5. 추천 선수 동적 갱신
-    
-    // 5-A. 전방압박 추천 공격수
-    const candidateGegen = ["son_heung_min", "lee_dong_jun", "lee_seung_woo", "jeon_jin_woo", "lee_kang_in", "kim_seung_sub"];
-    const listGegen = document.getElementById('tacticPlayerListGegen');
-    if (listGegen) {
-        listGegen.innerHTML = '';
-        candidateGegen.forEach(id => {
-            const card = CARDS_DATABASE[id];
-            if (!card) return;
-            const isOwned = playerDeck.hasOwnProperty(id);
-            const tag = document.createElement('span');
-            tag.className = `rec-player-tag${isOwned ? ' owned-fast' : ''}`;
-            
-            let emoji = '🏃‍♂️';
-            if (id === 'son_heung_min') emoji = '🌟';
-            if (id === 'lee_dong_jun') emoji = '⚡';
-            if (id === 'jeon_jin_woo') emoji = '⚽';
-            if (id === 'lee_kang_in') emoji = '💫';
-            if (id === 'kim_seung_sub') emoji = '🔥';
-            
-            tag.innerHTML = `${card.name} (속도 ${card.stats.pac} / ${card.position}) ${emoji}${isOwned ? ' [보유중]' : ''}`;
-            listGegen.appendChild(tag);
-        });
-    }
-
-    // 5-B. 티키타카 추천 미드필더
-    const candidateTiki = ["lee_kang_in", "son_heung_min", "lee_yeong_jae", "kim_jin_gyu", "oberdan", "kang_sang_yoon", "gamboa", "maeng_seong_ung"];
-    const listTiki = document.getElementById('tacticPlayerListTiki');
-    if (listTiki) {
-        listTiki.innerHTML = '';
-        candidateTiki.forEach(id => {
-            const card = CARDS_DATABASE[id];
-            if (!card) return;
-            const isOwned = playerDeck.hasOwnProperty(id);
-            const tag = document.createElement('span');
-            tag.className = `rec-player-tag${isOwned ? ' owned-fast' : ''}`;
-            
-            let emoji = '🌀';
-            if (id === 'lee_kang_in') emoji = '💫';
-            if (id === 'son_heung_min') emoji = '🌟';
-            if (id === 'lee_yeong_jae') emoji = '🏃‍♂️';
-            if (id === 'kim_jin_gyu') emoji = '⚽';
-            if (id === 'oberdan') emoji = '🌀';
-            if (id === 'kang_sang_yoon') emoji = '🔥';
-            if (id === 'gamboa') emoji = '⚡';
-            if (id === 'maeng_seong_ung') emoji = '🛡️';
-            
-            tag.innerHTML = `${card.name} (패스 ${card.stats.pas} / ${card.position}) ${emoji}${isOwned ? ' [보유중]' : ''}`;
-            listTiki.appendChild(tag);
-        });
-    }
-}
 
 function openCardSelector(position) {
     activeSelectorPosition = position;
@@ -675,41 +511,6 @@ function closeDrawer() {
     activeSelectorSquadNumber = null;
 }
 
-function openTacticModal(tacticType) {
-    const tacticModal = document.getElementById('tacticModal');
-    const modalDrawer = tacticModal ? tacticModal.querySelector('.tactic-modal-drawer') : null;
-    const titleText = document.getElementById('tacticModalTitleText');
-    const boxGegen = document.getElementById('tacticBoxGegen');
-    const boxTiki = document.getElementById('tacticBoxTiki');
-    
-    if (tacticModal && modalDrawer) {
-        // Remove existing theme classes first
-        modalDrawer.classList.remove('gegen-glow', 'tiki-glow');
-        
-        // Show the respective card and set modal title and glow theme
-        if (tacticType === 'gegen') {
-            if (titleText) titleText.innerHTML = `<i class="fa-solid fa-bolt" style="color: #ffd700; margin-right: 8px;"></i> 우리 팀의 전방압박 작전`;
-            if (boxGegen) boxGegen.style.display = 'block';
-            if (boxTiki) boxTiki.style.display = 'none';
-            modalDrawer.classList.add('gegen-glow');
-        } else if (tacticType === 'tiki') {
-            if (titleText) titleText.innerHTML = `<i class="fa-solid fa-arrows-spin" style="color: #00ff87; margin-right: 8px;"></i> 우리 팀의 티키타카 작전`;
-            if (boxTiki) boxTiki.style.display = 'block';
-            if (boxGegen) boxGegen.style.display = 'none';
-            modalDrawer.classList.add('tiki-glow');
-        }
-        
-        tacticModal.classList.add('active');
-        checkSquadTactics(); // Sync and redraw recommending tags and states instantly
-    }
-}
-
-function closeTacticModal() {
-    const tacticModal = document.getElementById('tacticModal');
-    if (tacticModal) {
-        tacticModal.classList.remove('active');
-    }
-}
 
 // ==========================================
 // 포메이션 설정 모달 제어 및 변경 엔진

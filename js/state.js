@@ -57,6 +57,13 @@ let quizOffset = 0;
 let quizLastDate = "";
 let matchLastDate = "";
 let matchTodayCount = 0;
+let lastLoginDate = "";
+try {
+    const savedLoginDate = localStorage.getItem('fc_star_last_login_date');
+    if (savedLoginDate) lastLoginDate = savedLoginDate;
+} catch (e) {
+    lastLoginDate = "";
+}
 
 // REAL-TIME USER AUTH & DATA SYNC STATE
 let currentUser = null;

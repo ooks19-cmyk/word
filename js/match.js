@@ -349,7 +349,7 @@ function syncJeonbukOvr() {
         const cmCardId = squadFormation['CM'];
         hasKeyPlayer = cmCardId && getAwakenedCard(cmCardId).stats && getAwakenedCard(cmCardId).stats.dri >= 80;
         const avgDri = getTeamAverageStat('dri');
-        hasTeamTactic = avgDri >= 75; // 4-2-3-1은 팀 평균 75이상!
+        hasTeamTactic = avgDri >= 70; // 4-2-3-1은 팀 평균 70이상으로 완화!
     }
     
     let formationBonus = 0;
@@ -413,6 +413,82 @@ function syncJeonbukOvr() {
                 bonusTeamStatusEl.style.background = "rgba(255, 62, 108, 0.18)";
                 bonusTeamStatusEl.style.color = "#ff3e6c";
                 bonusTeamStatusEl.style.borderColor = "#ff3e6c";
+            }
+        }
+    }
+
+    // 실시간 세부 전술 달성 현황판 업데이트
+    let detailedTacticName = "세부 전술 없음";
+    let detailedTacticDesc = "해당 없음";
+    let isDetailedActive = false;
+    
+    if (currentFormation === '4-3-3') {
+        detailedTacticName = "타겟맨 (Target Man)";
+        detailedTacticDesc = "ST 피지컬 80 이상";
+        const stCardId = squadFormation['ST'];
+        isDetailedActive = stCardId && getAwakenedCard(stCardId).stats && getAwakenedCard(stCardId).stats.phy >= 80;
+    } else if (currentFormation === '3-4-3') {
+        detailedTacticName = "전방압박 (Gegenpressing)";
+        detailedTacticDesc = "공격수 2명 속도 90 이상";
+        let fastAttackersCount = 0;
+        const attackers = ["LW", "ST", "RW"];
+        attackers.forEach(pos => {
+            const cardId = squadFormation[pos];
+            if (cardId && getAwakenedCard(cardId).stats && getAwakenedCard(cardId).stats.pac >= 90) {
+                fastAttackersCount++;
+            }
+        });
+        isDetailedActive = fastAttackersCount >= 2;
+    } else if (currentFormation === '5-4-1') {
+        detailedTacticName = "다이렉트 패스 (Direct Pass)";
+        detailedTacticDesc = "수비수 중 패스 80 이상";
+        let passDefendersCount = 0;
+        const defenders = ["LB", "LCB", "RCB", "RB"];
+        defenders.forEach(pos => {
+            const cardId = squadFormation[pos];
+            if (cardId && getAwakenedCard(cardId).stats && getAwakenedCard(cardId).stats.pas >= 80) {
+                passDefendersCount++;
+            }
+        });
+        isDetailedActive = passDefendersCount >= 1;
+    } else if (currentFormation === '4-2-3-1') {
+        detailedTacticName = "티키타카 (Tiki-Taka)";
+        detailedTacticDesc = "미드필더 3명 패스 모두 83 이상";
+        let passMidfieldersCount = 0;
+        const midfielders = ["LCM", "CM", "RCM"];
+        midfielders.forEach(pos => {
+            const cardId = squadFormation[pos];
+            if (cardId && getAwakenedCard(cardId).stats && getAwakenedCard(cardId).stats.pas >= 83) {
+                passMidfieldersCount++;
+            }
+        });
+        isDetailedActive = passMidfieldersCount === 3;
+    }
+
+    const detailedTacticNameEl = document.getElementById('detailed-tactic-name');
+    const detailedTacticDescEl = document.getElementById('detailed-tactic-desc');
+    const detailedTacticStatusEl = document.getElementById('detailed-tactic-status');
+    
+    if (detailedTacticNameEl && detailedTacticDescEl && detailedTacticStatusEl) {
+        detailedTacticNameEl.innerText = detailedTacticName;
+        detailedTacticDescEl.innerText = detailedTacticDesc;
+        
+        if (currentFormation === '4-4-2') {
+            detailedTacticStatusEl.innerText = "해당 없음 ➖";
+            detailedTacticStatusEl.style.background = "rgba(255, 255, 255, 0.05)";
+            detailedTacticStatusEl.style.color = "#cbd5e1";
+            detailedTacticStatusEl.style.borderColor = "rgba(255, 255, 255, 0.15)";
+        } else {
+            if (isDetailedActive) {
+                detailedTacticStatusEl.innerText = "활성화 ⚡";
+                detailedTacticStatusEl.style.background = "rgba(0, 255, 135, 0.18)";
+                detailedTacticStatusEl.style.color = "#00ff87";
+                detailedTacticStatusEl.style.borderColor = "#00ff87";
+            } else {
+                detailedTacticStatusEl.innerText = "미달성 ❌";
+                detailedTacticStatusEl.style.background = "rgba(255, 62, 108, 0.18)";
+                detailedTacticStatusEl.style.color = "#ff3e6c";
+                detailedTacticStatusEl.style.borderColor = "#ff3e6c";
             }
         }
     }
@@ -498,15 +574,6 @@ function updateMatchPreviewBoard() {
         matchTodayCountValEl.innerText = displayCount;
     }
 
-    // Update active tactical badge on match scoreboard
-    const matchTacticBadgeEl = document.getElementById('matchTacticBadge');
-    if (matchTacticBadgeEl) {
-        matchTacticBadgeEl.style.display = isGegenpressingActive ? 'inline-block' : 'none';
-    }
-    const matchTikiBadgeEl = document.getElementById('matchTikiBadge');
-    if (matchTikiBadgeEl) {
-        matchTikiBadgeEl.style.display = isTikitakaActive ? 'inline-block' : 'none';
-    }
 
     if (leagueRound > 33) {
         // Season completed
@@ -597,6 +664,83 @@ function renderLeagueTable() {
     });
 }
 
+function getDetailedTacticCommentary(option, formation, isTacticActive, activePlayers) {
+    const { ST, LW, RW, CM } = activePlayers;
+    
+    let eventDesc = "";
+    let eventGoal = "";
+    let eventFail = "";
+    
+    const lwGoals = [
+        `골!!! ${LW}의 환상적인 감아차기 슛이 골문 오른쪽 구석에 정확히 꽂힙니다! 전북 득점!! 🎉`,
+        `골!!! 수비수 2명을 환상적인 스피드로 허문 ${LW}! 키퍼 가랑이 사이를 꿰뚫는 절묘한 슈팅으로 골망을 흔듭니다! ⚽`
+    ];
+    const selectedLwGoal = lwGoals[Math.floor(Math.random() * lwGoals.length)];
+    
+    if (option === 0) {
+        eventDesc = `${LW} 선수가 폭발적인 속도로 왼쪽 측면을 흔듭니다! 수비수를 제치고 강력하게 슛!`;
+        eventGoal = selectedLwGoal;
+        eventFail = `아아! 마지막 순간 상대 수비수의 육탄 방어에 가로막히며 코너킥으로 연결됩니다.`;
+    } else if (option === 1) {
+        eventDesc = `전방에서 강한 압박으로 공을 탈취한 ${ST}! 일대일 단독 찬스에 직면하여 슛 시도!`;
+        eventGoal = `골!!! ${ST}가 침착하게 골키퍼 키를 넘기는 칩슛으로 골망을 흔듭니다! 그림 같은 선제골! ⚽`;
+        eventFail = `앗! 슛이 너무 강했습니다. 크로스바를 살짝 빗나가며 아쉬움을 삼킵니다.`;
+    } else if (option === 2) {
+        eventDesc = `${CM} 선수의 창의적인 킬패스가 배후 공간을 무력화시킵니다! 뛰어 들어가는 ${RW}! 슛!`;
+        eventGoal = `골!!! ${RW}가 몸을 날리는 멋진 발리 슛으로 골을 선사합니다! 멋진 팀워크 플레이! 🥳`;
+        eventFail = `키퍼의 슈퍼세이브! 상대 수문장이 온몸으로 막아내며 아쉬운 득점 찬스가 무산됩니다.`;
+    } else if (option === 5) {
+        eventDesc = `[4-2-3-1 점유 지배] 플레이메이커 ${CM}(AM)가 화려한 탈압박과 시그니처 드리블로 상대 수비진 3명을 요리조리 벗겨내고 문전 앞 에이스에게 스루패스!`;
+        eventGoal = `골!!! 에이스 ${CM}의 지휘 아래 그라운드를 완전히 지배하며 뽑아낸 아름다운 조직력의 승리골입니다! ⚽`;
+        eventFail = `오프사이드 판정! 골망은 흔들었으나 간발의 차이로 선심의 깃발이 올라가며 아쉬운 간접 프리킥이 선언됩니다.`;
+    }
+    
+    if (isTacticActive && Math.random() < 0.5) {
+        if (formation === '4-3-3') {
+            if (option === 1) {
+                eventDesc = `압도적인 하드웨어를 가진 최전방의 ${ST}(이/가) 공중볼 경합에서 상대 센터백과의 강한 몸싸움을 거뜬히 이겨내고, 완벽한 포스트 플레이 후 터닝 발리 슛!`;
+                eventGoal = `골!!! ${ST}의 파괴적인 피지컬이 진가를 발휘합니다! 수비를 등진 상태에서 우직하게 버틴 후 골대 구석을 강타하는 묵직한 쐐기골 작렬! ⚽`;
+                eventFail = `아아! 피지컬로 수비를 힘으로 제압했으나, 골문을 아슬아슬하게 비껴 나가는 헤더 슛에 관중들이 머리를 감싸 쥡니다.`;
+            } else if (option === 0 || option === 2) {
+                const activeWinger = option === 0 ? LW : RW;
+                eventDesc = `측면에서 ${activeWinger}(이/가) 문전을 향해 높고 날카로운 크로스 장전! 박스 중앙에서 거구의 ${ST}(이/가) 압도적인 타점으로 솟구쳐 오릅니다!`;
+                eventGoal = `골!!! ${ST}의 완벽한 고공 폭격! 상대 골키퍼가 꼼짝도 못 하는 괴물 같은 헤더 슈팅으로 골망을 시원하게 흔듭니다! ⚽`;
+                eventFail = `아! 헤더 경합에는 성공했지만 골키퍼가 엄청난 반사신경으로 쳐내며 득점으로 연결되진 못합니다.`;
+            }
+        } else if (formation === '3-4-3') {
+            if (option === 1) {
+                eventDesc = `쾌속 공격진 ${LW}와 ${RW}의 미친 듯한 스프린트 압박! 당황해 횡패스 실수를 범한 상대 수비진의 공을 ${ST}(이/가) 번개처럼 가로채 단독 1대1 찬스를 잡습니다!`;
+                eventGoal = `골!!! 전술적인 전방 압박의 완벽한 결실! ${ST}(이/가) 뛰쳐나온 키퍼의 옆을 가볍게 지나쳐 골망 흔들기에 성공합니다! ⚽`;
+                eventFail = `아! 너무 온 힘을 다해 압박 스피드를 올렸던 탓일까요, 슈팅 순간 밸런스가 무너지며 골대 위로 솟구칩니다.`;
+            } else if (option === 0 || option === 2) {
+                const activeWinger = option === 0 ? LW : RW;
+                eventDesc = `최전방 압박으로 탈취한 공이 단숨에 빈 공간으로 연결됩니다! 시속 90 이상의 무시무시한 주력으로 질주하는 ${activeWinger}의 총알 같은 침투 슛!`;
+                eventGoal = `골!!! 수비수가 따라잡을 엄두조차 내지 못한 역대급 속도전! ${activeWinger}의 번개 같은 니어포스트 슈팅이 꽂힙니다! ⚽`;
+                eventFail = `상대 골키퍼가 각도를 좁히며 몸으로 가까스로 블로킹! 질식할 듯한 속도전이었으나 아쉽게 무산됩니다.`;
+            }
+        } else if (formation === '5-4-1') {
+            if (option === 0 || option === 2) {
+                const activeWinger = option === 0 ? LW : RW;
+                eventDesc = `수비 라인 깊숙한 곳에서 패스 장인 수비수가 배후 공간을 완전히 열어젖히는 낮고 정교한 다이렉트 롱 패스를 뿌립니다! 수비 라인을 무력화하며 수신한 ${activeWinger}의 슛!`;
+                eventGoal = `골!!! 한 번의 패스로 경기장 전체를 종으로 갈랐습니다! ${activeWinger}의 절묘한 논스톱 발리 슛이 구석에 꽂히며 원더골이 완성됩니다! ⚽`;
+                eventFail = `골포스트 강타! 수비진을 붕괴시킨 대단한 롱 패스와 슛이었으나 골대를 때리고 나오며 탄성을 자아냅니다.`;
+            } else if (option === 1) {
+                eventDesc = `상대 공격을 커트하자마자 수비진에서 최전방의 ${ST}를 겨냥해 거리를 다이렉트로 관통하는 레이저 패스 배송! 하프라인을 넘는 카운터 시작!`;
+                eventGoal = `골!!! 패스 한 번에 완전 오프사이드 트랩이 해체되었습니다! ${ST}(이/가) 침착하게 골망 흔들기에 성공하며 역습의 마침표를 찍습니다! ⚽`;
+                eventFail = `아아! 패스가 살짝 길어 골키퍼가 먼저 슬라이딩하며 잡아내어 역습 찬스가 아쉽게 소멸됩니다.`;
+            }
+        } else if (formation === '4-2-3-1') {
+            if (option === 5 || option === 1) {
+                eventDesc = `평균 패스 83 이상의 미드필더 삼총사가 좁은 공간에서 환상적인 삼각 패스와 극상의 원터치 연계로 상대를 유인한 후, 플레이메이커 ${CM}의 가랑이를 꿰뚫는 스루패스!`;
+                eventGoal = `골!!! 패스 마술사들의 완벽한 그라운드 지배! 촘촘히 엮어 짜낸 조직적인 패스 콤비네이션이 기어코 완벽한 작품 골을 빚어냅니다! ⚽`;
+                eventFail = `앗! 완벽한 패스워크의 끝에 마지막 슈팅이 상대 수비수의 필사적인 슬라이딩 태클에 굴절되며 아웃됩니다.`;
+            }
+        }
+    }
+    
+    return { eventDesc, eventGoal, eventFail };
+}
+
 function startMatchSimulation() {
     if (isMatchRunning) return;
     if (leagueRound > 33) {
@@ -612,9 +756,9 @@ function startMatchSimulation() {
         localStorage.setItem('fc_star_match_today_count', '0');
     }
     
-    // 일 단위 경기 진행 제한 체크 (개발자 모드 아닐 시 하루 5경기만 가능)
-    if (!isDeveloperMode && matchTodayCount >= 5) {
-        showToast("⚠️ 경기는 하루에 최대 5경기만 진행할 수 있습니다! 내일 다시 도전해 주세요.");
+    // 일 단위 경기 진행 제한 체크 (개발자 모드 아닐 시 하루 10경기만 가능)
+    if (!isDeveloperMode && matchTodayCount >= 10) {
+        showToast("⚠️ 경기는 하루에 최대 10경기만 진행할 수 있습니다! 내일 다시 도전해 주세요.");
         return;
     }
     
@@ -694,7 +838,7 @@ function startMatchSimulation() {
         const cmCardId = squadFormation['CM'];
         const hasKeyPlayer = cmCardId && getAwakenedCard(cmCardId).stats && getAwakenedCard(cmCardId).stats.dri >= 80;
         const avgDri = getTeamAverageStat('dri');
-        const hasTeamTactic = avgDri >= 75;
+        const hasTeamTactic = avgDri >= 70; // 70이상으로 완화!
         
         if (hasKeyPlayer && hasTeamTactic) {
             const cmDri = getAwakenedCard(cmCardId).stats.dri;
@@ -744,12 +888,81 @@ function startMatchSimulation() {
         addCommentary('SYSTEM', formationTacticDetailsHtml, 'attack');
     }
 
-    if (isGegenpressingActive) {
-        addCommentary('SYSTEM', `⚡ [비밀 작전 발동!] 전방압박 전술이 켜졌습니다! 우리 공격수들이 와다다 달려들어 공을 뺏으며 공격 기회가 늘어납니다. (공격 찬스 확률 +6%!)`, 'attack');
-    }
+    // 세부전술 및 전술 적합 보너스 계산
+    let detailedTacticBonus = 0;
+    let suitabilityBonus = 0;
+    let detailedTacticLabel = "";
+    let suitabilityLabel = "";
     
-    if (isTikitakaActive) {
-        addCommentary('SYSTEM', `🌀 [비밀 작전 발동!] 티키타카 전술이 켜졌습니다! 패스 패스 슉슉! 우리 패스가 그라운드를 휘저으며 득점 확률이 올라갑니다. (골 성공 확률 +5%!)`, 'goal');
+    if (currentFormation === '4-3-3') {
+        const stCardId = squadFormation['ST'];
+        const isDetailedActive = stCardId && getAwakenedCard(stCardId).stats && getAwakenedCard(stCardId).stats.phy >= 80;
+        if (isDetailedActive) {
+            detailedTacticBonus = 0.05;
+            detailedTacticLabel = ` [세부전술: 타겟맨 활성 (+5.0%)]`;
+        }
+        const avgPas = getTeamAverageStat('pas');
+        suitabilityBonus = Math.max(0, (avgPas - 70) * 0.01);
+        if (suitabilityBonus > 0) {
+            suitabilityLabel = ` [전술적합(PAS): +${(suitabilityBonus * 100).toFixed(1)}%]`;
+        }
+    } else if (currentFormation === '3-4-3') {
+        let fastAttackersCount = 0;
+        const attackers = ["LW", "ST", "RW"];
+        attackers.forEach(pos => {
+            const cardId = squadFormation[pos];
+            if (cardId && getAwakenedCard(cardId).stats && getAwakenedCard(cardId).stats.pac >= 90) {
+                fastAttackersCount++;
+            }
+        });
+        const isDetailedActive = fastAttackersCount >= 2;
+        if (isDetailedActive) {
+            detailedTacticBonus = 0.05;
+            detailedTacticLabel = ` [세부전술: 전방압박 활성 (+5.0%)]`;
+        }
+        const avgDri = getTeamAverageStat('dri');
+        suitabilityBonus = Math.max(0, (avgDri - 70) * 0.01);
+        if (suitabilityBonus > 0) {
+            suitabilityLabel = ` [전술적합(DRI): +${(suitabilityBonus * 100).toFixed(1)}%]`;
+        }
+    } else if (currentFormation === '5-4-1') {
+        let passDefendersCount = 0;
+        const defenders = ["LB", "LCB", "RCB", "RB"];
+        defenders.forEach(pos => {
+            const cardId = squadFormation[pos];
+            if (cardId && getAwakenedCard(cardId).stats && getAwakenedCard(cardId).stats.pas >= 80) {
+                passDefendersCount++;
+            }
+        });
+        const isDetailedActive = passDefendersCount >= 1;
+        if (isDetailedActive) {
+            detailedTacticBonus = 0.05;
+            detailedTacticLabel = ` [세부전술: 다이렉트 패스 활성 (+5.0%)]`;
+        }
+        const avgDef = getTeamAverageStat('def');
+        suitabilityBonus = Math.max(0, (avgDef - 60) * 0.01);
+        if (suitabilityBonus > 0) {
+            suitabilityLabel = ` [전술적합(DEF): +${(suitabilityBonus * 100).toFixed(1)}%]`;
+        }
+    } else if (currentFormation === '4-2-3-1') {
+        let passMidfieldersCount = 0;
+        const midfielders = ["LCM", "CM", "RCM"];
+        midfielders.forEach(pos => {
+            const cardId = squadFormation[pos];
+            if (cardId && getAwakenedCard(cardId).stats && getAwakenedCard(cardId).stats.pas >= 83) {
+                passMidfieldersCount++;
+            }
+        });
+        const isDetailedActive = passMidfieldersCount === 3;
+        if (isDetailedActive) {
+            detailedTacticBonus = 0.05;
+            detailedTacticLabel = ` [세부전술: 티키타카 활성 (+5.0%)]`;
+        }
+        const avgDri = getTeamAverageStat('dri');
+        suitabilityBonus = Math.max(0, (avgDri - 70) * 0.01); // 70으로 하향!
+        if (suitabilityBonus > 0) {
+            suitabilityLabel = ` [전술적합(DRI): +${(suitabilityBonus * 100).toFixed(1)}%]`;
+        }
     }
     
     const sbTimeDisplay = document.getElementById('sbTimeDisplay');
@@ -767,10 +980,13 @@ function startMatchSimulation() {
     
     // 3. CALIBRATED WIN PROBABILITY ALGORITHM (Diff = playerOvr - opponentOvr)
     // Capped probabilities to balance the luck and stats, plus tactical Gegenpressing boost and formation attack boost
-    const tacticBoost = isGegenpressingActive ? 0.06 : 0;
-    const maxProb = isGegenpressingActive ? 0.90 : 0.85;
-    const minProb = isGegenpressingActive ? 0.26 : 0.20;
-    const playerAttackProb = Math.min(maxProb, Math.max(minProb, 0.5 + (diff * 0.038) + tacticBoost + formationAttackBoost));
+    const maxProb = 0.80; // 상한 80%로 조정!
+    const minProb = 0.20;
+    const playerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (diff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus)); // 베이스 40%, 격차 0.019 적용!
+    
+    if (detailedTacticLabel || suitabilityLabel) {
+        addCommentary('SYSTEM', `⚙️ <strong>[세부 전술 및 적합 분석]</strong>${detailedTacticLabel}${suitabilityLabel} 반영 완료! (공격 찬스 확률: ${Math.round(playerAttackProb * 100)}%)`, 'attack');
+    }
     
     // 개발자 모드: 대기 없이 즉시 시뮬레이션 결과 연산 및 출력
     if (isDeveloperMode) {
@@ -785,8 +1001,6 @@ function startMatchSimulation() {
                 if (isPlayerAttack) {
                     // 공격 이벤트 유형 풀 구성 및 무작위 선택
                     let attackOptions = [0, 1, 2]; // 0: LW 돌파, 1: ST 돌파, 2: RW 돌파
-                    if (isTikitakaActive) attackOptions.push(3); // 티키타카 연출
-                    if (isGegenpressingActive) attackOptions.push(4); // 전방압박 연출
                     if (currentFormation === '4-2-3-1') attackOptions.push(5); // 4-2-3-1 점유율 연출
                     
                     const selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
@@ -810,18 +1024,7 @@ function startMatchSimulation() {
                             const card = getAwakenedCard(rwCardId);
                             chancePlayerStat = Math.round(((card.stats.pac || 75) + (card.stats.sho || 75)) / 2);
                         }
-                    } else if (selectedOption === 3) { // 티키타카 연출 (CM 패스 비례)
-                        const cmCardId = squadFormation['CM'];
-                        if (cmCardId && CARDS_DATABASE[cmCardId]) {
-                            const card = getAwakenedCard(cmCardId);
-                            chancePlayerStat = card.stats.pas || 75;
-                        }
-                    } else if (selectedOption === 4) { // 전방압박 연출 (ST 스피드 비례)
-                        const stCardId = squadFormation['ST'];
-                        if (stCardId && CARDS_DATABASE[stCardId]) {
-                            const card = getAwakenedCard(stCardId);
-                            chancePlayerStat = card.stats.pac || 75;
-                        }
+
                     } else if (selectedOption === 5) { // 4-2-3-1 점유율 연출 (CM 드리블 비례)
                         const cmCardId = squadFormation['CM'];
                         if (cmCardId && CARDS_DATABASE[cmCardId]) {
@@ -831,54 +1034,13 @@ function startMatchSimulation() {
                     }
                     
                     const playerChanceBonus = (chancePlayerStat - opponent.rating) * 0.01;
-                    const scoreBoost = isTikitakaActive ? 0.05 : 0;
-                    const maxScoreProb = isTikitakaActive ? 0.95 : 0.90;
-                    const minScoreProb = isTikitakaActive ? 0.15 : 0.10;
-                    const scoreProb = Math.min(maxScoreProb, Math.max(minScoreProb, 0.35 + (diff * 0.026) + scoreBoost + formationScoreBoost + playerChanceBonus));
+                    const maxScoreProb = 0.60;
+                    const minScoreProb = 0.10;
+                    const scoreProb = Math.min(maxScoreProb, Math.max(minScoreProb, 0.20 + (diff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus));
                     const isGoal = Math.random() < scoreProb;
-                    
-                    // 왼쪽 측면 골인 텍스트 베리에이션 (2가지 무작위 매핑)
-                    const lwGoals = [
-                        `골!!! ${activeLw}의 환상적인 감아차기 슛이 골문 오른쪽 구석에 정확히 꽂힙니다! 전북 득점!! 🎉`,
-                        `골!!! 수비수 2명을 환상적인 스피드로 허문 ${activeLw}! 키퍼 가랑이 사이를 꿰뚫는 절묘한 슈팅으로 골망을 흔듭니다! ⚽`
-                    ];
-                    const selectedLwGoal = lwGoals[Math.floor(Math.random() * lwGoals.length)];
-                    
-                    const activeLcm = squadFormation["LCM"] ? CARDS_DATABASE[squadFormation["LCM"]].name : "무명 수미";
-                    const activeRcm = squadFormation["RCM"] ? CARDS_DATABASE[squadFormation["RCM"]].name : "무명 수미";
-                    const displayLcm = currentFormation === '4-2-3-1' ? 'DM' : (currentFormation === '3-4-3' ? 'LCM' : 'LCM');
-                    const displayRcm = currentFormation === '4-2-3-1' ? 'DM' : (currentFormation === '3-4-3' ? 'DM' : 'RCM');
-                    const displayCm = currentFormation === '4-2-3-1' ? 'AM' : (currentFormation === '3-4-3' ? 'AM' : 'CM');
-                    
-                    let eventDesc = "";
-                    let eventGoal = "";
-                    let eventFail = "";
-                    
-                    if (selectedOption === 0) {
-                        eventDesc = `${activeLw} 선수가 폭발적인 속도로 왼쪽 측면을 흔듭니다! 수비수를 제치고 강력하게 슛!`;
-                        eventGoal = selectedLwGoal;
-                        eventFail = `아아! 마지막 순간 상대 수비수의 육탄 방어에 가로막히며 코너킥으로 연결됩니다.`;
-                    } else if (selectedOption === 1) {
-                        eventDesc = `전방에서 강한 압박으로 공을 탈취한 ${activeAttacker}! 일대일 단독 찬스에 직면하여 슛 시도!`;
-                        eventGoal = `골!!! ${activeAttacker}가 침착하게 골키퍼 키를 넘기는 칩슛으로 골망을 흔듭니다! 그림 같은 선제골! ⚽`;
-                        eventFail = `앗! 슛이 너무 강했습니다. 크로스바를 살짝 빗나가며 아쉬움을 삼킵니다.`;
-                    } else if (selectedOption === 2) {
-                        eventDesc = `${activeCm} 선수의 창의적인 킬패스가 배후 공간을 무력화시킵니다! 뛰어 들어가는 ${activeRw}! 슛!`;
-                        eventGoal = `골!!! ${activeRw}가 몸을 날리는 멋진 발리 슛으로 골을 선사합니다! 멋진 팀워크 플레이! 🥳`;
-                        eventFail = `키퍼의 슈퍼세이브! 상대 수문장이 온몸으로 막아내며 아쉬운 득점 찬스가 무산됩니다.`;
-                    } else if (selectedOption === 3) {
-                        eventDesc = `[작전: 티키타카 발동] ${activeLcm}(${displayLcm}) ➡️ ${activeRcm}(${displayRcm}) ➡️ ${activeCm}(${displayCm})으로 이어지는 자로 잰 듯한 1터치 패스워크! 완벽하게 허물어진 상대 수비벽 틈새로 슛!`;
-                        eventGoal = `골!!! 그라운드를 바둑판처럼 쪼갠 완벽한 예술축구! 골망을 찢을 듯한 다이렉트 패스 골이 터집니다! 🌀`;
-                        eventFail = `골포스트 강타! 기막힌 패스 연계 끝의 논스톱 슛이 야속하게도 골대를 강하게 때리고 튕겨 나갑니다.`;
-                    } else if (selectedOption === 4) {
-                        eventDesc = `[작전: 전방압박 발동] 상대 빌드업 길목을 귀신같이 차단하는 ${activeLw}와 ${activeAttacker}의 숨 막히는 이중 압박! 공을 탈취해 페널티 박스로 저돌적 돌진!`;
-                        eventGoal = `골!!! 수비 실수를 틈타 골문 구석 빈틈을 향해 쏜살같이 밀어 넣었습니다! 에너제틱한 압박의 승리! ⚡`;
-                        eventFail = `골키퍼 정면! 온 힘을 다해 몸을 던진 슈팅이었으나 골키퍼의 품으로 아쉽게 굴러 들어가고 맙니다.`;
-                    } else if (selectedOption === 5) {
-                        eventDesc = `[4-2-3-1 점유 지배] 플레이메이커 ${activeCm}(AM)가 화려한 탈압박과 시그니처 드리블로 상대 수비진 3명을 요리조리 벗겨내고 문전 앞 에이스에게 스루패스!`;
-                        eventGoal = `골!!! 에이스 ${activeCm}의 지휘 아래 그라운드를 완전히 지배하며 뽑아낸 아름다운 조직력의 승리골입니다! ⚽`;
-                        eventFail = `오프사이드 판정! 골망은 흔들었으나 간발의 차이로 선심의 깃발이 올라가며 아쉬운 간접 프리킥이 선언됩니다.`;
-                    }
+                    const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm };
+                    const isTacticActive = detailedTacticBonus > 0;
+                    const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers);
                     
                     addCommentary(currentMin, eventDesc, 'attack');
                     if (isGoal) {
@@ -959,9 +1121,6 @@ function startMatchSimulation() {
             matchTodayCount += 1;
         }
         
-        // 경기 승패 무관 1 FP 지급
-        userPoints += 1;
-        
         try {
             localStorage.setItem('fc_star_league_teams', JSON.stringify(leagueTeams));
             localStorage.setItem('fc_star_league_round', leagueRound.toString());
@@ -983,7 +1142,7 @@ function startMatchSimulation() {
             checkSeasonChampion();
         } else {
             updateMatchPreviewBoard();
-            showToast(`⚡ [개발자 모드] 결과 즉시 출력 및 +1 FP 획득 완료!`);
+            showToast(`⚡ [개발자 모드] 결과 즉시 출력 완료!`);
         }
         
         saveUserProgress();
@@ -1003,8 +1162,6 @@ function startMatchSimulation() {
             if (isPlayerAttack) {
                 // 공격 이벤트 유형 풀 구성 및 무작위 선택
                 let attackOptions = [0, 1, 2]; // 0: LW 돌파, 1: ST 돌파, 2: RW 돌파
-                if (isTikitakaActive) attackOptions.push(3); // 티키타카 연출
-                if (isGegenpressingActive) attackOptions.push(4); // 전방압박 연출
                 if (currentFormation === '4-2-3-1') attackOptions.push(5); // 4-2-3-1 점유율 연출
                 
                 const selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
@@ -1028,18 +1185,7 @@ function startMatchSimulation() {
                         const card = getAwakenedCard(rwCardId);
                         chancePlayerStat = Math.round(((card.stats.pac || 75) + (card.stats.sho || 75)) / 2);
                     }
-                } else if (selectedOption === 3) { // 티키타카 연출 (CM 패스 비례)
-                    const cmCardId = squadFormation['CM'];
-                    if (cmCardId && CARDS_DATABASE[cmCardId]) {
-                        const card = getAwakenedCard(cmCardId);
-                        chancePlayerStat = card.stats.pas || 75;
-                    }
-                } else if (selectedOption === 4) { // 전방압박 연출 (ST 스피드 비례)
-                    const stCardId = squadFormation['ST'];
-                    if (stCardId && CARDS_DATABASE[stCardId]) {
-                        const card = getAwakenedCard(stCardId);
-                        chancePlayerStat = card.stats.pac || 75;
-                    }
+
                 } else if (selectedOption === 5) { // 4-2-3-1 점유율 연출 (CM 드리블 비례)
                     const cmCardId = squadFormation['CM'];
                     if (cmCardId && CARDS_DATABASE[cmCardId]) {
@@ -1049,54 +1195,13 @@ function startMatchSimulation() {
                 }
                 
                 const playerChanceBonus = (chancePlayerStat - opponent.rating) * 0.01;
-                const scoreBoost = isTikitakaActive ? 0.05 : 0;
-                const maxScoreProb = isTikitakaActive ? 0.95 : 0.90;
-                const minScoreProb = isTikitakaActive ? 0.15 : 0.10;
-                const scoreProb = Math.min(maxScoreProb, Math.max(minScoreProb, 0.35 + (diff * 0.026) + scoreBoost + formationScoreBoost + playerChanceBonus));
+                const maxScoreProb = 0.60;
+                const minScoreProb = 0.10;
+                const scoreProb = Math.min(maxScoreProb, Math.max(minScoreProb, 0.20 + (diff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus));
                 const isGoal = Math.random() < scoreProb;
-                
-                // 왼쪽 측면 골인 텍스트 베리에이션 (2가지 무작위 매핑)
-                const lwGoals = [
-                    `골!!! ${activeLw}의 환상적인 감아차기 슛이 골문 오른쪽 구석에 정확히 꽂힙니다! 전북 득점!! 🎉`,
-                    `골!!! 수비수 2명을 환상적인 스피드로 허문 ${activeLw}! 키퍼 가랑이 사이를 꿰뚫는 절묘한 슈팅으로 골망을 흔듭니다! ⚽`
-                ];
-                const selectedLwGoal = lwGoals[Math.floor(Math.random() * lwGoals.length)];
-                
-                const activeLcm = squadFormation["LCM"] ? CARDS_DATABASE[squadFormation["LCM"]].name : "무명 수미";
-                const activeRcm = squadFormation["RCM"] ? CARDS_DATABASE[squadFormation["RCM"]].name : "무명 수미";
-                const displayLcm = currentFormation === '4-2-3-1' ? 'DM' : (currentFormation === '3-4-3' ? 'LCM' : 'LCM');
-                const displayRcm = currentFormation === '4-2-3-1' ? 'DM' : (currentFormation === '3-4-3' ? 'DM' : 'RCM');
-                const displayCm = currentFormation === '4-2-3-1' ? 'AM' : (currentFormation === '3-4-3' ? 'AM' : 'CM');
-                
-                let eventDesc = "";
-                let eventGoal = "";
-                let eventFail = "";
-                
-                if (selectedOption === 0) {
-                    eventDesc = `${activeLw} 선수가 폭발적인 속도로 왼쪽 측면을 흔듭니다! 수비수를 제치고 강력하게 슛!`;
-                    eventGoal = selectedLwGoal;
-                    eventFail = `아아! 마지막 순간 상대 수비수의 육탄 방어에 가로막히며 코너킥으로 연결됩니다.`;
-                } else if (selectedOption === 1) {
-                    eventDesc = `전방에서 강한 압박으로 공을 탈취한 ${activeAttacker}! 일대일 단독 찬스에 직면하여 슛 시도!`;
-                    eventGoal = `골!!! ${activeAttacker}가 침착하게 골키퍼 키를 넘기는 칩슛으로 골망을 흔듭니다! 그림 같은 선제골! ⚽`;
-                    eventFail = `앗! 슛이 너무 강했습니다. 크로스바를 살짝 빗나가며 아쉬움을 삼킵니다.`;
-                } else if (selectedOption === 2) {
-                    eventDesc = `${activeCm} 선수의 창의적인 킬패스가 배후 공간을 무력화시킵니다! 뛰어 들어가는 ${activeRw}! 슛!`;
-                    eventGoal = `골!!! ${activeRw}가 몸을 날리는 멋진 발리 슛으로 골을 선사합니다! 멋진 팀워크 플레이! 🥳`;
-                    eventFail = `키퍼의 슈퍼세이브! 상대 수문장이 온몸으로 막아내며 아쉬운 득점 찬스가 무산됩니다.`;
-                } else if (selectedOption === 3) {
-                    eventDesc = `[작전: 티키타카 발동] ${activeLcm}(${displayLcm}) ➡️ ${activeRcm}(${displayRcm}) ➡️ ${activeCm}(${displayCm})으로 이어지는 자로 잰 듯한 1터치 패스워크! 완벽하게 허물어진 상대 수비벽 틈새로 슛!`;
-                    eventGoal = `골!!! 그라운드를 바둑판처럼 쪼갠 완벽한 예술축구! 골망을 찢을 듯한 다이렉트 패스 골이 터집니다! 🌀`;
-                    eventFail = `골포스트 강타! 기막힌 패스 연계 끝의 논스톱 슛이 야속하게도 골대를 강하게 때리고 튕겨 나갑니다.`;
-                } else if (selectedOption === 4) {
-                    eventDesc = `[작전: 전방압박 발동] 상대 빌드업 길목을 귀신같이 차단하는 ${activeLw}와 ${activeAttacker}의 숨 막히는 이중 압박! 공을 탈취해 페널티 박스로 저돌적 돌진!`;
-                    eventGoal = `골!!! 수비 실수를 틈타 골문 구석 빈틈을 향해 쏜살같이 밀어 넣었습니다! 에너제틱한 압박의 승리! ⚡`;
-                    eventFail = `골키퍼 정면! 온 힘을 다해 몸을 던진 슈팅이었으나 골키퍼의 품으로 아쉽게 굴러 들어가고 맙니다.`;
-                } else if (selectedOption === 5) {
-                    eventDesc = `[4-2-3-1 점유 지배] 플레이메이커 ${activeCm}(AM)가 화려한 탈압박과 시그니처 드리블로 상대 수비진 3명을 요리조리 벗겨내고 문전 앞 에이스에게 스루패스!`;
-                    eventGoal = `골!!! 에이스 ${activeCm}의 지휘 아래 그라운드를 완전히 지배하며 뽑아낸 아름다운 조직력의 승리골입니다! ⚽`;
-                    eventFail = `오프사이드 판정! 골망은 흔들었으나 간발의 차이로 선심의 깃발이 올라가며 아쉬운 간접 프리킥이 선언됩니다.`;
-                }
+                const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm };
+                const isTacticActive = detailedTacticBonus > 0;
+                const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers);
                 
                 addCommentary(currentMin, eventDesc, 'attack');
                 
@@ -1218,9 +1323,6 @@ function startMatchSimulation() {
             } else {
                 matchTodayCount += 1;
             }
-            
-            // 경기 승패 무관 1 FP 지급
-            userPoints += 1;
 
             try {
                 localStorage.setItem('fc_star_league_teams', JSON.stringify(leagueTeams));
@@ -1251,7 +1353,7 @@ function startMatchSimulation() {
                 // Update match preview for next round
                 setTimeout(() => {
                     updateMatchPreviewBoard();
-                    showToast(`🏆 경기 완료 보상으로 +1 FP 획득! (하루 최대 5경기 제한)`);
+                    showToast(`🏆 경기 완료! (하루 최대 10경기 제한)`);
                 }, 2000);
             }
             
@@ -2151,7 +2253,157 @@ function startFriendlyMatch(opponentData) {
     const activeCm = squadFormation["CM"] ? CARDS_DATABASE[squadFormation["CM"]].name : "무명 미드필더";
     const activeGk = squadFormation["GK"] ? CARDS_DATABASE[squadFormation["GK"]].name : "무명 골키퍼";
     
-    const playerAttackProb = Math.min(0.85, Math.max(0.20, 0.5 + (diff * 0.038)));
+    // 포메이션별 직접/비례 확률 보너스 연동
+    let formationAttackBoost = 0;
+    
+    if (currentFormation === '4-3-3') {
+        const cmCardId = squadFormation['CM'];
+        const hasKeyPlayer = cmCardId && getAwakenedCard(cmCardId).stats && getAwakenedCard(cmCardId).stats.pas >= 80;
+        const avgPas = getTeamAverageStat('pas');
+        const hasTeamTactic = avgPas >= 70;
+        
+        if (hasKeyPlayer && hasTeamTactic) {
+            const cmPas = getAwakenedCard(cmCardId).stats.pas;
+            formationAttackBoost = (cmPas - 80) * 0.005; // 1점당 +0.5%
+        }
+    } else if (currentFormation === '3-4-3') {
+        const cmCardId = squadFormation['CM'];
+        const hasKeyPlayer = cmCardId && getAwakenedCard(cmCardId).stats && getAwakenedCard(cmCardId).stats.dri >= 80;
+        const avgDri = getTeamAverageStat('dri');
+        const hasTeamTactic = avgDri >= 70;
+        
+        if (hasKeyPlayer && hasTeamTactic) {
+            const cmDri = getAwakenedCard(cmCardId).stats.dri;
+            formationAttackBoost = (cmDri - 80) * 0.005; // 1점당 +0.5%
+        }
+    } else if (currentFormation === '4-2-3-1') {
+        const cmCardId = squadFormation['CM'];
+        const hasKeyPlayer = cmCardId && getAwakenedCard(cmCardId).stats && getAwakenedCard(cmCardId).stats.dri >= 80;
+        const avgDri = getTeamAverageStat('dri');
+        const hasTeamTactic = avgDri >= 70; // 70이상으로 완화!
+        
+        if (hasKeyPlayer && hasTeamTactic) {
+            const cmDri = getAwakenedCard(cmCardId).stats.dri;
+            formationAttackBoost = (cmDri - 80) * 0.005; // 1점당 +0.5%
+        }
+    }
+    
+    let formationScoreBoost = 0;
+    if (currentFormation === '5-4-1') {
+        const lwCardId = squadFormation['LW'];
+        const rwCardId = squadFormation['RW'];
+        let hasKeyPlayer = false;
+        let lwPac = 0;
+        let rwPac = 0;
+        
+        if (lwCardId) {
+            const card = getAwakenedCard(lwCardId);
+            if (card && card.stats && card.stats.pac >= 80) {
+                hasKeyPlayer = true;
+                lwPac = card.stats.pac;
+            }
+        }
+        if (rwCardId) {
+            const card = getAwakenedCard(rwCardId);
+            if (card && card.stats && card.stats.pac >= 80) {
+                hasKeyPlayer = true;
+                rwPac = card.stats.pac;
+            }
+        }
+        
+        const avgDef = getTeamAverageStat('def');
+        const hasTeamTactic = avgDef >= 60;
+        
+        if (hasKeyPlayer && hasTeamTactic) {
+            const bestPac = Math.max(lwPac, rwPac);
+            formationScoreBoost = (bestPac - 80) * 0.005; // 1점당 +0.5%
+        }
+    }
+
+    // 세부전술 및 전술 적합 보너스 계산
+    let detailedTacticBonus = 0;
+    let suitabilityBonus = 0;
+    let detailedTacticLabel = "";
+    let suitabilityLabel = "";
+    
+    if (currentFormation === '4-3-3') {
+        const stCardId = squadFormation['ST'];
+        const isDetailedActive = stCardId && getAwakenedCard(stCardId).stats && getAwakenedCard(stCardId).stats.phy >= 80;
+        if (isDetailedActive) {
+            detailedTacticBonus = 0.05;
+            detailedTacticLabel = ` [세부전술: 타겟맨 활성 (+5.0%)]`;
+        }
+        const avgPas = getTeamAverageStat('pas');
+        suitabilityBonus = Math.max(0, (avgPas - 70) * 0.01);
+        if (suitabilityBonus > 0) {
+            suitabilityLabel = ` [전술적합(PAS): +${(suitabilityBonus * 100).toFixed(1)}%]`;
+        }
+    } else if (currentFormation === '3-4-3') {
+        let fastAttackersCount = 0;
+        const attackers = ["LW", "ST", "RW"];
+        attackers.forEach(pos => {
+            const cardId = squadFormation[pos];
+            if (cardId && getAwakenedCard(cardId).stats && getAwakenedCard(cardId).stats.pac >= 90) {
+                fastAttackersCount++;
+            }
+        });
+        const isDetailedActive = fastAttackersCount >= 2;
+        if (isDetailedActive) {
+            detailedTacticBonus = 0.05;
+            detailedTacticLabel = ` [세부전술: 전방압박 활성 (+5.0%)]`;
+        }
+        const avgDri = getTeamAverageStat('dri');
+        suitabilityBonus = Math.max(0, (avgDri - 70) * 0.01);
+        if (suitabilityBonus > 0) {
+            suitabilityLabel = ` [전술적합(DRI): +${(suitabilityBonus * 100).toFixed(1)}%]`;
+        }
+    } else if (currentFormation === '5-4-1') {
+        let passDefendersCount = 0;
+        const defenders = ["LB", "LCB", "RCB", "RB"];
+        defenders.forEach(pos => {
+            const cardId = squadFormation[pos];
+            if (cardId && getAwakenedCard(cardId).stats && getAwakenedCard(cardId).stats.pas >= 80) {
+                passDefendersCount++;
+            }
+        });
+        const isDetailedActive = passDefendersCount >= 1;
+        if (isDetailedActive) {
+            detailedTacticBonus = 0.05;
+            detailedTacticLabel = ` [세부전술: 다이렉트 패스 활성 (+5.0%)]`;
+        }
+        const avgDef = getTeamAverageStat('def');
+        suitabilityBonus = Math.max(0, (avgDef - 60) * 0.01);
+        if (suitabilityBonus > 0) {
+            suitabilityLabel = ` [전술적합(DEF): +${(suitabilityBonus * 100).toFixed(1)}%]`;
+        }
+    } else if (currentFormation === '4-2-3-1') {
+        let passMidfieldersCount = 0;
+        const midfielders = ["LCM", "CM", "RCM"];
+        midfielders.forEach(pos => {
+            const cardId = squadFormation[pos];
+            if (cardId && getAwakenedCard(cardId).stats && getAwakenedCard(cardId).stats.pas >= 83) {
+                passMidfieldersCount++;
+            }
+        });
+        const isDetailedActive = passMidfieldersCount === 3;
+        if (isDetailedActive) {
+            detailedTacticBonus = 0.05;
+            detailedTacticLabel = ` [세부전술: 티키타카 활성 (+5.0%)]`;
+        }
+        const avgDri = getTeamAverageStat('dri');
+        suitabilityBonus = Math.max(0, (avgDri - 70) * 0.01); // 70으로 하향!
+        if (suitabilityBonus > 0) {
+            suitabilityLabel = ` [전술적합(DRI): +${(suitabilityBonus * 100).toFixed(1)}%]`;
+        }
+    }
+    
+    const maxProb = 0.80; // 상한 80%로 조정!
+    const minProb = 0.20;
+    const playerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (diff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus)); // 베이스 40%, 격차 0.019 적용!
+    
+    if (detailedTacticLabel || suitabilityLabel) {
+        addCommentary('SYSTEM', `⚙️ <strong>[세부 전술 및 적합 분석]</strong>${detailedTacticLabel}${suitabilityLabel} 반영 완료! (공격 찬스 확률: ${Math.round(playerAttackProb * 100)}%)`, 'attack');
+    }
     
     const finishFriendlyMatch = () => {
         sbTimeDisplay.classList.remove('live-ticking');
@@ -2210,12 +2462,53 @@ function startFriendlyMatch(opponentData) {
             } else if (eventMins.includes(currentMin)) {
                 const isPlayerAttack = Math.random() < playerAttackProb;
                 if (isPlayerAttack) {
-                    const isGoal = Math.random() < (0.35 + (diff * 0.026));
+                    let attackOptions = [0, 1, 2];
+                    if (currentFormation === '4-2-3-1') attackOptions.push(5);
+                    const selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
+                    
+                    let chancePlayerStat = 75;
+                    if (selectedOption === 0) {
+                        const lwCardId = squadFormation['LW'];
+                        if (lwCardId && CARDS_DATABASE[lwCardId]) {
+                            const card = getAwakenedCard(lwCardId);
+                            chancePlayerStat = Math.round(((card.stats.dri || 75) + (card.stats.sho || 75)) / 2);
+                        }
+                    } else if (selectedOption === 1) {
+                        const stCardId = squadFormation['ST'];
+                        if (stCardId && CARDS_DATABASE[stCardId]) {
+                            const card = getAwakenedCard(stCardId);
+                            chancePlayerStat = card.stats.sho || 75;
+                        }
+                    } else if (selectedOption === 2) {
+                        const rwCardId = squadFormation['RW'];
+                        if (rwCardId && CARDS_DATABASE[rwCardId]) {
+                            const card = getAwakenedCard(rwCardId);
+                            chancePlayerStat = Math.round(((card.stats.pac || 75) + (card.stats.sho || 75)) / 2);
+                        }
+                    } else if (selectedOption === 5) {
+                        const cmCardId = squadFormation['CM'];
+                        if (cmCardId && CARDS_DATABASE[cmCardId]) {
+                            const card = getAwakenedCard(cmCardId);
+                            chancePlayerStat = card.stats.dri || 75;
+                        }
+                    }
+                    
+                    const playerChanceBonus = (chancePlayerStat - oppOvr) * 0.01;
+                    const maxScoreProb = 0.60;
+                    const minScoreProb = 0.10;
+                    const scoreProb = Math.min(maxScoreProb, Math.max(minScoreProb, 0.20 + (diff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus));
+                    const isGoal = Math.random() < scoreProb;
+                    
+                    const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm };
+                    const isTacticActive = detailedTacticBonus > 0;
+                    const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers);
+                    
+                    addCommentary(currentMin, eventDesc, 'attack');
                     if (isGoal) {
                         playerScoreVal++;
-                        addCommentary(currentMin, `${activeAttacker} 선수가 문전 침투 후 구석을 찌르는 절묘한 슛! 골인! ⚽`, 'goal');
+                        addCommentary(currentMin, eventGoal, 'goal');
                     } else {
-                        addCommentary(currentMin, `${activeLw} 선수가 화려한 돌파 후 슈팅했으나 아쉽게 골대 옆을 스쳐 지나갑니다.`, 'normal');
+                        addCommentary(currentMin, eventFail, 'normal');
                     }
                 } else {
                     const oppScoreProb = Math.min(0.90, Math.max(0.08, 0.35 - (diff * 0.026)));
@@ -2246,33 +2539,52 @@ function startFriendlyMatch(opponentData) {
             const isPlayerAttack = Math.random() < playerAttackProb;
             if (isPlayerAttack) {
                 let attackOptions = [0, 1, 2];
+                if (currentFormation === '4-2-3-1') attackOptions.push(5);
                 const selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
-                const isGoal = Math.random() < (0.35 + (diff * 0.026));
                 
+                let chancePlayerStat = 75;
                 if (selectedOption === 0) {
-                    addCommentary(currentMin, `${activeLw} 선수가 폭발적인 속도로 측면을 붕괴시키고 문전으로 낮게 크로스!`, 'attack');
-                    if (isGoal) {
-                        playerScoreVal++;
-                        addCommentary(currentMin, `골!!! 쇄도하던 ${activeAttacker}가 발을 갖다 대며 골망을 시원하게 갈라냅니다! ⚽`, 'goal');
-                    } else {
-                        addCommentary(currentMin, `수비수가 한 발 앞서 걷어내며 코너킥으로 아쉽게 무산됩니다.`, 'normal');
+                    const lwCardId = squadFormation['LW'];
+                    if (lwCardId && CARDS_DATABASE[lwCardId]) {
+                        const card = getAwakenedCard(lwCardId);
+                        chancePlayerStat = Math.round(((card.stats.dri || 75) + (card.stats.sho || 75)) / 2);
                     }
                 } else if (selectedOption === 1) {
-                    addCommentary(currentMin, `상대 패스 미스를 단숨에 가로챈 ${activeCm}! 비어있는 전방으로 스루패스를 찔러줍니다!`, 'attack');
-                    if (isGoal) {
-                        playerScoreVal++;
-                        addCommentary(currentMin, `골!!! 단독 찬스를 맞이한 ${activeAttacker}가 키퍼와 1대1 상황에서 침착하게 칩슛으로 득점 성공! 🥳`, 'goal');
-                    } else {
-                        addCommentary(currentMin, `상대 골키퍼가 쏜살같이 뛰어나와 골을 캐칭해 냅니다.`, 'normal');
+                    const stCardId = squadFormation['ST'];
+                    if (stCardId && CARDS_DATABASE[stCardId]) {
+                        const card = getAwakenedCard(stCardId);
+                        chancePlayerStat = card.stats.sho || 75;
                     }
+                } else if (selectedOption === 2) {
+                    const rwCardId = squadFormation['RW'];
+                    if (rwCardId && CARDS_DATABASE[rwCardId]) {
+                        const card = getAwakenedCard(rwCardId);
+                        chancePlayerStat = Math.round(((card.stats.pac || 75) + (card.stats.sho || 75)) / 2);
+                    }
+                } else if (selectedOption === 5) {
+                    const cmCardId = squadFormation['CM'];
+                    if (cmCardId && CARDS_DATABASE[cmCardId]) {
+                        const card = getAwakenedCard(cmCardId);
+                        chancePlayerStat = card.stats.dri || 75;
+                    }
+                }
+                
+                const playerChanceBonus = (chancePlayerStat - oppOvr) * 0.01;
+                const maxScoreProb = 0.60;
+                const minScoreProb = 0.10;
+                const scoreProb = Math.min(maxScoreProb, Math.max(minScoreProb, 0.20 + (diff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus));
+                const isGoal = Math.random() < scoreProb;
+                
+                const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm };
+                const isTacticActive = detailedTacticBonus > 0;
+                const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers);
+                
+                addCommentary(currentMin, eventDesc, 'attack');
+                if (isGoal) {
+                    playerScoreVal++;
+                    addCommentary(currentMin, eventGoal, 'goal');
                 } else {
-                    addCommentary(currentMin, `우측 면에서 화려한 페인팅으로 수비수를 가볍게 제치는 ${activeRw}! 그대로 직접 감아차기 슛 시도!`, 'attack');
-                    if (isGoal) {
-                        playerScoreVal++;
-                        addCommentary(currentMin, `골!!! 환상적인 포물선을 그리며 반대편 골문 구석에 빨려 들어갑니다! 환상적인 득점! 🎉`, 'goal');
-                    } else {
-                        addCommentary(currentMin, `아쉬워라! 골대를 강하게 맞추고 공이 바깥으로 아쉽게 튕겨 나갑니다.`, 'normal');
-                    }
+                    addCommentary(currentMin, eventFail, 'normal');
                 }
             } else {
                 const oppScoreProb = Math.min(0.90, Math.max(0.08, 0.35 - (diff * 0.026)));

@@ -112,6 +112,7 @@ function saveUserProgress() {
         quizCurrentIndex: quizCurrentIndex,
         matchLastDate: matchLastDate,
         matchTodayCount: matchTodayCount,
+        lastLoginDate: lastLoginDate,
         leagueYear: leagueYear,
         hallOfFame: hallOfFame,
         leaguePlayerStats: leaguePlayerStats,
@@ -167,6 +168,22 @@ function syncUserDataOnLogin(userData) {
         quizCurrentIndex = userData.quizCurrentIndex || 0;
         matchLastDate = userData.matchLastDate || "";
         matchTodayCount = userData.matchTodayCount || 0;
+        lastLoginDate = userData.lastLoginDate || "";
+        
+        // 하루 최초 로그인 시 포인트 3점 지급 판정
+        const todayStr = new Date().toLocaleDateString('ko-KR');
+        if (lastLoginDate !== todayStr) {
+            userPoints += 3;
+            lastLoginDate = todayStr;
+            setTimeout(() => {
+                showToast("🎁 오늘 첫 로그인 보상! +3 FP가 지급되었습니다.");
+            }, 1200);
+            
+            // 보상 적립 후 클라우드 서버에 즉시 자동 백업
+            setTimeout(() => {
+                saveUserProgress();
+            }, 2500);
+        }
         
         // 리그 연도 및 명예의 전당 클라우드 데이터 복원
         leagueYear = userData.leagueYear || 2026;
@@ -193,6 +210,7 @@ function syncUserDataOnLogin(userData) {
         localStorage.setItem('fc_star_quiz_current_index', quizCurrentIndex.toString());
         localStorage.setItem('fc_star_match_last_date', matchLastDate);
         localStorage.setItem('fc_star_match_today_count', matchTodayCount.toString());
+        localStorage.setItem('fc_star_last_login_date', lastLoginDate);
         localStorage.setItem('fc_star_league_year', leagueYear.toString());
         localStorage.setItem('fc_star_hall_of_fame', JSON.stringify(hallOfFame));
         localStorage.setItem('fc_star_league_stats', JSON.stringify(leaguePlayerStats));

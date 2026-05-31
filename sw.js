@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fc-star-v73';
+const CACHE_NAME = 'fc-star-v85';
 const ASSETS = [
   './index.html',
   './style.css',
@@ -55,23 +55,26 @@ self.addEventListener('activate', (e) => {
   self.clients.claim();
 });
 
-// Fetch intercepted requests from cache or network
+// Fetch intercepted requests using a Network-First strategy
 self.addEventListener('fetch', (e) => {
+  // Only handle GET requests and local origin assets
+  if (e.request.method !== 'GET' || !e.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+  
   e.respondWith(
-    caches.match(e.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        // Return cached asset, but fetch new one in background to update cache (stale-while-revalidate)
-        fetch(e.request).then((networkResponse) => {
-          if (networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(e.request, networkResponse);
-            });
-          }
-        }).catch(() => { /* Offline fallback */ });
-        
-        return cachedResponse;
-      }
-      return fetch(e.request);
-    })
+    fetch(e.request)
+      .then((networkResponse) => {
+        if (networkResponse.status === 200) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(e.request, responseToCache);
+          });
+        }
+        return networkResponse;
+      })
+      .catch(() => {
+        return caches.match(e.request);
+      })
   );
 });
