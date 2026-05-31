@@ -387,6 +387,11 @@ function submitQuizAnswer() {
                         renderUserPoints(); // Update points widget
                         if (typeof renderUserLevel === 'function') renderUserLevel(); // Update level UI
                         
+                        // [즉시 보상 버그 해결] 레벨 10단위 특별 보상 즉시 연동 및 팝업 활성화
+                        if (typeof checkLevelUpRewards === 'function') {
+                            checkLevelUpRewards(userLevel);
+                        }
+                        
                         // Show Level Up in complete overlay
                         const compLvlVal = document.getElementById('completeLevelVal');
                         if (compLvlVal) compLvlVal.innerText = userLevel;
@@ -506,9 +511,6 @@ function passQuizQuestion() {
 
 function startNewQuizRound() {
     initQuizRound();
-    if (typeof checkLevelUpRewards === 'function') {
-        checkLevelUpRewards(userLevel);
-    }
 }
 
 // 퀴즈 출제 순서 초기화 함수 (최신 단어부터 다시 출제되도록 세팅)
