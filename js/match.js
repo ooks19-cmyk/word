@@ -1753,6 +1753,101 @@ function getOpponentPureOvr(opponentData) {
     return Math.round(totalOvr / 11);
 }
 
+// Get Opponent's Awakened Card (similar to getAwakenedCard but uses opponent's deck)
+function getOpponentAwakenedCard(cardId, opponentDeck) {
+    if (!CARDS_DATABASE[cardId]) return null;
+    const baseCard = CARDS_DATABASE[cardId];
+    const userCard = opponentDeck ? opponentDeck[cardId] : null;
+    
+    if (!userCard) return JSON.parse(JSON.stringify(baseCard));
+    
+    const cardCopy = JSON.parse(JSON.stringify(baseCard));
+    const isAwakened = userCard.awake || userCard.awakeLevel > 0;
+    if (isAwakened) {
+        const level = userCard.awakeLevel || 1;
+        cardCopy.rating += level;
+        if (cardCopy.stats) {
+            Object.keys(cardCopy.stats).forEach(statKey => {
+                cardCopy.stats[statKey] += level;
+            });
+        }
+    }
+    return cardCopy;
+}
+
+// Get Opponent's Team Average Stat (similar to getTeamAverageStat but uses opponent's squad and deck)
+function getOpponentTeamAverageStat(opponentData, statKey) {
+    let total = 0;
+    let count = 0;
+    const TACTICAL_POSITIONS = ["ST", "LW", "RW", "CM", "LCM", "RCM", "LB", "LCB", "RCB", "RB", "GK"];
+    const formation = opponentData.squadFormation || {};
+    const deck = opponentData.playerDeck || {};
+    
+    TACTICAL_POSITIONS.forEach(pos => {
+        const cardId = formation[pos];
+        if (cardId) {
+            const awakened = getOpponentAwakenedCard(cardId, deck);
+            if (awakened && awakened.stats && typeof awakened.stats[statKey] === 'number') {
+                total += awakened.stats[statKey];
+                count++;
+            }
+        }
+    });
+    return count > 0 ? Math.round(total / count) : 0;
+}
+
+// Calculate Opponent's Total OVR including Formation Tactic OVR bonuses
+function getOpponentTotalOvr(opponentData) {
+    let avgOvr = getOpponentPureOvr(opponentData);
+    
+    const formation = opponentData.squadFormation || {};
+    const deck = opponentData.playerDeck || {};
+    const currentFormation = opponentData.currentFormation || '4-4-2';
+    
+    let hasKeyPlayer = false;
+    let hasTeamTactic = false;
+    
+    if (currentFormation === '4-3-3') {
+        const cmCardId = formation['CM'];
+        const cmCard = getOpponentAwakenedCard(cmCardId, deck);
+        hasKeyPlayer = cmCard && cmCard.stats && cmCard.stats.pas >= 80;
+        const avgPas = getOpponentTeamAverageStat(opponentData, 'pas');
+        hasTeamTactic = avgPas >= 70;
+    } else if (currentFormation === '3-4-3') {
+        const cmCardId = formation['CM'];
+        const cmCard = getOpponentAwakenedCard(cmCardId, deck);
+        hasKeyPlayer = cmCard && cmCard.stats && cmCard.stats.dri >= 80;
+        const avgDri = getOpponentTeamAverageStat(opponentData, 'dri');
+        hasTeamTactic = avgDri >= 70;
+    } else if (currentFormation === '5-4-1') {
+        const lwCardId = formation['LW'];
+        const rwCardId = formation['RW'];
+        
+        const lwCard = getOpponentAwakenedCard(lwCardId, deck);
+        const rwCard = getOpponentAwakenedCard(rwCardId, deck);
+        
+        if (lwCard && lwCard.stats && lwCard.stats.pac >= 80) hasKeyPlayer = true;
+        if (rwCard && rwCard.stats && rwCard.stats.pac >= 80) hasKeyPlayer = true;
+        
+        const avgDef = getOpponentTeamAverageStat(opponentData, 'def');
+        hasTeamTactic = avgDef >= 60;
+    } else if (currentFormation === '4-2-3-1') {
+        const cmCardId = formation['CM'];
+        const cmCard = getOpponentAwakenedCard(cmCardId, deck);
+        hasKeyPlayer = cmCard && cmCard.stats && cmCard.stats.dri >= 80;
+        const avgDri = getOpponentTeamAverageStat(opponentData, 'dri');
+        hasTeamTactic = avgDri >= 75;
+    }
+    
+    let formationBonus = 0;
+    if (currentFormation !== '4-4-2') {
+        if (hasKeyPlayer) formationBonus += 1;
+        if (hasTeamTactic) formationBonus += 1;
+    }
+    
+    return avgOvr + formationBonus;
+}
+
 // Open Friendly Match modal and render other users list (excluding self and ooks12)
 async function openFriendlyMatchModal() {
     initFriendlyMatchState();
@@ -1817,7 +1912,15 @@ async function openFriendlyMatchModal() {
         }
         
         filteredUsers.forEach(u => {
-            const opponentOvr = getOpponentPureOvr(u);
+            const pureOvr = getOpponentPureOvr(u);
+            const opponentOvr = getOpponentTotalOvr(u);
+            const tacticBonus = opponentOvr - pureOvr;
+            
+            let bonusBadgeHtml = "";
+            if (tacticBonus > 0) {
+                bonusBadgeHtml = `<span style="font-size: 0.62rem; background: rgba(0, 255, 135, 0.12); padding: 1px 5px; border-radius: 4px; color: #00ff87; border: 1px solid rgba(0, 255, 135, 0.25); font-weight: 800; margin-left: 5px;">+${tacticBonus}⚡</span>`;
+            }
+            
             const userCard = document.createElement('div');
             userCard.style.cssText = `
                 display: flex;
@@ -1854,7 +1957,7 @@ async function openFriendlyMatchModal() {
                     <span style="font-size: 0.85rem; font-weight: 700; color: #f1f5f9;">${u.id}</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 0.72rem; background: rgba(255, 255, 255, 0.06); padding: 2px 6px; border-radius: 6px; color: #94a3b8;">OVR ${opponentOvr}</span>
+                    <span style="font-size: 0.72rem; background: rgba(255, 255, 255, 0.06); padding: 2px 6px; border-radius: 6px; color: #94a3b8; display: flex; align-items: center;">OVR ${opponentOvr}${bonusBadgeHtml}</span>
                     <i class="fa-solid fa-chevron-right" style="color: #64748b; font-size: 0.75rem;"></i>
                 </div>
             `;
@@ -1904,13 +2007,27 @@ function selectFriendlyOpponent(opponentId) {
         selectedCard.style.display = 'flex';
     }
     
-    const opponentOvr = getOpponentPureOvr(opponent);
-    document.getElementById('friendlyOpponentOvrBadge').innerText = `OVR ${opponentOvr}`;
+    const pureOvr = getOpponentPureOvr(opponent);
+    const opponentOvr = getOpponentTotalOvr(opponent);
+    const tacticBonus = opponentOvr - pureOvr;
+    
+    let badgeHtml = `OVR ${opponentOvr}`;
+    if (tacticBonus > 0) {
+        badgeHtml += `<span style="font-size: 0.65rem; background: rgba(0, 255, 135, 0.15); padding: 1px 5px; border-radius: 4px; color: #00ff87; border: 1px solid rgba(0, 255, 135, 0.3); font-weight: 800; margin-left: 5px; display: inline-flex; align-items: center;">+${tacticBonus}⚡</span>`;
+    }
+    
+    document.getElementById('friendlyOpponentOvrBadge').innerHTML = badgeHtml;
     document.getElementById('friendlyOpponentName').innerText = opponent.id;
     
-    const formationName = opponent.squadFormation && opponent.squadFormation.formationName
-        ? opponent.squadFormation.formationName
-        : "4-4-2 기본";
+    let formationName = "4-4-2 기본";
+    if (opponent.currentFormation) {
+        if (opponent.currentFormation === '4-4-2') formationName = "4-4-2 기본";
+        else if (opponent.currentFormation === '4-3-3') formationName = "4-3-3 빌드업";
+        else if (opponent.currentFormation === '3-4-3') formationName = "3-4-3 스위칭";
+        else if (opponent.currentFormation === '5-4-1') formationName = "5-4-1 역습수비";
+        else if (opponent.currentFormation === '4-2-3-1') formationName = "4-2-3-1 점유율";
+        else formationName = opponent.currentFormation;
+    }
     document.getElementById('friendlyOpponentFormation').innerText = `포메이션: ${formationName}`;
     
     const startBtn = document.getElementById('btnStartFriendlyChallenge');
@@ -1972,7 +2089,7 @@ function startFriendlyMatch(opponentData) {
         roundContainer.innerHTML = `<span style="color: #a55eea; font-weight: 800;"><i class="fa-solid fa-handshake"></i> 친선 매치</span> | 잔여: <span id="friendlyTodayCountVal">${3 - friendlyMatchesToday}</span>/3`;
     }
     
-    const opponentOvr = getOpponentPureOvr(opponentData);
+    const opponentOvr = getOpponentTotalOvr(opponentData);
     const jeonbukOvr = getPlayerPureOvr();
     
     const playerOvr = jeonbukOvr + 1; // +1 Home Advantage for Challenger
