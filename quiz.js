@@ -163,6 +163,46 @@ function checkSingleKoreanAnswer(userAns, correctAns) {
     return false;
 }
 
+// 오늘 날짜를 YYMMDD 형태로 포맷하는 헬퍼 함수
+function getTodayYYMMDD() {
+    const d = new Date();
+    const yy = String(d.getFullYear()).slice(-2);
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return yy + mm + dd; // 예: "260531"
+}
+
+// 현재 날짜에 맞는 최적의 단어 풀을 실시간 판단하여 가져오는 함수
+function getScheduledWordPool() {
+    if (typeof QUIZ_WORDS_BY_DATE === 'undefined' || !QUIZ_WORDS_BY_DATE || Object.keys(QUIZ_WORDS_BY_DATE).length === 0) {
+        console.log("⚠️ [기본 풀 활성] 스케줄러 데이터베이스(QUIZ_WORDS_BY_DATE)가 없어 기본 전체 풀을 제공합니다.");
+        const poolSize = Math.min(25, QUIZ_WORDS.length);
+        return QUIZ_WORDS.slice(-poolSize).reverse();
+    }
+
+    const today = getTodayYYMMDD(); // 오늘 날짜 획득
+    const scheduleDates = Object.keys(QUIZ_WORDS_BY_DATE).sort(); // 날짜 키 정렬
+    
+    let activeDate = null;
+    
+    for (let i = 0; i < scheduleDates.length; i++) {
+        if (scheduleDates[i] <= today) {
+            activeDate = scheduleDates[i];
+        } else {
+            break;
+        }
+    }
+    
+    if (activeDate && QUIZ_WORDS_BY_DATE[activeDate] && QUIZ_WORDS_BY_DATE[activeDate].length > 0) {
+        console.log(`📅 [스케줄러 활성] 오늘(${today})은 ${activeDate} 단어 풀이 적용됩니다. (단어 수: ${QUIZ_WORDS_BY_DATE[activeDate].length}개)`);
+        return QUIZ_WORDS_BY_DATE[activeDate];
+    }
+    
+    console.log(`⚠️ [기본 풀 활성] 오늘(${today})에 맞는 스케줄이 아직 없어 기본 최신 단어 풀을 제공합니다.`);
+    const poolSize = Math.min(25, QUIZ_WORDS.length);
+    return QUIZ_WORDS.slice(-poolSize).reverse();
+}
+
 function initQuizRound() {
     try {
         console.log("initQuizRound() 시작");
@@ -202,12 +242,12 @@ function initQuizRound() {
         } catch (dateErr) {
             console.warn("날짜 확인 중 오류 발생, 메모리상의 quizOffset을 사용합니다.", dateErr);
         }
-        // 최근 25개의 단어 풀 설정 및 무작위 5개 추출
-        const poolSize = Math.min(25, QUIZ_WORDS.length);
-        const recentPool = QUIZ_WORDS.slice(-poolSize).reverse(); // 최신 등록 단어가 우선이 되도록 역순 배치
+        
+        // 날짜별 인텔리전트 영단어 스케줄러 출제 엔진 가동
+        const activePool = getScheduledWordPool();
 
         // Fisher-Yates 무작위 셔플 알고리즘 적용
-        const shuffled = [...recentPool];
+        const shuffled = [...activePool];
         for (let i = shuffled.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];

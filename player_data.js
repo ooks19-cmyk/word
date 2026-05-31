@@ -604,6 +604,104 @@ const CARDS_DATABASE = {
             def: 82,
             phy: 88
         }
+    },
+    "lee_dong_gook": {
+        id: "lee_dong_gook",
+        name: "이동국",
+        rating: 82,
+        position: "ST",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "JEONBUK",
+        image: "player/이동국.png",
+        rarity: "normal",
+        description: "전북 현대의 불멸의 영웅이자 K리그 역대 최고의 스트라이커, '라이언 킹' 이동국입니다. 환상적인 발리 슈팅과 압도적인 골 결정력, 그리고 K리그의 숱한 우승 신화를 이끈 전설적인 공격수입니다.",
+        theme: {
+            primary: "#005a3c",   // 전북 초록
+            secondary: "#ffd700", // 골드
+            glow: "#ffd700"       // 골드 아우라 광채
+        },
+        stats: {
+            pac: 78,
+            sho: 84,
+            pas: 72,
+            dri: 76,
+            def: 38,
+            phy: 81
+        }
+    },
+    "choi_chol_soon": {
+        id: "choi_chol_soon",
+        name: "최철순",
+        rating: 80,
+        position: "CB",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "JEONBUK",
+        image: "player/최철순.png",
+        rarity: "normal",
+        description: "전북 현대 왕조의 굳건한 기둥이자 팬들의 무한한 사랑을 받는 '최투지' 최철순입니다. 그라운드 위에서 보여주는 헌신적인 태클과 몸을 사리지 않는 철벽 수비로 전북 현대의 역사적인 영광을 이끌어 낸 레전드 수비수입니다.",
+        theme: {
+            primary: "#005a3c",   // 전북 초록
+            secondary: "#ffd700", // 골드
+            glow: "#ffd700"       // 골드 아우라 광채
+        },
+        stats: {
+            pac: 78,
+            sho: 55,
+            pas: 68,
+            dri: 70,
+            def: 82,
+            phy: 82
+        }
+    },
+    "park_jin_seob": {
+        id: "park_jin_seob",
+        name: "박진섭",
+        rating: 81,
+        position: "CB",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "JEONBUK",
+        image: "player/박진섭.webp",
+        description: "전북 현대의 핵심 수비형 미드필더이자 멀티 수비수 박진섭입니다. 지능적인 수비 위치 선정과 뛰어난 공중볼 장악력으로 빌드업의 핵심 역할을 수행하며 팀의 든든한 버팀목이 되어 줍니다.",
+        theme: {
+            primary: "#005a3c",
+            secondary: "#ffffff",
+            glow: "#00ff87"
+        },
+        stats: {
+            pac: 76,
+            sho: 65,
+            pas: 74,
+            dri: 73,
+            def: 81,
+            phy: 82
+        }
+    },
+    "hong_jeong_ho": {
+        id: "hong_jeong_ho",
+        name: "홍정호",
+        rating: 82,
+        position: "CB",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "JEONBUK",
+        image: "player/홍정호.webp",
+        description: "전북 현대의 든든한 베테랑 중앙 수비수이자 전설적인 리더 홍정호입니다. 탁월한 수비 리딩 능력과 강력한 대인 마크, 침착한 빌드업으로 최후방의 철벽 방어막을 지휘합니다.",
+        theme: {
+            primary: "#005a3c",
+            secondary: "#ffd700",
+            glow: "#00ff87"
+        },
+        stats: {
+            pac: 74,
+            sho: 58,
+            pas: 76,
+            dri: 72,
+            def: 83,
+            phy: 81
+        }
     }
 };
 
