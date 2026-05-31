@@ -202,8 +202,8 @@ function initQuizRound() {
         } catch (dateErr) {
             console.warn("날짜 확인 중 오류 발생, 메모리상의 quizOffset을 사용합니다.", dateErr);
         }
-        // 최근 20개의 단어 풀 설정 및 무작위 5개 추출
-        const poolSize = Math.min(20, QUIZ_WORDS.length);
+        // 최근 25개의 단어 풀 설정 및 무작위 5개 추출
+        const poolSize = Math.min(25, QUIZ_WORDS.length);
         const recentPool = QUIZ_WORDS.slice(-poolSize).reverse(); // 최신 등록 단어가 우선이 되도록 역순 배치
 
         // Fisher-Yates 무작위 셔플 알고리즘 적용
