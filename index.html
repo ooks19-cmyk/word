@@ -343,8 +343,11 @@
             <div class="match-layout">
                 <!-- Left panel: Match Simulator Board -->
                 <div class="match-simulator-panel">
-                    <div class="squad-header" style="justify-content: flex-end;">
-                        <div class="deck-count" id="matchRoundContainer">
+                    <div class="squad-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding-bottom: 0.5rem;">
+                        <button class="btn-open-pack" id="btnFriendlyMatch" onclick="openFriendlyMatchModal()" style="padding: 0.35rem 0.8rem; font-size: 0.72rem; margin: 0; width: auto; background: linear-gradient(135deg, #a55eea, #4b7bec); box-shadow: 0 0 10px rgba(165, 94, 234, 0.2); border-radius: 20px; font-weight: bold; border: none; color: #fff; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: transform 0.2s;">
+                            <i class="fa-solid fa-handshake"></i> 친선 경기
+                        </button>
+                        <div class="deck-count" id="matchRoundContainer" style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">
                             라운드: <span id="matchRoundVal">1</span>/33 | 오늘 경기: <span id="matchTodayCountVal">0</span>/5
                         </div>
                     </div>
@@ -839,6 +842,60 @@
                     </div>
                 </div>
 
+            </div>
+        </div>
+    </div>
+    
+    <!-- FRIENDLY MATCH MODAL -->
+    <div class="drawer-overlay" id="friendlyMatchModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(4, 5, 8, 0.75); backdrop-filter: blur(8px); z-index: 1200; align-items: center !important; justify-content: center !important;" onclick="closeFriendlyMatchModal()">
+        <div class="tactic-modal-drawer" style="max-width: 440px; width: 90%; height: auto; max-height: 85vh; border-radius: 24px; display: flex; flex-direction: column; background: #0f172a; border: 1.5px solid rgba(255, 255, 255, 0.08); overflow: hidden; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);" onclick="event.stopPropagation()">
+            <div class="drawer-header" style="display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.02);">
+                <h3 style="font-size: 1.2rem; font-weight: 800; color: #fff; margin: 0; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-handshake" style="color: #a55eea;"></i> 친선 경기 매칭
+                </h3>
+                <button class="btn-close-drawer" onclick="closeFriendlyMatchModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer; transition: color 0.2s;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="drawer-content" style="padding: 1.2rem 1.5rem; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 1rem;">
+                <div style="background: rgba(165, 94, 234, 0.08); border: 1px solid rgba(165, 94, 234, 0.2); padding: 0.8rem; border-radius: 12px; font-size: 0.8rem; color: #cbd5e1; text-align: center; line-height: 1.5; word-break: keep-all;">
+                    <i class="fa-solid fa-circle-info" style="margin-right: 4px; color: #a55eea;"></i> 
+                    다른 유저의 베스트 11 스쿼드 OVR을 상대로 단판 승부를 겨룹니다!<br>
+                    <strong>친선 유저 홈 어드밴티지 +1 OVR</strong> 적용. (하루 3회 제한, 포인트 보상 없음)
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: #cbd5e1; font-weight: 700; padding: 0 4px;">
+                    <span>📌 도전 가능한 유저 리스트</span>
+                    <span id="friendlyMatchesTodayCount" style="color: #a55eea; font-weight: 800;">잔여 횟수: 3/3</span>
+                </div>
+                
+                <!-- 유저 리스트 컨테이너 -->
+                <div id="friendlyUserList" style="display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; padding-right: 4px; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; background: rgba(0,0,0,0.15); padding: 0.5rem;">
+                    <div style="text-align: center; color: #64748b; padding: 2rem 0; font-size: 0.82rem;">
+                        <i class="fa-solid fa-spinner fa-spin" style="margin-right: 6px;"></i> 가입된 유저 목록을 불러오는 중...
+                    </div>
+                </div>
+                
+                <!-- 선택된 상대 상세 요약 -->
+                <div id="friendlySelectedCard" style="display: none; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 1rem; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 0.75rem; color: #94a3b8; font-weight: bold;">CHALLENGER TARGET</span>
+                        <span id="friendlyOpponentOvrBadge" style="font-size: 0.75rem; font-weight: 900; background: rgba(0, 255, 135, 0.12); color: #00ff87; padding: 2px 8px; border-radius: 12px; border: 1px solid rgba(0, 255, 135, 0.25);">OVR 70</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: rgba(165, 94, 234, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #a55eea; border: 1px solid rgba(165, 94, 234, 0.3);">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 2px;">
+                            <h4 id="friendlyOpponentName" style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #fff;">유저아이디</h4>
+                            <span id="friendlyOpponentFormation" style="font-size: 0.72rem; color: #94a3b8;">포메이션: 4-4-2</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="drawer-footer" style="padding: 1rem 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.01); display: flex; gap: 8px;">
+                <button class="header-auth-btn" style="flex: 1; padding: 0.7rem 0; font-size: 0.88rem; cursor: pointer; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #cbd5e1;" onclick="closeFriendlyMatchModal()">취소</button>
+                <button class="btn-open-pack" id="btnStartFriendlyChallenge" style="flex: 2; padding: 0.7rem 0; font-size: 0.88rem; font-weight: bold; cursor: pointer; border-radius: 12px; background: linear-gradient(135deg, #a55eea, #4b7bec); border: none; color: #fff; opacity: 0.5; pointer-events: none;" onclick="triggerFriendlyMatchSimulation()">경기 시작</button>
             </div>
         </div>
     </div>

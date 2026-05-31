@@ -298,6 +298,11 @@ function initLeague() {
     updateMatchPreviewBoard();
     renderLeagueStats();
     renderCareerStats();
+    
+    // Initialize Friendly Match State
+    if (typeof initFriendlyMatchState === 'function') {
+        initFriendlyMatchState();
+    }
 }
 
 function getPlayerPureOvr() {
@@ -1694,4 +1699,487 @@ function renderCareerStats() {
             </div>
         </div>
     `;
+}
+
+// ==========================================
+// 🤝 FRIENDLY MATCH (친선 경기) ENGINE & SYSTEM
+// ==========================================
+let friendlyMatchesToday = 0;
+let friendlyMatchLastDate = "";
+let selectedFriendlyOpponent = null;
+let preloadedFriendlyUsers = [];
+
+// Initialize Friendly Match State from LocalStorage
+function initFriendlyMatchState() {
+    const todayStr = new Date().toLocaleDateString('ko-KR');
+    const savedDate = localStorage.getItem('fc_star_friendly_match_last_date');
+    const savedCount = localStorage.getItem('fc_star_friendly_matches_today');
+    
+    if (savedDate === todayStr) {
+        friendlyMatchesToday = savedCount ? parseInt(savedCount) : 0;
+        friendlyMatchLastDate = savedDate;
+    } else {
+        friendlyMatchesToday = 0;
+        friendlyMatchLastDate = todayStr;
+        localStorage.setItem('fc_star_friendly_match_last_date', todayStr);
+        localStorage.setItem('fc_star_friendly_matches_today', '0');
+    }
+}
+
+// Calculate Opponent's Pure OVR based on their squadFormation and playerDeck
+function getOpponentPureOvr(opponentData) {
+    let totalOvr = 0;
+    const TACTICAL_POSITIONS = ["ST", "LW", "RW", "CM", "LCM", "RCM", "LB", "LCB", "RCB", "RB", "GK"];
+    
+    const formation = opponentData.squadFormation || {};
+    const deck = opponentData.playerDeck || {};
+    
+    TACTICAL_POSITIONS.forEach(pos => {
+        const cardId = formation[pos];
+        if (cardId && CARDS_DATABASE[cardId]) {
+            let rating = CARDS_DATABASE[cardId].rating;
+            if (deck[cardId]) {
+                const isAwakened = deck[cardId].awake || deck[cardId].awakeLevel > 0;
+                if (isAwakened) {
+                    const level = deck[cardId].awakeLevel || 1;
+                    rating += level;
+                }
+            }
+            totalOvr += rating;
+        } else {
+            totalOvr += 70; // default silver fallback
+        }
+    });
+    return Math.round(totalOvr / 11);
+}
+
+// Open Friendly Match modal and render other users list (excluding self and ooks12)
+async function openFriendlyMatchModal() {
+    initFriendlyMatchState();
+    
+    const modal = document.getElementById('friendlyMatchModal');
+    if (!modal) return;
+    
+    modal.style.display = 'flex';
+    
+    // Update count display
+    const countEl = document.getElementById('friendlyMatchesTodayCount');
+    if (countEl) {
+        countEl.innerText = `잔여 횟수: ${3 - friendlyMatchesToday}/3`;
+        if (3 - friendlyMatchesToday <= 0) {
+            countEl.style.color = '#ff3e6c';
+        } else {
+            countEl.style.color = '#a55eea';
+        }
+    }
+    
+    // Reset selection card
+    const selectedCard = document.getElementById('friendlySelectedCard');
+    if (selectedCard) selectedCard.style.display = 'none';
+    
+    const startBtn = document.getElementById('btnStartFriendlyChallenge');
+    if (startBtn) {
+        startBtn.style.opacity = '0.5';
+        startBtn.style.pointerEvents = 'none';
+    }
+    
+    selectedFriendlyOpponent = null;
+    
+    const listEl = document.getElementById('friendlyUserList');
+    if (!listEl) return;
+    
+    listEl.innerHTML = `
+        <div style="text-align: center; color: #64748b; padding: 2rem 0; font-size: 0.82rem;">
+            <i class="fa-solid fa-spinner fa-spin" style="margin-right: 6px; color: #a55eea;"></i> 가입된 유저 목록을 불러오는 중...
+        </div>
+    `;
+    
+    try {
+        const users = await window.dbService.fetchRankings();
+        preloadedFriendlyUsers = users;
+        
+        // Filter out logged in user and 'ooks12'
+        const currentUserId = typeof currentUser === 'string' && currentUser ? currentUser.toLowerCase() : "";
+        const filteredUsers = users.filter(u => {
+            const uid = u.id.toLowerCase();
+            return uid !== 'ooks12' && uid !== currentUserId;
+        });
+        
+        listEl.innerHTML = '';
+        
+        if (filteredUsers.length === 0) {
+            listEl.innerHTML = `
+                <div style="text-align: center; color: #64748b; padding: 2rem 0; font-size: 0.82rem;">
+                    도전 가능한 다른 유저가 존재하지 않습니다.
+                </div>
+            `;
+            return;
+        }
+        
+        filteredUsers.forEach(u => {
+            const opponentOvr = getOpponentPureOvr(u);
+            const userCard = document.createElement('div');
+            userCard.style.cssText = `
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.6rem 0.8rem;
+                background: rgba(255, 255, 255, 0.03);
+                border: 1px solid rgba(255, 255, 255, 0.06);
+                border-radius: 12px;
+                cursor: pointer;
+                transition: all 0.2s;
+            `;
+            userCard.className = 'friendly-user-item';
+            userCard.id = `friendly-user-${u.id}`;
+            userCard.onclick = () => selectFriendlyOpponent(u.id);
+            
+            userCard.onmouseenter = () => {
+                userCard.style.background = 'rgba(165, 94, 234, 0.08)';
+                userCard.style.borderColor = 'rgba(165, 94, 234, 0.3)';
+            };
+            userCard.onmouseleave = () => {
+                if (selectedFriendlyOpponent && selectedFriendlyOpponent.id === u.id) {
+                    userCard.style.background = 'rgba(165, 94, 234, 0.12)';
+                    userCard.style.borderColor = '#a55eea';
+                } else {
+                    userCard.style.background = 'rgba(255, 255, 255, 0.03)';
+                    userCard.style.borderColor = 'rgba(255, 255, 255, 0.06)';
+                }
+            };
+            
+            userCard.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-user" style="color: #94a3b8; font-size: 0.85rem;"></i>
+                    <span style="font-size: 0.85rem; font-weight: 700; color: #f1f5f9;">${u.id}</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 0.72rem; background: rgba(255, 255, 255, 0.06); padding: 2px 6px; border-radius: 6px; color: #94a3b8;">OVR ${opponentOvr}</span>
+                    <i class="fa-solid fa-chevron-right" style="color: #64748b; font-size: 0.75rem;"></i>
+                </div>
+            `;
+            
+            listEl.appendChild(userCard);
+        });
+        
+    } catch (error) {
+        console.error("친선 경기 매칭 유저 로드 실패:", error);
+        listEl.innerHTML = `
+            <div style="text-align: center; color: #ff3e6c; padding: 2rem 0; font-size: 0.82rem;">
+                <i class="fa-solid fa-triangle-exclamation" style="margin-right: 6px;"></i> 유저 정보를 불러오는 데 실패했습니다.
+            </div>
+        `;
+    }
+}
+
+// Close Friendly Match modal
+function closeFriendlyMatchModal() {
+    const modal = document.getElementById('friendlyMatchModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Select a specific opponent to challenge
+function selectFriendlyOpponent(opponentId) {
+    const opponent = preloadedFriendlyUsers.find(u => u.id === opponentId);
+    if (!opponent) return;
+    
+    selectedFriendlyOpponent = opponent;
+    
+    const items = document.querySelectorAll('.friendly-user-item');
+    items.forEach(item => {
+        item.style.background = 'rgba(255, 255, 255, 0.03)';
+        item.style.borderColor = 'rgba(255, 255, 255, 0.06)';
+    });
+    
+    const selectedItem = document.getElementById(`friendly-user-${opponentId}`);
+    if (selectedItem) {
+        selectedItem.style.background = 'rgba(165, 94, 234, 0.12)';
+        selectedItem.style.borderColor = '#a55eea';
+    }
+    
+    const selectedCard = document.getElementById('friendlySelectedCard');
+    if (selectedCard) {
+        selectedCard.style.display = 'flex';
+    }
+    
+    const opponentOvr = getOpponentPureOvr(opponent);
+    document.getElementById('friendlyOpponentOvrBadge').innerText = `OVR ${opponentOvr}`;
+    document.getElementById('friendlyOpponentName').innerText = opponent.id;
+    
+    const formationName = opponent.squadFormation && opponent.squadFormation.formationName
+        ? opponent.squadFormation.formationName
+        : "4-4-2 기본";
+    document.getElementById('friendlyOpponentFormation').innerText = `포메이션: ${formationName}`;
+    
+    const startBtn = document.getElementById('btnStartFriendlyChallenge');
+    if (startBtn) {
+        if (3 - friendlyMatchesToday > 0) {
+            startBtn.style.opacity = '1';
+            startBtn.style.pointerEvents = 'auto';
+        } else {
+            startBtn.style.opacity = '0.5';
+            startBtn.style.pointerEvents = 'none';
+        }
+    }
+}
+
+// Trigger simulation of friendly match
+function triggerFriendlyMatchSimulation() {
+    if (!selectedFriendlyOpponent) return;
+    
+    initFriendlyMatchState();
+    if (friendlyMatchesToday >= 3) {
+        showToast("⚠️ 오늘의 친선 경기 제한(3회)을 이미 초과했습니다!");
+        closeFriendlyMatchModal();
+        return;
+    }
+    
+    closeFriendlyMatchModal();
+    startFriendlyMatch(selectedFriendlyOpponent);
+}
+
+// Core Friendly Match Simulator function
+function startFriendlyMatch(opponentData) {
+    if (isMatchRunning) return;
+    
+    initFriendlyMatchState();
+    if (friendlyMatchesToday >= 3) {
+        showToast("⚠️ 오늘의 친선 경기를 모두 완료했습니다!");
+        return;
+    }
+    
+    isMatchRunning = true;
+    
+    const startBtn = document.getElementById('btnStartMatch');
+    if (startBtn) {
+        startBtn.disabled = true;
+        startBtn.style.background = 'rgba(255, 255, 255, 0.05)';
+        startBtn.style.color = 'var(--text-muted)';
+        startBtn.style.cursor = 'not-allowed';
+    }
+    const friendlyBtn = document.getElementById('btnFriendlyMatch');
+    if (friendlyBtn) {
+        friendlyBtn.disabled = true;
+        friendlyBtn.style.opacity = '0.5';
+        friendlyBtn.style.cursor = 'not-allowed';
+    }
+    
+    // Set UI for Friendly Match
+    const roundContainer = document.getElementById('matchRoundContainer');
+    if (roundContainer) {
+        roundContainer.innerHTML = `<span style="color: #a55eea; font-weight: 800;"><i class="fa-solid fa-handshake"></i> 친선 매치</span> | 잔여: <span id="friendlyTodayCountVal">${3 - friendlyMatchesToday}</span>/3`;
+    }
+    
+    const opponentOvr = getOpponentPureOvr(opponentData);
+    const jeonbukOvr = getPlayerPureOvr();
+    
+    const playerOvr = jeonbukOvr + 1; // +1 Home Advantage for Challenger
+    const oppOvr = opponentOvr;
+    const diff = playerOvr - oppOvr;
+    
+    const myId = typeof currentUser === 'string' && currentUser ? currentUser : "전북 현대(본인)";
+    
+    // Scoreboard setup
+    document.getElementById('sbTimeDisplay').innerText = "VS";
+    document.getElementById('homeScore').innerText = "0";
+    document.getElementById('awayScore').innerText = "0";
+    
+    document.getElementById('homeTeamName').innerText = `${myId} (홈)`;
+    document.getElementById('homeTeamOvr').innerText = jeonbukOvr + " (+1)";
+    document.getElementById('homeEmblem').innerHTML = `<img src="img/mark_jb.svg" alt="전북 현대" class="match-emblem-img" style="height: 48px; width: 48px; filter: drop-shadow(0 0 10px rgba(165, 94, 234, 0.6));">`;
+    
+    document.getElementById('awayTeamName').innerText = `${opponentData.id} (원정)`;
+    document.getElementById('awayTeamOvr').innerText = opponentOvr;
+    document.getElementById('awayEmblem').innerHTML = `<div style="width: 48px; height: 48px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.2);"><i class="fa-solid fa-shield-halved"></i></div>`;
+    
+    document.getElementById('matchVenueDisplay').innerText = "친선 경기 (전주성) - CHALLENGER HOME ADVANTAGE +1 OVR";
+    
+    // Score counters
+    let playerScoreVal = 0;
+    let opponentScoreVal = 0;
+    
+    // Play starting whistle sound
+    playSound('reveal');
+    
+    // Clear commentary box
+    const commBox = document.getElementById('commentaryScroll');
+    if (commBox) commBox.innerHTML = '';
+    
+    const addCommentary = (min, text, type = 'normal') => {
+        if (!commBox) return;
+        const item = document.createElement('div');
+        item.className = `comm-item comm-${type}`;
+        const timestamp = min === 'SYSTEM' || min === 'FT' ? '' : `<strong style="color:#ffd700; margin-right: 6px;">${min}'</strong>`;
+        item.innerHTML = `${timestamp}${text}`;
+        commBox.appendChild(item);
+        commBox.scrollTop = commBox.scrollHeight;
+    };
+    
+    const matchMinutes = [0, 15, 30, 45, 52, 63, 74, 82, 88, 90];
+    let tickIdx = 0;
+    
+    addCommentary('SYSTEM', `친선 매치 매칭 성사! 홈팀 ${myId} (OVR ${jeonbukOvr}+1) vs 원정팀 ${opponentData.id} (OVR ${opponentOvr})`, 'system');
+    
+    const sbTimeDisplay = document.getElementById('sbTimeDisplay');
+    sbTimeDisplay.classList.add('live-ticking');
+    
+    const eventMins = [15, 45, 63, 82, 88];
+    
+    // Retrieve active player names in key positions for personalized commentaries
+    const activeAttacker = squadFormation["ST"] ? CARDS_DATABASE[squadFormation["ST"]].name : "무명 스트라이커";
+    const activeLw = squadFormation["LW"] ? CARDS_DATABASE[squadFormation["LW"]].name : "무명 윙어";
+    const activeRw = squadFormation["RW"] ? CARDS_DATABASE[squadFormation["RW"]].name : "무명 윙백";
+    const activeCm = squadFormation["CM"] ? CARDS_DATABASE[squadFormation["CM"]].name : "무명 미드필더";
+    const activeGk = squadFormation["GK"] ? CARDS_DATABASE[squadFormation["GK"]].name : "무명 골키퍼";
+    
+    const playerAttackProb = Math.min(0.85, Math.max(0.20, 0.5 + (diff * 0.038)));
+    
+    const finishFriendlyMatch = () => {
+        sbTimeDisplay.classList.remove('live-ticking');
+        sbTimeDisplay.innerText = "종료";
+        
+        if (playerScoreVal > opponentScoreVal) {
+            document.getElementById('homeScore').innerText = playerScoreVal;
+            document.getElementById('awayScore').innerText = opponentScoreVal;
+            addCommentary('FT', `승리!!! ${myId}가 안방에서 ${opponentData.id}를 상대로 ${playerScoreVal} - ${opponentScoreVal} 짜릿한 승리를 기록하며 저력을 입증합니다! 🏆`, 'goal');
+        } else if (playerScoreVal === opponentScoreVal) {
+            document.getElementById('homeScore').innerText = playerScoreVal;
+            document.getElementById('awayScore').innerText = opponentScoreVal;
+            addCommentary('FT', `무승부! 치열한 친선 매치 결과 양 팀 승부를 가리지 못하고 ${playerScoreVal} - ${opponentScoreVal}로 악수를 나눕니다.`, 'system');
+        } else {
+            document.getElementById('homeScore').innerText = playerScoreVal;
+            document.getElementById('awayScore').innerText = opponentScoreVal;
+            addCommentary('FT', `패배! 상대 ${opponentData.id}의 단단한 스쿼드를 뚫지 못하고 ${playerScoreVal} - ${opponentScoreVal}로 아쉬운 패배를 기록합니다.`, 'normal');
+        }
+        
+        // Save friendly match results
+        friendlyMatchesToday += 1;
+        localStorage.setItem('fc_star_friendly_matches_today', friendlyMatchesToday.toString());
+        
+        // Re-enable buttons
+        isMatchRunning = false;
+        if (startBtn) {
+            startBtn.disabled = false;
+            startBtn.style.background = '';
+            startBtn.style.color = '';
+            startBtn.style.cursor = '';
+        }
+        if (friendlyBtn) {
+            friendlyBtn.disabled = false;
+            friendlyBtn.style.opacity = '1';
+            friendlyBtn.style.cursor = 'pointer';
+        }
+        
+        // Reset scoreboard preview to original state
+        if (typeof updateMatchPreviewBoard === 'function') {
+            updateMatchPreviewBoard();
+        }
+        
+        showToast(`🎉 친선 경기가 완료되었습니다! (오늘 남은 횟수: ${3 - friendlyMatchesToday}/3)`);
+        
+        // Save progress to database
+        if (typeof saveUserProgress === 'function') {
+            saveUserProgress();
+        }
+    };
+    
+    // developer mode instant simulation
+    if (isDeveloperMode) {
+        matchMinutes.forEach(currentMin => {
+            if (currentMin === 0) {
+                addCommentary(0, `주심의 힘찬 휘슬 소리와 함께 친선 경기가 시작됩니다!`, 'normal');
+            } else if (eventMins.includes(currentMin)) {
+                const isPlayerAttack = Math.random() < playerAttackProb;
+                if (isPlayerAttack) {
+                    const isGoal = Math.random() < (0.35 + (diff * 0.026));
+                    if (isGoal) {
+                        playerScoreVal++;
+                        addCommentary(currentMin, `${activeAttacker} 선수가 문전 침투 후 구석을 찌르는 절묘한 슛! 골인! ⚽`, 'goal');
+                    } else {
+                        addCommentary(currentMin, `${activeLw} 선수가 화려한 돌파 후 슈팅했으나 아쉽게 골대 옆을 스쳐 지나갑니다.`, 'normal');
+                    }
+                } else {
+                    const oppScoreProb = Math.min(0.90, Math.max(0.08, 0.35 - (diff * 0.026)));
+                    const isGoal = Math.random() < oppScoreProb;
+                    if (isGoal) {
+                        opponentScoreVal++;
+                        addCommentary(currentMin, `실점! 상대 ${opponentData.id}의 날카로운 패스 플레이에 수비가 열리며 득점을 허용합니다.`, 'normal');
+                    } else {
+                        addCommentary(currentMin, `상대의 강력한 슛! 하지만 ${activeGk} 골키퍼가 감각적으로 선방해 냅니다! 🧤`, 'normal');
+                    }
+                }
+            } else if (currentMin === 45) {
+                addCommentary('HT', `치열했던 전반전 종료. 현재 스코어 ${playerScoreVal} - ${opponentScoreVal}`, 'system');
+            }
+        });
+        finishFriendlyMatch();
+        return;
+    }
+    
+    // Normal ticking simulation
+    const matchTimer = setInterval(() => {
+        const currentMin = matchMinutes[tickIdx];
+        sbTimeDisplay.innerText = `${currentMin}'`;
+        
+        if (currentMin === 0) {
+            addCommentary(0, `주심의 힘찬 휘슬 소리와 함께 친선 경기가 시작됩니다! 양 팀 라인업이 그라운드를 수놓습니다.`, 'normal');
+        } else if (eventMins.includes(currentMin)) {
+            const isPlayerAttack = Math.random() < playerAttackProb;
+            if (isPlayerAttack) {
+                let attackOptions = [0, 1, 2];
+                const selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
+                const isGoal = Math.random() < (0.35 + (diff * 0.026));
+                
+                if (selectedOption === 0) {
+                    addCommentary(currentMin, `${activeLw} 선수가 폭발적인 속도로 측면을 붕괴시키고 문전으로 낮게 크로스!`, 'attack');
+                    if (isGoal) {
+                        playerScoreVal++;
+                        addCommentary(currentMin, `골!!! 쇄도하던 ${activeAttacker}가 발을 갖다 대며 골망을 시원하게 갈라냅니다! ⚽`, 'goal');
+                    } else {
+                        addCommentary(currentMin, `수비수가 한 발 앞서 걷어내며 코너킥으로 아쉽게 무산됩니다.`, 'normal');
+                    }
+                } else if (selectedOption === 1) {
+                    addCommentary(currentMin, `상대 패스 미스를 단숨에 가로챈 ${activeCm}! 비어있는 전방으로 스루패스를 찔러줍니다!`, 'attack');
+                    if (isGoal) {
+                        playerScoreVal++;
+                        addCommentary(currentMin, `골!!! 단독 찬스를 맞이한 ${activeAttacker}가 키퍼와 1대1 상황에서 침착하게 칩슛으로 득점 성공! 🥳`, 'goal');
+                    } else {
+                        addCommentary(currentMin, `상대 골키퍼가 쏜살같이 뛰어나와 골을 캐칭해 냅니다.`, 'normal');
+                    }
+                } else {
+                    addCommentary(currentMin, `우측 면에서 화려한 페인팅으로 수비수를 가볍게 제치는 ${activeRw}! 그대로 직접 감아차기 슛 시도!`, 'attack');
+                    if (isGoal) {
+                        playerScoreVal++;
+                        addCommentary(currentMin, `골!!! 환상적인 포물선을 그리며 반대편 골문 구석에 빨려 들어갑니다! 환상적인 득점! 🎉`, 'goal');
+                    } else {
+                        addCommentary(currentMin, `아쉬워라! 골대를 강하게 맞추고 공이 바깥으로 아쉽게 튕겨 나갑니다.`, 'normal');
+                    }
+                }
+            } else {
+                const oppScoreProb = Math.min(0.90, Math.max(0.08, 0.35 - (diff * 0.026)));
+                const isGoal = Math.random() < oppScoreProb;
+                addCommentary(currentMin, `상대팀 ${opponentData.id}가 박스 박스 패스로 촘촘하게 전파망을 조이며 들어옵니다.`, 'attack');
+                if (isGoal) {
+                    opponentScoreVal++;
+                    addCommentary(currentMin, `실점! 골문 구석 사각지대로 향하는 정교한 논스톱 슈팅에 실점을 내주고 맙니다.`, 'normal');
+                } else {
+                    addCommentary(currentMin, `다행입니다! ${activeGk} 골키퍼가 안정적으로 쳐내며 위기를 극복합니다! 🧤`, 'normal');
+                }
+            }
+        } else if (currentMin === 45) {
+            addCommentary('HT', `치열했던 전반전 종료. 현재 스코어 ${playerScoreVal} - ${opponentScoreVal} 전술 지시를 조율합니다.`, 'system');
+        }
+        
+        // Update score UI live
+        document.getElementById('homeScore').innerText = playerScoreVal;
+        document.getElementById('awayScore').innerText = opponentScoreVal;
+        
+        tickIdx++;
+        if (tickIdx >= matchMinutes.length) {
+            clearInterval(matchTimer);
+            finishFriendlyMatch();
+        }
+    }, isDeveloperMode ? 0 : 900); // 900ms per tick
 }
