@@ -74,6 +74,19 @@ const FORMATION_COORDINATES = {
         'RCB': { top: '74%', left: '70%' },
         'RB': { top: '65%', left: '88%' },
         'GK': { top: '90%', left: '50%' }
+    },
+    '4-2-3-1': {
+        'ST': { top: '8%', left: '50%' },
+        'LW': { top: '25%', left: '20%' },
+        'RW': { top: '25%', left: '80%' },
+        'CM': { top: '28%', left: '50%' },
+        'LCM': { top: '52%', left: '33%' },
+        'RCM': { top: '52%', left: '67%' },
+        'LB': { top: '73%', left: '12%' },
+        'LCB': { top: '77%', left: '36%' },
+        'RCB': { top: '77%', left: '64%' },
+        'RB': { top: '73%', left: '88%' },
+        'GK': { top: '90%', left: '50%' }
     }
 };
 
@@ -111,6 +124,13 @@ function validateFormation(formationType) {
         return hasValidWinger;
     }
     
+    if (formationType === '4-2-3-1') {
+        const cmCardId = squadFormation['CM'];
+        if (!cmCardId) return false;
+        const cmCard = getAwakenedCard(cmCardId);
+        return cmCard && cmCard.stats && cmCard.stats.dri >= 80;
+    }
+    
     return false;
 }
 
@@ -134,6 +154,7 @@ function renderSquadFormation() {
         if (currentFormation === '4-3-3' && pos === 'CM') isKeySlot = true;
         else if (currentFormation === '3-4-3' && pos === 'CM') isKeySlot = true;
         else if (currentFormation === '5-4-1' && (pos === 'LW' || pos === 'RW')) isKeySlot = true;
+        else if (currentFormation === '4-2-3-1' && pos === 'CM') isKeySlot = true;
         
         if (isKeySlot) {
             slotEl.classList.add('key-player-slot');
@@ -154,14 +175,23 @@ function renderSquadFormation() {
             else if (pos === 'RW') displayPos = 'RM';
         } else if (currentFormation === '3-4-3') {
             if (pos === 'RCM') displayPos = 'DM';
+        } else if (currentFormation === '4-2-3-1') {
+            if (pos === 'LW') displayPos = 'LM';
+            else if (pos === 'RW') displayPos = 'RM';
+            else if (pos === 'CM') displayPos = 'AM';
+            else if (pos === 'LCM' || pos === 'RCM') displayPos = 'DM';
         }
         
         if (cardData) {
             // Placed player card structure
             totalOvr += cardData.rating;
             const starIndicator = cardData.awakening > 0 ? `<span style="font-size: 0.55rem; color: #ffd700; margin-left: 1px; vertical-align: middle;">★</span>` : '';
+            const isCaptain = (cardId === squadCaptain);
+            const captainClass = isCaptain ? ' captain-active' : '';
+            const captainBadge = isCaptain ? '<div class="mini-card-captain-badge">👑</div>' : '';
             slotEl.innerHTML = `
-                <div class="mini-player-card active-placed">
+                <div class="mini-player-card active-placed${captainClass}">
+                    ${captainBadge}
                     <div class="mini-card-ovr-badge">${cardData.rating}${starIndicator}</div>
                     <div class="mini-card-position-badge">${displayPos}</div>
                     <div class="mini-card-portrait">
@@ -204,6 +234,9 @@ function renderSquadFormation() {
         } else if (currentFormation === '5-4-1') {
             activeLabelEl.innerText = "5-4-1 역습";
             activeLabelEl.style.color = '#ff3e6c';
+        } else if (currentFormation === '4-2-3-1') {
+            activeLabelEl.innerText = "4-2-3-1 점유";
+            activeLabelEl.style.color = '#00d2fc';
         }
     }
     
@@ -229,6 +262,11 @@ function renderSquadFormation() {
     
     // Check and update squad tactics status
     checkSquadTactics();
+
+    // 6. 구단 주장 셀렉터 및 UI 실시간 동기화
+    if (typeof updateCaptainSelectorUI === 'function') {
+        updateCaptainSelectorUI();
+    }
 }
 
 function checkSquadTactics() {
@@ -408,6 +446,11 @@ function openCardSelector(position) {
         else if (position === 'RW') displayTitle = 'RM';
     } else if (currentFormation === '3-4-3') {
         if (position === 'RCM') displayTitle = 'DM';
+    } else if (currentFormation === '4-2-3-1') {
+        if (position === 'LW') displayTitle = 'LM';
+        else if (position === 'RW') displayTitle = 'RM';
+        else if (position === 'CM') displayTitle = 'AM';
+        else if (position === 'LCM' || position === 'RCM') displayTitle = 'DM';
     }
     title.innerText = displayTitle;
     overlay.classList.add('active');
@@ -440,6 +483,14 @@ function openCardSelector(position) {
                 <i class="fa-solid fa-star" style="margin-right: 4px; animation: keyPlayerLabelPulse 1.5s infinite alternate;"></i> 
                 <strong>[5-4-1 역습 핵심 자리 - ${displayWingerPos}]</strong><br>
                 속도(PAC)가 <strong>80 이상</strong>인 선수를 이 자리(${displayWingerPos})에 기용하면 전술이 활성화되며, 핵심 LM/RM 속도 비례 <strong>득점 성공 확률 보너스</strong>를 획득합니다! (80 초과 1점당 +0.5%)
+            </div>
+        `;
+    } else if (currentFormation === '4-2-3-1' && position === 'CM') {
+        bannerHtml = `
+            <div style="background: rgba(0, 210, 252, 0.1); border: 1.5px solid rgba(0, 210, 252, 0.3); padding: 0.8rem 1rem; border-radius: 12px; font-size: 0.8rem; color: #00d2fc; line-height: 1.45; font-weight: bold; margin-bottom: 1rem; text-align: left; word-break: keep-all;">
+                <i class="fa-solid fa-star" style="margin-right: 4px; animation: keyPlayerLabelPulse 1.5s infinite alternate;"></i> 
+                <strong>[4-2-3-1 점유율 핵심 자리 - AM (CM)]</strong><br>
+                드리블(DRI)이 <strong>80 이상</strong>인 선수를 기용하면 전술이 활성화되며, 핵심 선수 드리블 수치 비례 <strong>공격권 획득 확률 보너스</strong>를 획득합니다! (80 초과 1점당 +0.5%)
             </div>
         `;
     }
@@ -514,6 +565,10 @@ function openCardSelector(position) {
         } else if (currentFormation === '5-4-1' && (position === 'LW' || position === 'RW')) {
             if (card.stats && card.stats.pac >= 80) {
                 recTagHtml = `<span style="font-size: 0.65rem; background: rgba(255, 62, 108, 0.2); color: #ff3e6c; border: 1px solid #ff3e6c; padding: 1px 5px; border-radius: 4px; font-weight: 800; margin-left: 6px;">[PAC 80+ 추천]</span>`;
+            }
+        } else if (currentFormation === '4-2-3-1' && position === 'CM') {
+            if (card.stats && card.stats.dri >= 80) {
+                recTagHtml = `<span style="font-size: 0.65rem; background: rgba(0, 210, 252, 0.2); color: #00d2fc; border: 1px solid #00d2fc; padding: 1px 5px; border-radius: 4px; font-weight: 800; margin-left: 6px;">[DRI 80+ 추천]</span>`;
             }
         }
         
@@ -675,7 +730,7 @@ function closeFormationModal() {
 }
 
 function updateFormationModalUI() {
-    const formations = ['4-4-2', '4-3-3', '3-4-3', '5-4-1'];
+    const formations = ['4-4-2', '4-3-3', '3-4-3', '5-4-1', '4-2-3-1'];
     formations.forEach(f => {
         const cardEl = document.getElementById(`formCard-${f}`);
         const statusEl = document.getElementById(`formStatus-${f}`);
@@ -703,6 +758,9 @@ function updateFormationModalUI() {
             } else if (f === '5-4-1') {
                 cardEl.style.borderColor = '#ff3e6c';
                 cardEl.style.boxShadow = '0 0 15px rgba(255, 62, 108, 0.3)';
+            } else if (f === '4-2-3-1') {
+                cardEl.style.borderColor = '#00d2fc';
+                cardEl.style.boxShadow = '0 0 15px rgba(0, 210, 252, 0.3)';
             }
             cardEl.style.background = 'rgba(255, 255, 255, 0.05)';
             
@@ -728,6 +786,10 @@ function updateFormationModalUI() {
                         statusEl.style.background = 'rgba(255, 62, 108, 0.18)';
                         statusEl.style.color = '#ff3e6c';
                         statusEl.style.borderColor = '#ff3e6c';
+                    } else if (f === '4-2-3-1') {
+                        statusEl.style.background = 'rgba(0, 210, 252, 0.18)';
+                        statusEl.style.color = '#00d2fc';
+                        statusEl.style.borderColor = '#00d2fc';
                     }
                 } else {
                     statusEl.innerText = "사용 중 (보너스 미활성)";
@@ -1081,6 +1143,123 @@ function changeCustomSquadNumber(numKey, newNumberVal) {
     
     // 클라우드 자동 세이브
     saveUserProgress();
+}
+
+// ==========================================================================
+// 11. SQUAD CAPTAIN SETTINGS LOGIC (구단 주장 임명 및 출전대기 감지 시스템)
+// ==========================================================================
+
+// 구단 주장 UI 갱신 함수 (선발 제외 ⏳ 대기 감지 포함)
+function updateCaptainSelectorUI() {
+    const selectCaptainEl = document.getElementById('select-squad-captain');
+    const nameDisplayEl = document.getElementById('captain-display-name');
+    if (!selectCaptainEl || !nameDisplayEl) return;
+
+    // 현재 포메이션에 배치된 실존 선수(anonymous가 아닌 카드) ID 수집
+    const best11Cards = [];
+    TACTICAL_POSITIONS.forEach(pos => {
+        const cardId = squadFormation[pos];
+        if (cardId && CARDS_DATABASE[cardId]) {
+            best11Cards.push(cardId);
+        }
+    });
+
+    // select option들 초기화
+    selectCaptainEl.innerHTML = '<option value="">주장 임명 (베스트 11)</option>';
+
+    // 베스트 11 기용 멤버 option 추가 (중복 제거)
+    const uniqueBest11 = [...new Set(best11Cards)];
+    uniqueBest11.forEach(cardId => {
+        const card = CARDS_DATABASE[cardId];
+        if (card) {
+            const opt = document.createElement('option');
+            opt.value = cardId;
+            opt.innerText = `${card.name} (${card.position})`;
+            selectCaptainEl.appendChild(opt);
+        }
+    });
+
+    // 현재 주장 상태에 따른 분기 처리
+    if (squadCaptain) {
+        const captainCard = CARDS_DATABASE[squadCaptain];
+        if (captainCard) {
+            const isPlaced = uniqueBest11.includes(squadCaptain);
+            if (isPlaced) {
+                // 선발 출전 중
+                nameDisplayEl.innerHTML = `<i class="fa-solid fa-crown" style="color: #ffd700; margin-right: 4px;"></i>${captainCard.name}`;
+                nameDisplayEl.style.color = '#ffd700';
+                nameDisplayEl.style.background = 'rgba(255, 215, 0, 0.1)';
+                nameDisplayEl.style.borderColor = 'rgba(255, 215, 0, 0.3)';
+                selectCaptainEl.value = squadCaptain;
+            } else {
+                // 스쿼드 이탈 (출전 대기 ⏳ 상태)
+                nameDisplayEl.innerHTML = `<i class="fa-solid fa-crown" style="color: #ff9f43; margin-right: 4px;"></i>${captainCard.name} <span style="font-size: 0.72rem; color: #ff9f43; font-weight: bold; background: rgba(255, 159, 67, 0.15); padding: 1px 4px; border-radius: 4px; margin-left: 2px;">(출전대기 ⏳)</span>`;
+                nameDisplayEl.style.color = '#ff9f43';
+                nameDisplayEl.style.background = 'rgba(255, 159, 67, 0.08)';
+                nameDisplayEl.style.borderColor = 'rgba(255, 159, 67, 0.25)';
+
+                // select에도 출전대기 상태 선수 임시 추가하여 selected 처리
+                const opt = document.createElement('option');
+                opt.value = squadCaptain;
+                opt.innerText = `${captainCard.name} (출전대기 ⏳)`;
+                opt.selected = true;
+                selectCaptainEl.appendChild(opt);
+            }
+        } else {
+            // 비정상 데이터 소거
+            squadCaptain = null;
+            nameDisplayEl.innerText = "미지정 ❌";
+            nameDisplayEl.style.color = '#cbd5e1';
+            nameDisplayEl.style.background = 'rgba(255, 255, 255, 0.05)';
+            nameDisplayEl.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+            selectCaptainEl.value = "";
+            try { localStorage.removeItem('fc_star_squad_captain'); } catch(e) {}
+        }
+    } else {
+        // 미지정
+        nameDisplayEl.innerText = "미지정 ❌";
+        nameDisplayEl.style.color = '#cbd5e1';
+        nameDisplayEl.style.background = 'rgba(255, 255, 255, 0.05)';
+        nameDisplayEl.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+        selectCaptainEl.value = "";
+    }
+}
+
+// 구단 주장 지정/해임 변경 처리 함수
+function changeSquadCaptain(cardId) {
+    if (!cardId) {
+        // 주장 해임
+        const oldCaptain = squadCaptain;
+        squadCaptain = null;
+        try {
+            localStorage.removeItem('fc_star_squad_captain');
+        } catch (e) {}
+        
+        renderSquadFormation();
+        
+        if (oldCaptain && CARDS_DATABASE[oldCaptain]) {
+            showToast(`👑 ${CARDS_DATABASE[oldCaptain].name} 선수의 주장 지정을 취소했습니다.`);
+        } else {
+            showToast(`👑 주장을 해임하였습니다.`);
+        }
+    } else {
+        // 주장 지정
+        squadCaptain = cardId;
+        try {
+            localStorage.setItem('fc_star_squad_captain', cardId);
+        } catch (e) {}
+        
+        renderSquadFormation();
+        
+        if (CARDS_DATABASE[cardId]) {
+            showToast(`👑 ${CARDS_DATABASE[cardId].name} 선수를 구단 주장으로 새롭게 임명했습니다!`);
+        }
+    }
+    
+    // Firebase 백업 동기화
+    if (typeof saveUserProgress === 'function') {
+        saveUserProgress();
+    }
 }
 
 

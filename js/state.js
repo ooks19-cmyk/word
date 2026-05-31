@@ -109,4 +109,15 @@ try {
     }
 }
 
+// 5. SQUAD CAPTAIN STATE (구단 주장 설정 데이터)
+let squadCaptain = null;
+try {
+    const savedCaptain = localStorage.getItem('fc_star_squad_captain');
+    if (savedCaptain) {
+        squadCaptain = savedCaptain;
+    }
+} catch (e) {
+    squadCaptain = null;
+}
+
 

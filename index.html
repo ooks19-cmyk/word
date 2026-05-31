@@ -279,6 +279,26 @@
                     </div>
                 </div>
 
+                <!-- 구단 주장 설정 현황판 -->
+                <div class="squad-captain-status-board" style="width: 100%; max-width: 760px; margin: 1rem auto 0 auto; background: rgba(10, 14, 26, 0.45); border: 1px solid var(--glass-border); border-radius: 20px; padding: 1.2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.4); backdrop-filter: blur(10px); display: flex; flex-direction: column; gap: 0.8rem;">
+                    <h4 style="font-size: 0.95rem; font-weight: 800; color: #fff; margin: 0; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-crown" style="color: #ffd700;"></i> 구단 주장(Captain) 설정</h4>
+                    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; width: 100%;">
+                        <div style="flex: 1; min-width: 250px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 0.6rem 1rem; border-radius: 12px; display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fa-solid fa-user-shield" style="color: #ffd700; font-size: 1.1rem;"></i>
+                                <span style="font-size: 0.85rem; color: var(--text-light); font-weight: 700;">현재 설정된 주장:</span>
+                                <span id="captain-display-name" style="font-size: 0.85rem; font-weight: 800; color: #ffd700; background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.3); padding: 2px 8px; border-radius: 6px;">미지정 ❌</span>
+                            </div>
+                            <span style="font-size: 0.68rem; color: #94a3b8; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1);">🏆 우승 시 각성 +1</span>
+                        </div>
+                        <div style="min-width: 180px; display: flex; gap: 8px; align-items: center;">
+                            <select id="select-squad-captain" onchange="changeSquadCaptain(this.value)" style="flex: 1; background: rgba(15, 19, 34, 0.9); border: 1px solid var(--glass-border); color: #fff; padding: 0.55rem; border-radius: 12px; font-size: 0.8rem; font-weight: bold; cursor: pointer; outline: none; transition: border-color 0.3s; border-color: rgba(255, 255, 255, 0.15);">
+                                <option value="">주장 임명 (베스트 11)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- 팀 평균 파라미터 현황판 -->
                 <div class="team-average-stats-board" style="width: 100%; max-width: 760px; margin: 1rem auto 0 auto; background: rgba(10, 14, 26, 0.45); border: 1px solid var(--glass-border); border-radius: 20px; padding: 1.2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.4); backdrop-filter: blur(10px); display: flex; flex-direction: column; gap: 0.8rem;">
                     <h4 style="font-size: 0.95rem; font-weight: 800; color: #fff; margin: 0; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-chart-simple" style="color: #ffd700;"></i> 베스트 11 팀 평균 능력치 현황</h4>
@@ -800,6 +820,22 @@
                     <div style="font-size: 0.74rem; background: rgba(255,255,255,0.02); padding: 0.5rem 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); display: flex; flex-direction: column; gap: 4px; line-height: 1.45; text-align: left; color: #94a3b8;">
                         <div><i class="fa-solid fa-star" style="color:#ff3e6c; margin-right: 4px;"></i> 전술 보너스: <strong>핵심선수(LM/RM) 속도 80이상</strong>, <strong>팀 평균 수비 60이상</strong> (각 +1 OVR)</div>
                         <div style="color: #00ff87;"><i class="fa-solid fa-chart-line" style="margin-right: 4px;"></i> 핵심선수의 속도 능력이 높을수록 <strong>골 성공 확률(득점력)이 올라가요!</strong> (1점당 +0.5%)</div>
+                    </div>
+                </div>
+
+                <!-- 5. 4-2-3-1 전북 -->
+                <div class="tactic-info-box" id="formCard-4-2-3-1" onclick="changeFormation('4-2-3-1')" style="cursor: pointer; padding: 1rem !important; border-radius: 16px !important; background: rgba(255,255,255,0.02); border: 1.5px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 0.5rem; transition: all 0.3s;">
+                    <div class="tactic-card-header" style="border-bottom: none; padding-bottom: 0;">
+                        <div class="tactic-title-wrapper">
+                            <i class="fa-solid fa-arrows-to-dot" style="color: #00d2fc; font-size: 1.2rem;"></i>
+                            <h3 style="font-size: 1rem;">점유율 중시 (<span style="color: #00d2fc;">4-2-3-1</span>)</h3>
+                        </div>
+                        <span class="tactic-status-badge inactive" style="font-size: 0.65rem; padding: 0.15rem 0.5rem;" id="formStatus-4-2-3-1">조건 미달</span>
+                    </div>
+                    <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0; line-height: 1.4; word-break: keep-all;"><strong>현재 전북현대 스타일</strong>: 공미 중심의 촘촘한 유기적 점유율 지배 축구</p>
+                    <div style="font-size: 0.74rem; background: rgba(255,255,255,0.02); padding: 0.5rem 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); display: flex; flex-direction: column; gap: 4px; line-height: 1.45; text-align: left; color: #94a3b8;">
+                        <div><i class="fa-solid fa-star" style="color:#00d2fc; margin-right: 4px;"></i> 전술 보너스: <strong>핵심선수(AM) 드리블 80이상</strong>, <strong>팀 전체 드리블 75이상</strong> (각 +1 OVR)</div>
+                        <div style="color: #00ff87;"><i class="fa-solid fa-chart-line" style="margin-right: 4px;"></i> 핵심선수의 드리블 능력이 높을수록 <strong>골 찬스가 많이 나와요!</strong> (1점당 +0.5%)</div>
                     </div>
                 </div>
 

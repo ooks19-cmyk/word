@@ -102,6 +102,7 @@ function saveUserProgress() {
         squadFormation: squadFormation,
         currentFormation: currentFormation,
         squadNumbers: squadNumbers,
+        squadCaptain: squadCaptain,
         leagueRound: leagueRound,
         leagueTeams: leagueTeams,
         quizOffset: quizOffset,
@@ -130,6 +131,7 @@ function syncUserDataOnLogin(userData) {
         playerDeck = userData.playerDeck || {};
         squadFormation = userData.squadFormation || {};
         currentFormation = userData.currentFormation || '4-4-2';
+        squadCaptain = userData.squadCaptain || null;
         leagueRound = userData.leagueRound || 1;
         
         squadNumbers = userData.squadNumbers || {};
@@ -417,6 +419,7 @@ function handleLogout() {
         localStorage.removeItem('fc_star_league_teams');
         localStorage.removeItem('fc_star_league_round');
         localStorage.removeItem('fc_star_squad_numbers');
+        localStorage.removeItem('fc_star_squad_captain');
         
         showToast("성공적으로 로그아웃되었습니다! 로컬 모드로 리로딩합니다...");
         
