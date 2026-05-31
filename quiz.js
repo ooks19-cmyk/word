@@ -363,8 +363,7 @@ function submitQuizAnswer() {
             inputField.style.borderColor = '#00ff87';
             inputField.style.boxShadow = '0 0 25px rgba(0, 255, 135, 0.6)';
             
-            // Sounds & Sparks (30% 효과음 볼륨 세팅)
-            playSound('reveal', 0.3);
+            // Sparks feedback only (정답 효과음 재생은 피드백에 의해 소거 처리)
             createSparkParticles(true, '#00ff87');
             
             setTimeout(() => {
