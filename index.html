@@ -100,10 +100,19 @@
         <section id="quizSection" class="page-section">
             <div class="quiz-container">
                 <div class="quiz-header">
-                    <div class="quiz-header-left">
+                    <div class="quiz-header-left" style="display: flex; align-items: center; gap: 12px;">
                         <button class="btn-reset-quiz" onclick="resetQuizOffset()" title="퀴즈 순서 초기화 (최신 단어부터 다시 출제)">
                             <i class="fa-solid fa-rotate-left"></i> 순서 초기화
                         </button>
+                        <!-- TTS 자동 재생 토글 스위치 -->
+                        <div class="quiz-autoplay-toggle" style="display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); padding: 0.35rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">
+                            <i class="fa-solid fa-volume-high" id="autoplayVolumeIcon" style="color: var(--text-muted); transition: all 0.3s ease;"></i>
+                            <span>자동 발음</span>
+                            <label class="dev-switch" style="position: relative; display: inline-block; width: 34px; height: 18px; cursor: pointer; margin-left: 2px;">
+                                <input type="checkbox" id="quizAutoplayCheckbox" onchange="toggleQuizAutoplay(this.checked)" style="opacity: 0; width: 0; height: 0;">
+                                <span class="dev-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); transition: .3s; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2);"></span>
+                            </label>
+                        </div>
                     </div>
                     <div class="deck-count">
                         <span id="quizLevelWidget" onclick="developerSetLevel()" style="margin-right: 10px;">레벨: <strong id="quizLevelVal" style="color: #ffd700; font-weight: 800;">1</strong></span>
@@ -124,7 +133,10 @@
                         <div class="quiz-card-glow"></div>
                         <div class="quiz-question-container">
                             <span class="quiz-question-label">다음 영어 단어의 뜻을 입력하세요</span>
-                            <h1 class="quiz-question-word" id="quizQuestionWord">apple</h1>
+                            <div class="quiz-word-wrapper" onclick="speakCurrentWord()" title="클릭하면 발음을 들려줍니다 (TTS)">
+                                <h1 class="quiz-question-word" id="quizQuestionWord" style="margin: 0;">apple</h1>
+                                <i class="fa-solid fa-volume-high tts-icon" id="quizTtsIcon"></i>
+                            </div>
                         </div>
                         
                         <div class="quiz-input-wrapper">

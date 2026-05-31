@@ -274,6 +274,17 @@ function renderQuizCurrent() {
             return;
         }
         
+        // Sync Autoplay checkbox and icon style
+        const autoplayCheckbox = document.getElementById('quizAutoplayCheckbox');
+        const volIcon = document.getElementById('autoplayVolumeIcon');
+        if (autoplayCheckbox) {
+            autoplayCheckbox.checked = isQuizTtsAutoplay;
+        }
+        if (volIcon) {
+            volIcon.style.color = isQuizTtsAutoplay ? '#00ff87' : 'var(--text-muted)';
+            volIcon.style.filter = isQuizTtsAutoplay ? 'drop-shadow(0 0 5px rgba(0, 255, 135, 0.5))' : '';
+        }
+        
         // Set Question
         const qWordEl = document.getElementById('quizQuestionWord');
         if (qWordEl) {
@@ -301,6 +312,13 @@ function renderQuizCurrent() {
             inputField.style.boxShadow = '';
             inputField.disabled = false;
             setTimeout(() => inputField.focus(), 50);
+        }
+
+        // Auto-play TTS if enabled
+        if (isQuizTtsAutoplay) {
+            setTimeout(() => {
+                speakCurrentWord(true); // true = autoplay trigger
+            }, 150);
         }
     } catch(e) {
         console.error("renderQuizCurrent 에러 발생:", e);
@@ -345,8 +363,8 @@ function submitQuizAnswer() {
             inputField.style.borderColor = '#00ff87';
             inputField.style.boxShadow = '0 0 25px rgba(0, 255, 135, 0.6)';
             
-            // Sounds & Sparks
-            playSound('reveal');
+            // Sounds & Sparks (30% 효과음 볼륨 세팅)
+            playSound('reveal', 0.3);
             createSparkParticles(true, '#00ff87');
             
             setTimeout(() => {
@@ -376,7 +394,7 @@ function submitQuizAnswer() {
                         // Show Success Screen
                         const compOverlay = document.getElementById('quizCompleteOverlay');
                         if (compOverlay) compOverlay.style.display = 'flex';
-                        playSound('reveal');
+                        playSound('reveal', 0.3);
                         createSparkParticles(true, '#ffd700');
                         
                         // Save State locally & cloud
@@ -407,7 +425,7 @@ function submitQuizAnswer() {
             inputField.classList.add('shake-input');
             inputField.style.borderColor = '#ef4444';
             inputField.style.boxShadow = '0 0 20px rgba(239, 68, 68, 0.4)';
-            playSound('rumble');
+            playSound('rumble', 0.3);
             
             showToast("오답입니다! 다시 한 번 생각해보세요.");
             
@@ -446,7 +464,7 @@ function passQuizQuestion() {
         const inputField = document.getElementById('quizAnswerInput');
         if (inputField) inputField.disabled = true;
         
-        playSound('rumble');
+        playSound('rumble', 0.3);
 
         // Move passed word to the end of queue to re-appear later
         const passedWord = quizQueue[quizCurrentIndex];
@@ -516,3 +534,93 @@ function resetQuizOffset() {
     initQuizRound();
     showToast("🔄 단어 퀴즈가 최신 등록 순으로 초기화되었습니다!");
 }
+
+// ==========================================================================
+// 8. TEXT-TO-SPEECH (TTS) SYSTEM & PREFERENCE TOGGLE INTERACTION
+// ==========================================================================
+
+// 영어 단어 음성 발화 (TTS) 재생 함수
+function speakCurrentWord(isAutoplayTrigger = false) {
+    try {
+        if (!quizQueue || quizQueue.length === 0 || quizCurrentIndex >= quizQueue.length) {
+            return;
+        }
+
+        const currentItem = quizQueue[quizCurrentIndex];
+        if (!currentItem || !currentItem.word) {
+            return;
+        }
+
+        if ('speechSynthesis' in window) {
+            // 연속 클릭 시 재생 대기열 겹침 방지 (기존 오디오 즉각 정지)
+            window.speechSynthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(currentItem.word);
+            utterance.lang = 'en-US'; // 영어 원어민 발음 설정
+
+            // 모바일 및 다양한 기기 환경에서 가장 알맞은 영어 음성 검색 시도
+            const voices = window.speechSynthesis.getVoices();
+            const enVoice = voices.find(v => v.lang.startsWith('en-US')) || voices.find(v => v.lang.startsWith('en'));
+            if (enVoice) {
+                utterance.voice = enVoice;
+            }
+
+            // 시각적 피드백 효과 연동 요소
+            const ttsIcon = document.getElementById('quizTtsIcon');
+            const wordWrapper = document.querySelector('.quiz-word-wrapper');
+
+            utterance.onstart = () => {
+                if (ttsIcon) ttsIcon.classList.add('speaking-active');
+                if (wordWrapper) wordWrapper.classList.add('speaking');
+            };
+
+            utterance.onend = () => {
+                if (ttsIcon) ttsIcon.classList.remove('speaking-active');
+                if (wordWrapper) wordWrapper.classList.remove('speaking');
+            };
+
+            utterance.onerror = () => {
+                if (ttsIcon) ttsIcon.classList.remove('speaking-active');
+                if (wordWrapper) wordWrapper.classList.remove('speaking');
+            };
+
+            window.speechSynthesis.speak(utterance);
+        } else {
+            // 브라우저 미지원 시 대체 토스트 알림 (자동재생 트리거인 경우 무시)
+            if (!isAutoplayTrigger) {
+                showToast("⚠️ 이 브라우저는 영어 발음 듣기(TTS) 기능을 지원하지 않습니다.");
+            }
+        }
+    } catch (err) {
+        console.warn("TTS 발화 재생 실패:", err);
+    }
+}
+
+// 자동 재생 옵션 토글 함수 (화면 스위치 연동)
+function toggleQuizAutoplay(isChecked) {
+    try {
+        isQuizTtsAutoplay = isChecked;
+        localStorage.setItem('fc_star_quiz_tts_autoplay', isChecked ? 'true' : 'false');
+        
+        // 상단 볼륨 아이콘 색상 및 필터 실시간 연동
+        const volIcon = document.getElementById('autoplayVolumeIcon');
+        if (volIcon) {
+            volIcon.style.color = isChecked ? '#00ff87' : 'var(--text-muted)';
+            if (isChecked) {
+                volIcon.style.filter = 'drop-shadow(0 0 5px rgba(0, 255, 135, 0.5))';
+            } else {
+                volIcon.style.filter = '';
+            }
+        }
+        
+        showToast(isChecked ? "🔊 문제 전환 시 단어 발음이 자동으로 재생됩니다!" : "🔇 자동 발음이 해제되었습니다. 단어를 누르면 들으실 수 있습니다.");
+        
+        // 활성화 순간 검증 차원 즉시 1회 테스트 재생
+        if (isChecked) {
+            speakCurrentWord();
+        }
+    } catch (e) {
+        console.warn("자동 재생 설정 저장 실패:", e);
+    }
+}
+

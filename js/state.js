@@ -78,3 +78,15 @@ try {
 } catch (e) {
     currentFormation = '4-4-2';
 }
+
+// 3. TTS AUTOPLAY PREFERENCE STATE (Option 1 vs Option 2 Toggle)
+let isQuizTtsAutoplay = false;
+try {
+    const savedAutoplay = localStorage.getItem('fc_star_quiz_tts_autoplay');
+    if (savedAutoplay !== null) {
+        isQuizTtsAutoplay = savedAutoplay === 'true';
+    }
+} catch (e) {
+    isQuizTtsAutoplay = false;
+}
+

@@ -7,8 +7,8 @@ function initAudio() {
     }
 }
 
-// 효과음 재생 함수 (카드 플립, 팩 오픈 등)
-function playSound(type) {
+// 효과음 재생 함수 (카드 플립, 팩 오픈 등, 단어 퀴즈 시 볼륨 멀티플라이어 인자 지원)
+function playSound(type, volumeMultiplier = 1.0) {
     try {
         initAudio();
         if (!audioCtx) return;
@@ -20,8 +20,8 @@ function playSound(type) {
             osc.type = 'triangle';
             osc.frequency.setValueAtTime(80, now);
             osc.frequency.exponentialRampToValueAtTime(35, now + 1.2);
-            gain.gain.setValueAtTime(0.3, now);
-            gain.gain.linearRampToValueAtTime(0.01, now + 1.2);
+            gain.gain.setValueAtTime(0.3 * volumeMultiplier, now);
+            gain.gain.linearRampToValueAtTime(0.01 * volumeMultiplier, now + 1.2);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             osc.start(now);
@@ -40,9 +40,9 @@ function playSound(type) {
             osc2.frequency.exponentialRampToValueAtTime(660, now + 0.15);
             osc2.frequency.exponentialRampToValueAtTime(1320, now + 0.8);
             
-            gain.gain.setValueAtTime(0.01, now);
-            gain.gain.linearRampToValueAtTime(0.25, now + 0.15);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 1.2);
+            gain.gain.setValueAtTime(0.01 * volumeMultiplier, now);
+            gain.gain.linearRampToValueAtTime(0.25 * volumeMultiplier, now + 0.15);
+            gain.gain.exponentialRampToValueAtTime(0.01 * volumeMultiplier, now + 1.2);
             
             osc1.connect(gain);
             osc2.connect(gain);
@@ -57,8 +57,8 @@ function playSound(type) {
             osc.type = 'sine';
             osc.frequency.setValueAtTime(550, now);
             osc.frequency.exponentialRampToValueAtTime(1100, now + 0.3);
-            gain.gain.setValueAtTime(0.2, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+            gain.gain.setValueAtTime(0.2 * volumeMultiplier, now);
+            gain.gain.exponentialRampToValueAtTime(0.01 * volumeMultiplier, now + 0.4);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             osc.start(now);
