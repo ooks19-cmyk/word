@@ -62,6 +62,9 @@ function switchTab(tabName) {
             }
         }
         renderUserLevel();
+        if (typeof showQuizSetToast === 'function') {
+            showQuizSetToast();
+        }
     } else if (tabName === 'fame') {
         renderHallOfFame();
     }

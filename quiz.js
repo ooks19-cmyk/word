@@ -573,7 +573,7 @@ function resetQuizOffset() {
     }
 
     initQuizRound();
-    showToast("🔄 단어 퀴즈가 최신 등록 순으로 초기화되었습니다!");
+    showToast(`🔄 단어 퀴즈가 최신 등록 순으로 초기화되었습니다!\n(활성: ${getActiveQuizSetName()})`);
 }
 
 // ==========================================================================
@@ -663,5 +663,36 @@ function toggleQuizAutoplay(isChecked) {
     } catch (e) {
         console.warn("자동 재생 설정 저장 실패:", e);
     }
+}
+
+// 현재 활성화된 퀴즈 세트명을 가져오는 함수
+function getActiveQuizSetName() {
+    if (typeof QUIZ_WORDS_BY_DATE === 'undefined' || !QUIZ_WORDS_BY_DATE || Object.keys(QUIZ_WORDS_BY_DATE).length === 0) {
+        return "기본 단어 풀";
+    }
+
+    const today = getTodayYYMMDD();
+    const scheduleDates = Object.keys(QUIZ_WORDS_BY_DATE).sort();
+    
+    let activeDate = null;
+    for (let i = 0; i < scheduleDates.length; i++) {
+        if (scheduleDates[i] <= today) {
+            activeDate = scheduleDates[i];
+        } else {
+            break;
+        }
+    }
+    
+    if (activeDate && QUIZ_WORDS_BY_DATE[activeDate] && QUIZ_WORDS_BY_DATE[activeDate].length > 0) {
+        return `${activeDate} 세트`;
+    }
+    
+    return "기본 단어 풀";
+}
+
+// 활성화된 퀴즈 세트 정보를 토스트로 표시하는 함수
+function showQuizSetToast() {
+    const setName = getActiveQuizSetName();
+    showToast(`📝 현재 활성화된 단어 세트: ${setName}`);
 }
 
