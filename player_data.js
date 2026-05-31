@@ -58,7 +58,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "PARIS SG",
-        image: "player/이강인.webp",
+        image: "player/이강인.png",
         rarity: "legend",
         description: "세계 최고의 명문 구단 중 하나인 파리 생제르맹(PSG)에서 활약 중인 대한민국의 대표 미드필더입니다. 압도적인 탈압박과 전매특허인 왼발 정밀 크로스, 그리고 그라운드를 종횡무진하는 마술 같은 시야로 경기를 주도하는 월드클래스 천재 크랙입니다.",
         theme: {
@@ -578,6 +578,31 @@ const CARDS_DATABASE = {
             dri: 85,
             def: 85,
             phy: 82
+        }
+    },
+    "park_ji_sung": {
+        id: "park_ji_sung",
+        name: "박지성",
+        rating: 88,
+        position: "CM",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "MANCHESTER UTD",
+        image: "player/박지성.png",
+        rarity: "legend",
+        description: "대한민국 축구 역사상 가장 위대한 전설적인 멀티 미드필더이자 맨체스터 유나이티드에서 활약했던 영원한 캡틴입니다. '두 개의 심장', '산소 탱크'라는 별명답게 지치지 않는 초인적인 활동량과 영리한 공간 지각력, 그리고 경기장 전체를 지배하는 헌신적인 수비 가담으로 온 국민의 존경을 받는 불멸의 전설입니다.",
+        theme: {
+            primary: "#da291c",   // 맨유 레드
+            secondary: "#fbe122", // 맨유 골드
+            glow: "#ffd700"       // 골드 아우라 광채
+        },
+        stats: {
+            pac: 87,
+            sho: 80,
+            pas: 85,
+            dri: 85,
+            def: 82,
+            phy: 88
         }
     }
 };
