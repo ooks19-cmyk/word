@@ -617,6 +617,7 @@ function closeDrawer() {
     const overlay = document.getElementById('drawerOverlay');
     overlay.classList.remove('active');
     activeSelectorPosition = null;
+    activeSelectorSquadNumber = null;
 }
 
 function openTacticModal(tacticType) {
@@ -781,4 +782,305 @@ function changeFormation(type) {
     // Auto-save
     saveUserProgress();
 }
+
+// ==========================================================================
+// 10. SQUAD NUMBERS SETTINGS LOGIC (등번호 설정 시스템)
+// ==========================================================================
+let activeSelectorSquadNumber = null;
+
+// 등번호 모달 열기 및 목록 렌더링
+function openSquadNumberModal() {
+    const modal = document.getElementById('squadNumberModal');
+    if (!modal) return;
+    
+    modal.style.display = 'flex';
+    modal.classList.add('active');
+    
+    renderSquadNumbersList();
+}
+
+// 등번호 모달 닫기
+function closeSquadNumberModal() {
+    const modal = document.getElementById('squadNumberModal');
+    if (modal) {
+        modal.classList.remove('active');
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
+    }
+}
+
+// 등번호 목록 실시간 동적 빌드
+function renderSquadNumbersList() {
+    const fixedGrid = document.getElementById('fixedSquadNumbersGrid');
+    const customGrid = document.getElementById('customSquadNumbersGrid');
+    if (!fixedGrid || !customGrid) return;
+    
+    fixedGrid.innerHTML = '';
+    customGrid.innerHTML = '';
+    
+    // 1~30번 리스트 빌드
+    for (let i = 1; i <= 30; i++) {
+        const item = squadNumbers[i];
+        if (!item) continue;
+        
+        const cardId = item.cardId;
+        let isAssigned = false;
+        let playerNameAndOvr = '<i class="fa-solid fa-plus" style="margin-right: 4px; opacity: 0.5;"></i> 선수 배정하기';
+        let cardClass = '';
+        
+        if (cardId && CARDS_DATABASE[cardId]) {
+            const cardData = getAwakenedCard(cardId);
+            if (cardData) {
+                isAssigned = true;
+                const starStr = cardData.awakening > 0 ? `★${cardData.awakening} ` : '';
+                playerNameAndOvr = `${cardData.name} <span class="badge-ovr">${starStr}OVR ${cardData.rating}</span>`;
+                
+                // 등급 판정
+                if (cardData.rarity === 'legend') {
+                    cardClass = 'legend';
+                } else if (cardData.rating >= 80) {
+                    cardClass = 'premium';
+                } else {
+                    cardClass = 'common';
+                }
+            }
+        }
+        
+        const row = document.createElement('div');
+        row.className = 'squad-number-row';
+        
+        if (i <= 20) {
+            // 1~20번: 고정 등번호
+            row.innerHTML = `
+                <div class="squad-number-badge fixed">${i}</div>
+                <div class="squad-number-player-box ${isAssigned ? 'assigned ' + cardClass : 'empty'}" onclick="openSquadNumberPlayerSelector('${i}')">
+                    ${playerNameAndOvr}
+                </div>
+            `;
+            fixedGrid.appendChild(row);
+        } else {
+            // 21~30번: 자유 커스텀 등번호
+            row.innerHTML = `
+                <input type="number" class="squad-number-input" min="1" max="99" value="${item.number}" onchange="changeCustomSquadNumber('${i}', this.value)" title="등번호 숫자 직접 수정 (1~99)">
+                <div class="squad-number-player-box ${isAssigned ? 'assigned ' + cardClass : 'empty'}" onclick="openSquadNumberPlayerSelector('${i}')">
+                    ${playerNameAndOvr}
+                </div>
+            `;
+            customGrid.appendChild(row);
+        }
+    }
+}
+
+// 등번호용 선수 선택 드로어 열기
+function openSquadNumberPlayerSelector(numKey) {
+    activeSelectorSquadNumber = numKey;
+    activeSelectorPosition = null;
+    
+    const overlay = document.getElementById('drawerOverlay');
+    const title = document.getElementById('drawerPositionTitle');
+    const content = document.getElementById('drawerContent');
+    
+    if (!overlay || !title || !content) return;
+    
+    const item = squadNumbers[numKey];
+    title.innerText = `${item.number}번 배정`;
+    overlay.classList.add('active');
+    
+    content.innerHTML = '';
+    
+    // 안내용 가이드 배너 추가
+    const banner = document.createElement('div');
+    banner.innerHTML = `
+        <div style="background: rgba(0, 255, 135, 0.08); border: 1px solid rgba(0, 255, 135, 0.3); padding: 0.8rem 1rem; border-radius: 12px; font-size: 0.8rem; color: #00ff87; line-height: 1.45; font-weight: bold; margin-bottom: 1rem; text-align: left; word-break: keep-all;">
+            <i class="fa-solid fa-circle-info" style="margin-right: 4px;"></i> 
+            <strong>[스쿼드 등번호 배정]</strong><br>
+            원하는 선수를 선택하여 <strong>${item.number}번</strong> 등번호를 배정하세요. (이미 배정된 선수는 기존 배정이 자동 해제됩니다!)
+        </div>
+    `;
+    content.appendChild(banner);
+    
+    // 현재 등번호에 선수가 배정되어 있는 경우 배치 해제 버튼 제공
+    if (item.cardId) {
+        const releaseBtn = document.createElement('button');
+        releaseBtn.className = 'btn-release-player';
+        releaseBtn.innerHTML = `<i class="fa-solid fa-user-minus" style="margin-right: 6px;"></i>등번호 배정 해제`;
+        releaseBtn.onclick = () => releasePlayerFromSquadNumber(numKey);
+        content.appendChild(releaseBtn);
+    }
+    
+    // 보유한 카드 가져와 정렬 (OVR 내림차순)
+    const deckKeys = Object.keys(playerDeck)
+        .filter(k => playerDeck[k].quantity > 0)
+        .sort((a, b) => {
+            const cardA = getAwakenedCard(a);
+            const cardB = getAwakenedCard(b);
+            const ratingA = cardA ? cardA.rating : 0;
+            const ratingB = cardB ? cardB.rating : 0;
+            return ratingB - ratingA;
+        });
+        
+    if (deckKeys.length === 0) {
+        content.innerHTML += `
+            <div class="empty-drawer-state">
+                <i class="fa-regular fa-face-frown"></i>
+                <p>아직 수집한 선수가 없습니다.<br>카드 팩에서 선수를 먼저 영입하세요!</p>
+            </div>
+        `;
+        return;
+    }
+    
+    deckKeys.forEach(key => {
+        const card = getAwakenedCard(key);
+        if (!card) return;
+        
+        // 현재 이 카드가 다른 등번호 슬롯에 이미 배정되어 있는지 확인
+        let otherNumKey = null;
+        for (let idx = 1; idx <= 30; idx++) {
+            if (squadNumbers[idx] && squadNumbers[idx].cardId === key) {
+                otherNumKey = idx;
+                break;
+            }
+        }
+        
+        const isCurrentSlot = item.cardId === key;
+        const awkLabel = card.awakening > 0 ? `<span style="color: #ffd700; font-weight: 800; font-size: 0.8rem; margin-left: 5px;">★ ${card.awakening}</span>` : '';
+        
+        let statusHtml = '';
+        if (isCurrentSlot) {
+            statusHtml = `<span style="color: #ffd700; font-weight: bold;">이 등번호 사용 중</span>`;
+        } else if (otherNumKey) {
+            statusHtml = `<span style="color: #60efff; font-weight: bold;">현재 ${squadNumbers[otherNumKey].number}번 사용 중</span>`;
+        } else {
+            statusHtml = `<span style="color: #94a3b8; font-weight: normal;">미배정 상태</span>`;
+        }
+        
+        const row = document.createElement('div');
+        row.className = 'drawer-card-item';
+        
+        const stats = card.stats || { pac: 70, sho: 70, pas: 70, dri: 70, def: 70, phy: 70 };
+        row.innerHTML = `
+            <div class="drawer-card-info" style="align-items: flex-start;">
+                <div class="drawer-card-thumb" style="background: radial-gradient(circle, ${card.theme.glow}22 0%, #0c1122 100%); margin-top: 4px;">
+                    <img src="${card.image}" alt="${card.name}" onerror="this.src='https://placehold.co/48x48/005a3c/ffd700?text=${encodeURIComponent(card.name)}'">
+                </div>
+                <div class="drawer-card-details">
+                    <h4 style="margin: 0 0 4px 0; display: flex; align-items: center; flex-wrap: wrap; gap: 4px;">${card.name} (OVR ${card.rating})${awkLabel}</h4>
+                    <p style="margin: 0 0 6px 0; font-size: 0.78rem;">${card.position} | 상태: ${statusHtml}</p>
+                    <div class="drawer-card-stats" style="display: flex; gap: 4px; flex-wrap: wrap;">
+                        <span style="font-size: 0.62rem; font-weight: 700; background: rgba(255, 62, 108, 0.12); border: 1px solid rgba(255, 62, 108, 0.2); padding: 1px 4px; border-radius: 4px; color: #ff3e6c;">속도 ${stats.pac}</span>
+                        <span style="font-size: 0.62rem; font-weight: 700; background: rgba(255, 159, 67, 0.12); border: 1px solid rgba(255, 159, 67, 0.2); padding: 1px 4px; border-radius: 4px; color: #ff9f43;">슈팅 ${stats.sho}</span>
+                        <span style="font-size: 0.62rem; font-weight: 700; background: rgba(255, 215, 0, 0.12); border: 1px solid rgba(255, 215, 0, 0.2); padding: 1px 4px; border-radius: 4px; color: #ffd700;">패스 ${stats.pas}</span>
+                        <span style="font-size: 0.62rem; font-weight: 700; background: rgba(0, 255, 135, 0.12); border: 1px solid rgba(0, 255, 135, 0.2); padding: 1px 4px; border-radius: 4px; color: #00ff87;">드리블 ${stats.dri}</span>
+                        <span style="font-size: 0.62rem; font-weight: 700; background: rgba(0, 210, 252, 0.12); border: 1px solid rgba(0, 210, 252, 0.2); padding: 1px 4px; border-radius: 4px; color: #00d2fc;">수비 ${stats.def}</span>
+                        <span style="font-size: 0.62rem; font-weight: 700; background: rgba(165, 88, 234, 0.12); border: 1px solid rgba(165, 88, 234, 0.2); padding: 1px 4px; border-radius: 4px; color: #a55eea;">피지컬 ${stats.phy}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        const actionBtn = document.createElement('button');
+        actionBtn.className = 'btn-select-player';
+        
+        if (isCurrentSlot) {
+            actionBtn.style.background = 'rgba(255, 255, 255, 0.1)';
+            actionBtn.style.color = '#fff';
+            actionBtn.style.cursor = 'default';
+            actionBtn.innerText = '배정됨';
+        } else {
+            actionBtn.innerText = '선택';
+            actionBtn.onclick = () => selectPlayerForSquadNumber(key);
+        }
+        
+        row.appendChild(actionBtn);
+        content.appendChild(row);
+    });
+}
+
+// 선수를 특정 등번호에 최종 배정
+function selectPlayerForSquadNumber(cardId) {
+    if (!activeSelectorSquadNumber) return;
+    
+    // 1인 1번호 원칙: 타 슬롯에 이 선수가 있다면 먼저 배제 처리 (지능형 스왑)
+    for (let idx = 1; idx <= 30; idx++) {
+        if (squadNumbers[idx] && squadNumbers[idx].cardId === cardId) {
+            squadNumbers[idx].cardId = null;
+        }
+    }
+    
+    // 배정
+    squadNumbers[activeSelectorSquadNumber].cardId = cardId;
+    
+    // 상태 저장
+    try {
+        localStorage.setItem('fc_star_squad_numbers', JSON.stringify(squadNumbers));
+    } catch(e) {
+        console.warn("등번호 저장 실패:", e);
+    }
+    
+    closeDrawer();
+    renderSquadNumbersList();
+    
+    const cardName = CARDS_DATABASE[cardId].name;
+    const numVal = squadNumbers[activeSelectorSquadNumber].number;
+    showToast(`👕 ${cardName} 선수에게 등번호 ${numVal}번을 배정했습니다!`);
+    
+    // 클라우드 자동 세이브
+    saveUserProgress();
+}
+
+// 특정 등번호 배정 해제
+function releasePlayerFromSquadNumber(numKey) {
+    const item = squadNumbers[numKey];
+    if (!item) return;
+    
+    const assignedPlayerId = item.cardId;
+    const cardName = assignedPlayerId ? CARDS_DATABASE[assignedPlayerId].name : "무명";
+    
+    item.cardId = null;
+    
+    // 상태 저장
+    try {
+        localStorage.setItem('fc_star_squad_numbers', JSON.stringify(squadNumbers));
+    } catch(e) {
+        console.warn("등번호 저장 실패:", e);
+    }
+    
+    closeDrawer();
+    renderSquadNumbersList();
+    showToast(`👕 등번호 ${item.number}번(${cardName}) 선수의 배정을 해제했습니다.`);
+    
+    // 클라우드 자동 세이브
+    saveUserProgress();
+}
+
+// 21~30번 커스텀 자유 번호의 숫자 직접 변경
+function changeCustomSquadNumber(numKey, newNumberVal) {
+    const item = squadNumbers[numKey];
+    if (!item) return;
+    
+    const parsedVal = parseInt(newNumberVal);
+    if (isNaN(parsedVal) || parsedVal < 1 || parsedVal > 99) {
+        showToast("⚠️ 등번호는 1번부터 99번 사이의 숫자만 입력 가능합니다.");
+        renderSquadNumbersList(); // 원복 복원
+        return;
+    }
+    
+    const oldNum = item.number;
+    item.number = parsedVal;
+    
+    // 상태 저장
+    try {
+        localStorage.setItem('fc_star_squad_numbers', JSON.stringify(squadNumbers));
+    } catch(e) {
+        console.warn("등번호 저장 실패:", e);
+    }
+    
+    renderSquadNumbersList();
+    showToast(`👕 등번호 슬롯 ${numKey}의 번호가 No.${oldNum}번에서 No.${parsedVal}번으로 변경되었습니다!`);
+    
+    // 클라우드 자동 세이브
+    saveUserProgress();
+}
+
 

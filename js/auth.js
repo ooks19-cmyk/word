@@ -101,6 +101,7 @@ function saveUserProgress() {
         playerDeck: playerDeck,
         squadFormation: squadFormation,
         currentFormation: currentFormation,
+        squadNumbers: squadNumbers,
         leagueRound: leagueRound,
         leagueTeams: leagueTeams,
         quizOffset: quizOffset,
@@ -130,6 +131,13 @@ function syncUserDataOnLogin(userData) {
         squadFormation = userData.squadFormation || {};
         currentFormation = userData.currentFormation || '4-4-2';
         leagueRound = userData.leagueRound || 1;
+        
+        squadNumbers = userData.squadNumbers || {};
+        if (Object.keys(squadNumbers).length === 0) {
+            for (let i = 1; i <= 30; i++) {
+                squadNumbers[i] = { number: i, cardId: null };
+            }
+        }
         
         // CARDS_DATABASE 기준 최신 구조 동기화 (하이드레이션)
         if (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE) {
@@ -187,6 +195,7 @@ function syncUserDataOnLogin(userData) {
         localStorage.setItem('fc_star_hall_of_fame', JSON.stringify(hallOfFame));
         localStorage.setItem('fc_star_league_stats', JSON.stringify(leaguePlayerStats));
         localStorage.setItem('fc_star_career_stats', JSON.stringify(careerStats));
+        localStorage.setItem('fc_star_squad_numbers', JSON.stringify(squadNumbers));
         
         // 개발자 모드 UI 연동 복원
         updateDevModeUI();
@@ -407,6 +416,7 @@ function handleLogout() {
         localStorage.removeItem('fc_star_squad_formation');
         localStorage.removeItem('fc_star_league_teams');
         localStorage.removeItem('fc_star_league_round');
+        localStorage.removeItem('fc_star_squad_numbers');
         
         showToast("성공적으로 로그아웃되었습니다! 로컬 모드로 리로딩합니다...");
         

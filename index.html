@@ -223,6 +223,9 @@
                         <button class="header-tactic-badge active" id="btnOpenFormationSettings" onclick="openFormationModal()" style="cursor: pointer; border: 1px solid rgba(255, 215, 0, 0.4); background: rgba(0, 0, 0, 0.4); color: #ffd700; font-weight: 800; padding: 0.35rem 0.8rem; border-radius: 12px; font-size: 0.75rem; display: flex; align-items: center; gap: 6px;">
                             <i class="fa-solid fa-gears"></i> 포메이션 설정 (<span id="activeFormationLabel">4-4-2</span>)
                         </button>
+                        <button class="header-tactic-badge active" id="btnOpenSquadNumbers" onclick="openSquadNumberModal()" style="cursor: pointer; border: 1px solid rgba(0, 255, 135, 0.4); background: rgba(0, 0, 0, 0.4); color: #00ff87; font-weight: 800; padding: 0.35rem 0.8rem; border-radius: 12px; font-size: 0.75rem; display: flex; align-items: center; gap: 6px;" title="선수단 등번호 수동/자동 커스텀 설정">
+                            <i class="fa-solid fa-shirt"></i> 등번호 설정
+                        </button>
                         <div class="deck-count" id="squadStatsContainer">
                             팀 OVR: <span id="teamOvrVal" style="color:#ffd700; font-weight:900;">70</span>
                         </div>
@@ -595,6 +598,44 @@
                     <i class="fa-solid fa-circle-info" style="margin-right: 4px;"></i> 레벨 10마다 '특별한' 카드가 제공됩니다.
                 </div>
                 <button class="btn-open-pack" onclick="closeLevelRewardModal()" style="width: 100%; margin-top: 1rem; padding: 0.8rem;">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- USER SQUAD NUMBER SETTINGS MODAL (Glassmorphism Modal) -->
+    <div class="drawer-overlay" id="squadNumberModal" onclick="closeSquadNumberModal()">
+        <div class="selector-drawer auth-modal-drawer" style="max-width: 500px; padding: 1.5rem 1.2rem; height: auto !important; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); border-radius: 24px;" onclick="event.stopPropagation()">
+            <div class="drawer-header" style="border-bottom: none; padding-bottom: 0;">
+                <h3 style="font-size: 1.35rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-shirt" style="color: #00ff87;"></i>
+                    <span>스쿼드 등번호 설정</span>
+                </h3>
+                <button class="btn-close-drawer" onclick="closeSquadNumberModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="drawer-content" style="display: flex; flex-direction: column; gap: 1rem; padding: 1rem 0.5rem 0.5rem 0.5rem; max-height: 70vh; overflow-y: auto; -webkit-overflow-scrolling: touch;">
+                <p style="color: var(--text-muted); font-size: 0.82rem; line-height: 1.5; word-break: keep-all; text-align: center; margin: 0 0 0.5rem 0;">
+                    선수들에게 나만의 고유 등번호를 배정해보세요! (인게임 능력치에는 영향을 주지 않습니다)<br>
+                    <span style="color: #ffd700; font-weight: 700;">1~20번</span>은 고정 등번호이며, <span style="color: #00ff87; font-weight: 700;">21~30번</span>은 등번호를 마음대로 직접 수정할 수 있습니다.
+                </p>
+                
+                <!-- 1~20번 고정 번호 섹션 -->
+                <h4 style="font-size: 0.88rem; font-weight: 800; color: #ffd700; border-bottom: 1px solid rgba(255, 215, 0, 0.2); padding-bottom: 0.3rem; margin: 0.2rem 0 0 0; display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-lock"></i> 고정 등번호 (1~20)
+                </h4>
+                <div class="squad-number-grid" id="fixedSquadNumbersGrid">
+                    <!-- Loaded dynamically via JS -->
+                </div>
+                
+                <!-- 21~30번 자유 번호 섹션 -->
+                <h4 style="font-size: 0.88rem; font-weight: 800; color: #00ff87; border-bottom: 1px solid rgba(0, 255, 135, 0.2); padding-bottom: 0.3rem; margin: 0.6rem 0 0 0; display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-pen-to-square"></i> 자유 커스텀 등번호 (21~30)
+                </h4>
+                <div class="squad-number-grid" id="customSquadNumbersGrid">
+                    <!-- Loaded dynamically via JS -->
+                </div>
+                
+                <button class="btn-open-pack" onclick="closeSquadNumberModal()" style="width: 100%; margin-top: 1rem; padding: 0.75rem;">설정 완료</button>
             </div>
         </div>
     </div>

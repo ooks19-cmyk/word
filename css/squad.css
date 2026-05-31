@@ -211,6 +211,10 @@
     justify-content: flex-end;
 }
 
+#drawerOverlay {
+    z-index: 1100;
+}
+
 .drawer-overlay.active {
     display: flex;
 }
@@ -771,4 +775,156 @@
         gap: 6px !important;
     }
 }
+
+/* ==========================================================================
+   PREMIUM SQUAD NUMBER SETTINGS GRID & CARD STYLES
+   ========================================================================= */
+.squad-number-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    width: 100%;
+    margin-top: 0.4rem;
+}
+
+@media (max-width: 520px) {
+    .squad-number-grid {
+        grid-template-columns: 1fr !important;
+        gap: 6px !important;
+    }
+}
+
+.squad-number-row {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.01);
+    border: 1.5px solid var(--glass-border);
+    padding: 0.45rem 0.7rem;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    user-select: none;
+}
+
+.squad-number-row:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
+}
+
+.squad-number-badge {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.squad-number-badge.fixed {
+    border-color: var(--accent-gold);
+    color: var(--accent-gold);
+    background: rgba(255, 215, 0, 0.06);
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.1);
+}
+
+.squad-number-badge.custom {
+    border-color: #00ff87;
+    color: #00ff87;
+    background: rgba(0, 255, 135, 0.06);
+    box-shadow: 0 0 8px rgba(0, 255, 135, 0.1);
+}
+
+.squad-number-input {
+    width: 32px;
+    height: 22px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1.5px solid rgba(0, 255, 135, 0.3);
+    color: #00ff87;
+    font-weight: 900;
+    text-align: center;
+    border-radius: 6px;
+    outline: none;
+    font-size: 0.8rem;
+    transition: all 0.3s;
+}
+
+.squad-number-input:focus {
+    border-color: #00ff87;
+    background: rgba(0, 0, 0, 0.8);
+    box-shadow: 0 0 8px rgba(0, 255, 135, 0.6);
+}
+
+.squad-number-input::-webkit-outer-spin-button,
+.squad-number-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.squad-number-player-box {
+    flex: 1;
+    margin-left: 8px;
+    background: rgba(8, 10, 16, 0.45);
+    border: 1.5px dashed rgba(255, 255, 255, 0.1);
+    padding: 0.4rem 0.7rem;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+    height: 34px;
+}
+
+.squad-number-player-box:hover {
+    background: rgba(255, 215, 0, 0.03);
+    border-color: rgba(255, 215, 0, 0.35);
+    border-style: solid;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.1);
+}
+
+.squad-number-player-box.assigned {
+    border-style: solid;
+    color: #fff;
+    font-weight: 700;
+}
+
+/* 선수 등급별 시그니처 네온 테두리 광채 연동 */
+.squad-number-player-box.assigned.legend {
+    border-color: #ffd700 !important;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(8, 10, 16, 0.8) 100%) !important;
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.15) !important;
+    color: #ffd700 !important;
+}
+
+.squad-number-player-box.assigned.premium {
+    border-color: #00ff87 !important;
+    background: linear-gradient(135deg, rgba(0, 255, 135, 0.08) 0%, rgba(8, 10, 16, 0.8) 100%) !important;
+    box-shadow: 0 0 12px rgba(0, 255, 135, 0.1) !important;
+    color: #00ff87 !important;
+}
+
+.squad-number-player-box.assigned.common {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    color: #fff !important;
+}
+
+.squad-number-player-box .badge-ovr {
+    font-weight: 800;
+    font-size: 0.72rem;
+    padding: 1px 4px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
 

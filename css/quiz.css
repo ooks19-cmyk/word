@@ -406,3 +406,109 @@
         font-size: 0.95rem;
     }
 }
+
+/* ==========================================================================
+   PREMIUM TTS SPEAKER & TOGGLE BUTTON ANIMATIONS
+   ========================================================================== */
+.quiz-word-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    justify-content: center;
+    cursor: pointer;
+    margin: 0.5rem auto;
+    padding: 0.3rem 1.4rem;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px solid transparent;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    user-select: none;
+    z-index: 2;
+    position: relative;
+}
+
+.quiz-word-wrapper:hover {
+    transform: translateY(-2px) scale(1.04);
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 215, 0, 0.15);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.quiz-word-wrapper:hover .quiz-question-word {
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+.quiz-word-wrapper:hover .tts-icon {
+    opacity: 0.9;
+    color: #ffd700;
+    filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
+}
+
+.quiz-word-wrapper:active {
+    transform: translateY(1px) scale(0.97);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.tts-icon {
+    font-size: 1.6rem;
+    color: var(--text-muted);
+    opacity: 0.35;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* speaking animation state */
+.quiz-word-wrapper.speaking {
+    background: rgba(0, 255, 135, 0.04) !important;
+    border-color: rgba(0, 255, 135, 0.2) !important;
+    box-shadow: 0 0 25px rgba(0, 255, 135, 0.1) !important;
+}
+
+.quiz-word-wrapper.speaking .quiz-question-word {
+    background: linear-gradient(135deg, #ffffff 0%, #00ff87 50%, #ffffff 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    text-shadow: 0 0 20px rgba(0, 255, 135, 0.5) !important;
+}
+
+.speaking-active {
+    color: #00ff87 !important;
+    opacity: 1 !important;
+    filter: drop-shadow(0 0 12px rgba(0, 255, 135, 0.8)) !important;
+    animation: ttsPulse 0.7s ease-in-out infinite alternate;
+}
+
+@keyframes ttsPulse {
+    0% {
+        transform: scale(0.95);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+}
+
+/* Autoplay Custom Selector Toggle Button Switch Overrides */
+.quiz-autoplay-toggle label.dev-switch {
+    width: 34px !important;
+    height: 18px !important;
+}
+
+.quiz-autoplay-toggle .dev-slider::before {
+    height: 10px !important;
+    width: 10px !important;
+    left: 3px !important;
+    bottom: 3px !important;
+}
+
+.quiz-autoplay-toggle input:checked + .dev-slider {
+    background-color: #00ff87 !important;
+    box-shadow: 0 0 12px rgba(0, 255, 135, 0.6);
+    border-color: rgba(0, 255, 135, 0.4) !important;
+}
+
+.quiz-autoplay-toggle input:checked + .dev-slider::before {
+    transform: translateX(16px) !important;
+}
+
