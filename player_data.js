@@ -1,4 +1,17 @@
-/* player/player_data.js - Modular Player Card Database */
+/* 
+ * player/player_data.js - Modular Player Card Database
+ * 
+ * ⚠️ [중요 - 포지션 부여 가이드라인]
+ * 향후 새로운 선수 카드 추가 시, position 속성에는 아래의 표준화된 8가지 값만 부여해야 합니다:
+ * - 'ST' (스트라이커)
+ * - 'LW', 'RW' (윙어 / W)
+ * - 'CM' (미드필더 / DM, AM 포함)
+ * - 'CB' (중앙 수비수)
+ * - 'LB', 'RB' (측면 수비수 / L&R Back)
+ * - 'GK' (골키퍼)
+ * 
+ * 그 외의 값은 포메이션 슬롯 배치 제한 시스템에 의해 배치 제한에 걸릴 수 있습니다.
+ */
 
 const CARDS_DATABASE = {
     "son_heung_min": {

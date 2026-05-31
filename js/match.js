@@ -441,13 +441,17 @@ function syncJeonbukOvr() {
         isDetailedActive = fastAttackersCount >= 2;
     } else if (currentFormation === '5-4-1') {
         detailedTacticName = "다이렉트 패스 (Direct Pass)";
-        detailedTacticDesc = "수비수 중 패스 80 이상";
+        detailedTacticDesc = "패스 80이상 수비수 출전";
         let passDefendersCount = 0;
-        const defenders = ["LB", "LCB", "RCB", "RB"];
+        const defenders = ["LB", "LCB", "CM", "RCB", "RB"];
         defenders.forEach(pos => {
             const cardId = squadFormation[pos];
-            if (cardId && getAwakenedCard(cardId).stats && getAwakenedCard(cardId).stats.pas >= 80) {
-                passDefendersCount++;
+            if (cardId && CARDS_DATABASE[cardId]) {
+                const card = getAwakenedCard(cardId);
+                const isRealDefender = ['CB', 'LB', 'RB'].includes(card.position);
+                if (isRealDefender && card.stats && card.stats.pas >= 80) {
+                    passDefendersCount++;
+                }
             }
         });
         isDetailedActive = passDefendersCount >= 1;
@@ -927,11 +931,15 @@ function startMatchSimulation() {
         }
     } else if (currentFormation === '5-4-1') {
         let passDefendersCount = 0;
-        const defenders = ["LB", "LCB", "RCB", "RB"];
+        const defenders = ["LB", "LCB", "CM", "RCB", "RB"];
         defenders.forEach(pos => {
             const cardId = squadFormation[pos];
-            if (cardId && getAwakenedCard(cardId).stats && getAwakenedCard(cardId).stats.pas >= 80) {
-                passDefendersCount++;
+            if (cardId && CARDS_DATABASE[cardId]) {
+                const card = getAwakenedCard(cardId);
+                const isRealDefender = ['CB', 'LB', 'RB'].includes(card.position);
+                if (isRealDefender && card.stats && card.stats.pas >= 80) {
+                    passDefendersCount++;
+                }
             }
         });
         const isDetailedActive = passDefendersCount >= 1;
@@ -2359,11 +2367,15 @@ function startFriendlyMatch(opponentData) {
         }
     } else if (currentFormation === '5-4-1') {
         let passDefendersCount = 0;
-        const defenders = ["LB", "LCB", "RCB", "RB"];
+        const defenders = ["LB", "LCB", "CM", "RCB", "RB"];
         defenders.forEach(pos => {
             const cardId = squadFormation[pos];
-            if (cardId && getAwakenedCard(cardId).stats && getAwakenedCard(cardId).stats.pas >= 80) {
-                passDefendersCount++;
+            if (cardId && CARDS_DATABASE[cardId]) {
+                const card = getAwakenedCard(cardId);
+                const isRealDefender = ['CB', 'LB', 'RB'].includes(card.position);
+                if (isRealDefender && card.stats && card.stats.pas >= 80) {
+                    passDefendersCount++;
+                }
             }
         });
         const isDetailedActive = passDefendersCount >= 1;

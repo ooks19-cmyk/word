@@ -172,6 +172,7 @@ function renderSquadFormation() {
         if (currentFormation === '5-4-1') {
             if (pos === 'LW') displayPos = 'LM';
             else if (pos === 'RW') displayPos = 'RM';
+            else if (pos === 'CM') displayPos = 'CB';
         } else if (currentFormation === '3-4-3') {
             if (pos === 'RCM') displayPos = 'DM';
         } else if (currentFormation === '4-2-3-1') {
@@ -267,7 +268,25 @@ function renderSquadFormation() {
     }
 }
 
-
+// 포지션별 실제 카드 포지션 배치 제한 검사 함수
+function isPositionCompatible(displayPos, cardPos) {
+    if (displayPos === 'GK') {
+        return cardPos === 'GK';
+    }
+    if (displayPos === 'ST') {
+        return ['ST', 'LW', 'RW'].includes(cardPos);
+    }
+    if (['LW', 'RW', 'LM', 'RM'].includes(displayPos)) {
+        return ['LW', 'RW'].includes(cardPos);
+    }
+    if (['CM', 'LCM', 'RCM', 'DM', 'AM'].includes(displayPos)) {
+        return cardPos === 'CM';
+    }
+    if (['CB', 'LCB', 'RCB', 'LB', 'RB'].includes(displayPos)) {
+        return ['CB', 'LB', 'RB'].includes(cardPos);
+    }
+    return false;
+}
 
 function openCardSelector(position) {
     activeSelectorPosition = position;
@@ -277,9 +296,11 @@ function openCardSelector(position) {
     const content = document.getElementById('drawerContent');
     
     let displayTitle = position;
+    
     if (currentFormation === '5-4-1') {
         if (position === 'LW') displayTitle = 'LM';
         else if (position === 'RW') displayTitle = 'RM';
+        else if (position === 'CM') displayTitle = 'CB';
     } else if (currentFormation === '3-4-3') {
         if (position === 'RCM') displayTitle = 'DM';
     } else if (currentFormation === '4-2-3-1') {
@@ -347,12 +368,21 @@ function openCardSelector(position) {
         content.appendChild(releaseBtn);
     }
     
-    // Retrieve all collected cards from deck and sort by rating (OVR) in descending order
+    // Retrieve all collected cards from deck and sort by placeability (compatible first), then by rating (OVR) in descending order
     const deckKeys = Object.keys(playerDeck)
         .filter(k => playerDeck[k].quantity > 0)
         .sort((a, b) => {
             const cardA = getAwakenedCard(a);
             const cardB = getAwakenedCard(b);
+            
+            const isCompA = cardA ? isPositionCompatible(displayTitle, cardA.position) : false;
+            const isCompB = cardB ? isPositionCompatible(displayTitle, cardB.position) : false;
+            
+            // 배치 가능한 선수를 항상 우선하여 최상단 정렬
+            if (isCompA && !isCompB) return -1;
+            if (!isCompA && isCompB) return 1;
+            
+            // 배치 가능 여부가 동일할 경우 OVR 역순(내림차순) 정렬
             const ratingA = cardA ? cardA.rating : 0;
             const ratingB = cardB ? cardB.rating : 0;
             return ratingB - ratingA;
@@ -381,9 +411,15 @@ function openCardSelector(position) {
         
         const availableCount = item.quantity - placedCount;
         
+        const isCompatible = isPositionCompatible(displayTitle, card.position);
+        
         // Render item row
         const row = document.createElement('div');
         row.className = 'drawer-card-item';
+        if (!isCompatible) {
+            row.style.opacity = '0.55';
+            row.style.transition = 'opacity 0.2s ease';
+        }
         
         // Check if this card is already assigned *to this specific slot*
         const isCurrentSlot = assignedPlayerId === key;
@@ -440,6 +476,13 @@ function openCardSelector(position) {
             actionBtn.style.color = '#fff';
             actionBtn.style.cursor = 'default';
             actionBtn.innerText = '배치됨';
+        } else if (!isCompatible) {
+            actionBtn.className = 'btn-select-player';
+            actionBtn.style.background = 'rgba(255, 62, 108, 0.08)';
+            actionBtn.style.color = '#ff3e6c';
+            actionBtn.style.border = '1px solid rgba(255, 62, 108, 0.2)';
+            actionBtn.style.cursor = 'not-allowed';
+            actionBtn.innerText = '포지션 제한';
         } else if (availableCount <= 0) {
             actionBtn.className = 'btn-select-player';
             actionBtn.style.background = 'rgba(255, 255, 255, 0.05)';
@@ -459,6 +502,29 @@ function openCardSelector(position) {
 
 function selectPlayerForPosition(cardId) {
     if (!activeSelectorPosition) return;
+    
+    const card = CARDS_DATABASE[cardId];
+    if (!card) return;
+    
+    // Get active slot's display position
+    let displayTitle = activeSelectorPosition;
+    if (currentFormation === '5-4-1') {
+        if (activeSelectorPosition === 'LW') displayTitle = 'LM';
+        else if (activeSelectorPosition === 'RW') displayTitle = 'RM';
+        else if (activeSelectorPosition === 'CM') displayTitle = 'CB';
+    } else if (currentFormation === '3-4-3') {
+        if (activeSelectorPosition === 'RCM') displayTitle = 'DM';
+    } else if (currentFormation === '4-2-3-1') {
+        if (activeSelectorPosition === 'LW') displayTitle = 'LM';
+        else if (activeSelectorPosition === 'RW') displayTitle = 'RM';
+        else if (activeSelectorPosition === 'CM') displayTitle = 'AM';
+        else if (activeSelectorPosition === 'LCM' || activeSelectorPosition === 'RCM') displayTitle = 'DM';
+    }
+    
+    if (!isPositionCompatible(displayTitle, card.position)) {
+        showToast(`❌ 이 포지션(${displayTitle})에는 ${card.position} 선수를 배치할 수 없습니다!`);
+        return;
+    }
     
     // Assign player
     squadFormation[activeSelectorPosition] = cardId;

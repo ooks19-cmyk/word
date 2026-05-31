@@ -78,7 +78,18 @@ document.addEventListener('DOMContentLoaded', () => {
     renderSquadFormation(); // Initialize squad pitch rendering
     initLeague();           // Initialize K League Standing & Fixtures
     renderUserPoints();     // Sync user gacha points on load
-    renderUserLevel();      // Sync user level on load
+    // CARDS_DATABASE 포지션 유효성 검사 (ST, LW, RW, CM, CB, LB, RB, GK)
+    try {
+        const VALID_POSITIONS = ['ST', 'LW', 'RW', 'CM', 'CB', 'LB', 'RB', 'GK'];
+        Object.keys(CARDS_DATABASE).forEach(cardId => {
+            const card = CARDS_DATABASE[cardId];
+            if (card && card.position && !VALID_POSITIONS.includes(card.position)) {
+                console.error(`[FC STAR 포지션 제한 오류] 카드 ID '${cardId}' (${card.name})의 포지션 '${card.position}'은(는) 허용되지 않는 값입니다. 'ST, LW, RW, CM, CB, LB, RB, GK' 중 하나여야 합니다.`);
+            }
+        });
+    } catch (e) {
+        console.warn("Card database position assertion skipped:", e);
+    }
     
     // Register PWA Service Worker
     if ('serviceWorker' in navigator) {
