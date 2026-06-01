@@ -2000,89 +2000,126 @@ async function openFriendlyMatchModal() {
     `;
     
     try {
-        const users = await window.dbService.fetchRankings();
-        preloadedFriendlyUsers = users;
-        
-        // Filter out logged in user and 'ooks12'
-        const currentUserId = typeof currentUser === 'string' && currentUser ? currentUser.toLowerCase() : "";
-        const filteredUsers = users.filter(u => {
-            const uid = u.id.toLowerCase();
-            return uid !== 'ooks12' && uid !== currentUserId;
+        // 5초 타임아웃 프로미스 레이스 설정
+        const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error("Timeout")), 5000);
         });
-        
-        listEl.innerHTML = '';
-        
-        if (filteredUsers.length === 0) {
-            listEl.innerHTML = `
-                <div style="text-align: center; color: #64748b; padding: 2rem 0; font-size: 0.82rem;">
-                    도전 가능한 다른 유저가 존재하지 않습니다.
-                </div>
-            `;
-            return;
+
+        const users = await Promise.race([
+            window.dbService.fetchRankings(),
+            timeoutPromise
+        ]);
+
+        // 원격 데이터 로드 성공 시 로컬 캐시에 즉시 세이브
+        try {
+            localStorage.setItem('fc_star_friendly_users_cache', JSON.stringify(users));
+        } catch (e) {
+            console.warn("친선 매치 데이터 캐싱 실패:", e);
         }
-        
-        filteredUsers.forEach(u => {
-            const pureOvr = getOpponentPureOvr(u);
-            const opponentOvr = getOpponentTotalOvr(u);
-            const tacticBonus = opponentOvr - pureOvr;
-            
-            let bonusBadgeHtml = "";
-            if (tacticBonus > 0) {
-                bonusBadgeHtml = `<span style="font-size: 0.62rem; background: rgba(0, 255, 135, 0.12); padding: 1px 5px; border-radius: 4px; color: #00ff87; border: 1px solid rgba(0, 255, 135, 0.25); font-weight: 800; margin-left: 5px;">+${tacticBonus}⚡</span>`;
-            }
-            
-            const userCard = document.createElement('div');
-            userCard.style.cssText = `
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 0.6rem 0.8rem;
-                background: rgba(255, 255, 255, 0.03);
-                border: 1px solid rgba(255, 255, 255, 0.06);
-                border-radius: 12px;
-                cursor: pointer;
-                transition: all 0.2s;
-            `;
-            userCard.className = 'friendly-user-item';
-            userCard.id = `friendly-user-${u.id}`;
-            userCard.onclick = () => selectFriendlyOpponent(u.id);
-            
-            userCard.onmouseenter = () => {
-                userCard.style.background = 'rgba(165, 94, 234, 0.08)';
-                userCard.style.borderColor = 'rgba(165, 94, 234, 0.3)';
-            };
-            userCard.onmouseleave = () => {
-                if (selectedFriendlyOpponent && selectedFriendlyOpponent.id === u.id) {
-                    userCard.style.background = 'rgba(165, 94, 234, 0.12)';
-                    userCard.style.borderColor = '#a55eea';
-                } else {
-                    userCard.style.background = 'rgba(255, 255, 255, 0.03)';
-                    userCard.style.borderColor = 'rgba(255, 255, 255, 0.06)';
-                }
-            };
-            
-            userCard.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <i class="fa-solid fa-user" style="color: #94a3b8; font-size: 0.85rem;"></i>
-                    <span style="font-size: 0.85rem; font-weight: 700; color: #f1f5f9;">${u.id}</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 0.72rem; background: rgba(255, 255, 255, 0.06); padding: 2px 6px; border-radius: 6px; color: #94a3b8; display: flex; align-items: center;">OVR ${opponentOvr}${bonusBadgeHtml}</span>
-                    <i class="fa-solid fa-chevron-right" style="color: #64748b; font-size: 0.75rem;"></i>
-                </div>
-            `;
-            
-            listEl.appendChild(userCard);
-        });
+
+        renderFriendlyUserList(users, listEl);
         
     } catch (error) {
-        console.error("친선 경기 매칭 유저 로드 실패:", error);
+        console.warn("친선 경기 매칭 유저 로드 실패 또는 5초 초과 타임아웃, 로컬 오프라인 캐시 폴백 적용:", error);
+        
+        let cachedUsers = null;
+        try {
+            const cacheData = localStorage.getItem('fc_star_friendly_users_cache');
+            if (cacheData) {
+                cachedUsers = JSON.parse(cacheData);
+            }
+        } catch (e) {
+            console.warn("친선 매치 로컬 캐시 로드 실패:", e);
+        }
+
+        if (cachedUsers && cachedUsers.length > 0) {
+            renderFriendlyUserList(cachedUsers, listEl);
+            showToast("⚠️ 네트워크 지연으로 오프라인 캐시 데이터를 로드했습니다.");
+        } else {
+            listEl.innerHTML = `
+                <div style="text-align: center; color: #ff3e6c; padding: 2rem 0; font-size: 0.82rem; line-height: 1.45;">
+                    <i class="fa-solid fa-triangle-exclamation" style="margin-right: 6px;"></i> 네트워크 연결이 불안정하며, 저장된 오프라인 캐시 데이터가 없습니다.
+                </div>
+            `;
+        }
+    }
+}
+
+// 친선 경기 유저 로스터 렌더링 헬퍼 함수
+function renderFriendlyUserList(users, listEl) {
+    preloadedFriendlyUsers = users;
+    
+    // Filter out logged in user and 'ooks12'
+    const currentUserId = typeof currentUser === 'string' && currentUser ? currentUser.toLowerCase() : "";
+    const filteredUsers = users.filter(u => {
+        const uid = u.id.toLowerCase();
+        return uid !== 'ooks12' && uid !== currentUserId;
+    });
+    
+    listEl.innerHTML = '';
+    
+    if (filteredUsers.length === 0) {
         listEl.innerHTML = `
-            <div style="text-align: center; color: #ff3e6c; padding: 2rem 0; font-size: 0.82rem;">
-                <i class="fa-solid fa-triangle-exclamation" style="margin-right: 6px;"></i> 유저 정보를 불러오는 데 실패했습니다.
+            <div style="text-align: center; color: #64748b; padding: 2rem 0; font-size: 0.82rem;">
+                도전 가능한 다른 유저가 존재하지 않습니다.
             </div>
         `;
+        return;
     }
+    
+    filteredUsers.forEach(u => {
+        const pureOvr = getOpponentPureOvr(u);
+        const opponentOvr = getOpponentTotalOvr(u);
+        const tacticBonus = opponentOvr - pureOvr;
+        
+        let bonusBadgeHtml = "";
+        if (tacticBonus > 0) {
+            bonusBadgeHtml = `<span style="font-size: 0.62rem; background: rgba(0, 255, 135, 0.12); padding: 1px 5px; border-radius: 4px; color: #00ff87; border: 1px solid rgba(0, 255, 135, 0.25); font-weight: 800; margin-left: 5px;">+${tacticBonus}⚡</span>`;
+        }
+        
+        const userCard = document.createElement('div');
+        userCard.style.cssText = `
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.6rem 0.8rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        `;
+        userCard.className = 'friendly-user-item';
+        userCard.id = `friendly-user-${u.id}`;
+        userCard.onclick = () => selectFriendlyOpponent(u.id);
+        
+        userCard.onmouseenter = () => {
+            userCard.style.background = 'rgba(165, 94, 234, 0.08)';
+            userCard.style.borderColor = 'rgba(165, 94, 234, 0.3)';
+        };
+        userCard.onmouseleave = () => {
+            if (selectedFriendlyOpponent && selectedFriendlyOpponent.id === u.id) {
+                userCard.style.background = 'rgba(165, 94, 234, 0.12)';
+                userCard.style.borderColor = '#a55eea';
+            } else {
+                userCard.style.background = 'rgba(255, 255, 255, 0.03)';
+                userCard.style.borderColor = 'rgba(255, 255, 255, 0.06)';
+            }
+        };
+        
+        userCard.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-user" style="color: #94a3b8; font-size: 0.85rem;"></i>
+                <span style="font-size: 0.85rem; font-weight: 700; color: #f1f5f9;">${u.id}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 0.72rem; background: rgba(255, 255, 255, 0.06); padding: 2px 6px; border-radius: 6px; color: #94a3b8; display: flex; align-items: center;">OVR ${opponentOvr}${bonusBadgeHtml}</span>
+                <i class="fa-solid fa-chevron-right" style="color: #64748b; font-size: 0.75rem;"></i>
+            </div>
+        `;
+        
+        listEl.appendChild(userCard);
+    });
 }
 
 // Close Friendly Match modal
