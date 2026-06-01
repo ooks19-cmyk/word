@@ -52,15 +52,16 @@ const FORMATION_COORDINATES = {
         'ST': { top: '8%', left: '50%' },
         'LW': { top: '15%', left: '20%' },
         'RW': { top: '15%', left: '80%' },
-        'CM': { top: '34%', left: '50%' },
-        'LB': { top: '48%', left: '15%' },
-        'RB': { top: '48%', left: '85%' },
-        'RCM': { top: '55%', left: '50%' },
-        'LCB': { top: '74%', left: '28%' },
-        'RCB': { top: '74%', left: '72%' },
-        'LCM': { top: '76%', left: '50%' },
+        'CM': { top: '28%', left: '50%' },
+        'LB': { top: '42%', left: '15%' },
+        'RB': { top: '42%', left: '85%' },
+        'RCM': { top: '48%', left: '50%' },
+        'LCB': { top: '66%', left: '28%' },
+        'RCB': { top: '66%', left: '72%' },
+        'LCM': { top: '68%', left: '50%' },
         'GK': { top: '90%', left: '50%' }
     },
+
     '5-4-1': {
         'ST': { top: '8%', left: '50%' },
         'LW': { top: '36%', left: '15%' },

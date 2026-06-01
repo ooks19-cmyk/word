@@ -95,6 +95,7 @@ function updateDevModeUI() {
 function saveUserProgress() {
     if (!currentUser) return;
     
+    const myId = currentUser;
     const progressData = {
         userPoints: userPoints,
         userLevel: userLevel,
@@ -116,7 +117,14 @@ function saveUserProgress() {
         leagueYear: leagueYear,
         hallOfFame: hallOfFame,
         leaguePlayerStats: leaguePlayerStats,
-        careerStats: careerStats
+        careerStats: careerStats,
+        
+        // 친선경기 ID별 실시간 클라우드 전적 연동 필드
+        friendlyMatchesHistory: typeof friendlyMatchesHistory !== 'undefined' ? friendlyMatchesHistory : { w: 0, d: 0, l: 0, pts: 0 },
+        friendlyCurrentOpponentIndex: typeof friendlyCurrentOpponentIndex !== 'undefined' ? friendlyCurrentOpponentIndex : 0,
+        friendlyMatchesToday: typeof friendlyMatchesToday !== 'undefined' ? friendlyMatchesToday : 0,
+        friendlyMatchLastDate: typeof friendlyMatchLastDate !== 'undefined' ? friendlyMatchLastDate : "",
+        friendlySeasonStartDate: localStorage.getItem(`fc_star_friendly_season_start_date_${myId}`) || new Date().toISOString()
     };
     
     dbService.saveProgress(currentUser, progressData);
@@ -194,6 +202,21 @@ function syncUserDataOnLogin(userData) {
         }
         
         careerStats = userData.careerStats || { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+        
+        // 클라우드에서 친선경기 전적 및 릴레이 인덱스 상태 복원
+        const myId = currentUser;
+        friendlyMatchesHistory = userData.friendlyMatchesHistory || { w: 0, d: 0, l: 0, pts: 0 };
+        friendlyCurrentOpponentIndex = userData.friendlyCurrentOpponentIndex || 0;
+        friendlyMatchesToday = userData.friendlyMatchesToday || 0;
+        friendlyMatchLastDate = userData.friendlyMatchLastDate || "";
+        
+        localStorage.setItem(`fc_star_friendly_history_${myId}`, JSON.stringify(friendlyMatchesHistory));
+        localStorage.setItem(`fc_star_friendly_current_index_${myId}`, friendlyCurrentOpponentIndex.toString());
+        localStorage.setItem(`fc_star_friendly_matches_today_${myId}`, friendlyMatchesToday.toString());
+        localStorage.setItem(`fc_star_friendly_match_last_date_${myId}`, friendlyMatchLastDate);
+        if (userData.friendlySeasonStartDate) {
+            localStorage.setItem(`fc_star_friendly_season_start_date_${myId}`, userData.friendlySeasonStartDate);
+        }
         
         // Sync local storage so it serves as offline cache
         localStorage.setItem('fc_star_user_points', userPoints.toString());

@@ -212,6 +212,211 @@ const dbService = {
             const usersObj = this._getLocalUsers();
             return Object.values(usersObj);
         }
+    },
+
+    // 친선경기용 상대 3명 정보 로드 (최근 접속 순, 본인 및 개발자 제외, 로컬 캐시 백업 적용)
+    async fetchFriendlyOpponents(myId) {
+        const normalizedMyId = myId ? myId.trim().toLowerCase() : "";
+        const EXCLUDED_IDS = [normalizedMyId, "ooks12"];
+        const fallbackOpponents = [
+            {
+                id: "bot_ulsanking",
+                name: "UlsanKing_99",
+                rating: 83,
+                squadFormation: { ST: "cards_default", GK: "cards_default" },
+                bestPlayerName: "20 손흥민 (LW)",
+                activeFormation: "4-3-3",
+                updatedAt: new Date().toISOString(),
+                isMock: true
+            },
+            {
+                id: "bot_seoulfc",
+                name: "SeoulFC_Star",
+                rating: 80,
+                squadFormation: { ST: "cards_default", GK: "cards_default" },
+                bestPlayerName: "이강인 (RW)",
+                activeFormation: "4-2-3-1",
+                updatedAt: new Date().toISOString(),
+                isMock: true
+            },
+            {
+                id: "bot_collector",
+                name: "CardCollector",
+                rating: 76,
+                squadFormation: { ST: "cards_default", GK: "cards_default" },
+                bestPlayerName: "김민재 (CB)",
+                activeFormation: "5-4-1",
+                updatedAt: new Date().toISOString(),
+                isMock: true
+            }
+        ];
+
+        // 날짜/시간 정밀 변환 헬퍼 (Firestore Timestamp 객체 혹은 다양한 규격 지원)
+        const safeGetDate = (dateVal) => {
+            if (!dateVal) return new Date(0);
+            if (typeof dateVal.toDate === 'function') {
+                return dateVal.toDate();
+            }
+            const d = new Date(dateVal);
+            return isNaN(d.getTime()) ? new Date(0) : d;
+        };
+
+        let loadedList = [];
+        try {
+            if (this.isFirebase) {
+                // Firebase DB 조회: 필드 누락으로 인한 문서 유실 방지를 위해 전체 조회 후 JS 단에서 정렬함
+                const snapshot = await this.firestore.collection('fc_star_users').get();
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data) {
+                        // 문서 ID(doc.id)가 계정 ID(normalizedId) 역할을 하므로, data.id가 누락되었을 시 보정
+                        const rawId = data.id || doc.id || "";
+                        const userId = rawId.trim().toLowerCase();
+                        if (userId && !EXCLUDED_IDS.includes(userId)) {
+                            data.id = userId;
+                            loadedList.push(data);
+                        }
+                    }
+                });
+                
+                // JS단에서 안전하게 최신 updatedAt 순으로 퀵 정렬 (누락 필드가 있어도 드롭되지 않고 0으로 치환)
+                loadedList.sort((a, b) => safeGetDate(b.updatedAt) - safeGetDate(a.updatedAt));
+            } else {
+                // 로컬 가상 클라우드 조회
+                const usersObj = this._getLocalUsers();
+                const list = Object.values(usersObj);
+                list.sort((a, b) => safeGetDate(b.updatedAt) - safeGetDate(a.updatedAt));
+                list.forEach(data => {
+                    if (data) {
+                        const rawId = data.id || "";
+                        const userId = rawId.trim().toLowerCase();
+                        if (userId && !EXCLUDED_IDS.includes(userId)) {
+                            data.id = userId;
+                            loadedList.push(data);
+                        }
+                    }
+                });
+            }
+
+            // OVR, 포메이션, 핵심 선수 데이터 보완 처리 (실제 스쿼드 카드를 실시간 역추적하여 전력 산출)
+            loadedList = loadedList.map(user => {
+                let calculatedOvr = 70;
+                
+                // 상대 스쿼드 실제 카드 기반 OVR 및 정보 동적 계산
+                if (user.squadFormation && typeof user.squadFormation === 'object' && Object.keys(user.squadFormation).length > 0) {
+                    let totalOvr = 0;
+                    let count = 0;
+                    const positions = ["ST", "LW", "RW", "CM", "LCM", "RCM", "LB", "LCB", "RCB", "RB", "GK"];
+                    
+                    positions.forEach(pos => {
+                        const cardId = user.squadFormation[pos];
+                        if (cardId) {
+                            let cardRating = 70;
+                            if (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE && CARDS_DATABASE[cardId]) {
+                                cardRating = CARDS_DATABASE[cardId].rating;
+                                // 상대방 덱에 강화(각성) 수치가 기록되어 있으면 합산
+                                if (user.playerDeck && user.playerDeck[cardId] && typeof user.playerDeck[cardId].awakening === 'number') {
+                                    cardRating += user.playerDeck[cardId].awakening;
+                                }
+                            }
+                            totalOvr += cardRating;
+                            count++;
+                        }
+                    });
+                    
+                    if (count > 0) {
+                        calculatedOvr = Math.round(totalOvr / count);
+                    }
+                } else {
+                    calculatedOvr = user.userLevel ? 70 + parseInt(user.userLevel) : 72;
+                }
+                
+                // 상대방 액티브 포메이션 자동 판단
+                let activeFormation = user.currentFormation || "4-4-2";
+                if (!user.currentFormation && user.squadFormation && typeof user.squadFormation === 'object') {
+                    const keys = Object.keys(user.squadFormation);
+                    if (keys.includes("LCM") || keys.includes("RCM")) {
+                        activeFormation = "4-3-3";
+                    }
+                }
+
+                // 상대방 스쿼드 내 OVR이 가장 높은 에이스 선수 탐지
+                let bestPlayerName = "핵심 플레이어 (CM)";
+                if (user.squadFormation && typeof user.squadFormation === 'object') {
+                    let maxRating = 0;
+                    let bestCard = null;
+                    Object.values(user.squadFormation).forEach(cardId => {
+                        if (cardId && typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE && CARDS_DATABASE[cardId]) {
+                            const card = CARDS_DATABASE[cardId];
+                            let rating = card.rating;
+                            if (user.playerDeck && user.playerDeck[cardId] && typeof user.playerDeck[cardId].awakening === 'number') {
+                                rating += user.playerDeck[cardId].awakening;
+                            }
+                            if (rating > maxRating) {
+                                maxRating = rating;
+                                bestCard = { name: card.name, position: card.position };
+                            }
+                        }
+                    });
+                    if (bestCard) {
+                        bestPlayerName = `${bestCard.name} (${bestCard.position})`;
+                    }
+                }
+
+                return {
+                    id: user.id,
+                    name: user.id.toUpperCase(),
+                    rating: user.rating || calculatedOvr,
+                    squadFormation: user.squadFormation || {},
+                    bestPlayerName: user.bestPlayerName || bestPlayerName,
+                    activeFormation: user.activeFormation || activeFormation,
+                    friendlyMatchesHistory: user.friendlyMatchesHistory || { w: 0, d: 0, l: 0, pts: 0 },
+                    updatedAt: user.updatedAt,
+                    isMock: false
+                };
+            });
+
+            // 원격 DB 가입 유저가 부족할 시 부족한 만큼 AI 가상 봇(Mock) 데이터로 스마트 믹스!
+            if (loadedList.length < 3) {
+                const needed = 3 - loadedList.length;
+                for (let i = 0; i < needed; i++) {
+                    if (fallbackOpponents[i]) {
+                        loadedList.push(fallbackOpponents[i]);
+                    }
+                }
+            }
+
+            // 최종적으로 정확히 상위 3개 라인업 완비
+            loadedList = loadedList.slice(0, 3);
+
+            // 로드된 데이터가 있으면 로컬 스토리지에 즉시 캐싱 백업
+            if (loadedList.length > 0) {
+                localStorage.setItem('fc_star_friendly_cached_opponents', JSON.stringify(loadedList));
+                console.log("💾 친선경기 상대를 로컬 스토리지 캐시에 세이브 완료!");
+                return loadedList;
+            } else {
+                throw new Error("No other players found");
+            }
+        } catch (error) {
+            console.warn("⚠️ 친선경기 상대 로드 실패. 로컬 캐시 폴백 작동 시도:", error);
+            try {
+                // 1차 폴백: 로컬 스토리지 캐시 검사
+                const cached = localStorage.getItem('fc_star_friendly_cached_opponents');
+                if (cached) {
+                    const parsed = JSON.parse(cached);
+                    if (parsed && parsed.length > 0) {
+                        console.log("🟢 로컬 스토리지에 캐싱된 상대 데이터 폴백 성공!");
+                        return parsed.map(opp => ({ ...opp, isMock: false }));
+                    }
+                }
+            } catch (cacheErr) {
+                console.error("로컬 캐시 파싱 에러:", cacheErr);
+            }
+            
+            // 2차 폴백: 가상 봇 데이터 제공
+            console.log("🟢 캐시 부재로 2차 폴백 가상 봇 상대 로드 완료!");
+            return fallbackOpponents;
+        }
     }
 };
 

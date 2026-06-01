@@ -46,9 +46,7 @@ function switchTab(tabName) {
     } else if (tabName === 'squad') {
         renderSquadFormation();
     } else if (tabName === 'match') {
-        syncJeonbukOvr();
-        updateMatchPreviewBoard();
-        renderLeagueTable();
+        switchMatchSubTab('league');
     } else if (tabName === 'quiz') {
         if (typeof quizQueue === 'undefined' || !quizQueue || quizQueue.length === 0) {
             initQuizRound();
@@ -70,6 +68,64 @@ function switchTab(tabName) {
     }
     
     renderUserPoints(); // Ensure header points are sync'd
+}
+
+// 경기진행 하위 탭 전환 함수
+function switchMatchSubTab(tabId) {
+    const subTabs = {
+        'league': {
+            btn: document.getElementById('matchSubTabLeague'),
+            layout: document.getElementById('matchLayoutLeague')
+        },
+        'cup': {
+            btn: document.getElementById('matchSubTabCup'),
+            layout: document.getElementById('matchLayoutCup')
+        },
+        'acl': {
+            btn: document.getElementById('matchSubTabAcl'),
+            layout: document.getElementById('matchLayoutAcl')
+        },
+        'friendly': {
+            btn: document.getElementById('matchSubTabFriendly'),
+            layout: document.getElementById('matchLayoutFriendly')
+        }
+    };
+
+    Object.keys(subTabs).forEach(key => {
+        const item = subTabs[key];
+        if (item.btn && item.layout) {
+            if (key === tabId) {
+                item.btn.classList.add('active');
+                // 리그와 친선경기는 기존 .match-layout(flex)을 사용하므로 flex로 보여주고, 나머지는 block
+                item.layout.style.display = (key === 'league' || key === 'friendly') ? 'flex' : 'block';
+                item.layout.classList.add('active');
+            } else {
+                item.btn.classList.remove('active');
+                item.layout.style.display = 'none';
+                item.layout.classList.remove('active');
+            }
+        }
+    });
+
+    // 하위 탭 진입 시 전용 연동 호출
+    if (tabId === 'friendly') {
+        if (typeof initFriendlyMatchTab === 'function') {
+            initFriendlyMatchTab();
+        }
+    } else if (tabId === 'league') {
+        if (typeof syncJeonbukOvr === 'function') syncJeonbukOvr();
+        if (typeof updateMatchPreviewBoard === 'function') updateMatchPreviewBoard();
+        if (typeof renderLeagueTable === 'function') renderLeagueTable();
+    }
+
+    // 클릭 사운드 피드백 (sound.js 연계)
+    if (typeof playClickSound === 'function') {
+        try {
+            playClickSound();
+        } catch (e) {
+            console.warn("Sound play failed:", e);
+        }
+    }
 }
 
 // 10. INITIALIZATION

@@ -543,3 +543,281 @@
     opacity: 1;
     transform: scale(1);
 }
+
+
+/* ==========================================================================
+   경기진행 서브 메뉴 탭 바 & 하위 뷰 스타일 (신규 추가)
+   ========================================================================== */
+
+.match-sub-tabs {
+    display: flex;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.3rem;
+    border-radius: 16px;
+    border: 1px solid var(--glass-border);
+    margin-bottom: 1.5rem;
+    max-width: 600px;
+    width: 100%;
+    backdrop-filter: blur(10px);
+}
+
+.match-sub-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 0.7rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.match-sub-btn i {
+    font-size: 1rem;
+    transition: transform 0.3s;
+}
+
+.match-sub-btn:hover {
+    color: var(--text-light);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.match-sub-btn:hover i {
+    transform: scale(1.15);
+}
+
+.match-sub-btn.active {
+    background: var(--gold-gradient);
+    color: #080a10;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.25);
+}
+
+.match-sub-btn.active i {
+    color: #080a10;
+}
+
+/* 하위 뷰 페이드인 트랜지션 */
+.match-layout-sub {
+    display: none;
+    width: 100%;
+    animation: matchViewFadeIn 0.5s ease-out forwards;
+}
+
+.match-layout-sub.active {
+    display: block;
+}
+
+@keyframes matchViewFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 리그컵 & 아챔 티저 카드 스타일 */
+.cup-teaser-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 2rem 0;
+}
+
+.teaser-card {
+    max-width: 650px;
+    width: 100%;
+    background: linear-gradient(135deg, rgba(15, 19, 34, 0.8) 0%, rgba(8, 10, 16, 0.9) 100%);
+    border: 1.5px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 3rem 2rem;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(15px);
+    position: relative;
+    overflow: hidden;
+}
+
+.teaser-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    pointer-events: none;
+}
+
+.teaser-card:has(.cup-theme)::before {
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.04) 0%, transparent 60%);
+}
+
+.teaser-card:has(.acl-theme)::before {
+    background: radial-gradient(circle, rgba(0, 210, 255, 0.04) 0%, transparent 60%);
+}
+
+.teaser-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 0 auto 1.5rem auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.teaser-icon-wrapper.cup-theme {
+    background: rgba(255, 215, 0, 0.1);
+    border: 2px solid rgba(255, 215, 0, 0.3);
+}
+
+.teaser-icon-wrapper.acl-theme {
+    background: rgba(0, 210, 255, 0.1);
+    border: 2px solid rgba(0, 210, 255, 0.3);
+}
+
+.teaser-icon {
+    font-size: 2.5rem;
+}
+
+.cup-theme .teaser-icon {
+    color: #ffd700;
+    filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.5));
+}
+
+.acl-theme .teaser-icon {
+    color: #00d2ff;
+    filter: drop-shadow(0 0 8px rgba(0, 210, 255, 0.5));
+}
+
+.teaser-card h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.5px;
+}
+
+.teaser-badge {
+    display: inline-block;
+    padding: 0.25rem 0.8rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    border-radius: 20px;
+    margin-bottom: 1.5rem;
+    letter-spacing: 1px;
+}
+
+.cup-theme + h2 + .teaser-badge {
+    background: rgba(255, 215, 0, 0.15);
+    color: #ffd700;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.acl-theme + h2 + .teaser-badge {
+    background: rgba(0, 210, 255, 0.15);
+    color: #00d2ff;
+    border: 1px solid rgba(0, 210, 255, 0.3);
+}
+
+.teaser-desc {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.teaser-features {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-bottom: 2rem;
+}
+
+.feature-tag {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.feature-tag i {
+    color: #00ff87;
+}
+
+.teaser-notice {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 14px;
+    padding: 0.8rem 1.2rem;
+    font-size: 0.8rem;
+    color: #ff8888;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+    line-height: 1.5;
+}
+
+.teaser-notice i {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+/* 친선경기 패널 및 전용 스타일 */
+.friendly-panel {
+    border-color: rgba(165, 94, 234, 0.2) !important;
+}
+
+.friendly-sb {
+    border-color: rgba(165, 94, 234, 0.3) !important;
+}
+
+.friendly-table td {
+    border-bottom-color: rgba(165, 94, 234, 0.06) !important;
+}
+
+/* 반응형 서브 탭 대응 */
+@media (max-width: 600px) {
+    .match-sub-tabs {
+        border-radius: 12px;
+        margin-bottom: 1rem;
+    }
+    
+    .match-sub-btn {
+        padding: 0.5rem 0.4rem;
+        font-size: 0.78rem;
+        border-radius: 8px;
+        gap: 4px;
+    }
+    
+    .match-sub-btn i {
+        font-size: 0.85rem;
+    }
+    
+    .teaser-card {
+        padding: 2rem 1.2rem;
+    }
+    
+    .teaser-card h2 {
+        font-size: 1.4rem;
+    }
+}
+

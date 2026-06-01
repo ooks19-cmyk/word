@@ -87,14 +87,11 @@ try {
 }
 
 // 3. TTS AUTOPLAY PREFERENCE STATE (Option 1 vs Option 2 Toggle)
-let isQuizTtsAutoplay = false;
+let isQuizTtsAutoplay = true; // 항상 자동발음 ON 강제
 try {
-    const savedAutoplay = localStorage.getItem('fc_star_quiz_tts_autoplay');
-    if (savedAutoplay !== null) {
-        isQuizTtsAutoplay = savedAutoplay === 'true';
-    }
+    localStorage.setItem('fc_star_quiz_tts_autoplay', 'true');
 } catch (e) {
-    isQuizTtsAutoplay = false;
+    // Ignore
 }
 
 // 4. SQUAD NUMBERS STATE (등번호 설정 데이터 1~30)
