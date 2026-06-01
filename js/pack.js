@@ -10,17 +10,26 @@ function openPack() {
 
     const keys = Object.keys(CARDS_DATABASE);
     const legendKeys = keys.filter(k => CARDS_DATABASE[k].rarity === 'legend');
+    const specialKeys = keys.filter(k => CARDS_DATABASE[k].rarity === 'special');
     const normalKeys = keys.filter(k => CARDS_DATABASE[k].rarity === 'normal');
     
     let chosenKey = "";
     const rand = Math.random(); // 0.0 ~ 1.0
     
-    // Each individual Legend card has exactly a 1% probability
+    // Each individual Legend and Special card has exactly a 1% probability
     const totalLegendProb = legendKeys.length * 0.01;
+    const totalSpecialProb = specialKeys.length * 0.01;
+    const totalPremiumProb = totalLegendProb + totalSpecialProb;
     
-    if (rand < totalLegendProb && legendKeys.length > 0) {
-        // Draw from the legend pool uniformly (each card has exactly a 1% chance)
-        chosenKey = legendKeys[Math.floor(Math.random() * legendKeys.length)];
+    if (rand < totalPremiumProb) {
+        // Draw from the premium pool (Legend or Special)
+        if (rand < totalLegendProb && legendKeys.length > 0) {
+            chosenKey = legendKeys[Math.floor(Math.random() * legendKeys.length)];
+        } else if (specialKeys.length > 0) {
+            chosenKey = specialKeys[Math.floor(Math.random() * specialKeys.length)];
+        } else {
+            chosenKey = legendKeys[Math.floor(Math.random() * legendKeys.length)];
+        }
     } else {
         // Draw from the normal pool (or fallback if empty)
         chosenKey = normalKeys.length > 0 

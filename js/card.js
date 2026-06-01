@@ -49,24 +49,44 @@ function generateCardHTML(cardData) {
     ` : '';
 
     const rarity = cardData.rarity || 'normal';
+    let badgeBg = 'rgba(255, 255, 255, 0.15)';
+    let badgeColor = '#fff';
+    let badgeText = '일반';
+    let badgeShadow = 'none';
+    let badgeBorder = '1px solid rgba(255, 255, 255, 0.2)';
+
+    if (rarity === 'legend') {
+        badgeBg = 'linear-gradient(135deg, #ff0055 0%, #ffaa00 50%, #ffd700 100%)';
+        badgeColor = '#000';
+        badgeText = '👑 전설';
+        badgeShadow = '0 0 10px rgba(255, 215, 0, 0.7), 0 2px 4px rgba(0,0,0,0.5)';
+        badgeBorder = '1px solid rgba(255, 255, 255, 0.4)';
+    } else if (rarity === 'special') {
+        badgeBg = 'linear-gradient(135deg, #da1a32 0%, #1d2b58 100%)'; // 대한민국 국가대표 Red & Navy 테마
+        badgeColor = '#fff';
+        badgeText = '✨ 스페셜';
+        badgeShadow = '0 0 12px rgba(218, 26, 50, 0.8), 0 2px 4px rgba(0,0,0,0.5)';
+        badgeBorder = '1px solid rgba(255, 255, 255, 0.5)';
+    }
+
     const rarityBadgeHTML = `
         <div class="card-rarity-badge" style="
             position: absolute;
             top: 0.6rem;
             left: 1.2rem;
-            background: ${rarity === 'legend' ? 'linear-gradient(135deg, #ff0055 0%, #ffaa00 50%, #ffd700 100%)' : 'rgba(255, 255, 255, 0.15)'};
-            color: ${rarity === 'legend' ? '#000' : '#fff'};
+            background: ${badgeBg};
+            color: ${badgeColor};
             font-size: 0.65rem;
             font-weight: 900;
             padding: 3px 8px;
             border-radius: 20px;
-            box-shadow: ${rarity === 'legend' ? '0 0 10px rgba(255, 215, 0, 0.7), 0 2px 4px rgba(0,0,0,0.5)' : 'none'};
+            box-shadow: ${badgeShadow};
             z-index: 10;
             letter-spacing: 0.5px;
-            border: 1px solid ${rarity === 'legend' ? 'rgba(255, 255, 255, 0.4)' : 'rgba(255, 255, 255, 0.2)'};
+            border: ${badgeBorder};
             backdrop-filter: blur(5px);
         ">
-            ${rarity === 'legend' ? '👑 전설' : '일반'}
+            ${badgeText}
         </div>
     `;
 

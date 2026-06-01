@@ -63,6 +63,31 @@ const CARDS_DATABASE = {
             phy: 62
         }
     },
+    "lee_seung_woo_kr": {
+        id: "lee_seung_woo_kr",
+        name: "이승우",
+        rating: 86,
+        position: "LW",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "KOREA",
+        image: "player/이승우_kr.png",
+        rarity: "special",
+        description: "가슴에 찬란한 태극 마크를 품고 대한민국의 붉은 함성을 이끄는 특급 국가대표 윙어 이승우입니다. 특유의 기동력과 지칠 줄 모르는 과감한 돌파력, 그리고 그라운드 위에서 번뜩이는 천재적인 플레이로 조국의 승리를 이끄는 스페셜 공격수입니다.",
+        theme: {
+            primary: "#da1a32",   // 한국 국대 레드
+            secondary: "#1d2b58", // 한국 국대 네이비
+            glow: "#ff2a55"       // 스페셜 네온 레드 광채
+        },
+        stats: {
+            pac: 90,
+            sho: 84,
+            pas: 83,
+            dri: 88,
+            def: 40,
+            phy: 68
+        }
+    },
     "lee_kang_in": {
         id: "lee_kang_in",
         name: "이강인",

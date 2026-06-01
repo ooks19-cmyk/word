@@ -279,7 +279,10 @@ function isPositionCompatible(displayPos, cardPos) {
     if (['LW', 'RW', 'LM', 'RM'].includes(displayPos)) {
         return ['LW', 'RW'].includes(cardPos);
     }
-    if (['CM', 'LCM', 'RCM', 'DM', 'AM'].includes(displayPos)) {
+    if (displayPos === 'AM') {
+        return ['CM', 'LW', 'RW'].includes(cardPos);
+    }
+    if (['CM', 'LCM', 'RCM', 'DM'].includes(displayPos)) {
         return cardPos === 'CM';
     }
     if (['CB', 'LCB', 'RCB', 'LB', 'RB'].includes(displayPos)) {
