@@ -368,9 +368,9 @@
                 <!-- Left panel: Match Simulator Board -->
                 <div class="match-simulator-panel">
                     <div class="squad-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding-bottom: 0.5rem;">
-                        <button class="btn-open-pack" id="btnFriendlyMatch" onclick="switchMatchSubTab('friendly')" style="padding: 0.35rem 0.8rem; font-size: 0.72rem; margin: 0; width: auto; background: linear-gradient(135deg, #a55eea, #4b7bec); box-shadow: 0 0 10px rgba(165, 94, 234, 0.2); border-radius: 20px; font-weight: bold; border: none; color: #fff; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: transform 0.2s;">
-                            <i class="fa-solid fa-handshake"></i> 친선 경기
-                        </button>
+                        <div id="leagueSeasonYearDisplay" style="font-size: 0.78rem; font-weight: 800; color: #ffd700; background: rgba(255, 215, 0, 0.08); border: 1px solid rgba(255, 215, 0, 0.2); padding: 4px 12px; border-radius: 20px; display: flex; align-items: center; gap: 4px;">
+                            <i class="fa-solid fa-calendar-days"></i> <span id="leagueSeasonYearText">2026 시즌</span>
+                        </div>
                         <div class="deck-count" id="matchRoundContainer" style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">
                             라운드: <span id="matchRoundVal">1</span>/33 | 오늘 경기: <span id="matchTodayCountVal">0</span>/10
                         </div>
@@ -497,27 +497,120 @@
             </div>
 
             <!-- 리그컵 탭 뷰 -->
-            <div class="match-layout-sub" id="matchLayoutCup" style="display: none;">
-                <div class="cup-teaser-container">
-                    <div class="teaser-card">
-                        <div class="teaser-icon-wrapper cup-theme">
-                            <i class="fa-solid fa-gem teaser-icon"></i>
+            <div class="match-layout match-layout-sub" id="matchLayoutCup" style="display: none;">
+                <!-- Left panel: Cup Match Simulator Board -->
+                <div class="match-simulator-panel">
+                    <div class="squad-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding-bottom: 0.5rem;">
+                        <div id="cupSeasonYearDisplay" style="font-size: 0.78rem; font-weight: 800; color: #00d2fc; background: rgba(0, 210, 252, 0.08); border: 1px solid rgba(0, 210, 252, 0.2); padding: 4px 12px; border-radius: 20px; display: flex; align-items: center; gap: 4px;">
+                            <i class="fa-solid fa-gem"></i> <span id="cupSeasonYearText">2026 코리아컵</span>
                         </div>
-                        <h2>코리아컵 (리그컵)</h2>
-                        <div class="teaser-badge">COMING SOON</div>
-                        <p class="teaser-desc">
-                            전국의 모든 클럽들이 단판 토너먼트로 격돌하는 대한민국 최고의 컵 대회!<br>
-                            나만의 베스트 11 스쿼드로 리그컵 우승 트로피를 차지해보세요.
-                        </p>
-                        <div class="teaser-features">
-                            <div class="feature-tag"><i class="fa-solid fa-circle-check"></i> 단판 토너먼트의 묘미</div>
-                            <div class="feature-tag"><i class="fa-solid fa-circle-check"></i> 하위 리그 복병들과의 승부</div>
-                            <div class="feature-tag"><i class="fa-solid fa-circle-check"></i> 우승 시 전용 강화 보상 지급</div>
+                        <div class="deck-count" id="cupRoundContainer" style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">
+                            단계: <span id="cupRoundVal">16강전</span>
                         </div>
-                        <div class="teaser-notice">
-                            <i class="fa-solid fa-triangle-exclamation"></i>
-                            <span>현재 UI 구현 단계이며, 대전 및 토너먼트 기능은 추후 업데이트 예정입니다.</span>
+                    </div>
+                    
+                    <!-- Scoreboard Board -->
+                    <div class="scoreboard-container" style="border-color: rgba(0, 210, 252, 0.2); background: radial-gradient(circle at top, rgba(0, 210, 252, 0.05) 0%, transparent 80%);">
+                        <div class="team-vs-display">
+                            <div class="sb-team sb-home">
+                                <div class="sb-emblem" id="cupHomeEmblem"><i class="fa-solid fa-shield-halved"></i></div>
+                                <h3 id="cupHomeTeamName">전북 현대</h3>
+                                <span class="sb-ovr-tag" style="color: #00ff87; border-color: rgba(0,255,135,0.2);">OVR <span id="cupHomeTeamOvr">70</span></span>
+                            </div>
+                            <div class="sb-score-board">
+                                <div class="sb-time" id="cupSbTimeDisplay" style="color: #00d2fc; border-color: rgba(0,210,252,0.3);">CUP VS</div>
+                                <div class="sb-scores">
+                                    <span id="cupHomeScore">0</span> - <span id="cupAwayScore">0</span>
+                                </div>
+                                <div class="sb-match-venue" id="cupMatchVenueDisplay" style="color: #cbd5e1;">단판 토너먼트 (중립 구장)</div>
+                            </div>
+                            <div class="sb-team sb-away">
+                                <div class="sb-emblem" id="cupAwayEmblem"><i class="fa-solid fa-shield-halved"></i></div>
+                                <h3 id="cupAwayTeamName">대구FC</h3>
+                                <span class="sb-ovr-tag" style="color: #ffd700; border-color: rgba(255,215,0,0.2);">OVR <span id="cupAwayTeamOvr">73</span></span>
+                            </div>
                         </div>
+                    </div>
+                    
+                    <!-- Live Text Broadcast Commentary Box -->
+                    <div class="commentary-box-wrapper" style="border-color: rgba(0, 210, 252, 0.15);">
+                        <div class="commentary-header" style="background: rgba(0, 210, 252, 0.08); border-bottom-color: rgba(0, 210, 252, 0.15);">
+                            <span style="color: #00d2fc;"><i class="fa-solid fa-radio"></i> 코리아컵 라이브 중계</span>
+                            <span class="live-pulse" id="cupLivePulseIndicator" style="background: #00d2fc; box-shadow: 0 0 10px #00d2fc;">LIVE</span>
+                        </div>
+                        <div class="commentary-scroll" id="cupCommentaryScroll">
+                            <div class="comm-item comm-system">토너먼트 경기를 시작하려면 아래 '경기 시작' 버튼을 누르세요.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="match-controls">
+                        <button class="btn-open-pack" id="btnStartCupMatch" onclick="startCupMatchSimulation()" style="width: 100%; margin-top: 1.5rem; background: linear-gradient(135deg, #00d2fc, #4b7bec); box-shadow: 0 4px 15px rgba(0, 210, 252, 0.3);">
+                            <i class="fa-solid fa-play" style="margin-right: 8px;"></i>코리아컵 경기 시작 (10초 소요)
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Right panel: Tournament Bracket Tree & Stats -->
+                <div class="league-table-panel cup-bracket-panel">
+                    <div class="squad-header" style="border-bottom: 1px solid var(--glass-border); padding-bottom: 0.8rem; margin-bottom: 1rem;">
+                        <h3 class="deck-title" style="font-size: 1.25rem; color: #00d2fc;" id="cupBracketTitle">
+                            <i class="fa-solid fa-sitemap" style="margin-right: 8px; color: #00d2fc; transform: rotate(90deg);"></i>16강 토너먼트 대진표
+                        </h3>
+                    </div>
+                    
+                    <!-- Bracket Tree View Container -->
+                    <div class="cup-bracket-container" id="cupBracketContainer">
+                        <!-- Populated dynamically by cup.js -->
+                    </div>
+
+                    <!-- Cup Stats: Goals & Assists Leaders -->
+                    <div class="league-stats-container" style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+                        <!-- Goals Leaderboard -->
+                        <div class="league-stat-col" style="flex: 1; background: rgba(10, 14, 26, 0.25); padding: 0.8rem; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05); display: flex; flex-direction: column;">
+                            <h4 style="font-size: 0.85rem; font-weight: 800; margin-bottom: 0.5rem; color: #ffd700; display: flex; align-items: center; gap: 6px;">
+                                <i class="fa-solid fa-circle-play" style="color: #ffd700; font-size: 0.75rem;"></i> 득점 순위 (Top 5)
+                            </h4>
+                            <table class="league-stats-table" style="width: 100%; border-collapse: collapse; font-size: 0.78rem; text-align: left;">
+                                <thead>
+                                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8;">
+                                        <th style="padding: 4px; text-align: center; width: 15%;">#</th>
+                                        <th style="padding: 4px;">선수</th>
+                                        <th style="padding: 4px;">소속팀</th>
+                                        <th style="padding: 4px; text-align: center; width: 20%;">골</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cupGoalsBody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Assists Leaderboard -->
+                        <div class="league-stat-col" style="flex: 1; background: rgba(10, 14, 26, 0.25); padding: 0.8rem; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05); display: flex; flex-direction: column;">
+                            <h4 style="font-size: 0.85rem; font-weight: 800; margin-bottom: 0.5rem; color: #00ff87; display: flex; align-items: center; gap: 6px;">
+                                <i class="fa-regular fa-star" style="color: #00ff87; font-size: 0.75rem;"></i> 도움 순위 (Top 5)
+                            </h4>
+                            <table class="league-stats-table" style="width: 100%; border-collapse: collapse; font-size: 0.78rem; text-align: left;">
+                                <thead>
+                                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8;">
+                                        <th style="padding: 4px; text-align: center; width: 15%;">#</th>
+                                        <th style="padding: 4px;">선수</th>
+                                        <th style="padding: 4px;">소속팀</th>
+                                        <th style="padding: 4px; text-align: center; width: 20%;">도움</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cupAssistsBody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Reset Button -->
+                    <div style="display: flex; justify-content: flex-end; margin-top: 1rem; padding-right: 0.2rem;">
+                        <button class="tab-btn" onclick="resetCupSeason()" style="white-space: nowrap; font-size: 0.72rem; padding: 0.35rem 0.8rem; border-radius: 12px; background: rgba(220, 38, 38, 0.08); border: 1px solid rgba(220, 38, 38, 0.2); color: #ff8888; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                            <i class="fa-solid fa-arrow-rotate-left"></i> 컵 초기화
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1092,7 +1185,10 @@
     <script src="js/pack.js"></script>
     <script src="js/deck.js"></script>
     <script src="js/squad.js"></script>
-    <script src="js/match.js"></script>
+    <script src="js/match_algorithm.js?v=1.1"></script>
+    <script src="js/league.js?v=1.1"></script>
+    <script src="js/cup.js?v=1.1"></script>
+    <script src="js/friendly.js?v=1.1"></script>
     <script src="js/auth.js"></script>
     <script src="app.js"></script>
 </body>

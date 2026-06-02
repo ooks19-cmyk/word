@@ -821,3 +821,202 @@
     }
 }
 
+/* ==========================================================================
+   코리아컵 토너먼트 대진표(Bracket Tree) 및 순위표 스타일
+   ========================================================================== */
+.cup-bracket-panel {
+    display: flex;
+    flex-direction: column;
+}
+
+.cup-bracket-container {
+    display: flex;
+    gap: 1.2rem;
+    overflow-x: auto;
+    padding: 1rem 0.5rem;
+    width: 100%;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 210, 252, 0.2) transparent;
+}
+
+.cup-bracket-container::-webkit-scrollbar {
+    height: 6px;
+}
+
+.cup-bracket-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.cup-bracket-container::-webkit-scrollbar-thumb {
+    background: rgba(0, 210, 252, 0.25);
+    border-radius: 10px;
+}
+
+.cup-bracket-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 210, 252, 0.5);
+}
+
+.bracket-round {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 1rem;
+    min-width: 180px;
+    flex-shrink: 0;
+}
+
+.bracket-round-title {
+    text-align: center;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #00d2fc;
+    background: rgba(0, 210, 252, 0.08);
+    border: 1px solid rgba(0, 210, 252, 0.18);
+    padding: 4px 0;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.5px;
+}
+
+.bracket-match-list {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    height: 100%;
+    gap: 0.8rem;
+}
+
+.bracket-match {
+    background: rgba(10, 14, 26, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    padding: 0.5rem 0.7rem;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    position: relative;
+    transition: all 0.2s ease-in-out;
+}
+
+.bracket-match:hover {
+    border-color: rgba(0, 210, 252, 0.35);
+    background: rgba(10, 14, 26, 0.75);
+    transform: translateY(-2px);
+}
+
+.bracket-match.match-active {
+    border-color: rgba(0, 210, 252, 0.6);
+    box-shadow: 0 0 12px rgba(0, 210, 252, 0.25);
+    background: rgba(0, 210, 252, 0.04);
+}
+
+.bracket-team {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.78rem;
+    padding: 3px 5px;
+    border-radius: 6px;
+    color: #94a3b8;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.bracket-team.team-player {
+    background: rgba(0, 255, 135, 0.05);
+    border: 1px solid rgba(0, 255, 135, 0.12);
+    color: #fff;
+}
+
+.bracket-team.team-won {
+    color: #fff;
+    font-weight: 800;
+}
+
+.bracket-team.team-won.team-player {
+    color: #00ff87 !important;
+    text-shadow: 0 0 5px rgba(0, 255, 135, 0.3);
+}
+
+.bracket-team.team-lost {
+    color: #475569;
+    text-decoration: line-through;
+    opacity: 0.65;
+}
+
+.bracket-team-name {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+}
+
+.bracket-team-score {
+    font-family: monospace, sans-serif;
+    font-weight: 800;
+    font-size: 0.85rem;
+    padding: 0 4px;
+}
+
+.bracket-team.team-won .bracket-team-score {
+    color: #ffd700;
+}
+
+.bracket-team.team-won.team-player .bracket-team-score {
+    color: #00ff87;
+}
+
+.bracket-team.team-lost .bracket-team-score {
+    color: #475569;
+}
+
+/* 우승자 스페셜 노드 */
+.bracket-winner-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at top, rgba(255, 215, 0, 0.15) 0%, rgba(10, 14, 26, 0.8) 100%);
+    border: 1.5px solid rgba(255, 215, 0, 0.4);
+    border-radius: 12px;
+    padding: 1.2rem;
+    text-align: center;
+    min-width: 140px;
+    box-shadow: 0 8px 24px rgba(255, 215, 0, 0.2);
+    animation: winnerPulse 2s infinite ease-in-out;
+}
+
+@keyframes winnerPulse {
+    0%, 100% {
+        box-shadow: 0 8px 24px rgba(255, 215, 0, 0.2);
+        border-color: rgba(255, 215, 0, 0.4);
+    }
+    50% {
+        box-shadow: 0 8px 30px rgba(255, 215, 0, 0.45);
+        border-color: rgba(255, 215, 0, 0.7);
+    }
+}
+
+.bracket-winner-title {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #ffd700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.4rem;
+}
+
+.bracket-winner-name {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+
