@@ -1254,26 +1254,28 @@ function checkSeasonChampion() {
         const savedCup = localStorage.getItem('fc_star_cup_state');
         if (savedCup) {
             const cupStateParsed = JSON.parse(savedCup);
-            if (cupStateParsed.isFinished && cupStateParsed.bracket.winner) {
-                if (cupStateParsed.bracket.winner.id === 'jeonbuk') {
-                    cupRecordText = "우승 🏆";
-                } else {
-                    cupRecordText = "준우승 🥈";
-                }
+            
+            // 전북 현대 성적 판별
+            if (cupStateParsed.bracket && cupStateParsed.bracket.winner && cupStateParsed.bracket.winner.id === 'jeonbuk') {
+                cupRecordText = "우승 🏆";
             } else {
-                const curRound = cupStateParsed.round;
-                const matches = cupStateParsed.bracket[curRound];
-                const playerMatch = matches.find(m => (m.team1 && m.team1.id === 'jeonbuk') || (m.team2 && m.team2.id === 'jeonbuk'));
-                if (!playerMatch) {
-                    if (curRound === 8) {
-                        cupRecordText = "8강 탈락";
-                    } else if (curRound === 4) {
-                        cupRecordText = "4강 탈락";
-                    } else {
-                        cupRecordText = "16강 탈락";
+                const rounds = [2, 4, 8, 16];
+                let foundRecord = false;
+                for (let r of rounds) {
+                    const matches = cupStateParsed.bracket[r] || [];
+                    const jbMatch = matches.find(m => (m.team1 && m.team1.id === 'jeonbuk') || (m.team2 && m.team2.id === 'jeonbuk'));
+                    if (jbMatch) {
+                        if (r === 2) cupRecordText = "준우승 🥈";
+                        else if (r === 4) cupRecordText = "4강 탈락";
+                        else if (r === 8) cupRecordText = "8강 탈락";
+                        else if (r === 16) cupRecordText = "16강 탈락";
+                        foundRecord = true;
+                        break;
                     }
-                } else {
-                    cupRecordText = `진행 중 (${curRound}강전)`;
+                }
+                
+                if (!foundRecord && !cupStateParsed.isFinished) {
+                    cupRecordText = `진행 중 (${cupStateParsed.round}강전)`;
                 }
             }
         }
