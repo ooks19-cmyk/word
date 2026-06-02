@@ -50,6 +50,8 @@ function initCup() {
             if (typeof leagueYear !== 'undefined') {
                 cupState.year = leagueYear;
             }
+            // 플레이어 탈락 시 상태 복구
+            checkAndRecoverEliminatedCup();
             return;
         }
     } catch (e) {
@@ -131,8 +133,108 @@ function saveCupState() {
     } catch(e) {}
 }
 
+// 플레이어가 탈락했을 때 자동 복구 및 남은 토너먼트 시뮬레이션 처리
+function checkAndRecoverEliminatedCup() {
+    if (cupState.isFinished) return;
+    
+    let isPlayerEliminated = false;
+    [16, 8, 4, 2].forEach(roundKey => {
+        const matches = cupState.bracket[roundKey] || [];
+        matches.forEach(match => {
+            if (match.status === 'completed') {
+                const hasPlayer = (match.team1 && match.team1.id === 'jeonbuk') || (match.team2 && match.team2.id === 'jeonbuk');
+                if (hasPlayer) {
+                    const isPlayerWinner = (match.winner === 'team1' && match.team1.id === 'jeonbuk') ||
+                                          (match.winner === 'team2' && match.team2.id === 'jeonbuk');
+                    if (!isPlayerWinner) {
+                        isPlayerEliminated = true;
+                    }
+                }
+            }
+        });
+    });
+    
+    if (isPlayerEliminated) {
+        console.log("플레이어가 코리아컵에서 탈락한 상태를 감지했습니다. 남은 대회를 자동 시뮬레이션 처리합니다.");
+        simulateRemainingCupRounds();
+    }
+}
+
+function simulateRemainingCupRounds() {
+    // 플레이어가 탈락했을 때 남은 토너먼트 전체 라운드를 AI 시뮬레이션으로 한 번에 완료 처리
+    while (!cupState.isFinished) {
+        const curRound = cupState.round;
+        
+        // 1. 현재 라운드의 모든 AI 경기 시뮬레이션 (플레이어는 이미 경기 완료(패배) 상태이므로 건너뜀)
+        simulateCupAiMatches(curRound);
+        
+        // 2. 다음 라운드로 대진표 갱신
+        if (curRound === 16) {
+            const matches16 = cupState.bracket[16];
+            const matches8 = cupState.bracket[8];
+            for (let i = 0; i < 4; i++) {
+                const m1 = matches16[i * 2];
+                const m2 = matches16[i * 2 + 1];
+                matches8[i].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
+                matches8[i].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
+                matches8[i].status = "scheduled";
+            }
+            cupState.round = 8;
+        } else if (curRound === 8) {
+            const matches8 = cupState.bracket[8];
+            const matches4 = cupState.bracket[4];
+            for (let i = 0; i < 2; i++) {
+                const m1 = matches8[i * 2];
+                const m2 = matches8[i * 2 + 1];
+                matches4[i].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
+                matches4[i].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
+                matches4[i].status = "scheduled";
+            }
+            cupState.round = 4;
+        } else if (curRound === 4) {
+            const matches4 = cupState.bracket[4];
+            const matches2 = cupState.bracket[2];
+            const m1 = matches4[0];
+            const m2 = matches4[1];
+            matches2[0].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
+            matches2[0].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
+            matches2[0].status = "scheduled";
+            cupState.round = 2;
+        } else if (curRound === 2) {
+            const finalMatch = cupState.bracket[2][0];
+            
+            // 결승전 AI 시뮬레이션 강제 수행
+            if (finalMatch.status !== 'completed') {
+                const rateDiff = (finalMatch.team1 ? finalMatch.team1.rating : 70) - (finalMatch.team2 ? finalMatch.team2.rating : 70);
+                let score1 = Math.floor(Math.random() * 3);
+                let score2 = Math.floor(Math.random() * 3);
+                if (rateDiff > 5) score1 += 1;
+                else if (rateDiff < -5) score2 += 1;
+                if (score1 === score2) {
+                    if (Math.random() > 0.5) score1 += 1;
+                    else score2 += 1;
+                }
+                finalMatch.score1 = score1;
+                finalMatch.score2 = score2;
+                finalMatch.winner = score1 > score2 ? 'team1' : 'team2';
+                finalMatch.status = 'completed';
+                addPlayerStatRecord(score1 > score2 ? finalMatch.team1 : finalMatch.team2, null, null);
+            }
+            
+            const champion = finalMatch.winner === 'team1' ? finalMatch.team1 : finalMatch.team2;
+            cupState.bracket.winner = champion;
+            cupState.round = 1;
+            cupState.isFinished = true;
+        }
+    }
+    saveCupState();
+}
+
 // 3. 컵 탭 로드 시 렌더링 호출
 function initCupTab() {
+    // 컵 탈락 복구 체크 먼저 실행
+    checkAndRecoverEliminatedCup();
+
     const seasonText = document.getElementById('cupSeasonYearText');
     if (seasonText) {
         seasonText.textContent = `${cupState.year} 코리아컵`;
@@ -205,21 +307,29 @@ function updatePlayerTeamOvr() {
 function updateCupScoreboard() {
     if (cupState.isFinished) {
         const winner = cupState.bracket.winner || { name: '전북 현대', rating: 75 };
+        const isPlayerWinner = winner.id === 'jeonbuk';
+        
         document.getElementById('cupRoundVal').textContent = "대회 종료";
         document.getElementById('cupHomeTeamName').textContent = winner.name;
-        document.getElementById('cupAwayTeamName').textContent = "우승 달성!";
+        document.getElementById('cupAwayTeamName').textContent = isPlayerWinner ? "우승 달성!" : "우승 차지!";
         document.getElementById('cupHomeTeamOvr').textContent = winner.rating;
         document.getElementById('cupAwayTeamOvr').textContent = "-";
         document.getElementById('cupHomeScore').textContent = "🏆";
         document.getElementById('cupAwayScore').textContent = "";
         document.getElementById('cupSbTimeDisplay').textContent = "FINISH";
         document.getElementById('cupSbTimeDisplay').classList.remove('live-ticking');
-        document.getElementById('cupMatchVenueDisplay').textContent = "코리아컵 시즌이 완료되었습니다.";
+        document.getElementById('cupMatchVenueDisplay').textContent = isPlayerWinner 
+            ? "코리아컵 시즌이 완료되었습니다. 축하합니다!" 
+            : `코리아컵 시즌이 완료되었습니다. (${winner.name} 우승)`;
         
         const btn = document.getElementById('btnStartCupMatch');
         if (btn) {
             btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-trophy" style="margin-right: 8px;"></i>코리아컵 우승 완료`;
+            if (isPlayerWinner) {
+                btn.innerHTML = `<i class="fa-solid fa-trophy" style="margin-right: 8px;"></i>코리아컵 우승 완료`;
+            } else {
+                btn.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="margin-right: 8px;"></i>토너먼트 탈락 (대회 종료)`;
+            }
         }
         return;
     }
@@ -1088,9 +1198,12 @@ function finalizeCupMatch(score1, score2, playerMatch, pkScore1 = undefined, pkS
             showToast(`패배하여 탈락했습니다. (16강/8강 탈락은 보상이 없습니다)`);
         }
         
+        // 플레이어 탈락 시 남은 대회 자동 시뮬레이션 완료 처리
+        simulateRemainingCupRounds();
+        
         if (btn) {
             btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="margin-right: 8px;"></i>토너먼트 탈락`;
+            btn.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="margin-right: 8px;"></i>토너먼트 탈락 (대회 종료)`;
         }
     }
 
