@@ -98,7 +98,6 @@ function generateCardHTML(cardData) {
             <div class="card-rating">${cardData.rating}</div>
             <div class="card-position">${cardData.position}</div>
             <div class="card-nation" style="background-image: url('${cardData.nationFlag}');"></div>
-            <div class="card-club" style="color: ${cardData.theme.glow}; font-weight: 800; font-size: 0.75rem; letter-spacing: 1px; margin-top: 5px;">${cardData.club}</div>
         </div>
         
         <!-- Decorated Image Frame (Real Player Portrait with neon background, frame border, and hologram badge) -->
@@ -110,6 +109,7 @@ function generateCardHTML(cardData) {
             
             <img src="${cardData.image}" alt="${cardData.name}" class="card-player-img" onerror="this.src='https://placehold.co/320x320/005a3c/ffd700?text=${encodeURIComponent(cardData.name)}'">
             <div class="card-badge-glow" style="background: radial-gradient(circle, ${cardData.theme.glow}33 0%, transparent 70%);"></div>
+            <div class="card-club" style="color: ${cardData.theme.glow}; font-weight: 800; font-size: 0.75rem; letter-spacing: 1px;">${cardData.club}</div>
         </div>
         
         <div class="card-info-pane">

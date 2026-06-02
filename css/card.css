@@ -109,10 +109,10 @@
 .card-header-stats {
     position: absolute;
     top: 2.2rem;
-    left: 1.8rem;
+    left: 20px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     z-index: 3;
 }
 
@@ -145,9 +145,10 @@
 }
 
 .card-club {
-    font-size: 1.4rem;
-    color: #ffd700;
-    margin-top: 0.5rem;
+    position: absolute;
+    bottom: 10px;
+    left: 20px;
+    z-index: 5;
 }
 
 .card-image-container {

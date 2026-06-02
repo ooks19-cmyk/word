@@ -398,11 +398,17 @@ function simulateExtraTimeEngine(data) {
     etEvents.push({ min: "91'", type: "system", text: "연장 전반전이 킥오프됩니다. 체력의 한계를 넘어선 마지막 30분의 혈투가 시작됩니다!" });
     
     const diff = rating1 - rating2;
-    const prob1 = 0.15 + (diff * 0.01);
-    const prob2 = 0.15 - (diff * 0.01);
+    let prob1, prob2;
+    if (isTeam1Jeonbuk) {
+        prob1 = 0.35 + (diff * 0.01); // 플레이어 (기본 35%)
+        prob2 = 0.30 - (diff * 0.01); // 상대방 (기본 30%)
+    } else {
+        prob1 = 0.30 + (diff * 0.01); // 상대방 (기본 30%)
+        prob2 = 0.35 - (diff * 0.01); // 플레이어 (기본 35%)
+    }
     
-    const p1Scored = Math.random() < Math.max(0.05, Math.min(prob1, 0.4));
-    const p2Scored = Math.random() < Math.max(0.05, Math.min(prob2, 0.4));
+    const p1Scored = Math.random() < Math.max(0.05, Math.min(prob1, 0.5));
+    const p2Scored = Math.random() < Math.max(0.05, Math.min(prob2, 0.5));
     
     const scorer1 = isTeam1Jeonbuk ? playerScorerName : `${team1Name} 공격수`;
     const scorer2 = !isTeam1Jeonbuk ? playerScorerName : `${team2Name} 공격수`;

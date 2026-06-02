@@ -711,7 +711,7 @@ const CARDS_DATABASE = {
         stats: {
             pac: 76,
             sho: 65,
-            pas: 74,
+            pas: 75,
             dri: 73,
             def: 81,
             phy: 82
@@ -764,6 +764,31 @@ const CARDS_DATABASE = {
             dri: 84,
             def: 76,
             phy: 82
+        }
+    },
+    "kim_min_jae": {
+        id: "kim_min_jae",
+        name: "김민재",
+        rating: 87,
+        position: "CB",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "BAYERN MUNICH",
+        image: "player/김민재.webp",
+        rarity: "legend",
+        description: "압도적인 피지컬과 빠른 주력, 탁월한 대인 마크 능력으로 유럽 무대를 정복한 대한민국의 월드클래스 센터백 '괴물' 김민재입니다. 이탈리아 세리에 A 최우수 수비수 수상에 이어 독일 명문 바이에른 뮌헨에서 최강의 철벽 수비를 지휘하는 불멸의 전설입니다.",
+        theme: {
+            primary: "#dc052d",
+            secondary: "#ffffff",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 85,
+            sho: 57,
+            pas: 80,
+            dri: 72,
+            def: 88,
+            phy: 87
         }
     }
 };

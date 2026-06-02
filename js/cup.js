@@ -914,7 +914,7 @@ function startCupMatchSimulation() {
                 }
                 
                 const oppChanceBonus = (opponent.rating - playerGkStat) * 0.01;
-                const oppScoreProb = Math.min(0.90, Math.max(0.08, 0.35 - (diff * 0.026) + 0.05 + oppChanceBonus));
+                const oppScoreProb = Math.min(0.90, Math.max(0.08, 0.35 - (diff * 0.026) + oppChanceBonus));
                 const isGoal = Math.random() < oppScoreProb;
                 
                 addCommentary(currentMin, getMatchEventCommentary('OPP_ATTACK', commentaryData, false), 'attack');
