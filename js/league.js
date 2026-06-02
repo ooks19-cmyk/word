@@ -107,25 +107,10 @@ function registerAssist(playerId, playerName, teamId, teamName) {
     leaguePlayerStats[playerId].assists += 1;
 }
 
-function processPlayerGoal(attackDesc) {
-    const activeAttacker = squadFormation["ST"] ? CARDS_DATABASE[squadFormation["ST"]].name : "무명 스트라이커";
-    const activeLw = squadFormation["LW"] ? CARDS_DATABASE[squadFormation["LW"]].name : "무명 윙어";
-    const activeRw = squadFormation["RW"] ? CARDS_DATABASE[squadFormation["RW"]].name : "무명 윙백";
-    const activeCm = squadFormation["CM"] ? CARDS_DATABASE[squadFormation["CM"]].name : "무명 미드필더";
-
-    let scorerId, scorerName, assisterId, assisterName;
-    if (attackDesc.includes(activeLw)) {
-        scorerId = squadFormation["LW"]; scorerName = activeLw;
-        assisterId = squadFormation["CM"]; assisterName = activeCm;
-    } else if (attackDesc.includes(activeAttacker)) {
-        scorerId = squadFormation["ST"]; scorerName = activeAttacker;
-    } else {
-        scorerId = squadFormation["RW"]; scorerName = activeRw;
-        assisterId = squadFormation["CM"]; assisterName = activeCm;
-    }
-    
+function processPlayerGoal(goalData) {
+    const { scorerId, scorerName, assisterId, assisterName } = goalData || {};
     if (scorerId) registerGoal(scorerId, scorerName, 'jeonbuk', '전북 현대');
-    if (assisterId && Math.random() < 0.8) registerAssist(assisterId, assisterName, 'jeonbuk', '전북 현대');
+    if (assisterId) registerAssist(assisterId, assisterName, 'jeonbuk', '전북 현대');
 }
 
 function simulateOtherPlayersStats() {
@@ -793,6 +778,8 @@ function startMatchSimulation() {
     const maxProb = 0.80; // 상한 80%로 조정!
     const minProb = 0.20;
     const playerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (diff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus)); // 베이스 40%, 격차 0.019 적용!
+    let activeDiff = diff;
+    let activePlayerAttackProb = playerAttackProb;
 
     // 공통 코멘터리 데이터 정의
     const commentaryData = {
@@ -827,77 +814,110 @@ function startMatchSimulation() {
             if (currentMin === 0) {
                 addCommentary(0, getMatchEventCommentary('KICKOFF', commentaryData, false, true), 'normal');
             } else if (eventMins.includes(currentMin)) {
-                const isPlayerAttack = Math.random() < playerAttackProb;
-                if (isPlayerAttack) {
-                    // 공격 이벤트 유형 풀 구성 및 무작위 선택
-                    let attackOptions = [0, 1, 2]; // 0: LW 돌파, 1: ST 돌파, 2: RW 돌파
-                    if (currentFormation === '4-2-3-1') attackOptions.push(5); // 4-2-3-1 점유율 연출
-                    
-                    const selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
-                    let chancePlayerStat = 75;
-                    
-                    if (selectedOption === 0) {
-                        const lwCardId = squadFormation['LW'];
-                        if (lwCardId && CARDS_DATABASE[lwCardId]) {
-                            const card = getAwakenedCard(lwCardId);
-                            chancePlayerStat = Math.round(((card.stats.dri || 75) + (card.stats.sho || 75)) / 2);
+                // 특별 돌발 변수 체크
+                const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm, GK: activeGk };
+                const specialEvent = rollSpecialMatchEvent(activePlayers, opponent.name);
+                
+                if (specialEvent) {
+                    addCommentary(currentMin, specialEvent.eventDesc, 'system');
+                    if (specialEvent.type === "pk_player") {
+                        if (specialEvent.isGoal) {
+                            playerScoreVal++;
+                            const goalData = determineScorerAndAssister(1); // PK는 보통 ST가 키커
+                            processPlayerGoal(goalData);
+                            addCommentary(currentMin, specialEvent.eventGoal, 'goal');
+                        } else {
+                            addCommentary(currentMin, specialEvent.eventFail, 'normal');
                         }
-                    } else if (selectedOption === 1) {
-                        const stCardId = squadFormation['ST'];
-                        if (stCardId && CARDS_DATABASE[stCardId]) {
-                            const card = getAwakenedCard(stCardId);
-                            chancePlayerStat = card.stats.sho || 75;
+                    } else if (specialEvent.type === "pk_opponent") {
+                        if (specialEvent.isGoal) {
+                            opponentScoreVal++;
+                            addCommentary(currentMin, specialEvent.eventGoal, 'normal');
+                        } else {
+                            addCommentary(currentMin, specialEvent.eventFail, 'normal');
                         }
-                    } else if (selectedOption === 2) {
-                        const rwCardId = squadFormation['RW'];
-                        if (rwCardId && CARDS_DATABASE[rwCardId]) {
-                            const card = getAwakenedCard(rwCardId);
-                            chancePlayerStat = Math.round(((card.stats.pac || 75) + (card.stats.sho || 75)) / 2);
-                        }
-
-                    } else if (selectedOption === 5) { // 4-2-3-1 점유율 연출 (CM 드리블 비례)
-                        const cmCardId = squadFormation['CM'];
-                        if (cmCardId && CARDS_DATABASE[cmCardId]) {
-                            const card = getAwakenedCard(cmCardId);
-                            chancePlayerStat = card.stats.dri || 75;
-                        }
-                    }
-                    
-                    const playerChanceBonus = (chancePlayerStat - opponent.rating) * 0.01;
-                    const maxScoreProb = 0.60;
-                    const minScoreProb = 0.10;
-                    const scoreProb = Math.min(maxScoreProb, Math.max(minScoreProb, 0.20 + (diff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus));
-                    const isGoal = Math.random() < scoreProb;
-                    const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm };
-                    const isTacticActive = detailedTacticBonus > 0;
-                    const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers);
-                    
-                    addCommentary(currentMin, eventDesc, 'attack');
-                    if (isGoal) {
-                        playerScoreVal++;
-                        processPlayerGoal(eventDesc);
-                        addCommentary(currentMin, eventGoal, 'goal');
-                    } else {
-                        addCommentary(currentMin, eventFail, 'normal');
+                    } else if (specialEvent.type === "red_opponent") {
+                        activeDiff += specialEvent.ovrChange; // +5
+                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus));
+                        addCommentary(currentMin, specialEvent.eventFail, 'normal');
+                    } else if (specialEvent.type === "red_player") {
+                        activeDiff += specialEvent.ovrChange; // -5
+                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus));
+                        addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     }
                 } else {
-                    let playerGkStat = 70;
-                    const gkCardId = squadFormation['GK'];
-                    if (gkCardId && CARDS_DATABASE[gkCardId]) {
-                        const card = getAwakenedCard(gkCardId);
-                        playerGkStat = card.stats.def || card.rating || 70;
-                    }
-                    
-                    const oppChanceBonus = (opponent.rating - playerGkStat) * 0.01;
-                    const oppScoreProb = Math.min(0.90, Math.max(0.08, 0.35 - (diff * 0.026) + 0.05 + oppChanceBonus));
-                    const isGoal = Math.random() < oppScoreProb;
-                    
-                    addCommentary(currentMin, getMatchEventCommentary('OPP_ATTACK', commentaryData, false), 'attack');
-                    if (isGoal) {
-                        opponentScoreVal++;
-                        addCommentary(currentMin, getMatchEventCommentary('OPP_GOAL', commentaryData, false), 'normal');
+                    const isPlayerAttack = Math.random() < activePlayerAttackProb;
+                    if (isPlayerAttack) {
+                        // 공격 이벤트 유형 풀 구성 및 무작위 선택
+                        let attackOptions = [0, 1, 2]; // 0: LW 돌파, 1: ST 돌파, 2: RW 돌파
+                        if (currentFormation === '4-2-3-1') attackOptions.push(5); // 4-2-3-1 점유율 연출
+                        
+                        const selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
+                        let chancePlayerStat = 75;
+                        
+                        if (selectedOption === 0) {
+                            const lwCardId = squadFormation['LW'];
+                            if (lwCardId && CARDS_DATABASE[lwCardId]) {
+                                const card = getAwakenedCard(lwCardId);
+                                chancePlayerStat = Math.round(((card.stats.dri || 75) + (card.stats.sho || 75)) / 2);
+                            }
+                        } else if (selectedOption === 1) {
+                            const stCardId = squadFormation['ST'];
+                            if (stCardId && CARDS_DATABASE[stCardId]) {
+                                const card = getAwakenedCard(stCardId);
+                                chancePlayerStat = card.stats.sho || 75;
+                            }
+                        } else if (selectedOption === 2) {
+                            const rwCardId = squadFormation['RW'];
+                            if (rwCardId && CARDS_DATABASE[rwCardId]) {
+                                const card = getAwakenedCard(rwCardId);
+                                chancePlayerStat = Math.round(((card.stats.pac || 75) + (card.stats.sho || 75)) / 2);
+                            }
+                        } else if (selectedOption === 5) { // 4-2-3-1 점유율 연출 (CM 드리블 비례)
+                            const cmCardId = squadFormation['CM'];
+                            if (cmCardId && CARDS_DATABASE[cmCardId]) {
+                                const card = getAwakenedCard(cmCardId);
+                                chancePlayerStat = card.stats.dri || 75;
+                            }
+                        }
+                        
+                        const playerChanceBonus = (chancePlayerStat - opponent.rating) * 0.01;
+                        const maxScoreProb = 0.60;
+                        const minScoreProb = 0.10;
+                        const scoreProb = Math.min(maxScoreProb, Math.max(minScoreProb, 0.20 + (activeDiff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus));
+                        const isGoal = Math.random() < scoreProb;
+                        const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm };
+                        const isTacticActive = detailedTacticBonus > 0;
+                        const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers);
+                        
+                        addCommentary(currentMin, eventDesc, 'attack');
+                        if (isGoal) {
+                            playerScoreVal++;
+                            const goalData = determineScorerAndAssister(selectedOption);
+                            processPlayerGoal(goalData);
+                            addCommentary(currentMin, eventGoal, 'goal');
+                        } else {
+                            addCommentary(currentMin, eventFail, 'normal');
+                        }
                     } else {
-                        addCommentary(currentMin, getMatchEventCommentary('GK_SAVE', commentaryData, false), 'normal');
+                        let playerGkStat = 70;
+                        const gkCardId = squadFormation['GK'];
+                        if (gkCardId && CARDS_DATABASE[gkCardId]) {
+                            const card = getAwakenedCard(gkCardId);
+                            playerGkStat = card.stats.def || card.rating || 70;
+                        }
+                        
+                        const oppChanceBonus = (opponent.rating - playerGkStat) * 0.01;
+                        const oppScoreProb = Math.min(0.90, Math.max(0.08, 0.35 - (activeDiff * 0.026) + 0.05 + oppChanceBonus));
+                        const isGoal = Math.random() < oppScoreProb;
+                        
+                        addCommentary(currentMin, getMatchEventCommentary('OPP_ATTACK', commentaryData, false), 'attack');
+                        if (isGoal) {
+                            opponentScoreVal++;
+                            addCommentary(currentMin, getMatchEventCommentary('OPP_GOAL', commentaryData, false), 'normal');
+                        } else {
+                            addCommentary(currentMin, getMatchEventCommentary('GK_SAVE', commentaryData, false), 'normal');
+                        }
                     }
                 }
             } else if (currentMin === 45) {
@@ -986,106 +1006,169 @@ function startMatchSimulation() {
         if (currentMin === 0) {
             addCommentary(0, getMatchEventCommentary('KICKOFF', commentaryData, false, false), 'normal');
         } else if (eventMins.includes(currentMin)) {
-            // Simulated Attack Event
-            const isPlayerAttack = Math.random() < playerAttackProb;
+            // 특별 돌발 변수 체크
+            const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm, GK: activeGk };
+            const specialEvent = rollSpecialMatchEvent(activePlayers, opponent.name);
             
-            if (isPlayerAttack) {
-                // 공격 이벤트 유형 풀 구성 및 무작위 선택
-                let attackOptions = [0, 1, 2]; // 0: LW 돌파, 1: ST 돌파, 2: RW 돌파
-                if (currentFormation === '4-2-3-1') attackOptions.push(5); // 4-2-3-1 점유율 연출
-                
-                const selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
-                let chancePlayerStat = 75;
-                
-                if (selectedOption === 0) {
-                    const lwCardId = squadFormation['LW'];
-                    if (lwCardId && CARDS_DATABASE[lwCardId]) {
-                        const card = getAwakenedCard(lwCardId);
-                        chancePlayerStat = Math.round(((card.stats.dri || 75) + (card.stats.sho || 75)) / 2);
-                    }
-                } else if (selectedOption === 1) {
-                    const stCardId = squadFormation['ST'];
-                    if (stCardId && CARDS_DATABASE[stCardId]) {
-                        const card = getAwakenedCard(stCardId);
-                        chancePlayerStat = card.stats.sho || 75;
-                    }
-                } else if (selectedOption === 2) {
-                    const rwCardId = squadFormation['RW'];
-                    if (rwCardId && CARDS_DATABASE[rwCardId]) {
-                        const card = getAwakenedCard(rwCardId);
-                        chancePlayerStat = Math.round(((card.stats.pac || 75) + (card.stats.sho || 75)) / 2);
-                    }
-
-                } else if (selectedOption === 5) { // 4-2-3-1 점유율 연출 (CM 드리블 비례)
-                    const cmCardId = squadFormation['CM'];
-                    if (cmCardId && CARDS_DATABASE[cmCardId]) {
-                        const card = getAwakenedCard(cmCardId);
-                        chancePlayerStat = card.stats.dri || 75;
-                    }
-                }
-                
-                const playerChanceBonus = (chancePlayerStat - opponent.rating) * 0.01;
-                const maxScoreProb = 0.60;
-                const minScoreProb = 0.10;
-                const scoreProb = Math.min(maxScoreProb, Math.max(minScoreProb, 0.20 + (diff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus));
-                const isGoal = Math.random() < scoreProb;
-                const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm };
-                const isTacticActive = detailedTacticBonus > 0;
-                const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers);
-                
-                addCommentary(currentMin, eventDesc, 'attack');
-                
-                if (isGoal) {
-                    playerScoreVal++;
-                    processPlayerGoal(eventDesc);
-                    playSound('reveal');
-                    
-                    if (isPlayerHome) {
-                        document.getElementById('homeScore').innerText = playerScoreVal;
+            if (specialEvent) {
+                addCommentary(currentMin, specialEvent.eventDesc, 'system');
+                if (specialEvent.type === "pk_player") {
+                    const isGoal = specialEvent.isGoal;
+                    if (isGoal) {
+                        playerScoreVal++;
+                        const goalData = determineScorerAndAssister(1); // PK는 보통 ST가 키커
+                        processPlayerGoal(goalData);
+                        playSound('reveal');
+                        
+                        if (isPlayerHome) {
+                            document.getElementById('homeScore').innerText = playerScoreVal;
+                        } else {
+                            document.getElementById('awayScore').innerText = playerScoreVal;
+                        }
+                        
+                        setTimeout(() => {
+                            addCommentary(currentMin, specialEvent.eventGoal, 'goal');
+                        }, 450);
                     } else {
-                        document.getElementById('awayScore').innerText = playerScoreVal;
+                        setTimeout(() => {
+                            addCommentary(currentMin, specialEvent.eventFail, 'normal');
+                        }, 450);
                     }
-                    
+                } else if (specialEvent.type === "pk_opponent") {
+                    const isGoal = specialEvent.isGoal;
+                    if (isGoal) {
+                        opponentScoreVal++;
+                        playSound('rumble');
+                        
+                        if (isPlayerHome) {
+                            document.getElementById('awayScore').innerText = opponentScoreVal;
+                        } else {
+                            document.getElementById('homeScore').innerText = opponentScoreVal;
+                        }
+                        
+                        setTimeout(() => {
+                            addCommentary(currentMin, specialEvent.eventGoal, 'normal');
+                        }, 450);
+                    } else {
+                        setTimeout(() => {
+                            addCommentary(currentMin, specialEvent.eventFail, 'normal');
+                        }, 450);
+                    }
+                } else if (specialEvent.type === "red_opponent") {
+                    activeDiff += specialEvent.ovrChange; // +5
+                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus));
                     setTimeout(() => {
-                        addCommentary(currentMin, eventGoal, 'goal');
+                        addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     }, 450);
-                } else {
+                } else if (specialEvent.type === "red_player") {
+                    activeDiff += specialEvent.ovrChange; // -5
+                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus));
                     setTimeout(() => {
-                        addCommentary(currentMin, eventFail, 'normal');
+                        addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     }, 450);
                 }
             } else {
-                let playerGkStat = 70;
-                const gkCardId = squadFormation['GK'];
-                if (gkCardId && CARDS_DATABASE[gkCardId]) {
-                    const card = getAwakenedCard(gkCardId);
-                    playerGkStat = card.stats.def || card.rating || 70;
-                }
+                // Simulated Attack Event
+                const isPlayerAttack = Math.random() < activePlayerAttackProb;
                 
-                const oppChanceBonus = (opponent.rating - playerGkStat) * 0.01;
-                const oppScoreProb = Math.min(0.90, Math.max(0.08, 0.35 - (diff * 0.026) + 0.05 + oppChanceBonus));
-                const isGoal = Math.random() < oppScoreProb;
-                
-                addCommentary(currentMin, getMatchEventCommentary('OPP_ATTACK', commentaryData, false), 'attack');
-                
-                if (isGoal) {
-                    opponentScoreVal++;
-                    playSound('rumble');
+                if (isPlayerAttack) {
+                    // 공격 이벤트 유형 풀 구성 및 무작위 선택
+                    let attackOptions = [0, 1, 2]; // 0: LW 돌파, 1: ST 돌파, 2: RW 돌파
+                    if (currentFormation === '4-2-3-1') attackOptions.push(5); // 4-2-3-1 점유율 연출
                     
-                    if (isPlayerHome) {
-                        document.getElementById('awayScore').innerText = opponentScoreVal;
-                    } else {
-                        document.getElementById('homeScore').innerText = opponentScoreVal;
+                    const selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
+                    let chancePlayerStat = 75;
+                    
+                    if (selectedOption === 0) {
+                        const lwCardId = squadFormation['LW'];
+                        if (lwCardId && CARDS_DATABASE[lwCardId]) {
+                            const card = getAwakenedCard(lwCardId);
+                            chancePlayerStat = Math.round(((card.stats.dri || 75) + (card.stats.sho || 75)) / 2);
+                        }
+                    } else if (selectedOption === 1) {
+                        const stCardId = squadFormation['ST'];
+                        if (stCardId && CARDS_DATABASE[stCardId]) {
+                            const card = getAwakenedCard(stCardId);
+                            chancePlayerStat = card.stats.sho || 75;
+                        }
+                    } else if (selectedOption === 2) {
+                        const rwCardId = squadFormation['RW'];
+                        if (rwCardId && CARDS_DATABASE[rwCardId]) {
+                            const card = getAwakenedCard(rwCardId);
+                            chancePlayerStat = Math.round(((card.stats.pac || 75) + (card.stats.sho || 75)) / 2);
+                        }
+                    } else if (selectedOption === 5) { // 4-2-3-1 점유율 연출 (CM 드리블 비례)
+                        const cmCardId = squadFormation['CM'];
+                        if (cmCardId && CARDS_DATABASE[cmCardId]) {
+                            const card = getAwakenedCard(cmCardId);
+                            chancePlayerStat = card.stats.dri || 75;
+                        }
                     }
                     
-                    setTimeout(() => {
-                        addCommentary(currentMin, getMatchEventCommentary('OPP_GOAL', commentaryData, false), 'normal');
-                    }, 450);
+                    const playerChanceBonus = (chancePlayerStat - opponent.rating) * 0.01;
+                    const maxScoreProb = 0.60;
+                    const minScoreProb = 0.10;
+                    const scoreProb = Math.min(maxScoreProb, Math.max(minScoreProb, 0.20 + (activeDiff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus));
+                    const isGoal = Math.random() < scoreProb;
+                    const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm };
+                    const isTacticActive = detailedTacticBonus > 0;
+                    const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers);
+                    
+                    addCommentary(currentMin, eventDesc, 'attack');
+                    
+                    if (isGoal) {
+                        playerScoreVal++;
+                        const goalData = determineScorerAndAssister(selectedOption);
+                        processPlayerGoal(goalData);
+                        playSound('reveal');
+                        
+                        if (isPlayerHome) {
+                            document.getElementById('homeScore').innerText = playerScoreVal;
+                        } else {
+                            document.getElementById('awayScore').innerText = playerScoreVal;
+                        }
+                        
+                        setTimeout(() => {
+                            addCommentary(currentMin, eventGoal, 'goal');
+                        }, 450);
+                    } else {
+                        setTimeout(() => {
+                            addCommentary(currentMin, eventFail, 'normal');
+                        }, 450);
+                    }
                 } else {
-                    setTimeout(() => {
-                        const saveText = getMatchEventCommentary('GK_SAVE', commentaryData, false);
-                        addCommentary(currentMin, saveText, 'normal');
-                    }, 450);
+                    let playerGkStat = 70;
+                    const gkCardId = squadFormation['GK'];
+                    if (gkCardId && CARDS_DATABASE[gkCardId]) {
+                        const card = getAwakenedCard(gkCardId);
+                        playerGkStat = card.stats.def || card.rating || 70;
+                    }
+                    
+                    const oppChanceBonus = (opponent.rating - playerGkStat) * 0.01;
+                    const oppScoreProb = Math.min(0.90, Math.max(0.08, 0.35 - (activeDiff * 0.026) + 0.05 + oppChanceBonus));
+                    const isGoal = Math.random() < oppScoreProb;
+                    
+                    addCommentary(currentMin, getMatchEventCommentary('OPP_ATTACK', commentaryData, false), 'attack');
+                    
+                    if (isGoal) {
+                        opponentScoreVal++;
+                        playSound('rumble');
+                        
+                        if (isPlayerHome) {
+                            document.getElementById('awayScore').innerText = opponentScoreVal;
+                        } else {
+                            document.getElementById('homeScore').innerText = opponentScoreVal;
+                        }
+                        
+                        setTimeout(() => {
+                            addCommentary(currentMin, getMatchEventCommentary('OPP_GOAL', commentaryData, false), 'normal');
+                        }, 450);
+                    } else {
+                        setTimeout(() => {
+                            const saveText = getMatchEventCommentary('GK_SAVE', commentaryData, false);
+                            addCommentary(currentMin, saveText, 'normal');
+                        }, 450);
+                    }
                 }
             }
         } else if (currentMin === 45) {

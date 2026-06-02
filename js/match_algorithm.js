@@ -545,3 +545,132 @@ function simulatePenaltyShootoutEngine(data) {
     };
 }
 
+// 7. 공격 옵션별 동적 득점자/도움자 판정 함수
+function determineScorerAndAssister(selectedOption) {
+    const activeST = (typeof squadFormation !== 'undefined' && squadFormation["ST"] && CARDS_DATABASE[squadFormation["ST"]]) ? CARDS_DATABASE[squadFormation["ST"]].name : "무명 스트라이커";
+    const activeLW = (typeof squadFormation !== 'undefined' && squadFormation["LW"] && CARDS_DATABASE[squadFormation["LW"]]) ? CARDS_DATABASE[squadFormation["LW"]].name : "무명 윙어";
+    const activeRW = (typeof squadFormation !== 'undefined' && squadFormation["RW"] && CARDS_DATABASE[squadFormation["RW"]]) ? CARDS_DATABASE[squadFormation["RW"]].name : "무명 윙백";
+    const activeCM = (typeof squadFormation !== 'undefined' && squadFormation["CM"] && CARDS_DATABASE[squadFormation["CM"]]) ? CARDS_DATABASE[squadFormation["CM"]].name : "무명 미드필더";
+    const activeLCM = (typeof squadFormation !== 'undefined' && squadFormation["LCM"] && CARDS_DATABASE[squadFormation["LCM"]]) ? CARDS_DATABASE[squadFormation["LCM"]].name : "무명 미드필더";
+    const activeRCM = (typeof squadFormation !== 'undefined' && squadFormation["RCM"] && CARDS_DATABASE[squadFormation["RCM"]]) ? CARDS_DATABASE[squadFormation["RCM"]].name : "무명 미드필더";
+
+    let scorerId = null;
+    let scorerName = "무명 선수";
+    let assisterId = null;
+    let assisterName = null;
+
+    if (selectedOption === 0) { // LW 돌파
+        scorerId = squadFormation["LW"];
+        scorerName = activeLW;
+        const rand = Math.random();
+        if (rand < 0.4) {
+            assisterId = squadFormation["ST"];
+            assisterName = activeST;
+        } else if (rand < 0.6) {
+            assisterId = squadFormation["CM"];
+            assisterName = activeCM;
+        } else if (rand < 0.8) {
+            assisterId = squadFormation["RW"];
+            assisterName = activeRW;
+        }
+    } else if (selectedOption === 1) { // ST 돌파
+        scorerId = squadFormation["ST"];
+        scorerName = activeST;
+        const rand = Math.random();
+        if (rand < 0.3) {
+            assisterId = squadFormation["LW"];
+            assisterName = activeLW;
+        } else if (rand < 0.6) {
+            assisterId = squadFormation["RW"];
+            assisterName = activeRW;
+        } else if (rand < 0.8) {
+            assisterId = squadFormation["CM"];
+            assisterName = activeCM;
+        }
+    } else if (selectedOption === 2) { // RW 돌파
+        scorerId = squadFormation["RW"];
+        scorerName = activeRW;
+        const rand = Math.random();
+        if (rand < 0.4) {
+            assisterId = squadFormation["ST"];
+            assisterName = activeST;
+        } else if (rand < 0.6) {
+            assisterId = squadFormation["CM"];
+            assisterName = activeCM;
+        } else if (rand < 0.8) {
+            assisterId = squadFormation["LW"];
+            assisterName = activeLW;
+        }
+    } else if (selectedOption === 5) { // AM/CM 돌파 (4-2-3-1 연출)
+        scorerId = squadFormation["CM"];
+        scorerName = activeCM;
+        const rand = Math.random();
+        if (rand < 0.3) {
+            assisterId = squadFormation["LCM"];
+            assisterName = activeLCM;
+        } else if (rand < 0.6) {
+            assisterId = squadFormation["RCM"];
+            assisterName = activeRCM;
+        } else if (rand < 0.8) {
+            assisterId = squadFormation["ST"];
+            assisterName = activeST;
+        }
+    }
+
+    return { scorerId, scorerName, assisterId, assisterName };
+}
+
+// 8. 경기 특별 돌발 변수 판정 공통 엔진 (패널티킥 및 퇴장)
+function rollSpecialMatchEvent(activePlayers, opponentName) {
+    if (Math.random() >= 0.04) return null; // 4% 확률로 경기 중 돌발 변수 발생
+
+    const { ST, LW, RW, CM, GK } = activePlayers || {};
+    const activeST = ST || "스트라이커";
+    const activeLW = LW || "윙어";
+    const activeRW = RW || "윙백";
+    const activeGK = GK || "골키퍼";
+
+    const rand = Math.random();
+
+    if (rand < 0.25) { // 1. 플레이어 패널티킥 획득
+        const isGoal = Math.random() < 0.80; // 플레이어 PK 성공률 80%
+        return {
+            type: "pk_player",
+            isGoal: isGoal,
+            ovrChange: 0,
+            eventDesc: `[패널티킥 획득] 앗! 패널티 에어리어 안으로 침투하며 크로스를 올리려던 ${activeST} 선수가 상대 수비수의 깊은 슬라이딩 백태클에 걸려 넘어집니다! 주심이 지체 없이 패널티 마크를 가리킵니다!`,
+            eventGoal: `골!!! 키커로 나선 ${activeST} 선수가 침착하게 골키퍼 타이밍을 빼앗아 왼쪽 골대 모서리로 정확하게 찔러 넣습니다! 패널티킥 선제 득점 성공! ⚽`,
+            eventFail: `아아! 패널티킥 실축! 키커 ${activeST} 선수의 강력한 슛이 골키퍼 선방에 막힌 후 크로스바 위로 벗어납니다! 완벽한 기회가 무산되며 깊은 탄식이 흐릅니다.`
+        };
+    } else if (rand < 0.50) { // 2. 상대팀 패널티킥 획득
+        const isGoal = Math.random() < 0.75; // 상대팀 PK 성공률 75%
+        return {
+            type: "pk_opponent",
+            isGoal: isGoal,
+            ovrChange: 0,
+            eventDesc: `[패널티킥 허용] 위기! 상대팀 공격수가 박스 모퉁이에서 현란한 드리블로 돌파를 시도하는 과정에서 전북 수비수의 다리에 걸려 쓰러집니다. 주심의 킥오프 휘슬과 함께 패널티킥이 선언됩니다.`,
+            eventGoal: `실점! 상대 키커가 골키퍼 손끝을 스치고 빠르게 지나가는 레이저 슈팅으로 패널티킥 득점을 올립니다.`,
+            eventFail: `키퍼의 미친 슈퍼세이브!!! 전북의 수호신 ${activeGK} 골키퍼가 한 마리 새처럼 날아올라 상대의 날카로운 PK 슛을 손끝으로 쳐냅니다! 전주성이 엄청난 환호와 흥분으로 물듭니다! 🧤`
+        };
+    } else if (rand < 0.75) { // 3. 상대팀 레드카드 퇴장
+        return {
+            type: "red_opponent",
+            isGoal: false,
+            ovrChange: 5, // 전북에 상대적 OVR +5 버프 효과
+            eventDesc: `[돌발 상황! 상대 퇴장] 상대팀 수비수가 기습 돌파를 전개하며 공간을 완전히 허물던 전북의 ${activeLW} 선수를 고의성 짙은 위험한 백태클로 저지합니다! 분노한 주심이 가차 없이 레드카드를 꺼내 듭니다!`,
+            eventGoal: ``,
+            eventFail: `상대 수비수가 다이렉트 퇴장을 당하며 상대팀은 10명으로 남은 시간을 버텨야 하는 큰 위기에 직면합니다. 전북 현대가 수적 우세를 안고 그라운드를 지배합니다!`
+        };
+    } else { // 4. 전북 현대 레드카드 퇴장
+        return {
+            type: "red_player",
+            isGoal: false,
+            ovrChange: -5, // 전북에 상대적 OVR -5 디버프 효과
+            eventDesc: `[악재 발생! 전북 퇴장] 아아! 수비 라인이 무너지며 단독 역습 찬스를 맞은 상대 공격수를 저지하려던 전북의 수비수가 깊은 태클을 범하고 맙니다! 주심이 지체 없이 레드카드를 선언합니다!`,
+            eventGoal: ``,
+            eventFail: `전북 수비수의 다이렉트 퇴장! 전북 현대는 경기 종료까지 10명으로 버텨야 하는 크나큰 전술적 악재를 만났습니다. OVR 전력 격차 연산에 손실이 가산됩니다.`
+        };
+    }
+}
+
+
