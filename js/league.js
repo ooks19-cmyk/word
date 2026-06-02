@@ -218,6 +218,47 @@ function renderLeagueStats() {
     }
 }
 
+function checkAndMigrateLeagueTeams() {
+    if (!Array.isArray(leagueTeams)) return;
+    
+    let isMigrated = false;
+    
+    // Map of old team IDs to new team IDs and names
+    const teamMigrations = {
+        "suwon_fc": { id: "bucheon_fc", name: "부천 FC", rating: 74 },
+        "daegu": { id: "anyang", name: "FC 안양", rating: 71 }
+    };
+    
+    leagueTeams.forEach(team => {
+        if (teamMigrations[team.id]) {
+            const mig = teamMigrations[team.id];
+            console.log(`Migrating team ID: ${team.id} -> ${mig.id}`);
+            team.id = mig.id;
+            team.name = mig.name;
+            if (team.rating === undefined || team.rating === 68) {
+                team.rating = mig.rating;
+            }
+            isMigrated = true;
+        }
+    });
+    
+    // Safety check: ensure every team preset in K_LEAGUE_TEAMS_PRESET exists in leagueTeams
+    const currentTeamIds = leagueTeams.map(t => t.id);
+    const missingPresets = K_LEAGUE_TEAMS_PRESET.filter(p => !currentTeamIds.includes(p.id));
+    
+    if (missingPresets.length > 0) {
+        console.warn("League teams list is missing required team presets. Resetting list to preset defaults.", missingPresets);
+        leagueTeams = JSON.parse(JSON.stringify(K_LEAGUE_TEAMS_PRESET));
+        isMigrated = true;
+    }
+    
+    if (isMigrated) {
+        try {
+            localStorage.setItem('fc_star_league_teams', JSON.stringify(leagueTeams));
+        } catch (e) {}
+    }
+}
+
 function initLeague() {
     try {
         const savedTeams = localStorage.getItem('fc_star_league_teams');
@@ -229,6 +270,7 @@ function initLeague() {
         
         if (savedTeams && savedRound) {
             leagueTeams = JSON.parse(savedTeams);
+            checkAndMigrateLeagueTeams();
             leagueRound = parseInt(savedRound);
         } else {
             resetLeagueSeasonState();

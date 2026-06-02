@@ -163,6 +163,9 @@ function syncUserDataOnLogin(userData) {
         
         if (userData.leagueTeams && userData.leagueTeams.length > 0) {
             leagueTeams = userData.leagueTeams;
+            if (typeof checkAndMigrateLeagueTeams === 'function') {
+                checkAndMigrateLeagueTeams();
+            }
         } else {
             // Fallback: reset teams if none exists
             resetLeagueSeasonState();

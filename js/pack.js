@@ -148,7 +148,9 @@ function collectCard() {
             playerDeck[id].awakening += 1;
             message = `축하합니다! ${activePulledCard.name} 선수가 ${playerDeck[id].awakening}단계 각성에 성공했습니다! (모든 능력치 +1)`;
         } else {
-            message = `이미 최대 각성 상태(5각성)인 ${activePulledCard.name} 선수를 영입하여 카드가 흡수되었습니다!`;
+            // 이미 5각성인 카드 등장 시 1 FP 보상 지급
+            userPoints += 1;
+            message = `이미 최대 각성 상태(5각성)인 ${activePulledCard.name} 선수를 영입하여 보상으로 1 FP가 지급되었습니다!`;
         }
     } else {
         // 첫 영입 시
