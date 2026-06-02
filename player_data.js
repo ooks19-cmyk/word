@@ -740,6 +740,31 @@ const CARDS_DATABASE = {
             def: 83,
             phy: 81
         }
+    },
+    "ki_sung_yueng": {
+        id: "ki_sung_yueng",
+        name: "기성용",
+        rating: 87,
+        position: "CM",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "KOREA",
+        image: "player/기성용.png",
+        rarity: "legend",
+        description: "대한민국 축구 역사상 최고의 딥라잉 플레이메이커이자 대표팀의 중원을 지휘했던 영원한 코어 미드필더 기성용입니다. 넓은 시야와 컴퓨터 같은 대지를 가르는 롱패스, 자로 잰 듯한 프리킥 킥력과 탁월한 키핑 능력으로 경기 조율의 마법을 부리는 전설적인 미드필더입니다.",
+        theme: {
+            primary: "#e60012",
+            secondary: "#000000",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 74,
+            sho: 81,
+            pas: 92,
+            dri: 84,
+            def: 76,
+            phy: 82
+        }
     }
 };
 
