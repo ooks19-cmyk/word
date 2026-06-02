@@ -502,7 +502,7 @@ function checkLevelUpRewards(level) {
         showLevelRewardModal(
             "🚀 특별 목표 알림 🚀",
             "Lv. 2 달성을 축하합니다!",
-            "레벨 10이 되면 특급 윙어 <strong>'이승우'</strong>, 레벨 20이 되면 월드클래스 <strong>'손흥민'</strong>, 레벨 30이 되면 파리의 마술사 <strong>'이강인'</strong>, 레벨 40이 되면 태극전사 <strong>'이승우(스페셜)'</strong>, 레벨 50이 되면 영원한 산소탱크 <strong>'박지성'</strong>, 레벨 60이 되면 마스터 플레이메이커 <strong>'기성용'</strong> 전설 카드 등 특별한 보상을 즉시 받으실 수 있습니다!<br><br>열심히 단어 공부를 하고 특별한 혜택을 쟁취해보세요!"
+            "레벨 10이 되면 특급 윙어 <strong>'이승우'</strong>, 레벨 20이 되면 월드클래스 <strong>'손흥민'</strong>, 레벨 30이 되면 파리의 마술사 <strong>'이강인'</strong>, 레벨 40이 되면 태극전사 <strong>'이승우(스페셜)'</strong>, 레벨 50이 되면 영원한 산소탱크 <strong>'박지성'</strong>, 레벨 60이 되면 마스터 플레이메이커 <strong>'기성용'</strong>, 레벨 70이 되면 괴물 수비수 <strong>'김민재'</strong> 전설 카드 등 특별한 보상을 즉시 받으실 수 있습니다!<br><br>열심히 단어 공부를 하고 특별한 혜택을 쟁취해보세요!"
         );
     } else if (level > 0 && level % 10 === 0) {
         let cardId = "";
@@ -520,6 +520,8 @@ function checkLevelUpRewards(level) {
             cardId = "park_ji_sung";
         } else if (level === 60) {
             cardId = "ki_sung_yueng";
+        } else if (level === 70) {
+            cardId = "kim_min_jae";
         } else {
             // Award random card
             if (typeof CARDS_DATABASE !== 'undefined') {
@@ -573,6 +575,8 @@ function checkLevelUpRewards(level) {
                 awardMessage = `축하합니다! 레벨 50 도달 기념으로 맨체스터 유나이티드의 전설이자 영원한 캡틴 <strong>'박지성'</strong> 전설 카드가 지급되었습니다!<br><br>${detailMsg}`;
             } else if (level === 60) {
                 awardMessage = `축하합니다! 레벨 60 도달 기념으로 국가대표 최고의 딥라잉 플레이메이커이자 캡틴 <strong>'기성용'</strong> 전설 카드가 지급되었습니다!<br><br>${detailMsg}`;
+            } else if (level === 70) {
+                awardMessage = `축하합니다! 레벨 70 도달 기념으로 대한민국 최고의 피지컬 괴물 수비수 <strong>'김민재'</strong> 전설 카드가 지급되었습니다!<br><br>${detailMsg}`;
             } else {
                 awardMessage = `축하합니다! 레벨 ${level} 도달 기념으로 K리그 최고의 스타 <strong>'${cardObj.name}'</strong> 선수카드가 무작위 특별 보상으로 지급되었습니다!<br><br>${detailMsg}`;
             }

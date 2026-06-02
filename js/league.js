@@ -475,7 +475,7 @@ function updateMatchPreviewBoard() {
         document.getElementById('awayTeamOvr').innerText = opponent.rating;
         document.getElementById('awayEmblem').innerHTML = `<img src="${getTeamEmblemPath(opponent.id)}" alt="${opponent.name}" class="match-emblem-img" style="height: 48px; width: 48px; filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.35)); object-fit: contain;">`;
         
-        document.getElementById('matchVenueDisplay').innerText = "홈 경기 (전주성) - HOME ADVANTAGE +3 OVR";
+        document.getElementById('matchVenueDisplay').innerText = "홈 경기 (전주성) - HOME ADVANTAGE +2 OVR";
     } else {
         document.getElementById('homeTeamName').innerText = opponent.name;
         document.getElementById('homeTeamOvr').innerText = opponent.rating;
@@ -663,9 +663,9 @@ function startMatchSimulation() {
     const playerOvrBase = jeonbuk.rating;
     const opponentOvrBase = opponent.rating;
     
-    // 1. Home-Away Advantage configuration (+3 OVR)
-    const playerOvr = isPlayerHome ? playerOvrBase + 3 : playerOvrBase;
-    const opponentOvr = !isPlayerHome ? opponentOvrBase + 3 : opponentOvrBase;
+    // 1. Home-Away Advantage configuration (+2 OVR)
+    const playerOvr = isPlayerHome ? playerOvrBase + 2 : playerOvrBase;
+    const opponentOvr = !isPlayerHome ? opponentOvrBase + 2 : opponentOvrBase;
     const diff = playerOvr - opponentOvr;
     
     // Score counters
