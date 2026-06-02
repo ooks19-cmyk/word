@@ -186,7 +186,7 @@ const dbService = {
                 return doc.exists ? doc.data() : null;
             } catch (error) {
                 console.error("Firebase 유저 조회 실패:", error);
-                return null;
+                throw new Error("network_error");
             }
         } else {
             const users = this._getLocalUsers();

@@ -200,6 +200,24 @@ async function openFriendlyMatchModal() {
         </div>
     `;
     
+    // 24시간 로컬 캐시 유효성 체크
+    const cachedUsers = localStorage.getItem('fc_star_friendly_users_cache');
+    const cachedUsersTime = localStorage.getItem('fc_star_friendly_users_cache_time');
+    const isUsersCacheValid = cachedUsers && cachedUsersTime && (Date.now() - parseInt(cachedUsersTime) < 24 * 60 * 60 * 1000);
+    
+    if (isUsersCacheValid) {
+        try {
+            const users = JSON.parse(cachedUsers);
+            if (users && users.length > 0) {
+                console.log("🟢 24시간 내 캐시된 친선경기 매칭 목록 사용 완료!");
+                renderFriendlyUserList(users, listEl);
+                return;
+            }
+        } catch (e) {
+            console.warn("매칭용 로컬 캐시 파싱 에러:", e);
+        }
+    }
+    
     try {
         // 5초 타임아웃 프로미스 레이스 설정
         const timeoutPromise = new Promise((_, reject) => {
@@ -214,6 +232,7 @@ async function openFriendlyMatchModal() {
         // 원격 데이터 로드 성공 시 로컬 캐시에 즉시 세이브
         try {
             localStorage.setItem('fc_star_friendly_users_cache', JSON.stringify(users));
+            localStorage.setItem('fc_star_friendly_users_cache_time', Date.now().toString());
         } catch (e) {
             console.warn("친선 매치 데이터 캐싱 실패:", e);
         }
@@ -223,18 +242,18 @@ async function openFriendlyMatchModal() {
     } catch (error) {
         console.warn("친선 경기 매칭 유저 로드 실패 또는 5초 초과 타임아웃, 로컬 오프라인 캐시 폴백 적용:", error);
         
-        let cachedUsers = null;
+        let cachedUsersFallback = null;
         try {
             const cacheData = localStorage.getItem('fc_star_friendly_users_cache');
             if (cacheData) {
-                cachedUsers = JSON.parse(cacheData);
+                cachedUsersFallback = JSON.parse(cacheData);
             }
         } catch (e) {
             console.warn("친선 매치 로컬 캐시 로드 실패:", e);
         }
 
-        if (cachedUsers && cachedUsers.length > 0) {
-            renderFriendlyUserList(cachedUsers, listEl);
+        if (cachedUsersFallback && cachedUsersFallback.length > 0) {
+            renderFriendlyUserList(cachedUsersFallback, listEl);
             showToast("⚠️ 네트워크 지연으로 오프라인 캐시 데이터를 로드했습니다.");
         } else {
             listEl.innerHTML = `
@@ -617,6 +636,57 @@ function getFriendlyWinRate(history) {
 }
 
 // 친선경기 탭 클릭 시 격발되는 정보 초기화 및 로드 함수
+// 친선경기 순위표 가공 및 렌더링 헬퍼
+function processAndRenderStandings(allUsers, myId) {
+    friendlyGlobalStandingsList = allUsers.filter(u => {
+        const userId = (u.id || "").trim().toLowerCase();
+        if (userId === myId.trim().toLowerCase()) return false;
+        if (userId === "ooks12") return false; // 개발자 계정 제외
+        
+        // 전적이 한 번이라도 있는 유저만 필터링!
+        return u.friendlyMatchesHistory && 
+               (u.friendlyMatchesHistory.w > 0 || 
+                u.friendlyMatchesHistory.d > 0 || 
+                u.friendlyMatchesHistory.l > 0);
+    }).map(u => {
+        let calculatedOvr = 70;
+        if (u.squadFormation && typeof u.squadFormation === 'object' && Object.keys(u.squadFormation).length > 0) {
+            let totalOvr = 0;
+            let count = 0;
+            const positions = ["ST", "LW", "RW", "CM", "LCM", "RCM", "LB", "LCB", "RCB", "RB", "GK"];
+            positions.forEach(pos => {
+                const cardId = u.squadFormation[pos];
+                if (cardId) {
+                    let cardRating = 70;
+                    if (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE && CARDS_DATABASE[cardId]) {
+                        cardRating = CARDS_DATABASE[cardId].rating;
+                        if (u.playerDeck && u.playerDeck[cardId] && typeof u.playerDeck[cardId].awakening === 'number') {
+                            cardRating += u.playerDeck[cardId].awakening;
+                        }
+                    }
+                    totalOvr += cardRating;
+                    count++;
+                }
+            });
+            if (count > 0) {
+                calculatedOvr = Math.round(totalOvr / count);
+            }
+        } else {
+            calculatedOvr = u.userLevel ? 70 + parseInt(u.userLevel) : 72;
+        }
+        
+        return {
+            id: u.id,
+            name: u.id.toUpperCase(),
+            rating: u.rating || calculatedOvr,
+            friendlyMatchesHistory: u.friendlyMatchesHistory,
+            isMock: false
+        };
+    });
+    renderFriendlyTable();
+}
+
+// 친선경기 탭 클릭 시 격발되는 정보 초기화 및 로드 함수
 async function initFriendlyMatchTab() {
     loadFriendlyMatchesState();
 
@@ -626,75 +696,93 @@ async function initFriendlyMatchTab() {
         if (isClosed) return; // 마감 정산 팝업이 활성화되었으므로 탭 초기화 정지
     }
 
-    // 실시간 순위표용 전체 유저 데이터 로드 및 전적 존재자 선별
     const myId = typeof currentUser === 'string' && currentUser ? currentUser : "ooks";
-    try {
-        const allUsers = await window.dbService.fetchRankings();
-        if (allUsers && allUsers.length > 0) {
-            friendlyGlobalStandingsList = allUsers.filter(u => {
-                const userId = (u.id || "").trim().toLowerCase();
-                if (userId === myId.trim().toLowerCase()) return false;
-                if (userId === "ooks12") return false; // 개발자 계정 제외
-                
-                // 전적이 한 번이라도 있는 유저만 필터링!
-                return u.friendlyMatchesHistory && 
-                       (u.friendlyMatchesHistory.w > 0 || 
-                        u.friendlyMatchesHistory.d > 0 || 
-                        u.friendlyMatchesHistory.l > 0);
-            }).map(u => {
-                let calculatedOvr = 70;
-                if (u.squadFormation && typeof u.squadFormation === 'object' && Object.keys(u.squadFormation).length > 0) {
-                    let totalOvr = 0;
-                    let count = 0;
-                    const positions = ["ST", "LW", "RW", "CM", "LCM", "RCM", "LB", "LCB", "RCB", "RB", "GK"];
-                    positions.forEach(pos => {
-                        const cardId = u.squadFormation[pos];
-                        if (cardId) {
-                            let cardRating = 70;
-                            if (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE && CARDS_DATABASE[cardId]) {
-                                cardRating = CARDS_DATABASE[cardId].rating;
-                                if (u.playerDeck && u.playerDeck[cardId] && typeof u.playerDeck[cardId].awakening === 'number') {
-                                    cardRating += u.playerDeck[cardId].awakening;
-                                }
-                            }
-                            totalOvr += cardRating;
-                            count++;
-                        }
-                    });
-                    if (count > 0) {
-                        calculatedOvr = Math.round(totalOvr / count);
-                    }
-                } else {
-                    calculatedOvr = u.userLevel ? 70 + parseInt(u.userLevel) : 72;
-                }
-                
-                return {
-                    id: u.id,
-                    name: u.id.toUpperCase(),
-                    rating: u.rating || calculatedOvr,
-                    friendlyMatchesHistory: u.friendlyMatchesHistory,
-                    isMock: false
-                };
-            });
-            renderFriendlyTable();
+
+    // 1. 전체 유저 순위표용 캐시 체크 (24시간 규격)
+    const cachedUsers = localStorage.getItem('fc_star_friendly_users_cache');
+    const cachedUsersTime = localStorage.getItem('fc_star_friendly_users_cache_time');
+    const isUsersCacheValid = cachedUsers && cachedUsersTime && (Date.now() - parseInt(cachedUsersTime) < 24 * 60 * 60 * 1000);
+
+    let standingsLoaded = false;
+    if (isUsersCacheValid) {
+        try {
+            const allUsers = JSON.parse(cachedUsers);
+            if (allUsers && allUsers.length > 0) {
+                console.log("🟢 24시간 내 캐시된 전체 유저 데이터를 로컬에서 불러왔습니다.");
+                processAndRenderStandings(allUsers, myId);
+                standingsLoaded = true;
+            }
+        } catch (e) {
+            console.warn("전체 유저 캐시 파싱 실패:", e);
         }
-    } catch (err) {
-        console.warn("순위표용 전체 가입자 전적 조회 실패:", err);
     }
 
-    renderFriendlyTable();
-    updateFriendlyMatchPreview();
-
-    try {
-        const opponents = await window.dbService.fetchFriendlyOpponents(myId);
-        if (opponents && opponents.length > 0) {
-            // OVR 오름차순 정렬 (OVR이 가장 낮은 3위 팀부터 인덱스 0에 배치되어 선제 대결)
-            friendlyOpponentsList = opponents.sort((a, b) => a.rating - b.rating);
-            renderFriendlyTable();
-            updateFriendlyMatchPreview();
+    if (!standingsLoaded) {
+        try {
+            const allUsers = await window.dbService.fetchRankings();
+            if (allUsers && allUsers.length > 0) {
+                // 캐시 업데이트
+                localStorage.setItem('fc_star_friendly_users_cache', JSON.stringify(allUsers));
+                localStorage.setItem('fc_star_friendly_users_cache_time', Date.now().toString());
+                processAndRenderStandings(allUsers, myId);
+            }
+        } catch (err) {
+            console.warn("순위표용 전체 가입자 전적 조회 실패:", err);
+            // 만료되었지만 존재하는 캐시가 있다면 마지막 수단으로 로드
+            if (cachedUsers) {
+                try {
+                    const allUsers = JSON.parse(cachedUsers);
+                    processAndRenderStandings(allUsers, myId);
+                } catch (e) {}
+            }
         }
-    } catch (e) {
-        console.warn("친선경기 상대 리스트 로드 실패:", e);
+    }
+
+    // 2. 대결 상대 3인 리스트 캐시 체크 (24시간 규격)
+    const cachedOpps = localStorage.getItem('fc_star_friendly_cached_opponents');
+    const cachedOppsTime = localStorage.getItem('fc_star_friendly_opponents_cache_time');
+    const isOppsCacheValid = cachedOpps && cachedOppsTime && (Date.now() - parseInt(cachedOppsTime) < 24 * 60 * 60 * 1000);
+
+    let opponentsLoaded = false;
+    if (isOppsCacheValid) {
+        try {
+            const opponents = JSON.parse(cachedOpps);
+            if (opponents && opponents.length > 0) {
+                console.log("🟢 24시간 내 캐시된 친선경기 상대 리스트를 로컬에서 불러왔습니다.");
+                friendlyOpponentsList = opponents.sort((a, b) => a.rating - b.rating);
+                renderFriendlyTable();
+                updateFriendlyMatchPreview();
+                opponentsLoaded = true;
+            }
+        } catch (e) {
+            console.warn("상대 캐시 파싱 실패:", e);
+        }
+    }
+
+    if (!opponentsLoaded) {
+        try {
+            const opponents = await window.dbService.fetchFriendlyOpponents(myId);
+            if (opponents && opponents.length > 0) {
+                // 캐시 업데이트
+                localStorage.setItem('fc_star_friendly_cached_opponents', JSON.stringify(opponents));
+                localStorage.setItem('fc_star_friendly_opponents_cache_time', Date.now().toString());
+                
+                friendlyOpponentsList = opponents.sort((a, b) => a.rating - b.rating);
+                renderFriendlyTable();
+                updateFriendlyMatchPreview();
+            }
+        } catch (e) {
+            console.warn("친선경기 상대 리스트 로드 실패:", e);
+            // 만료되었지만 캐시가 있다면 마지막 수단으로 로드
+            if (cachedOpps) {
+                try {
+                    const opponents = JSON.parse(cachedOpps);
+                    friendlyOpponentsList = opponents.sort((a, b) => a.rating - b.rating);
+                    renderFriendlyTable();
+                    updateFriendlyMatchPreview();
+                } catch (e) {}
+            }
+        }
     }
 }
 
@@ -1200,6 +1288,9 @@ async function refreshFriendlyOpponentsForce() {
     
     // 강제 동기화를 위해 기존 로컬 캐시를 파괴하고 원격 Fetch 유도
     localStorage.removeItem('fc_star_friendly_cached_opponents');
+    localStorage.removeItem('fc_star_friendly_opponents_cache_time');
+    localStorage.removeItem('fc_star_friendly_users_cache');
+    localStorage.removeItem('fc_star_friendly_users_cache_time');
     
     const myId = typeof currentUser === 'string' && currentUser ? currentUser : "ooks";
     
@@ -1210,6 +1301,10 @@ async function refreshFriendlyOpponentsForce() {
         try {
             const allUsers = await window.dbService.fetchRankings();
             if (allUsers && allUsers.length > 0) {
+                // 캐시 세이브 및 타임스탬프 업데이트
+                localStorage.setItem('fc_star_friendly_users_cache', JSON.stringify(allUsers));
+                localStorage.setItem('fc_star_friendly_users_cache_time', Date.now().toString());
+
                 friendlyGlobalStandingsList = allUsers.filter(u => {
                     const userId = (u.id || "").trim().toLowerCase();
                     if (userId === myId.trim().toLowerCase()) return false;
@@ -1258,6 +1353,10 @@ async function refreshFriendlyOpponentsForce() {
         }
 
         if (opponents && opponents.length > 0) {
+            // 캐시 세이브 및 타임스탬프 업데이트
+            localStorage.setItem('fc_star_friendly_cached_opponents', JSON.stringify(opponents));
+            localStorage.setItem('fc_star_friendly_opponents_cache_time', Date.now().toString());
+
             // OVR 오름차순으로 정렬
             friendlyOpponentsList = opponents.sort((a, b) => a.rating - b.rating);
             
@@ -1508,4 +1607,12 @@ function closeFriendlyCloseModal() {
     }
     
     showToast("🎉 새로운 주간 친선 릴레이 매치 시즌이 성황리에 개막했습니다! 지금 바로 상대팀 OVR에 도전해보세요!");
+}
+
+// 친선 경기 매칭 모달 닫기
+function closeFriendlyMatchModal() {
+    const modal = document.getElementById('friendlyMatchModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
 }

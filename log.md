@@ -305,6 +305,40 @@ graph TD
 
 
 
+
+### 🔄 34) 기성용 & 김민재 신규 레전드 카드 생성 및 레벨 60 보상 연동 (2026-06-02)
+*   **기성용 (`ki_sung_yueng`) 카드**: CM 포지션, 87 OVR, **패스(PAS) 능력치 92로 지정된 전설(legend) 등급 카드**를 신규 탑재. 소속 클럽은 **`KOREA`** 국대로 설정하고 이미지 `player/기성용.png` 매핑.
+*   **김민재 (`kim_min_jae`) 카드**: CB 포지션, 87 OVR, **패스(PAS) 능력치 80 이상(80 지정)의 전설(legend) 등급 카드**를 신규 탑재. 소속 클럽은 `BAYERN MUNICH`로 설정하고 이미지 `player/김민재.webp` 매핑.
+*   **레벨 60 달성 보상 지정 (`js/auth.js`)**: 퀴즈를 풀고 **레벨 60**에 도달하는 시점에 기성용 전설 카드가 유저에게 확정 지급되도록 연동. 레벨 2 진입 시 보상 안내 팝업 문구 및 레벨 60 달성 전용 보상 축하 문구를 추가 연동 완료.
+
+### 🎨 35) 카드 이미지 텍스트 왼쪽 정렬 및 팀 이름 배치 최적화 (2026-06-02)
+*   **카드 좌측 정렬 및 여백 확보 (`css/card.css`)**: 카드 전면 오버롤, 포지션, 국적 마크, 팀 이름이 포함된 헤더 정보 컨테이너(`.card-header-stats`)를 왼쪽 정렬(`align-items: flex-start`)로 변경하고 카드 가장자리로부터 **`20px` 왼쪽 마진**(`left: 20px`)을 주어 안정적인 레이아웃 구축.
+*   **팀 이름 하단 배치 (`js/card.js`, `css/card.css`)**: 기존 상단 헤더 영역에 묶여있던 팀 이름(`<div class="card-club">`) 엘리먼트를 선수 이미지가 나오는 **`.card-image-container` 영역 내부 하단**으로 이동시킴. 수치적으로 이미지 하단 경계선으로부터 **`10px` 여백**(`bottom: 10px`, `left: 20px`)에 정확하게 절대 좌표 배치되도록 조정하여 카드 종류 및 크기 변화에 상관없이 이미지와 일치하는 정렬 배치 실현.
+
+### ⚙️ 36) 코리아컵 중립 구장 룰 고증 및 연장전 득점 확률 밸런싱 (2026-06-02)
+*   **코리아컵 원정 패널티 제거 (`js/cup.js`)**: 컵대회는 중립 구장(Neutral Ground)에서 진행되므로, 기존 경기 시뮬레이션 공식에서 상대팀에게 고정 적용되던 **원정 보정치 `+ 0.05` 실점 확률 가중치를 제거(0으로 설정)**하여 공정한 매치 환경 마련.
+*   **연장전 득점 확률 리밸런싱 (`js/match_algorithm.js`)**: 컵대회 연장전 돌입 시 득점 확률을 **플레이어 35%(기본), 상대방 30%(기본)**로 각각 개편하고, OVR 등급차에 따른 가중치를 유지하여 박진감 넘치는 승부가 나도록 유도. 확률 상한선 캡도 기존 40%에서 50%로 확장.
+
+### 🔄 37) 파이썬 스크립트 기반 CSV 데이터베이스 동기화 엔진 도입 (2026-06-02)
+*   **`update_csv.py` 신설 (유니코드 이스케이프 지원)**: 기존에 엑셀 수작업 및 부분 스크립트 작성 중 쉼표와 따옴표로 인해 설명글이 쪼개지거나 스탯이 0으로 깨지던 버그를 고도화된 **Brace-Balancing(중괄호 쌍추적) 파이썬 파서**로 전면 해결.
+*   **데이터베이스 완전 동기화**: `player_data.js`를 정교하게 읽어들여 31명의 선수 전원의 오버롤, 스탯, 고유 설명을 완벽하게 파싱한 후 **`선수데이터.csv` 파일을 일괄 생성 및 100% 동기화 업데이트 완료** (인코딩 UTF-8-sig 적용으로 한글 깨짐 원천 차단).
+
+
+
+### 🔄 38) 이미 5각성인 카드 영입 시 1 FP 보상 지급 시스템 구축 (2026-06-02)
+*   **보상 로직 구현 (`js/pack.js`)**: 카드 팩 개봉 후 영입하기(`collectCard()`) 진행 시, 이미 최대 각성 단계(5각성)에 도달한 중복 카드가 나올 경우 소모된 **1 FP를 즉시 환급(보상)**해주는 보상 환류 시스템을 신설했습니다.
+*   **사용자 피드백 보완**: 기존에 카드가 단순 흡수되던 아쉬움을 달래고, 안내 토스트 메시지(*이미 최대 각성 상태(5각성)인 OOO 선수를 영입하여 보상으로 1 FP가 지급되었습니다!*)를 노출하여 보상 사실을 명확히 전달하도록 변경 완료했습니다.
+
+
+
+### 🔄 39) 구형 가입 계정 로그인 시 K리그 팀 구조 자동 마이그레이션 예외 처리 (2026-06-02)
+*   **원인 분석**: 구형 버전 세이브 데이터를 가진 아이디(예: `test` 등)로 로그인 시, Firestore에서 구버전 리그 팀 배열(`suwon_fc`, `daegu` 포함)을 복원했으나 현재 배포 스크립트(`JEONBUK_FIXTURES`)는 신규 개편 팀명(`bucheon_fc`, `anyang`)을 참조하여 `updateMatchPreviewBoard()`에서 `undefined` 참조 에러(`Cannot read properties of undefined (reading 'name')`)가 나던 로그인 락 버그 발견.
+*   **마이그레이션 엔진 탑재 (`checkAndMigrateLeagueTeams`, `js/league.js`)**:
+    *   로컬/클라우드 데이터 로딩 및 로그인 동기화 시점에 자동으로 구버전 팀 ID를 신규 개편 팀 구조(`suwon_fc` ➔ `bucheon_fc`, `daegu` ➔ `anyang`)로 매핑하고 OVR 점수를 보정해 주는 마이그레이션 함수 신설.
+    *   만약 복구된 리스트 중 필수 구단 프리셋이 완전히 누락된 경우, 전체 K리그 12개 구단 프리셋(`K_LEAGUE_TEAMS_PRESET`) 구조로 안전 자동 재구축(Rebuild)하여 2중 충돌 방어망 설계.
+*   **로그인 동기화 연동 (`js/auth.js`)**: `syncUserDataOnLogin()` 함수 내에서 데이터 할당 즉시 마이그레이션 함수를 격발시켜, UI 렌더링에 진입하기 전에 구조 매핑을 강제 동기화시킴으로써 에러를 원천 차단 완료.
+
+
 ## 📁 4. 수정된 파일 리스트 및 역할
 
 | 파일명 | 변경된 내용 요약 |
@@ -328,6 +362,46 @@ graph TD
 | **[index.html](file:///c:/Users/김재욱/OneDrive/바탕 화면/축구카드/index.html)** | PWA 매니페스트 링크 설정, 명예의 전당 내 통산 성적 전용 렌더링 영역 추가, 시즌 리셋 버튼 위치를 리그 탭 최하단으로 구조 재배치, 단어 퀴즈 탭 내의 '자동 발음' 토글 UI 감춤 주석 처리. **[2026-06-01 추가]** 친선경기 주간 마감 결산 모달(`#friendlyCloseModal`) 신설, Mock 상태 구별 배지(`#friendlyDataStatusBadge`), D-Day 배지(`#friendlyDDayBadge`), 데이터 리프레시 버튼(`#btnRefreshFriendly`), 친선경기 문자중계창(`#friendlyCommentaryScroll`) 추가 |
 
 ---
+| **[index.html](file:///c:/Users/ooks1/OneDrive/바탕 화면/축구카드/index.html)** | PWA 매니페스트 링크 설정, 명예의 전당 내 통산 성적 전용 렌더링 영역 추가, 시즌 리셋 버튼 위치를 리그 탭 최하단으로 구조 재배치, 단어 퀴즈 탭 내의 '자동 발음' 토글 UI 감춤 주석 처리. 캐시 우회를 위해 `style.css`, `js/card.js`, `js/cup.js`, `js/match_algorithm.js` 호출부에 버전 **`?v=1.3`** 쿼리스트링 일괄 갱신. |
+| **[player_data.js](file:///c:/Users/ooks1/OneDrive/바탕 화면/축구카드/player_data.js)** | CM 포지션 레전드 등급 **기성용(`ki_sung_yueng`, PAS: 92, 클럽: KOREA)** 선수 및 CB 포지션 레전드 등급 **김민재(`kim_min_jae`, PAS: 80, 클럽: BAYERN MUNICH)** 선수 데이터 신규 추가 및 박진섭(`park_jin_seob`) 패스 스탯 `75` 조정 완료. |
+| **[js/auth.js](file:///c:/Users/ooks1/OneDrive/바탕 화면/축구카드/js/auth.js)** | **레벨 60 도달 시 기성용 전설 카드 확정 지급 및 축하 팝업 추가**, 레벨 2 진입 시 노출되는 보상 알림 텍스트에 기성용 보상 정보 추가 연동. **[2026-06-02 추가]** 로그인 동기화 시 구형 계정의 팀 데이터 구조 마이그레이션(`checkAndMigrateLeagueTeams`) 강제 호출 연동. |
+| **[js/card.js](file:///c:/Users/ooks1/OneDrive/바탕 화면/축구카드/js/card.js)** | 팀명(`<div class="card-club">`) 엘리먼트를 기존 헤더 위젯에서 빼서 `.card-image-container` 내부 하단으로 위치 이동 처리. |
+| **[css/card.css](file:///c:/Users/ooks1/OneDrive/바탕 화면/축구카드/css/card.css)** | 카드 앞면 스탯 헤더(`.card-header-stats`)를 왼쪽 마진 `20px` 및 왼쪽 정렬로 변경하고, `.card-club`을 `position: absolute; bottom: 10px; left: 20px;`로 지정하여 선수 이미지 하단 밀착 배치 완료. |
+| **[style.css](file:///c:/Users/ooks1/OneDrive/바탕 화면/축구카드/style.css)** | `css/card.css` 임포트 호출에 캐시 방지 파라미터 `?v=1.3` 추가 적용. |
+| **[js/cup.js](file:///c:/Users/ooks1/OneDrive/바탕 화면/축구카드/js/cup.js)** | 코리아컵 경기 시뮬레이터 내 상대팀 OVR 계산 공식에서 원정 패널티(상대 득점 가중치) `+ 0.05` 제거. |
+| **[js/match_algorithm.js](file:///c:/Users/ooks1/OneDrive/바탕 화면/축구카드/js/match_algorithm.js)** | 연장전 득점 시뮬레이션 확률을 **플레이어 35%, 상대방 30%**로 각각 수정하고 OVR 격차에 따른 가산/감산을 적용한 후 상한선 캡을 50%로 확장 적용. |
+| **[선수데이터.csv](file:///c:/Users/ooks1/OneDrive/바탕 화면/축구카드/선수데이터.csv)** | `player_data.js` 내 31명의 모든 선수 스펙 및 설명글을 100% 최신화 및 동기화 처리 완료. (한글 Excel 깨짐 방지 BOM 추가) |
+| **[update_csv.py](file:///c:/Users/ooks1/.gemini/antigravity/brain/9a2ed9bf-f6d0-48d9-9640-b25531fbc385/scratch/update_csv.py)** | **[신설]** `player_data.js`를 정교하게 읽어 구조화된 CSV로 변환 및 중괄호 검증을 지원하는 파이썬 기반 데이터베이스 연동 스크립트 추가. |
+| **[db.js](file:///c:/Users/ooks1/OneDrive/바탕 화면/축구카드/db.js)** | **[2026-06-02 추가]** `getUserData(id)` 메서드 내 Firestore 조회 오류 발생 시 `"network_error"` 에러 객체를 던지도록 변경하여 네트워크 장애 상황 식별 지원. |
+| **[app.js](file:///c:/Users/ooks1/OneDrive/바탕 화면/축구카드/app.js)** | **[2026-06-02 추가]** 모바일 오프라인 재접속 시 로컬 로그인 세션을 잃지 않고 오프라인 상태로 복원해 로컬스토리지를 유지 및 렌더링하도록 갱신, **모바일 하드웨어 뒤로가기 버튼 연동(더블 클릭 시 앱 종료, 모달 활성 시 모달 닫기) 기능 탑재**. |
+| **[js/friendly.js](file:///c:/Users/ooks1/OneDrive/바탕 화면/축구카드/js/friendly.js)** | **[2026-06-02 추가]** `closeFriendlyMatchModal()` 함수가 유실되어 에러가 나던 현상을 수정하기 위해 모달을 닫는 함수를 명시적으로 정의함, **친선경기 탭 진입 및 매칭 모달 로드 시 24시간 이내 로컬 캐시 유효 시 Firestore 조회를 건너뛰고 캐시 데이터를 즉시 로드하도록 캐싱 성능 고도화 탑재**. |
+| **[sw.js](file:///c:/Users/ooks1/OneDrive/바탕 화면/축구카드/sw.js)** | PWA 서비스 워커 cache name 버전을 `fc-star-v102`로 상향하여 클라이언트 에셋 캐시를 새로고침 및 강제 동기화 유도. |
+
+---
+
+### 🔄 40) 모바일 종료 후 재시작 시 오프라인/네트워크 미연결 세션 복원 및 로컬스토리지 보존 (2026-06-02)
+*   **원인 분석**: 모바일 및 지하철 탑승구 등 무선 네트워크 초기 연결이 지연되는 환경에서 앱 실행 시, Firestore 유저 조회가 예외를 던지며 실패할 때 이를 계정 소멸(`null`)로 간주하고 `fc_star_current_user` 세션을 영구 삭제하여 강제 로그아웃시키는 버그가 존재했습니다. 이로 인해 오프라인에서 기저장된 로컬스토리지가 초기화된 것처럼 착시가 일어나며 친선경기 DB 및 유저 데이터 덱 조회가 마비되었습니다.
+*   **해결 방식**:
+    *   `db.js` 내 `dbService.getUserData` 호출 중 에러 발생 시 예외를 전파(`throw new Error("network_error")`)하고, 계정이 명확히 존재하지 않는 문서 미존재 상태(`doc.exists === false`)에서만 정상적으로 `null`을 반환하도록 개선했습니다.
+    *   `app.js`에서 `"network_error"` 예외 감지 시 로컬 로그인 세션을 그대로 유지(`currentUser = savedUser`)하고, `loadFriendlyMatchesState()`로 로컬 친선경기 정보를 매칭한 뒤 토스트 메시지 알림과 함께 현재 기기의 로컬스토리지 백업 데이터들로 모든 화면을 정상 복구 연동 완료했습니다.
+    *   `index.html`에서 관련 스크립트 경로에 `?v=1.4`를 적용하고 `sw.js` 캐시명을 `fc-star-v100`으로 상향하여 이전 캐싱 버그를 원천 배제했습니다.
+
+### 🔄 41) 모바일 브라우저 뒤로가기 버튼 가로채기 및 더블클릭 종료 처리 (2026-06-02)
+*   **배경 및 요구사항**: 모바일 크롬 등의 브라우저에서 게임을 즐기던 중 뒤로가기 키를 누르면 이전 웹페이지나 히스토리 부재로 인해 앱이 즉시 종료(탭 이탈)되는 불편함이 있었습니다. 모달이나 레이어가 열려 있으면 뒤로가기로 해당 모달을 먼저 닫고, 모달이 없는 메인 화면에서는 2초 이내 두 번 눌렀을 때만 브라우저가 종료되도록 개선을 희망하셨습니다.
+*   **구현 방법**:
+    *   `app.js` 내 PWA 최초 기동 시점(`DOMContentLoaded` 마감 직전)에 `history.pushState({ page: 'main' }, '')` 더미 엔트리를 삽입하고 `window`에 `popstate` 리스너를 결합했습니다.
+    *   뒤로가기 입력 시 `checkAndCloseActiveModal()`을 격발하여 현재 화면에 띄워진 모달/슬롯 드로어 8종(`#drawerOverlay`, `#formationModal`, `#squadNumberModal`, `#authModal`, `#levelRewardModal`, `#friendlyMatchModal`, `#friendlyCloseModal`, `#revealModal`) 중 열린 것을 순차 탐지해 닫고 히스토리 스택을 다시 밀어 넣는 방식으로 페이지 이탈을 방어했습니다.
+    *   모달이 전혀 없을 때는 `lastBackPressTime`을 기반으로 2초(2000ms) 이내에 연속 뒤로가기 요청이 들어왔는지 연산하고, 1회 클릭 시 `"이전 버튼을 한 번 더 누르면 종료됩니다."` 토스트 알림을 띄우며, 2회 연타 시에만 `history.back()`을 직접 호출해 브라우저를 빠져나가도록 안드로이드 네이티브 앱 급의 모바일 사용성 가로채기 엔진을 완성하였습니다.
+    *   `friendly.js` 내에 기존에 선언 없이 호환 호출만 되던 `closeFriendlyMatchModal()`을 명시적으로 설계하고, 버전업을 위해 `sw.js` 캐시명을 `fc-star-v101`로, `friendly.js?v=1.4` 쿼리를 업데이트하였습니다.
+
+### 🔄 42) 친선경기 다른 유저 DB 및 대결 목록 24시간 로컬 캐싱 고도화 (2026-06-02)
+*   **배경 및 목적**: 친선경기 메뉴나 상대 매칭 모달에 진입할 때마다 Firestore에서 가입자 순위표(`fetchRankings`) 및 매칭 상대 목록(`fetchFriendlyOpponents`) 전체 조회를 매번 실행함에 따라, 모바일 통신 상태에 영향을 많이 받아 로딩 딜레이가 발생하고 Firestore 읽기 할당량이 비효율적으로 소모되던 현상을 최적화하고자 하였습니다.
+*   **최적화 설계**:
+    *   `js/friendly.js` 내 `initFriendlyMatchTab()` 및 `openFriendlyMatchModal()` 진입 시 로컬스토리지 내에 캐싱된 데이터(`fc_star_friendly_users_cache` 및 `fc_star_friendly_cached_opponents`)와 캐싱 시간 기록(`fc_star_friendly_users_cache_time` 및 `fc_star_friendly_opponents_cache_time`)을 먼저 대조 검증합니다.
+    *   캐시 타임스탬프와 현재 시간의 차이가 **24시간(86,400,000ms) 미만**인 경우, 외부 네트워크 호출을 완전히 생략하고 로컬스토리지 데이터를 가공하여 화면에 **즉시(Instant Load)** 인쇄되도록 가속했습니다.
+    *   로컬 캐시가 없거나 24시간이 경과한 상태일 때만 원격 Firestore DB에서 실시간 조회를 수행하고 새로운 시간 정보와 유저 목록 데이터를 기입 캐싱 갱신하도록 처리했습니다.
+    *   친선경기 메뉴 상단의 **"새로고침(동기화)" 버튼(`#btnRefreshFriendly`)** 클릭 시에는 강제 리로드 의도로 판단하여 로컬 캐시 목록 및 24시간 타임스탬프를 일괄 삭제한 뒤 최신 Firebase 원격 DB 조회를 강제 격발하여 동기화하고 새 캐시를 기입하도록 조화롭게 연계 완료했습니다.
+
 
 ## 🔮 5. 향후 작업 계획 (Next Actions)
 - [x] **개발자 모드 추가**: 클릭 한 번으로 경기 시뮬레이션 즉시 완료, FP 포인트 치트 기능.

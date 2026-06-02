@@ -189,14 +189,48 @@ document.addEventListener('DOMContentLoaded', () => {
         if (savedUser) {
             console.log("🔐 기존 로그인 세션 자동 복원 중... ID:", savedUser);
             setTimeout(async () => {
-                const userData = await dbService.getUserData(savedUser);
-                if (userData) {
-                    currentUser = savedUser;
-                    syncUserDataOnLogin(userData);
-                    console.log("🟢 세션 복원 성공!");
-                } else {
-                    localStorage.removeItem('fc_star_current_user');
-                    openAuthModal(true); // 세션 복원 실패 시 강제 로그인
+                try {
+                    const userData = await dbService.getUserData(savedUser);
+                    if (userData) {
+                        currentUser = savedUser;
+                        syncUserDataOnLogin(userData);
+                        console.log("🟢 세션 복원 성공!");
+                    } else {
+                        localStorage.removeItem('fc_star_current_user');
+                        openAuthModal(true); // 세션 복원 실패 시 강제 로그인
+                    }
+                } catch (err) {
+                    if (err.message === "network_error") {
+                        console.warn("⚠️ 네트워크 에러로 인해 로컬 오프라인 데이터로 로그인 세션을 복원합니다.");
+                        currentUser = savedUser;
+                        
+                        // 로컬 캐시 데이터로 오프라인 상태 로드
+                        if (typeof loadFriendlyMatchesState === 'function') {
+                            loadFriendlyMatchesState();
+                        }
+                        
+                        // UI 복원 및 렌더링 호출
+                        if (typeof updateAuthBadgeUI === 'function') updateAuthBadgeUI();
+                        if (typeof updateDevModeUI === 'function') updateDevModeUI();
+                        
+                        renderUserPoints();
+                        updateTotalCardCount();
+                        renderDeck();
+                        renderSquadFormation();
+                        if (typeof syncJeonbukOvr === 'function') syncJeonbukOvr();
+                        if (typeof updateMatchPreviewBoard === 'function') updateMatchPreviewBoard();
+                        if (typeof renderLeagueTable === 'function') renderLeagueTable();
+                        if (typeof renderLeagueStats === 'function') renderLeagueStats();
+                        if (typeof renderCareerStats === 'function') renderCareerStats();
+                        
+                        if (typeof showToast === 'function') {
+                            showToast("⚠️ 오프라인 모드로 로그인 세션을 복원했습니다.");
+                        }
+                    } else {
+                        console.error("세션 복원 중 알 수 없는 예외 발생:", err);
+                        localStorage.removeItem('fc_star_current_user');
+                        openAuthModal(true);
+                    }
                 }
             }, 100);
         } else {
@@ -211,4 +245,61 @@ document.addEventListener('DOMContentLoaded', () => {
             openAuthModal(true);
         }, 200);
     }
+    
+    // 모바일 브라우저 뒤로가기 버튼 더블클릭 종료 연동
+    initMobileBackButtonControl();
 });
+
+// 모바일 브라우저 뒤로가기 버튼 제어 (두 번 눌러 종료 & 모달 닫기)
+let lastBackPressTime = 0;
+
+function initMobileBackButtonControl() {
+    // 최초 더미 히스토리 푸시
+    history.pushState({ page: 'main' }, '');
+
+    window.addEventListener('popstate', (event) => {
+        // 활성화된 모달/레이어가 있다면 닫음
+        const closedAny = checkAndCloseActiveModal();
+
+        if (closedAny) {
+            // 모달을 닫았으므로 히스토리 뎁스 유지
+            history.pushState({ page: 'main' }, '');
+        } else {
+            // 모달이 없는 상태에서 뒤로가기 감지: 2초 내 더블 클릭 시 종료
+            const now = Date.now();
+            if (now - lastBackPressTime < 2000) {
+                // 더블 클릭 시 히스토리를 한 단계 더 뒤로 이동시켜 실제 브라우저 종료/이전 페이지 이동을 허용
+                history.back();
+            } else {
+                lastBackPressTime = now;
+                if (typeof showToast === 'function') {
+                    showToast("이전 버튼을 한 번 더 누르면 종료됩니다.");
+                }
+                // 뒤로가기 차단을 유지하기 위해 다시 히스토리 푸시
+                history.pushState({ page: 'main' }, '');
+            }
+        }
+    });
+}
+
+function checkAndCloseActiveModal() {
+    const modals = [
+        { id: 'drawerOverlay', active: (el) => el.classList.contains('active'), close: () => { if (typeof closeDrawer === 'function') closeDrawer(); } },
+        { id: 'formationModal', active: (el) => el.classList.contains('active'), close: () => { if (typeof closeFormationModal === 'function') closeFormationModal(); } },
+        { id: 'squadNumberModal', active: (el) => el.classList.contains('active'), close: () => { if (typeof closeSquadNumberModal === 'function') closeSquadNumberModal(); } },
+        { id: 'authModal', active: (el) => el.classList.contains('active'), close: () => { if (typeof closeAuthModal === 'function') closeAuthModal(); } },
+        { id: 'levelRewardModal', active: (el) => el.classList.contains('active'), close: () => { if (typeof closeLevelRewardModal === 'function') closeLevelRewardModal(); } },
+        { id: 'friendlyMatchModal', active: (el) => el.style.display === 'flex' || el.classList.contains('active'), close: () => { if (typeof closeFriendlyMatchModal === 'function') closeFriendlyMatchModal(); } },
+        { id: 'friendlyCloseModal', active: (el) => el.style.display === 'flex' || el.classList.contains('active'), close: () => { if (typeof closeFriendlyCloseModal === 'function') closeFriendlyCloseModal(); } },
+        { id: 'revealModal', active: (el) => el.classList.contains('active'), close: () => { if (typeof closeRevealModal === 'function') closeRevealModal(); } }
+    ];
+
+    for (const m of modals) {
+        const el = document.getElementById(m.id);
+        if (el && m.active(el)) {
+            m.close();
+            return true;
+        }
+    }
+    return false;
+}
