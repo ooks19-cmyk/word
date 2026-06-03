@@ -37,6 +37,46 @@ function initFriendlyMatchState() {
     }
 }
 
+// 가상의 해외 리그 팀 중 3팀을 무작위 선택하여 전술과 OVR (+-2) 부여
+function generateVirtualFriendlyOpponents() {
+    const virtualTeamsPreset = [
+        { name: "LA FC", bestPlayerName: "손흥민 (LW)", activeFormation: "4-3-3", initials: "LA", bg: "#000000", fg: "#c39e5c", border: "#c39e5c" },
+        { name: "PSG", bestPlayerName: "이강인 (RW)", activeFormation: "4-2-3-1", initials: "PSG", bg: "#001c55", fg: "#ffffff", border: "#da0812" },
+        { name: "아스날", bestPlayerName: "사카 (RW)", activeFormation: "4-3-3", initials: "ARS", bg: "#ef0107", fg: "#ffffff", border: "#063672" },
+        { name: "레알마드리드", bestPlayerName: "음바페 (ST)", activeFormation: "4-3-3", initials: "RMA", bg: "#ffffff", fg: "#00529f", border: "#eeaf22" },
+        { name: "토쿄FC", bestPlayerName: "마츠키 (CM)", activeFormation: "4-4-2", initials: "TOK", bg: "#001c55", fg: "#ffffff", border: "#e60012" }
+    ];
+    
+    // 5개 팀 무작위 셔플 후 3개 팀 선택
+    const shuffled = [...virtualTeamsPreset].sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, 3);
+    
+    const playerOvr = getPlayerPureOvr();
+    const offsets = [-2, -1, 0, 1, 2];
+    
+    return selected.map((team, idx) => {
+        // OVR +-2 오프셋 결정
+        const offset = offsets[Math.floor(Math.random() * offsets.length)];
+        const rating = Math.max(60, playerOvr + offset);
+        
+        return {
+            id: `virtual_${team.name.replace(/\s+/g, '_').toLowerCase()}`,
+            name: team.name,
+            rating: rating,
+            bestPlayerName: team.bestPlayerName,
+            activeFormation: team.activeFormation,
+            initials: team.initials,
+            bg: team.bg,
+            fg: team.fg,
+            border: team.border,
+            squadFormation: { ST: "cards_default", GK: "cards_default" }, // 더미 데이터
+            friendlyMatchesHistory: { w: 0, d: 0, l: 0, pts: 0 },
+            isMock: true, // 가상 AI 봇 아이콘 연동용
+            updatedAt: new Date().toISOString()
+        };
+    });
+}
+
 // Calculate Opponent's Pure OVR based on their squadFormation and playerDeck
 function getOpponentPureOvr(opponentData) {
     let totalOvr = 0;
@@ -435,21 +475,13 @@ function updateFriendlyMatchPreview() {
         }
     }
 
-    // 상태 배지 업데이트 (Mock 데이터 여부 실시간 구별)
+    // 상태 배지 업데이트 (해외 리그 매칭 상태 고정)
     const statusBadge = document.getElementById('friendlyDataStatusBadge');
-    if (statusBadge && friendlyOpponentsList.length > 0) {
-        const hasMock = friendlyOpponentsList.some(opp => opp.isMock);
-        if (hasMock) {
-            statusBadge.style.background = 'rgba(255, 62, 108, 0.12)';
-            statusBadge.style.borderColor = 'rgba(255, 62, 108, 0.25)';
-            statusBadge.style.color = '#ff3e6c';
-            statusBadge.innerHTML = `<i class="fa-solid fa-robot"></i> 가상 AI 봇 (MOCK)`;
-        } else {
-            statusBadge.style.background = 'rgba(0, 255, 135, 0.12)';
-            statusBadge.style.borderColor = 'rgba(0, 255, 135, 0.25)';
-            statusBadge.style.color = '#00ff87';
-            statusBadge.innerHTML = `<i class="fa-solid fa-circle-dot" style="font-size: 0.5rem; animation: pulse 1.5s infinite;"></i> 실시간 원격 DB`;
-        }
+    if (statusBadge) {
+        statusBadge.style.background = 'rgba(165, 94, 234, 0.12)';
+        statusBadge.style.borderColor = 'rgba(165, 94, 234, 0.25)';
+        statusBadge.style.color = '#a55eea';
+        statusBadge.innerHTML = `<i class="fa-solid fa-globe"></i> 해외 리그 매칭 (GLOBAL)`;
     }
 
     if (friendlyCurrentOpponentIndex >= 3 || friendlyOpponentsList.length === 0) {
@@ -529,7 +561,17 @@ function updateFriendlyMatchPreview() {
     if (fAwayOvr) fAwayOvr.innerText = opponent.rating;
     
     const fAwayEmblem = document.getElementById('friendlyAwayEmblem');
-    if (fAwayEmblem) fAwayEmblem.innerHTML = `<div style="width: 48px; height: 48px; background: rgba(165, 94, 234, 0.15); border: 1.5px solid rgba(165, 94, 234, 0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #a55eea; box-shadow: 0 0 10px rgba(165, 94, 234, 0.3);"><i class="fa-solid fa-crown"></i></div>`;
+    if (fAwayEmblem) {
+        if (opponent.initials) {
+            fAwayEmblem.innerHTML = `
+                <div style="width: 48px; height: 48px; background: ${opponent.bg}; border: 2.5px solid ${opponent.border}; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; font-weight: 900; color: ${opponent.fg}; box-shadow: 0 0 10px ${opponent.border}66; text-shadow: 1px 1px 2px rgba(0,0,0,0.6);">
+                    ${opponent.initials}
+                </div>
+            `;
+        } else {
+            fAwayEmblem.innerHTML = `<div style="width: 48px; height: 48px; background: rgba(165, 94, 234, 0.15); border: 1.5px solid rgba(165, 94, 234, 0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #a55eea; box-shadow: 0 0 10px rgba(165, 94, 234, 0.3);"><i class="fa-solid fa-crown"></i></div>`;
+        }
+    }
 
     const fVenueDisp = document.getElementById('friendlyMatchVenueDisplay');
     if (fVenueDisp) fVenueDisp.innerText = `원정팀 전술: ${opponent.activeFormation} | OVR 보정 없음 (홈어드밴티지: 0)`;
@@ -761,27 +803,16 @@ async function initFriendlyMatchTab() {
 
     if (!opponentsLoaded) {
         try {
-            const opponents = await window.dbService.fetchFriendlyOpponents(myId);
-            if (opponents && opponents.length > 0) {
-                // 캐시 업데이트
-                localStorage.setItem('fc_star_friendly_cached_opponents', JSON.stringify(opponents));
-                localStorage.setItem('fc_star_friendly_opponents_cache_time', Date.now().toString());
-                
-                friendlyOpponentsList = opponents.sort((a, b) => a.rating - b.rating);
-                renderFriendlyTable();
-                updateFriendlyMatchPreview();
-            }
+            const opponents = generateVirtualFriendlyOpponents();
+            // 캐시 업데이트
+            localStorage.setItem('fc_star_friendly_cached_opponents', JSON.stringify(opponents));
+            localStorage.setItem('fc_star_friendly_opponents_cache_time', Date.now().toString());
+            
+            friendlyOpponentsList = opponents.sort((a, b) => a.rating - b.rating);
+            renderFriendlyTable();
+            updateFriendlyMatchPreview();
         } catch (e) {
-            console.warn("친선경기 상대 리스트 로드 실패:", e);
-            // 만료되었지만 캐시가 있다면 마지막 수단으로 로드
-            if (cachedOpps) {
-                try {
-                    const opponents = JSON.parse(cachedOpps);
-                    friendlyOpponentsList = opponents.sort((a, b) => a.rating - b.rating);
-                    renderFriendlyTable();
-                    updateFriendlyMatchPreview();
-                } catch (e) {}
-            }
+            console.error("가상 친선 상대 생성 실패:", e);
         }
     }
 }
@@ -1103,7 +1134,12 @@ function startFriendlyMatchSimulation() {
                     } else if (specialEvent.type === "pk_opponent") {
                         if (specialEvent.isGoal) {
                             opponentScoreVal++;
-                            addCommentary(currentMin, specialEvent.eventGoal, 'normal');
+                            const oppGoalData = determineOpponentScorerAndAssister(opponent.id);
+                            let pkCommentaryText = specialEvent.eventGoal;
+                            if (oppGoalData.scorerName) {
+                                pkCommentaryText = `⚽ <strong>[PK 실점]</strong> 상대 키커 <strong>${oppGoalData.scorerName}</strong>의 강력한 슛이 그대로 그물을 출렁입니다! 골키퍼가 방향을 읽지 못했습니다.`;
+                            }
+                            addCommentary(currentMin, pkCommentaryText, 'normal');
                         } else {
                             addCommentary(currentMin, specialEvent.eventFail, 'normal');
                         }
@@ -1150,10 +1186,10 @@ function startFriendlyMatchSimulation() {
                             }
                         }
 
-                        const playerChanceBonus = (chancePlayerStat - oppOvr) * 0.01;
-                        const maxScoreProb = 0.60;
+                        const playerChanceBonus = Math.max(0, (chancePlayerStat - opponent.rating) * 0.01);
+                        const maxScoreProb = 0.50;
                         const minScoreProb = 0.10;
-                        const scoreProb = Math.min(maxScoreProb, Math.max(minScoreProb, 0.20 + (activeDiff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus));
+                        const scoreProb = Math.min(maxScoreProb, Math.max(minScoreProb, 0.24 + (activeDiff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus));
                         const isGoal = Math.random() < scoreProb;
 
                         const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm };
@@ -1174,14 +1210,18 @@ function startFriendlyMatchSimulation() {
                             playerGkStat = card.stats.def || card.rating || 70;
                         }
                         
-                        const oppChanceBonus = (opponent.rating - playerGkStat) * 0.01;
-                        const oppScoreProb = Math.min(0.90, Math.max(0.08, 0.35 - (activeDiff * 0.026) + 0.05 + oppChanceBonus));
+                        const playerDef = getTeamAverageStat('def');
+                        const playerDefBonus = Math.max(0, (playerDef - 70) * 0.01);
+                        const gkBonus = (playerGkStat + 5 - oppOvr) * 0.01;
+                        const oppScoreProb = Math.min(0.50, Math.max(0.10, 0.40 - (activeDiff * 0.026) - playerDefBonus - gkBonus));
                         const isGoal = Math.random() < oppScoreProb;
                         
                         addCommentary(currentMin, getMatchEventCommentary('OPP_ATTACK', commentaryData, true), 'attack');
                         if (isGoal) {
                             opponentScoreVal++;
-                            addCommentary(currentMin, getMatchEventCommentary('OPP_GOAL', commentaryData, true), 'normal');
+                            const oppGoalData = determineOpponentScorerAndAssister(opponent.id);
+                            const goalCommentaryData = { ...commentaryData, opponentScorerName: oppGoalData.scorerName, opponentAssisterName: oppGoalData.assisterName };
+                            addCommentary(currentMin, getMatchEventCommentary('OPP_GOAL', goalCommentaryData, true), 'normal');
                         } else {
                             addCommentary(currentMin, getMatchEventCommentary('GK_SAVE', commentaryData, true), 'normal');
                         }
@@ -1237,7 +1277,16 @@ function startFriendlyMatchSimulation() {
                         opponentScoreVal++;
                         const fAwayScore = document.getElementById('friendlyAwayScore');
                         if (fAwayScore) fAwayScore.innerText = opponentScoreVal;
-                        addCommentary(currentMin, specialEvent.eventGoal, 'normal');
+                        
+                        const oppGoalData = determineOpponentScorerAndAssister(opponent.id);
+                        
+                        setTimeout(() => {
+                            let pkCommentaryText = specialEvent.eventGoal;
+                            if (oppGoalData.scorerName) {
+                                pkCommentaryText = `⚽ <strong>[PK 실점]</strong> 상대 키커 <strong>${oppGoalData.scorerName}</strong>의 강력한 슛이 그대로 그물을 출렁입니다! 골키퍼가 방향을 읽지 못했습니다.`;
+                            }
+                            addCommentary(currentMin, pkCommentaryText, 'normal');
+                        }, 450);
                     } else {
                         setTimeout(() => {
                             addCommentary(currentMin, specialEvent.eventFail, 'normal');
@@ -1290,10 +1339,10 @@ function startFriendlyMatchSimulation() {
                         }
                     }
 
-                    const playerChanceBonus = (chancePlayerStat - oppOvr) * 0.01;
-                    const maxScoreProb = 0.60;
+                    const playerChanceBonus = Math.max(0, (chancePlayerStat - opponent.rating) * 0.01);
+                    const maxScoreProb = 0.50;
                     const minScoreProb = 0.10;
-                    const scoreProb = Math.min(maxScoreProb, Math.max(minScoreProb, 0.20 + (activeDiff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus));
+                    const scoreProb = Math.min(maxScoreProb, Math.max(minScoreProb, 0.24 + (activeDiff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus));
                     const isGoal = Math.random() < scoreProb;
 
                     const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm };
@@ -1320,8 +1369,10 @@ function startFriendlyMatchSimulation() {
                         playerGkStat = card.stats.def || card.rating || 70;
                     }
                     
-                    const oppChanceBonus = (opponent.rating - playerGkStat) * 0.01;
-                    const oppScoreProb = Math.min(0.90, Math.max(0.08, 0.35 - (activeDiff * 0.026) + 0.05 + oppChanceBonus));
+                    const playerDef = getTeamAverageStat('def');
+                    const playerDefBonus = Math.max(0, (playerDef - 70) * 0.01);
+                    const gkBonus = (playerGkStat + 5 - oppOvr) * 0.01;
+                    const oppScoreProb = Math.min(0.50, Math.max(0.10, 0.40 - (activeDiff * 0.026) - playerDefBonus - gkBonus));
                     const isGoal = Math.random() < oppScoreProb;
                     
                     addCommentary(currentMin, getMatchEventCommentary('OPP_ATTACK', commentaryData, true), 'attack');
@@ -1329,7 +1380,13 @@ function startFriendlyMatchSimulation() {
                         opponentScoreVal++;
                         const fAwayScore = document.getElementById('friendlyAwayScore');
                         if (fAwayScore) fAwayScore.innerText = opponentScoreVal;
-                        addCommentary(currentMin, getMatchEventCommentary('OPP_GOAL', commentaryData, true), 'normal');
+                        
+                        const oppGoalData = determineOpponentScorerAndAssister(opponent.id);
+                        
+                        setTimeout(() => {
+                            const goalCommentaryData = { ...commentaryData, opponentScorerName: oppGoalData.scorerName, opponentAssisterName: oppGoalData.assisterName };
+                            addCommentary(currentMin, getMatchEventCommentary('OPP_GOAL', goalCommentaryData, true), 'normal');
+                        }, 450);
                     } else {
                         const saveText = getMatchEventCommentary('GK_SAVE', commentaryData, true);
                         addCommentary(currentMin, saveText, 'normal');
@@ -1377,9 +1434,9 @@ async function refreshFriendlyOpponentsForce() {
     const myId = typeof currentUser === 'string' && currentUser ? currentUser : "ooks";
     
     try {
-        const opponents = await window.dbService.fetchFriendlyOpponents(myId);
+        const opponents = generateVirtualFriendlyOpponents();
         
-        // 전체 유저 순위표 실시간 최신 정보로 재동기화
+        // 전체 유저 순위표 실시간 최신 정보로 재동기화 (이 부분은 순위표 유지를 위해 fetchRankings 호출을 그대로 유지)
         try {
             const allUsers = await window.dbService.fetchRankings();
             if (allUsers && allUsers.length > 0) {
@@ -1456,13 +1513,7 @@ async function refreshFriendlyOpponentsForce() {
             renderFriendlyTable();
             updateFriendlyMatchPreview();
             
-            const hasMock = friendlyOpponentsList.some(opp => opp.isMock);
-            if (hasMock) {
-                showToast("🤖 원격 DB 조회 실패 또는 네트워크 오프라인으로 AI 봇 라인업이 구성되었습니다.");
-            } else {
-                const displayIndex = Math.min(3, friendlyCurrentOpponentIndex + 1);
-                showToast(`🎉 최신 실시간 원격 DB 데이터 동기화 완료! (현재 ${displayIndex}번째 상대 도전 준비 완료)`);
-            }
+            showToast("🌎 가상의 해외 리그 대결 상대 3팀이 성공적으로 매칭 및 동기화되었습니다!");
         }
     } catch (e) {
         console.error("강제 동기화 실패:", e);

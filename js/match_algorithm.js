@@ -363,7 +363,10 @@ function getMatchEventCommentary(type, data, isFriendly = false, isDevMode = fal
     }
 
     if (type === 'OPP_GOAL') {
-        return `실점! 상대 공격수의 기습적인 헤더 슛이 ${activeGk} 골키퍼의 손끝을 스치며 골문으로 밀려 들어갑니다.`;
+        const { opponentScorerName, opponentAssisterName } = data || {};
+        const scorerText = opponentScorerName ? `상대팀 <strong>[${opponentScorerName}]</strong>` : "상대 공격수";
+        const assistText = opponentAssisterName ? ` (도움: <strong>${opponentAssisterName}</strong>)` : "";
+        return `실점! ${scorerText}의 기습적인 헤더 슛이 ${activeGk} 골키퍼의 손끝을 스치며 골문으로 밀려 들어갑니다.${assistText} ⚽`;
     }
 
     if (type === 'GK_SAVE') {
@@ -388,7 +391,8 @@ function simulateExtraTimeEngine(data) {
         score2 = 0,
         playerScorerName = "이승우",
         playerAssisterName = "송민규",
-        isTeam1Jeonbuk = true
+        isTeam1Jeonbuk = true,
+        opponentTeamId = null
     } = data;
     
     let etScore1 = score1;
@@ -410,25 +414,37 @@ function simulateExtraTimeEngine(data) {
     const p1Scored = Math.random() < Math.max(0.05, Math.min(prob1, 0.5));
     const p2Scored = Math.random() < Math.max(0.05, Math.min(prob2, 0.5));
     
-    const scorer1 = isTeam1Jeonbuk ? playerScorerName : `${team1Name} 공격수`;
-    const scorer2 = !isTeam1Jeonbuk ? playerScorerName : `${team2Name} 공격수`;
+    // 상대팀 주요 선수 정보 획득
+    let oppScorerName = isTeam1Jeonbuk ? `${team2Name} 공격수` : `${team1Name} 공격수`;
+    let oppAssisterName = null;
+    if (opponentTeamId) {
+        const oppGoalData = determineOpponentScorerAndAssister(opponentTeamId);
+        oppScorerName = oppGoalData.scorerName;
+        oppAssisterName = oppGoalData.assisterName;
+    }
+    
+    const scorer1 = isTeam1Jeonbuk ? playerScorerName : oppScorerName;
+    const scorer2 = !isTeam1Jeonbuk ? playerScorerName : oppScorerName;
 
     if (p1Scored) {
         etScore1++;
+        const assisterText = (!isTeam1Jeonbuk && oppAssisterName) ? ` (도움: <strong>${oppAssisterName}</strong>)` : (isTeam1Jeonbuk && playerAssisterName ? ` (도움: <strong>${playerAssisterName}</strong>)` : "");
         etEvents.push({
             min: "103'",
             type: "goal",
             side: "team1",
-            text: `[골!!!] 연장 전반 극적인 득점! ${team1Name}의 ${scorer1}가 혼신을 다한 논스톱 슈팅으로 그물을 가릅니다!`,
+            text: `[골!!!] 연장 전반 극적인 득점! ${team1Name}의 <strong>${scorer1}</strong>가 혼신을 다한 논스톱 슈팅으로 그물을 가릅니다!${assisterText}`,
             score1: etScore1,
-            score2: etScore2
+            score2: etScore2,
+            scorerName: scorer1,
+            assisterName: isTeam1Jeonbuk ? playerAssisterName : oppAssisterName
         });
     } else {
         etEvents.push({
             min: "103'",
             type: "attack",
             side: "team1",
-            text: `${team1Name}의 공격수 ${scorer1}가 아크 정면에서 과감한 슈팅을 시도했으나, 상대 골키퍼의 손끝에 맞고 아슬아슬하게 골대 밖으로 빗나갑니다.`,
+            text: `${team1Name}의 <strong>${scorer1}</strong>가 아크 정면에서 과감한 슈팅을 시도했으나, 상대 골키퍼의 손끝에 맞고 아슬아슬하게 골대 밖으로 빗나갑니다.`,
             score1: etScore1,
             score2: etScore2
         });
@@ -438,26 +454,29 @@ function simulateExtraTimeEngine(data) {
     
     if (p2Scored) {
         etScore2++;
+        const assisterText = (isTeam1Jeonbuk && oppAssisterName) ? ` (도움: <strong>${oppAssisterName}</strong>)` : (!isTeam1Jeonbuk && playerAssisterName ? ` (도움: <strong>${playerAssisterName}</strong>)` : "");
         etEvents.push({
             min: "115'",
             type: "goal",
             side: "team2",
-            text: `[골!!!] 연장 후반 극적인 골! ${team2Name}의 ${scorer2}가 페널티 에어리어에서 날카로운 슈팅으로 수비 벽을 뚫어내며 승부를 바꿉니다!`,
+            text: `[골!!!] 연장 후반 극적인 골! ${team2Name}의 <strong>${scorer2}</strong>가 페널티 에어리어에서 날카로운 슈팅으로 수비 벽을 뚫어내며 승부를 바꿉니다!${assisterText}`,
             score1: etScore1,
-            score2: etScore2
+            score2: etScore2,
+            scorerName: scorer2,
+            assisterName: !isTeam1Jeonbuk ? playerAssisterName : oppAssisterName
         });
     } else {
         etEvents.push({
             min: "115'",
             type: "attack",
             side: "team2",
-            text: `${team2Name}의 ${scorer2}가 회심의 크로스 공격을 전개하여 헤더 슛까지 연결했으나, 상대 수비수들의 집중 견제에 막혀 무산됩니다.`,
+            text: `${team2Name}의 <strong>${scorer2}</strong>가 회심의 크로스 공격을 전개하여 헤더 슛까지 연결했으나, 상대 수비수들의 집중 견제에 막혀 무산됩니다.`,
             score1: etScore1,
             score2: etScore2
         });
     }
     
-    etEvents.push({ min: "120'", type: "system", text: "연장전 120분이 종료되었습니다! 스코어는 여전히 균형을 이루고 있습니다." });
+    etEvents.push({ min: "120'", type: "system", text: "연장전 120분이 종료되었습니다!" });
     
     return {
         score1: etScore1,
@@ -673,4 +692,43 @@ function rollSpecialMatchEvent(activePlayers, opponentName) {
     }
 }
 
-
+// 9. 상대팀 전용 동적 득점자/도움자 판정 함수
+function determineOpponentScorerAndAssister(opponentTeamId) {
+    if (typeof OTHER_TEAMS_PLAYERS_PRESET === 'undefined') {
+        return {
+            scorerId: "opp_generic_scorer",
+            scorerName: "상대 공격수",
+            assisterId: null,
+            assisterName: null
+        };
+    }
+    
+    const normalizedTeamId = opponentTeamId ? opponentTeamId.toString().trim() : "";
+    const squadPlayers = OTHER_TEAMS_PLAYERS_PRESET.filter(p => p.teamId === normalizedTeamId);
+    
+    if (squadPlayers.length === 0) {
+        return {
+            scorerId: `opp_generic_${normalizedTeamId}_scorer`,
+            scorerName: "상대 공격수",
+            assisterId: null,
+            assisterName: null
+        };
+    }
+    
+    const scorerIdx = Math.floor(Math.random() * squadPlayers.length);
+    const scorer = squadPlayers[scorerIdx];
+    
+    let assister = null;
+    if (Math.random() < 0.50 && squadPlayers.length > 1) {
+        const potentialAssisters = squadPlayers.filter((_, idx) => idx !== scorerIdx);
+        const assisterIdx = Math.floor(Math.random() * potentialAssisters.length);
+        assister = potentialAssisters[assisterIdx];
+    }
+    
+    return {
+        scorerId: scorer.id,
+        scorerName: scorer.name,
+        assisterId: assister ? assister.id : null,
+        assisterName: assister ? assister.name : null
+    };
+}

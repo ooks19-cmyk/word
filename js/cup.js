@@ -878,8 +878,13 @@ function startCupMatchSimulation() {
                         const isGoal = specialEvent.isGoal;
                         if (isGoal) {
                             opponentScoreVal++;
-                            addPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, null, null);
-                            addCommentary(currentMin, specialEvent.eventGoal, 'normal');
+                            const oppGoalData = determineOpponentScorerAndAssister(opponent.id);
+                            addPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, oppGoalData.scorerName, oppGoalData.assisterName);
+                            let pkCommentaryText = specialEvent.eventGoal;
+                            if (oppGoalData.scorerName) {
+                                pkCommentaryText = `⚽ <strong>[PK 실점]</strong> 상대 키커 <strong>${oppGoalData.scorerName}</strong>의 강력한 슛이 그대로 그물을 출렁입니다! 골키퍼가 방향을 읽지 못했습니다.`;
+                            }
+                            addCommentary(currentMin, pkCommentaryText, 'normal');
                         } else {
                             addCommentary(currentMin, specialEvent.eventFail, 'normal');
                         }
@@ -916,8 +921,10 @@ function startCupMatchSimulation() {
                             if (cmCardId && CARDS_DATABASE[cmCardId]) chancePlayerStat = getAwakenedCard(cmCardId).stats.dri || 75;
                         }
                         
-                        const playerChanceBonus = (chancePlayerStat - opponent.rating) * 0.01;
-                        const scoreProb = Math.min(0.60, Math.max(0.10, 0.20 + (activeDiff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus));
+                        const playerChanceBonus = Math.max(0, (chancePlayerStat - opponent.rating) * 0.01);
+                        const maxScoreProb = 0.50;
+                        const minScoreProb = 0.10;
+                        const scoreProb = Math.min(maxScoreProb, Math.max(minScoreProb, 0.24 + (activeDiff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus));
                         const isGoal = Math.random() < scoreProb;
                         
                         const activePlayers = { ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName };
@@ -941,16 +948,20 @@ function startCupMatchSimulation() {
                             playerGkStat = getAwakenedCard(gkCardId).stats.def || getAwakenedCard(gkCardId).rating || 70;
                         }
                         
-                        const oppChanceBonus = (opponent.rating - playerGkStat) * 0.01;
-                        const oppScoreProb = Math.min(0.90, Math.max(0.08, 0.35 - (activeDiff * 0.026) + oppChanceBonus));
+                        const playerDef = getTeamAverageStat('def');
+                        const playerDefBonus = Math.max(0, (playerDef - 70) * 0.01);
+                        const gkBonus = (playerGkStat + 5 - opponent.rating) * 0.01;
+                        const oppScoreProb = Math.min(0.50, Math.max(0.10, 0.40 - (activeDiff * 0.026) - playerDefBonus - gkBonus));
                         const isGoal = Math.random() < oppScoreProb;
                         
                         addCommentary(currentMin, getMatchEventCommentary('OPP_ATTACK', commentaryData, false), 'attack');
                         
                         if (isGoal) {
                             opponentScoreVal++;
-                            addPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, null, null);
-                            addCommentary(currentMin, getMatchEventCommentary('OPP_GOAL', commentaryData, false), 'normal');
+                            const oppGoalData = determineOpponentScorerAndAssister(opponent.id);
+                            addPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, oppGoalData.scorerName, oppGoalData.assisterName);
+                            const goalCommentaryData = { ...commentaryData, opponentScorerName: oppGoalData.scorerName, opponentAssisterName: oppGoalData.assisterName };
+                            addCommentary(currentMin, getMatchEventCommentary('OPP_GOAL', goalCommentaryData, false), 'normal');
                         } else {
                             addCommentary(currentMin, getMatchEventCommentary('GK_SAVE', commentaryData, false), 'normal');
                         }
@@ -1034,10 +1045,15 @@ function startCupMatchSimulation() {
                         if (typeof playGoalSound === 'function') {
                             try { playGoalSound(); } catch (e) {}
                         }
-                        addPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, null, null);
+                        const oppGoalData = determineOpponentScorerAndAssister(opponent.id);
+                        addPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, oppGoalData.scorerName, oppGoalData.assisterName);
                         
                         setTimeout(() => {
-                            addCommentary(currentMin, specialEvent.eventGoal, 'normal');
+                            let pkCommentaryText = specialEvent.eventGoal;
+                            if (oppGoalData.scorerName) {
+                                pkCommentaryText = `⚽ <strong>[PK 실점]</strong> 상대 키커 <strong>${oppGoalData.scorerName}</strong>의 강력한 슛이 그대로 그물을 출렁입니다! 골키퍼가 방향을 읽지 못했습니다.`;
+                            }
+                            addCommentary(currentMin, pkCommentaryText, 'normal');
                         }, 400);
                     } else {
                         setTimeout(() => {
@@ -1081,8 +1097,10 @@ function startCupMatchSimulation() {
                         if (cmCardId && CARDS_DATABASE[cmCardId]) chancePlayerStat = getAwakenedCard(cmCardId).stats.dri || 75;
                     }
                     
-                    const playerChanceBonus = (chancePlayerStat - opponent.rating) * 0.01;
-                    const scoreProb = Math.min(0.60, Math.max(0.10, 0.20 + (activeDiff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus));
+                    const playerChanceBonus = Math.max(0, (chancePlayerStat - opponent.rating) * 0.01);
+                    const maxScoreProb = 0.50;
+                    const minScoreProb = 0.10;
+                    const scoreProb = Math.min(maxScoreProb, Math.max(minScoreProb, 0.24 + (activeDiff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus));
                     const isGoal = Math.random() < scoreProb;
                     
                     const activePlayers = { ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName };
@@ -1120,8 +1138,10 @@ function startCupMatchSimulation() {
                         playerGkStat = getAwakenedCard(gkCardId).stats.def || getAwakenedCard(gkCardId).rating || 70;
                     }
                     
-                    const oppChanceBonus = (opponent.rating - playerGkStat) * 0.01;
-                    const oppScoreProb = Math.min(0.90, Math.max(0.08, 0.35 - (activeDiff * 0.026) + oppChanceBonus));
+                    const playerDef = getTeamAverageStat('def');
+                    const playerDefBonus = Math.max(0, (playerDef - 70) * 0.01);
+                    const gkBonus = (playerGkStat + 5 - opponent.rating) * 0.01;
+                    const oppScoreProb = Math.min(0.50, Math.max(0.10, 0.40 - (activeDiff * 0.026) - playerDefBonus - gkBonus));
                     const isGoal = Math.random() < oppScoreProb;
                     
                     addCommentary(currentMin, getMatchEventCommentary('OPP_ATTACK', commentaryData, false), 'attack');
@@ -1136,10 +1156,12 @@ function startCupMatchSimulation() {
                         if (typeof playGoalSound === 'function') {
                             try { playGoalSound(); } catch (e) {}
                         }
-                        addPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, null, null);
+                        const oppGoalData = determineOpponentScorerAndAssister(opponent.id);
+                        addPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, oppGoalData.scorerName, oppGoalData.assisterName);
                         
                         setTimeout(() => {
-                            addCommentary(currentMin, getMatchEventCommentary('OPP_GOAL', commentaryData, false), 'normal');
+                            const goalCommentaryData = { ...commentaryData, opponentScorerName: oppGoalData.scorerName, opponentAssisterName: oppGoalData.assisterName };
+                            addCommentary(currentMin, getMatchEventCommentary('OPP_GOAL', goalCommentaryData, false), 'normal');
                         }, 400);
                     } else {
                         setTimeout(() => {
@@ -1166,6 +1188,18 @@ function startCupMatchSimulation() {
             if (playerScoreVal === opponentScoreVal) {
                 addCommentary('SYSTEM', "⚖️ 정규 시간 90분 무승부! 토너먼트 규정에 따라 연장전으로 돌입합니다.", "system");
                 setTimeout(() => {
+                    const etData = {
+                        team1Name: isHome ? '전북 현대' : opponent.name,
+                        team2Name: isHome ? opponent.name : '전북 현대',
+                        rating1: isHome ? playerOvr : opponent.rating,
+                        rating2: isHome ? opponent.rating : playerOvr,
+                        score1: isHome ? playerScoreVal : opponentScoreVal,
+                        score2: isHome ? opponentScoreVal : playerScoreVal,
+                        playerScorerName: playerScorerName,
+                        playerAssisterName: playerAssisterName,
+                        isTeam1Jeonbuk: isHome,
+                        opponentTeamId: opponent.id
+                    };
                     runActualCupExtraTime(playerScoreVal, opponentScoreVal, playerMatch, playerOvr, opponent.rating, playerScorerName, playerAssisterName, isHome);
                 }, 1200);
             } else {
@@ -1213,7 +1247,8 @@ function runActualCupExtraTime(score1, score2, playerMatch, playerOvr, opponentO
         score2: isHome ? score2 : score1,
         playerScorerName: activeScorerName,
         playerAssisterName: activeAssisterName,
-        isTeam1Jeonbuk: isHome
+        isTeam1Jeonbuk: isHome,
+        opponentTeamId: isHome ? playerMatch.team2.id : playerMatch.team1.id
     };
 
     const etResult = simulateExtraTimeEngine(etData);
@@ -1233,7 +1268,7 @@ function runActualCupExtraTime(score1, score2, playerMatch, playerOvr, opponentO
                 if (isGoalByPlayer) {
                     addPlayerStatRecord(isHome ? playerMatch.team1 : playerMatch.team2, activeScorerName, activeAssisterName);
                 } else {
-                    addPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, null, null);
+                    addPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, ev.scorerName, ev.assisterName);
                 }
             }
             addCommentary(ev.min, ev.text, ev.type);
@@ -1265,7 +1300,7 @@ function runActualCupExtraTime(score1, score2, playerMatch, playerOvr, opponentO
                 if (isGoalByPlayer) {
                     addPlayerStatRecord(isHome ? playerMatch.team1 : playerMatch.team2, activeScorerName, activeAssisterName);
                 } else {
-                    addPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, null, null);
+                    addPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, ev.scorerName, ev.assisterName);
                 }
             }
             
@@ -1356,7 +1391,7 @@ function addPlayerStatRecord(team, scorerName, assisterName) {
     if (!team) return;
     
     const isPlayer = team.id === 'jeonbuk';
-    const sName = isPlayer ? (scorerName || "무명 선수") : `${team.name} 에이스`;
+    const sName = scorerName ? scorerName : (isPlayer ? "무명 선수" : `${team.name} 에이스`);
     const existScorer = cupState.stats.scorers.find(s => s.name === sName && s.teamId === team.id);
     if (existScorer) {
         existScorer.goals += 1;
@@ -1364,17 +1399,15 @@ function addPlayerStatRecord(team, scorerName, assisterName) {
         cupState.stats.scorers.push({ name: sName, teamName: team.name, goals: 1, teamId: team.id });
     }
 
-    if (isPlayer) {
-        if (assisterName) {
-            const existAssister = cupState.stats.assisters.find(a => a.name === assisterName && a.teamId === team.id);
-            if (existAssister) {
-                existAssister.assists += 1;
-            } else {
-                cupState.stats.assisters.push({ name: assisterName, teamName: team.name, assists: 1, teamId: team.id });
-            }
+    if (assisterName) {
+        const existAssister = cupState.stats.assisters.find(a => a.name === assisterName && a.teamId === team.id);
+        if (existAssister) {
+            existAssister.assists += 1;
+        } else {
+            cupState.stats.assisters.push({ name: assisterName, teamName: team.name, assists: 1, teamId: team.id });
         }
-    } else {
-        // AI 팀은 기존처럼 50% 확률로 도움자를 임의 적립
+    } else if (!isPlayer) {
+        // AI 팀에 어시스트 실명이 없고, 50% 확률에 격발될 때만 임의 에이스 적립
         if (Math.random() < 0.5) {
             const aName = `${team.name} 에이스`;
             const existAssister = cupState.stats.assisters.find(a => a.name === aName && a.teamId === team.id);
