@@ -790,6 +790,56 @@ const CARDS_DATABASE = {
             def: 88,
             phy: 87
         }
+    },
+    "lee_jae_sung": {
+        id: "lee_jae_sung",
+        name: "이재성",
+        rating: 85,
+        position: "CM",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "KOREA",
+        image: "player/이재성.png",
+        rarity: "special",
+        description: "독보적인 활동량과 영리한 축구 지능을 겸비한 국가대표 미드필더입니다. 영리한 오프더볼 움직임과 날카로운 패싱력, 전방 압박 능력을 바탕으로 공수 양면에서 중원의 핵심 활력소 역할을 수행합니다.",
+        theme: {
+            primary: "#da1a32",
+            secondary: "#ffffff",
+            glow: "#ff2a55"
+        },
+        stats: {
+            pac: 82,
+            sho: 78,
+            pas: 86,
+            dri: 84,
+            def: 72,
+            phy: 76
+        }
+    },
+    "cho_gue_sung": {
+        id: "cho_gue_sung",
+        name: "조규성",
+        rating: 84,
+        position: "ST",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "KOREA",
+        image: "player/조규성.png",
+        rarity: "special",
+        description: "조각 같은 비주얼과 압도적인 피지컬로 그라운드를 누비는 대한민국 국가대표 스트라이커 조규성입니다. 공중볼 타점 경합과 강력한 슈팅력, 헌신적인 전방 압박으로 매 경기 상대 골문을 직접 위협하는 해결사입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#da1a32",
+            glow: "#ff2a55"
+        },
+        stats: {
+            pac: 80,
+            sho: 86,
+            pas: 72,
+            dri: 76,
+            def: 42,
+            phy: 86
+        }
     }
 };
 

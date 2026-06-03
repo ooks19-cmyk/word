@@ -248,6 +248,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 모바일 브라우저 뒤로가기 버튼 더블클릭 종료 연동
     initMobileBackButtonControl();
+
+    // 페이지를 닫거나 이탈할 때 최종 데이터 세이브
+    window.addEventListener('beforeunload', () => {
+        if (typeof saveUserProgress === 'function') {
+            saveUserProgress();
+        }
+    });
 });
 
 // 모바일 브라우저 뒤로가기 버튼 제어 (두 번 눌러 종료 & 모달 닫기)

@@ -741,6 +741,11 @@ function closeSquadNumberModal() {
             modal.style.display = 'none';
         }, 300);
     }
+    
+    // 모달을 닫을 때 최신 상태를 강제로 클라우드(DB)에 동기화 저장
+    if (typeof saveUserProgress === 'function') {
+        saveUserProgress();
+    }
 }
 
 // 등번호 목록 실시간 동적 빌드
@@ -752,8 +757,8 @@ function renderSquadNumbersList() {
     fixedGrid.innerHTML = '';
     customGrid.innerHTML = '';
     
-    // 1~30번 리스트 빌드
-    for (let i = 1; i <= 30; i++) {
+    // 1~90번 리스트 빌드
+    for (let i = 1; i <= 90; i++) {
         const item = squadNumbers[i];
         if (!item) continue;
         
@@ -793,7 +798,7 @@ function renderSquadNumbersList() {
             `;
             fixedGrid.appendChild(row);
         } else {
-            // 21~30번: 자유 커스텀 등번호
+            // 21~90번: 자유 커스텀 등번호
             row.innerHTML = `
                 <input type="number" class="squad-number-input" min="1" max="99" value="${item.number}" onchange="changeCustomSquadNumber('${i}', this.value)" title="등번호 숫자 직접 수정 (1~99)">
                 <div class="squad-number-player-box ${isAssigned ? 'assigned ' + cardClass : 'empty'}" onclick="openSquadNumberPlayerSelector('${i}')">
@@ -869,7 +874,7 @@ function openSquadNumberPlayerSelector(numKey) {
         
         // 현재 이 카드가 다른 등번호 슬롯에 이미 배정되어 있는지 확인
         let otherNumKey = null;
-        for (let idx = 1; idx <= 30; idx++) {
+        for (let idx = 1; idx <= 90; idx++) {
             if (squadNumbers[idx] && squadNumbers[idx].cardId === key) {
                 otherNumKey = idx;
                 break;
@@ -935,7 +940,7 @@ function selectPlayerForSquadNumber(cardId) {
     if (!activeSelectorSquadNumber) return;
     
     // 1인 1번호 원칙: 타 슬롯에 이 선수가 있다면 먼저 배제 처리 (지능형 스왑)
-    for (let idx = 1; idx <= 30; idx++) {
+    for (let idx = 1; idx <= 90; idx++) {
         if (squadNumbers[idx] && squadNumbers[idx].cardId === cardId) {
             squadNumbers[idx].cardId = null;
         }
@@ -951,11 +956,12 @@ function selectPlayerForSquadNumber(cardId) {
         console.warn("등번호 저장 실패:", e);
     }
     
+    const numVal = squadNumbers[activeSelectorSquadNumber].number;
+    
     closeDrawer();
     renderSquadNumbersList();
     
     const cardName = CARDS_DATABASE[cardId].name;
-    const numVal = squadNumbers[activeSelectorSquadNumber].number;
     showToast(`👕 ${cardName} 선수에게 등번호 ${numVal}번을 배정했습니다!`);
     
     // 클라우드 자동 세이브
@@ -987,7 +993,7 @@ function releasePlayerFromSquadNumber(numKey) {
     saveUserProgress();
 }
 
-// 21~30번 커스텀 자유 번호의 숫자 직접 변경
+// 21~90번 커스텀 자유 번호의 숫자 직접 변경
 function changeCustomSquadNumber(numKey, newNumberVal) {
     const item = squadNumbers[numKey];
     if (!item) return;

@@ -144,8 +144,9 @@ function syncUserDataOnLogin(userData) {
         leagueRound = userData.leagueRound || 1;
         
         squadNumbers = userData.squadNumbers || {};
-        if (Object.keys(squadNumbers).length === 0) {
-            for (let i = 1; i <= 30; i++) {
+        // 기존 세이브 데이터가 있거나 없는 경우 모두 90번까지 슬롯을 채워줍니다.
+        for (let i = 1; i <= 90; i++) {
+            if (!squadNumbers[i]) {
                 squadNumbers[i] = { number: i, cardId: null };
             }
         }

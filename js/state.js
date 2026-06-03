@@ -94,21 +94,27 @@ try {
     // Ignore
 }
 
-// 4. SQUAD NUMBERS STATE (등번호 설정 데이터 1~30)
+// 4. SQUAD NUMBERS STATE (등번호 설정 데이터 1~90)
 let squadNumbers = {};
 try {
     const savedNumbers = localStorage.getItem('fc_star_squad_numbers');
     if (savedNumbers) {
         squadNumbers = JSON.parse(savedNumbers);
+        // 기존 세이브 데이터(30번까지)가 있을 경우 90번까지 채워줍니다.
+        for (let i = 1; i <= 90; i++) {
+            if (!squadNumbers[i]) {
+                squadNumbers[i] = { number: i, cardId: null };
+            }
+        }
     } else {
-        // 기본 1~30번 데이터셋 구성
-        for (let i = 1; i <= 30; i++) {
+        // 기본 1~90번 데이터셋 구성
+        for (let i = 1; i <= 90; i++) {
             squadNumbers[i] = { number: i, cardId: null };
         }
     }
 } catch (e) {
     squadNumbers = {};
-    for (let i = 1; i <= 30; i++) {
+    for (let i = 1; i <= 90; i++) {
         squadNumbers[i] = { number: i, cardId: null };
     }
 }
