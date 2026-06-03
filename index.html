@@ -22,7 +22,7 @@
 
     <!-- Header Navigation -->
     <header>
-        <div class="logo" id="appLogo">
+        <div class="logo" id="appLogo" onclick="openUpdateLogModal()" style="cursor: pointer;" title="업데이트 기록 보기">
             <img src="img/mark_jb.svg" alt="전북 현대" class="logo-emblem">
             <span>FC STAR CARD</span>
         </div>
@@ -868,6 +868,69 @@
     <div class="toast" id="toastContainer">
         <i class="fa-solid fa-circle-info"></i>
         <span id="toastMessage">메시지</span>
+    </div>
+
+    <!-- UPDATE LOG MODAL (Release Notes Modal) -->
+    <div class="drawer-overlay" id="updateLogModal" onclick="closeUpdateLogModal()">
+        <div class="selector-drawer auth-modal-drawer" style="max-width: 480px; width: 90%; height: auto; max-height: 80vh; border-radius: 24px; display: flex; flex-direction: column; overflow: hidden; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 1.5rem;" onclick="event.stopPropagation()">
+            <div class="drawer-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 0.8rem; margin-bottom: 1rem;">
+                <h3 style="font-size: 1.1rem; font-weight: 800; margin: 0; color: #ffd700; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-code-compare"></i> 업데이트 기록 (Release Notes)
+                </h3>
+                <button class="btn-close-drawer" onclick="closeUpdateLogModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="drawer-content" style="overflow-y: auto; max-height: 55vh; padding-right: 0.5rem; text-align: left; display: flex; flex-direction: column; gap: 1.2rem;">
+                <!-- Update Entry -->
+                <div class="update-entry" style="border-left: 3px solid #00ff87; padding-left: 0.8rem;">
+                    <h4 style="font-size: 0.95rem; font-weight: 800; color: #00ff87; margin: 0 0 0.4rem 0; display: flex; justify-content: space-between; align-items: center;">
+                        <span>v1.4.0 <span style="font-size: 0.75rem; background: rgba(0, 255, 135, 0.15); padding: 0.1rem 0.4rem; border-radius: 6px; margin-left: 6px;">LATEST</span></span>
+                        <span style="font-size: 0.75rem; color: #64748b; font-weight: normal;">2026.06.04</span>
+                    </h4>
+                    <ul style="margin: 0; padding-left: 1.1rem; font-size: 0.82rem; line-height: 1.5; color: #cbd5e1;">
+                        <li><strong>K리그 득점/도움 순위 집계 정상화</strong>: K리그 1 참가 구단(12개 팀) 소속 선수들만 순위표에 오르도록 해외 가상 구단 및 K리그 2 비활성 구단 필터 적용 및 기존 레거시 데이터 자동 클린업 적용.</li>
+                        <li><strong>업데이트 기록 모달 추가</strong>: 메인 상단 전북 현대 엠블럼 클릭 시 업데이트 로그 조회 기능 신설.</li>
+                    </ul>
+                </div>
+
+                <div class="update-entry" style="border-left: 3px solid #ffd700; padding-left: 0.8rem;">
+                    <h4 style="font-size: 0.95rem; font-weight: 800; color: #ffd700; margin: 0 0 0.4rem 0; display: flex; justify-content: space-between; align-items: center;">
+                        <span>v1.3.0</span>
+                        <span style="font-size: 0.75rem; color: #64748b; font-weight: normal;">2026.06.03</span>
+                    </h4>
+                    <ul style="margin: 0; padding-left: 1.1rem; font-size: 0.82rem; line-height: 1.5; color: #cbd5e1;">
+                        <li><strong>상대방 득점자/도움자 실명 중계</strong>: 문자 중계 코멘터리에 상대 선수의 실명(이동경, 세징야 등) 및 패널티킥 실명 키커 노출 구현.</li>
+                        <li><strong>코리아컵(리그컵) 및 연장 극장골 연동</strong>: 컵 대회 득점/도움 기록 내 상대 구단 주요 선수 실명 완벽 적재.</li>
+                        <li><strong>상대팀 주요 선수 CSV 데이터 구축</strong>: K리그 및 해외 구단 총 20개 상대팀 에이스/미드필더 핵심 데이터셋 코딩 완료.</li>
+                    </ul>
+                </div>
+
+                <div class="update-entry" style="border-left: 3px solid #a55eea; padding-left: 0.8rem;">
+                    <h4 style="font-size: 0.95rem; font-weight: 800; color: #a55eea; margin: 0 0 0.4rem 0; display: flex; justify-content: space-between; align-items: center;">
+                        <span>v1.2.0</span>
+                        <span style="font-size: 0.75rem; color: #64748b; font-weight: normal;">2026.05.28</span>
+                    </h4>
+                    <ul style="margin: 0; padding-left: 1.1rem; font-size: 0.82rem; line-height: 1.5; color: #cbd5e1;">
+                        <li><strong>친선 매칭 해외 명문 구단 결합</strong>: LA FC(손흥민), PSG(이강인), 아스날(사카), 레알 마드리드(음바페), 토쿄FC(마츠키) 등 해외 5개 가상 구단 연동.</li>
+                        <li><strong>동적 OVR 밸런스 조정</strong>: 내 스쿼드 평균 OVR 대비 +-2 범위의 상대팀 OVR 동적 난이도 매칭 탑재.</li>
+                    </ul>
+                </div>
+
+                <div class="update-entry" style="border-left: 3px solid #94a3b8; padding-left: 0.8rem;">
+                    <h4 style="font-size: 0.95rem; font-weight: 800; color: #94a3b8; margin: 0 0 0.4rem 0; display: flex; justify-content: space-between; align-items: center;">
+                        <span>v1.1.0 이전</span>
+                        <span style="font-size: 0.75rem; color: #64748b; font-weight: normal;">이전 버전</span>
+                    </h4>
+                    <ul style="margin: 0; padding-left: 1.1rem; font-size: 0.82rem; line-height: 1.5; color: #cbd5e1;">
+                        <li><strong>단어 퀴즈 시스템 개편</strong>: TTS 원어민 자동 발음 기능 및 패스(Pass) 시 정답 피드백 뷰 추가.</li>
+                        <li><strong>선수단 등번호(Squad Number) 설정</strong>: 포메이션 화면 피치 하단에서 등번호 자동/수동 커스텀 설정 기능 신설.</li>
+                        <li><strong>PWA 및 모바일 터치 최적화</strong>: 모바일 홈 화면 설치(Manifest) 대응 및 터치 감도 보정.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <button class="btn-open-pack" onclick="closeUpdateLogModal()" style="width: 100%; margin-top: 1.2rem; padding: 0.75rem; font-weight: 800;">확인</button>
+        </div>
     </div>
 
     <!-- REAL-TIME USER AUTH MODAL (Glassmorphism Modal) -->

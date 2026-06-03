@@ -298,7 +298,8 @@ function checkAndCloseActiveModal() {
         { id: 'levelRewardModal', active: (el) => el.classList.contains('active'), close: () => { if (typeof closeLevelRewardModal === 'function') closeLevelRewardModal(); } },
         { id: 'friendlyMatchModal', active: (el) => el.style.display === 'flex' || el.classList.contains('active'), close: () => { if (typeof closeFriendlyMatchModal === 'function') closeFriendlyMatchModal(); } },
         { id: 'friendlyCloseModal', active: (el) => el.style.display === 'flex' || el.classList.contains('active'), close: () => { if (typeof closeFriendlyCloseModal === 'function') closeFriendlyCloseModal(); } },
-        { id: 'revealModal', active: (el) => el.classList.contains('active'), close: () => { if (typeof closeRevealModal === 'function') closeRevealModal(); } }
+        { id: 'revealModal', active: (el) => el.classList.contains('active'), close: () => { if (typeof closeRevealModal === 'function') closeRevealModal(); } },
+        { id: 'updateLogModal', active: (el) => el.classList.contains('active'), close: () => { if (typeof closeUpdateLogModal === 'function') closeUpdateLogModal(); } }
     ];
 
     for (const m of modals) {
@@ -309,4 +310,14 @@ function checkAndCloseActiveModal() {
         }
     }
     return false;
+}
+
+function openUpdateLogModal() {
+    const modal = document.getElementById('updateLogModal');
+    if (modal) modal.classList.add('active');
+}
+
+function closeUpdateLogModal() {
+    const modal = document.getElementById('updateLogModal');
+    if (modal) modal.classList.remove('active');
 }
