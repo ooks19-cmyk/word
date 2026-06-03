@@ -848,6 +848,143 @@ function startCupMatchSimulation() {
     const eventMins = [15, 45, 63, 82, 88];
     let tickIdx = 0;
 
+    if (isDeveloperMode) {
+        if (timeDisplay) {
+            timeDisplay.textContent = "종료";
+            timeDisplay.classList.remove('live-ticking');
+        }
+        
+        matchMinutes.forEach(currentMin => {
+            if (currentMin === 0) {
+                addCommentary(0, getMatchEventCommentary('KICKOFF', commentaryData, false), 'normal');
+            } else if (eventMins.includes(currentMin)) {
+                // 특별 돌발 변수 체크
+                const activePlayers = { ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName, GK: commentaryData.activeGk };
+                const specialEvent = rollSpecialMatchEvent(activePlayers, opponent.name);
+                
+                if (specialEvent) {
+                    addCommentary(currentMin, specialEvent.eventDesc, 'system');
+                    if (specialEvent.type === "pk_player") {
+                        const isGoal = specialEvent.isGoal;
+                        if (isGoal) {
+                            playerScoreVal++;
+                            const goalData = determineScorerAndAssister(1); // PK는 보통 ST가 키커
+                            addPlayerStatRecord(isHome ? playerMatch.team1 : playerMatch.team2, goalData.scorerName, goalData.assisterName);
+                            addCommentary(currentMin, specialEvent.eventGoal, 'goal');
+                        } else {
+                            addCommentary(currentMin, specialEvent.eventFail, 'normal');
+                        }
+                    } else if (specialEvent.type === "pk_opponent") {
+                        const isGoal = specialEvent.isGoal;
+                        if (isGoal) {
+                            opponentScoreVal++;
+                            addPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, null, null);
+                            addCommentary(currentMin, specialEvent.eventGoal, 'normal');
+                        } else {
+                            addCommentary(currentMin, specialEvent.eventFail, 'normal');
+                        }
+                    } else if (specialEvent.type === "red_opponent") {
+                        activeDiff += specialEvent.ovrChange; // +5
+                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus));
+                        addCommentary(currentMin, specialEvent.eventFail, 'normal');
+                    } else if (specialEvent.type === "red_player") {
+                        activeDiff += specialEvent.ovrChange; // -5
+                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus));
+                        addCommentary(currentMin, specialEvent.eventFail, 'normal');
+                    }
+                } else {
+                    const isPlayerAttack = Math.random() < activePlayerAttackProb;
+                    
+                    if (isPlayerAttack) {
+                        let attackOptions = [0, 1, 2];
+                        if (currentFormation === '4-2-3-1') attackOptions.push(5);
+                        
+                        const selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
+                        let chancePlayerStat = 75;
+                        
+                        if (selectedOption === 0) {
+                            const lwCardId = squadFormation['LW'];
+                            if (lwCardId && CARDS_DATABASE[lwCardId]) chancePlayerStat = Math.round(((getAwakenedCard(lwCardId).stats.dri || 75) + (getAwakenedCard(lwCardId).stats.sho || 75)) / 2);
+                        } else if (selectedOption === 1) {
+                            const stCardId = squadFormation['ST'];
+                            if (stCardId && CARDS_DATABASE[stCardId]) chancePlayerStat = getAwakenedCard(stCardId).stats.sho || 75;
+                        } else if (selectedOption === 2) {
+                            const rwCardId = squadFormation['RW'];
+                            if (rwCardId && CARDS_DATABASE[rwCardId]) chancePlayerStat = Math.round(((getAwakenedCard(rwCardId).stats.pac || 75) + (getAwakenedCard(rwCardId).stats.sho || 75)) / 2);
+                        } else if (selectedOption === 5) {
+                            const cmCardId = squadFormation['CM'];
+                            if (cmCardId && CARDS_DATABASE[cmCardId]) chancePlayerStat = getAwakenedCard(cmCardId).stats.dri || 75;
+                        }
+                        
+                        const playerChanceBonus = (chancePlayerStat - opponent.rating) * 0.01;
+                        const scoreProb = Math.min(0.60, Math.max(0.10, 0.20 + (activeDiff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus));
+                        const isGoal = Math.random() < scoreProb;
+                        
+                        const activePlayers = { ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName };
+                        const isTacticActive = detailedTacticBonus > 0;
+                        const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers);
+                        
+                        addCommentary(currentMin, eventDesc, 'attack');
+                        
+                        if (isGoal) {
+                            playerScoreVal++;
+                            const goalData = determineScorerAndAssister(selectedOption);
+                            addPlayerStatRecord(isHome ? playerMatch.team1 : playerMatch.team2, goalData.scorerName, goalData.assisterName);
+                            addCommentary(currentMin, eventGoal, 'goal');
+                        } else {
+                            addCommentary(currentMin, eventFail, 'normal');
+                        }
+                    } else {
+                        let playerGkStat = 70;
+                        const gkCardId = squadFormation['GK'];
+                        if (gkCardId && CARDS_DATABASE[gkCardId]) {
+                            playerGkStat = getAwakenedCard(gkCardId).stats.def || getAwakenedCard(gkCardId).rating || 70;
+                        }
+                        
+                        const oppChanceBonus = (opponent.rating - playerGkStat) * 0.01;
+                        const oppScoreProb = Math.min(0.90, Math.max(0.08, 0.35 - (activeDiff * 0.026) + oppChanceBonus));
+                        const isGoal = Math.random() < oppScoreProb;
+                        
+                        addCommentary(currentMin, getMatchEventCommentary('OPP_ATTACK', commentaryData, false), 'attack');
+                        
+                        if (isGoal) {
+                            opponentScoreVal++;
+                            addPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, null, null);
+                            addCommentary(currentMin, getMatchEventCommentary('OPP_GOAL', commentaryData, false), 'normal');
+                        } else {
+                            addCommentary(currentMin, getMatchEventCommentary('GK_SAVE', commentaryData, false), 'normal');
+                        }
+                    }
+                }
+            } else if (currentMin === 45) {
+                commentaryData.playerScoreVal = isHome ? playerScoreVal : opponentScoreVal;
+                commentaryData.opponentScoreVal = isHome ? opponentScoreVal : playerScoreVal;
+                addCommentary('HT', getMatchEventCommentary('HALFTIME', commentaryData, false), 'system');
+            }
+        });
+
+        // 스코어판 갱신
+        if (isHome) {
+            document.getElementById('cupHomeScore').innerText = playerScoreVal;
+            document.getElementById('cupAwayScore').innerText = opponentScoreVal;
+        } else {
+            document.getElementById('cupHomeScore').innerText = opponentScoreVal;
+            document.getElementById('cupAwayScore').innerText = playerScoreVal;
+        }
+
+        commentaryData.playerScoreVal = isHome ? playerScoreVal : opponentScoreVal;
+        commentaryData.opponentScoreVal = isHome ? opponentScoreVal : playerScoreVal;
+        addCommentary('FT', getMatchEventCommentary('FULLTIME', commentaryData, false), 'system');
+
+        if (playerScoreVal === opponentScoreVal) {
+            addCommentary('SYSTEM', "⚖️ 정규 시간 90분 무승부! 토너먼트 규정에 따라 연장전으로 돌입합니다.", "system");
+            runActualCupExtraTime(playerScoreVal, opponentScoreVal, playerMatch, playerOvr, opponent.rating, playerScorerName, playerAssisterName, isHome);
+        } else {
+            finalizeCupMatch(isHome ? playerScoreVal : opponentScoreVal, isHome ? opponentScoreVal : playerScoreVal, playerMatch);
+        }
+        return;
+    }
+
     const matchTimer = setInterval(() => {
         const currentMin = matchMinutes[tickIdx];
         if (timeDisplay) timeDisplay.textContent = `${currentMin}'`;
@@ -1081,6 +1218,36 @@ function runActualCupExtraTime(score1, score2, playerMatch, playerOvr, opponentO
 
     const etResult = simulateExtraTimeEngine(etData);
     
+    if (isDeveloperMode) {
+        if (timeDisplay) {
+            timeDisplay.innerText = "종료";
+            timeDisplay.classList.remove('live-ticking');
+        }
+        
+        etResult.events.forEach(ev => {
+            if (ev.type === 'goal') {
+                document.getElementById('cupHomeScore').innerText = ev.score1;
+                document.getElementById('cupAwayScore').innerText = ev.score2;
+                
+                const isGoalByPlayer = (ev.side === 'team1' && isHome) || (ev.side === 'team2' && !isHome);
+                if (isGoalByPlayer) {
+                    addPlayerStatRecord(isHome ? playerMatch.team1 : playerMatch.team2, activeScorerName, activeAssisterName);
+                } else {
+                    addPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, null, null);
+                }
+            }
+            addCommentary(ev.min, ev.text, ev.type);
+        });
+
+        if (etResult.score1 === etResult.score2) {
+            addCommentary('SYSTEM', "⚖️ 연장 120분 혈투 끝에도 승부가 나지 않았습니다! 최후의 승부차기로 돌입합니다.", "system");
+            runActualCupPenaltyShootout(etResult.score1, etResult.score2, playerMatch, playerOvr, opponentOvr, isHome);
+        } else {
+            finalizeCupMatch(etResult.score1, etResult.score2, playerMatch);
+        }
+        return;
+    }
+
     let etTick = 0;
     const etTimer = setInterval(() => {
         if (etTick < etResult.events.length) {
@@ -1149,6 +1316,19 @@ function runActualCupPenaltyShootout(etScore1, etScore2, playerMatch, playerOvr,
 
     const pkResult = simulatePenaltyShootoutEngine(pkData);
     
+    if (isDeveloperMode) {
+        pkResult.events.forEach(ev => {
+            if (ev.round > 0) {
+                document.getElementById('cupHomeScore').innerText = `${etScore1} (${ev.score1})`;
+                document.getElementById('cupAwayScore').innerText = `${etScore2} (${ev.score2})`;
+            }
+            addCommentary(ev.round === 0 ? 'PK' : `PK ${ev.round}`, ev.text, ev.success ? 'goal' : 'normal');
+        });
+        
+        finalizeCupMatch(etScore1, etScore2, playerMatch, pkResult.pkScore1, pkResult.pkScore2);
+        return;
+    }
+
     let pkTick = 0;
     const pkTimer = setInterval(() => {
         if (pkTick < pkResult.events.length) {

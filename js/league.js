@@ -330,6 +330,13 @@ function initLeague() {
     if (typeof initFriendlyMatchState === 'function') {
         initFriendlyMatchState();
     }
+    
+    // 시즌 완료 후 페이지 새로고침 시 챔피언 확인 모달 자동 복구
+    if (leagueRound > 33) {
+        setTimeout(() => {
+            checkSeasonChampion();
+        }, 500);
+    }
 }
 
 // getPlayerPureOvr() and syncJeonbukOvr() have been moved to js/match_algorithm.js
