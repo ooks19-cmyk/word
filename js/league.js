@@ -1358,7 +1358,7 @@ function startMatchSimulation() {
         }
         
         tickIdx++;
-    }, 1100); // Ticks run roughly every 1.1s to hit the ~10s duration constraint perfectly
+    }, 1500); // Ticks run roughly every 1.5s to hit the ~15s duration constraint perfectly
 }
 
 function simulateOtherMatches(opponentId) {

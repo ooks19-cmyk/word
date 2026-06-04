@@ -398,7 +398,7 @@ function updateCupScoreboard() {
         
         if (btn) {
             btn.disabled = false;
-            btn.innerHTML = `<i class="fa-solid fa-play" style="margin-right: 8px;"></i>코리아컵 경기 시작 (10초 소요)`;
+            btn.innerHTML = `<i class="fa-solid fa-play" style="margin-right: 8px;"></i>코리아컵 경기 시작 (15초 소요)`;
         }
     }
 
@@ -616,7 +616,7 @@ function renderCupStats() {
     });
 }
 
-// 8. 코리아컵 경기 시뮬레이터 (10초 단판 라이브 텍스트 중계)
+// 8. 코리아컵 경기 시뮬레이터 (15초 단판 라이브 텍스트 중계)
 function startCupMatchSimulation() {
     if (cupState.isFinished) {
         alert("이미 이번 시즌 코리아컵이 종료되었습니다.");
@@ -1206,7 +1206,7 @@ function startCupMatchSimulation() {
                 finalizeCupMatch(isHome ? playerScoreVal : opponentScoreVal, isHome ? opponentScoreVal : playerScoreVal, playerMatch);
             }
         }
-    }, 1000);
+    }, 1500);
 }
 
 function playerLwName() {

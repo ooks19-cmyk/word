@@ -1404,7 +1404,7 @@ function startFriendlyMatchSimulation() {
             clearInterval(matchTimer);
             finishFriendlyMatch();
         }
-    }, isDeveloperMode ? 0 : 900);
+    }, isDeveloperMode ? 0 : 1500);
 }
 
 // 친선경기 강제 데이터 리프레시 (원격 DB 재동기화 및 릴레이 재도전)
