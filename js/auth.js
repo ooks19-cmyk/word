@@ -503,7 +503,7 @@ function checkLevelUpRewards(level) {
         showLevelRewardModal(
             "🚀 특별 목표 알림 🚀",
             "Lv. 2 달성을 축하합니다!",
-            "레벨 10이 되면 특급 윙어 <strong>'이승우'</strong>, 레벨 20이 되면 월드클래스 <strong>'손흥민'</strong>, 레벨 30이 되면 파리의 마술사 <strong>'이강인'</strong>, 레벨 40이 되면 태극전사 <strong>'이승우(스페셜)'</strong>, 레벨 50이 되면 영원한 산소탱크 <strong>'박지성'</strong>, 레벨 60이 되면 마스터 플레이메이커 <strong>'기성용'</strong>, 레벨 70이 되면 괴물 수비수 <strong>'김민재'</strong>, 레벨 80이 되면 중원의 열정 엔진 <strong>'이재성'</strong>, 레벨 90이 되면 왼발의 마술사 <strong>'이동경'</strong> 특별 카드 등 다양한 특별 보상을 즉시 받으실 수 있습니다!<br><br>열심히 단어 공부를 하고 특별한 혜택을 쟁취해보세요!"
+            "레벨 10이 되면 특급 윙어 <strong>'이승우'</strong>, 레벨 20이 되면 월드클래스 <strong>'손흥민'</strong>, 레벨 30이 되면 파리의 마술사 <strong>'이강인'</strong>, 레벨 40이 되면 태극전사 <strong>'이승우(스페셜)'</strong>, 레벨 50이 되면 영원한 산소탱크 <strong>'박지성'</strong>, 레벨 60이 되면 마스터 플레이메이커 <strong>'기성용'</strong>, 레벨 70이 되면 괴물 수비수 <strong>'김민재'</strong>, 레벨 80이 되면 중원의 열정 엔진 <strong>'이재성'</strong>, 레벨 90이 되면 왼발의 마술사 <strong>'이동경'</strong> 특별 카드, 레벨 110이 되면 대한민국의 핵심 사령탑 <strong>'황인범'</strong> 특별 카드 등 다양한 특별 보상을 즉시 받으실 수 있습니다!<br><br>열심히 단어 공부를 하고 특별한 혜택을 쟁취해보세요!"
         );
     } else if (level > 0 && level % 10 === 0) {
         let cardId = "";
@@ -527,6 +527,8 @@ function checkLevelUpRewards(level) {
             cardId = "lee_jae_sung";
         } else if (level === 90) {
             cardId = "lee_dong_gyeong";
+        } else if (level === 110) {
+            cardId = "hwang_in_beom";
         } else {
             // Award random card
             if (typeof CARDS_DATABASE !== 'undefined') {
@@ -586,6 +588,8 @@ function checkLevelUpRewards(level) {
                 awardMessage = `축하합니다! 레벨 80 도달 기념으로 대한민국 국가대표 중원의 엔진이자 에이스 <strong>'이재성'</strong> 스페셜 카드가 지급되었습니다!<br><br>${detailMsg}`;
             } else if (level === 90) {
                 awardMessage = `축하합니다! 레벨 90 도달 기념으로 왼발의 마술사라 불리는 대한민국 최고의 테크니션 미드필더 <strong>'이동경'</strong> 스페셜 카드가 지급되었습니다!<br><br>${detailMsg}`;
+            } else if (level === 110) {
+                awardMessage = `축하합니다! 레벨 110 도달 기념으로 대한민국 국가대표 중원의 마에스트로 <strong>'황인범'</strong> 스페셜 카드가 지급되었습니다!<br><br>${detailMsg}`;
             } else {
                 awardMessage = `축하합니다! 레벨 ${level} 도달 기념으로 K리그 최고의 스타 <strong>'${cardObj.name}'</strong> 선수카드가 무작위 특별 보상으로 지급되었습니다!<br><br>${detailMsg}`;
             }

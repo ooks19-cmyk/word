@@ -913,6 +913,56 @@ const CARDS_DATABASE = {
             def: 49,
             phy: 73
         }
+    },
+    "jeon_byung_kwan": {
+        id: "jeon_byung_kwan",
+        name: "전병관",
+        rating: 78,
+        position: "LW",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "JEONBUK",
+        image: "player/전병관.webp",
+        rarity: "normal",
+        description: "빠른 순간 가속도와 날카로운 드리블로 측면 돌파를 즐기는 전북 현대의 영건 전병관입니다. 왕성한 활동량과 과감한 슈팅으로 매번 상대 골문을 위협하는 에너지 넘치는 공격수입니다.",
+        theme: {
+            primary: "#005a3c",
+            secondary: "#ffffff",
+            glow: "#00d2ff"
+        },
+        stats: {
+            pac: 83,
+            sho: 75,
+            pas: 71,
+            dri: 78,
+            def: 38,
+            phy: 65
+        }
+    },
+    "hwang_in_beom": {
+        id: "hwang_in_beom",
+        name: "황인범",
+        rating: 86,
+        position: "CM",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "KOREA",
+        image: "player/황인범.webp",
+        rarity: "special",
+        description: "대한민국 축구 국가대표팀의 든든한 사령탑이자 중원의 마에스트로 황인범입니다. 지치지 않는 왕성한 활동량과 컴퓨터 같은 전진 패스, 그리고 넓은 시야와 지능적인 빌드업으로 대표팀 공수의 핵심 조율사 역할을 수행합니다.",
+        theme: {
+            primary: "#da1a32",
+            secondary: "#1d2b58",
+            glow: "#ff2a55"
+        },
+        stats: {
+            pac: 80,
+            sho: 78,
+            pas: 87,
+            dri: 85,
+            def: 74,
+            phy: 79
+        }
     }
 };
 
