@@ -118,6 +118,7 @@ function saveUserProgress() {
         hallOfFame: hallOfFame,
         leaguePlayerStats: leaguePlayerStats,
         careerStats: careerStats,
+        cupState: typeof cupState !== 'undefined' ? cupState : null,
         
         // 친선경기 ID별 실시간 클라우드 전적 연동 필드
         friendlyMatchesHistory: typeof friendlyMatchesHistory !== 'undefined' ? friendlyMatchesHistory : { w: 0, d: 0, l: 0, pts: 0 },
@@ -207,6 +208,15 @@ function syncUserDataOnLogin(userData) {
         
         careerStats = userData.careerStats || { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
         
+        // 코리아컵 상태 클라우드 데이터 복원
+        if (userData.cupState) {
+            cupState = userData.cupState;
+            localStorage.setItem('fc_star_cup_state', JSON.stringify(cupState));
+            if (typeof initCup === 'function') {
+                initCup();
+            }
+        }
+        
         // 클라우드에서 친선경기 전적 및 릴레이 인덱스 상태 복원
         const myId = currentUser;
         friendlyMatchesHistory = userData.friendlyMatchesHistory || { w: 0, d: 0, l: 0, pts: 0 };
@@ -257,6 +267,9 @@ function syncUserDataOnLogin(userData) {
         renderLeagueTable();
         renderLeagueStats();
         renderCareerStats();
+        if (typeof initCupTab === 'function') {
+            initCupTab();
+        }
         
         // Refresh Auth Badge
         updateAuthBadgeUI();
@@ -465,6 +478,7 @@ function handleLogout() {
         localStorage.removeItem('fc_star_league_round');
         localStorage.removeItem('fc_star_squad_numbers');
         localStorage.removeItem('fc_star_squad_captain');
+        localStorage.removeItem('fc_star_cup_state');
         
         showToast("성공적으로 로그아웃되었습니다! 로컬 모드로 리로딩합니다...");
         

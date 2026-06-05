@@ -46,6 +46,16 @@ function initCup() {
         const savedState = localStorage.getItem('fc_star_cup_state');
         if (savedState) {
             cupState = JSON.parse(savedState);
+            // stats 객체가 없는 기존 스토리지 대응 마이그레이션 안전장치
+            if (!cupState.stats) {
+                cupState.stats = {
+                    scorers: [],
+                    assisters: []
+                };
+            } else {
+                if (!cupState.stats.scorers) cupState.stats.scorers = [];
+                if (!cupState.stats.assisters) cupState.stats.assisters = [];
+            }
             // K리그 시즌 연도 동기화 (league.js 연동 대비)
             if (typeof leagueYear !== 'undefined') {
                 cupState.year = leagueYear;
@@ -131,6 +141,9 @@ function saveCupState() {
     try {
         localStorage.setItem('fc_star_cup_state', JSON.stringify(cupState));
     } catch(e) {}
+    if (typeof saveUserProgress === 'function' && typeof currentUser !== 'undefined' && currentUser) {
+        saveUserProgress();
+    }
 }
 
 // 플레이어가 탈락했을 때 자동 복구 및 남은 토너먼트 시뮬레이션 처리
@@ -218,7 +231,13 @@ function simulateRemainingCupRounds() {
                 finalMatch.score2 = score2;
                 finalMatch.winner = score1 > score2 ? 'team1' : 'team2';
                 finalMatch.status = 'completed';
-                addPlayerStatRecord(score1 > score2 ? finalMatch.team1 : finalMatch.team2, null, null);
+                const winnerTeam = score1 > score2 ? finalMatch.team1 : finalMatch.team2;
+                if (typeof determineOpponentScorerAndAssister === 'function') {
+                    const oppGoalData = determineOpponentScorerAndAssister(winnerTeam.id);
+                    addPlayerStatRecord(winnerTeam, oppGoalData.scorerName, oppGoalData.assisterName);
+                } else {
+                    addPlayerStatRecord(winnerTeam, null, null);
+                }
             }
             
             const champion = finalMatch.winner === 'team1' ? finalMatch.team1 : finalMatch.team2;
@@ -587,33 +606,49 @@ function renderCupStats() {
     const assistsBody = document.getElementById('cupAssistsBody');
     if (!goalsBody || !assistsBody) return;
 
+    // 실시간 랭킹 정렬 보장
+    if (cupState.stats && cupState.stats.scorers) {
+        cupState.stats.scorers.sort((a, b) => b.goals - a.goals);
+    }
+    if (cupState.stats && cupState.stats.assisters) {
+        cupState.stats.assisters.sort((a, b) => b.assists - a.assists);
+    }
+
     goalsBody.innerHTML = '';
-    cupState.stats.scorers.slice(0, 5).forEach((p, idx) => {
-        const isJeonbuk = p.teamId === 'jeonbuk';
-        const rowStyle = isJeonbuk ? 'style="background: rgba(0, 255, 135, 0.08); font-weight: bold; color: #ffd700;"' : '';
-        goalsBody.innerHTML += `
-            <tr ${rowStyle} style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                <td style="padding: 6px; text-align: center;">${idx + 1}</td>
-                <td style="padding: 6px;">${p.name}</td>
-                <td style="padding: 6px; color: #94a3b8; font-size: 0.72rem;">${p.teamName}</td>
-                <td style="padding: 6px; text-align: center; font-weight: bold; color: #ffd700;">${p.goals}</td>
-            </tr>
-        `;
-    });
+    if (!cupState.stats.scorers || cupState.stats.scorers.length === 0) {
+        goalsBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #64748b; padding: 12px; font-size: 0.8rem;">득점 기록이 없습니다.</td></tr>`;
+    } else {
+        cupState.stats.scorers.slice(0, 5).forEach((p, idx) => {
+            const isJeonbuk = p.teamId === 'jeonbuk';
+            const rowStyle = isJeonbuk ? 'style="background: rgba(0, 255, 135, 0.08); font-weight: bold; color: #ffd700;"' : '';
+            goalsBody.innerHTML += `
+                <tr ${rowStyle} style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                    <td style="padding: 6px; text-align: center;">${idx + 1}</td>
+                    <td style="padding: 6px;">${p.name}</td>
+                    <td style="padding: 6px; color: #94a3b8; font-size: 0.72rem;">${p.teamName}</td>
+                    <td style="padding: 6px; text-align: center; font-weight: bold; color: #ffd700;">${p.goals}</td>
+                </tr>
+            `;
+        });
+    }
 
     assistsBody.innerHTML = '';
-    cupState.stats.assisters.slice(0, 5).forEach((p, idx) => {
-        const isJeonbuk = p.teamId === 'jeonbuk';
-        const rowStyle = isJeonbuk ? 'style="background: rgba(0, 255, 135, 0.08); font-weight: bold; color: #00ff87;"' : '';
-        assistsBody.innerHTML += `
-            <tr ${rowStyle} style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                <td style="padding: 6px; text-align: center;">${idx + 1}</td>
-                <td style="padding: 6px;">${p.name}</td>
-                <td style="padding: 6px; color: #94a3b8; font-size: 0.72rem;">${p.teamName}</td>
-                <td style="padding: 6px; text-align: center; font-weight: bold; color: #00ff87;">${p.assists}</td>
-            </tr>
-        `;
-    });
+    if (!cupState.stats.assisters || cupState.stats.assisters.length === 0) {
+        assistsBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #64748b; padding: 12px; font-size: 0.8rem;">도움 기록이 없습니다.</td></tr>`;
+    } else {
+        cupState.stats.assisters.slice(0, 5).forEach((p, idx) => {
+            const isJeonbuk = p.teamId === 'jeonbuk';
+            const rowStyle = isJeonbuk ? 'style="background: rgba(0, 255, 135, 0.08); font-weight: bold; color: #00ff87;"' : '';
+            assistsBody.innerHTML += `
+                <tr ${rowStyle} style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                    <td style="padding: 6px; text-align: center;">${idx + 1}</td>
+                    <td style="padding: 6px;">${p.name}</td>
+                    <td style="padding: 6px; color: #94a3b8; font-size: 0.72rem;">${p.teamName}</td>
+                    <td style="padding: 6px; text-align: center; font-weight: bold; color: #00ff87;">${p.assists}</td>
+                </tr>
+            `;
+        });
+    }
 }
 
 // 8. 코리아컵 경기 시뮬레이터 (15초 단판 라이브 텍스트 중계)
@@ -1399,6 +1434,27 @@ function addPlayerStatRecord(team, scorerName, assisterName) {
         cupState.stats.scorers.push({ name: sName, teamName: team.name, goals: 1, teamId: team.id });
     }
 
+    if (isPlayer && scorerName) {
+        // 통산 누적 득점 기록(careerStats)에 실시간 골 저장
+        let scorerId = null;
+        if (typeof CARDS_DATABASE !== 'undefined') {
+            scorerId = Object.keys(CARDS_DATABASE).find(key => CARDS_DATABASE[key].name === scorerName);
+        }
+        if (scorerId) {
+            if (typeof careerStats !== 'undefined' && careerStats) {
+                if (!careerStats.playerGoals) careerStats.playerGoals = {};
+                if (!careerStats.playerGoals[scorerId]) {
+                    careerStats.playerGoals[scorerId] = { name: scorerName, goals: 0 };
+                }
+                careerStats.playerGoals[scorerId].goals += 1;
+                try {
+                    localStorage.setItem('fc_star_career_stats', JSON.stringify(careerStats));
+                } catch (e) {}
+                if (typeof renderCareerStats === 'function') renderCareerStats();
+            }
+        }
+    }
+
     if (assisterName) {
         const existAssister = cupState.stats.assisters.find(a => a.name === assisterName && a.teamId === team.id);
         if (existAssister) {
@@ -1610,7 +1666,13 @@ function simulateCupAiMatches(round) {
         match.winner = score1 > score2 ? 'team1' : 'team2';
         match.status = 'completed';
 
-        addPlayerStatRecord(score1 > score2 ? match.team1 : match.team2, null, null);
+        const winnerTeam = score1 > score2 ? match.team1 : match.team2;
+        if (typeof determineOpponentScorerAndAssister === 'function') {
+            const oppGoalData = determineOpponentScorerAndAssister(winnerTeam.id);
+            addPlayerStatRecord(winnerTeam, oppGoalData.scorerName, oppGoalData.assisterName);
+        } else {
+            addPlayerStatRecord(winnerTeam, null, null);
+        }
     });
 }
 
@@ -1637,23 +1699,11 @@ function resetCupSeason() {
 
 // 10. 가상 통계 제너레이터 헬퍼들
 function generateMockScorers() {
-    return [
-        { name: "주민규", teamName: "울산 HD", goals: 4, teamId: "ulsan" },
-        { name: "일류첸코", teamName: "FC 서울", goals: 3, teamId: "seoul" },
-        { name: "야고", teamName: "강원 FC", goals: 3, teamId: "gangwon" },
-        { name: "세징야", teamName: "대구FC", goals: 2, teamId: "daegu_fc" },
-        { name: "김신욱", teamName: "인천 유나이티드", goals: 2, teamId: "incheon" }
-    ];
+    return [];
 }
 
 function generateMockAssisters() {
-    return [
-        { name: "안데르손", teamName: "FC 서울", assists: 3, teamId: "seoul" },
-        { name: "루빅손", teamName: "울산 HD", assists: 2, teamId: "ulsan" },
-        { name: "송민규", teamName: "전북 현대", assists: 2, teamId: "jeonbuk" },
-        { name: "기성용", teamName: "FC 서울", assists: 2, teamId: "seoul" },
-        { name: "아타루", teamName: "울산 HD", assists: 2, teamId: "ulsan" }
-    ];
+    return [];
 }
 
 // 11. 라운드 정보 텍스트 포맷 헬퍼
