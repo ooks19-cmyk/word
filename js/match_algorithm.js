@@ -18,45 +18,15 @@ function getPlayerPureOvr() {
 function syncJeonbukOvr() {
     let avgOvr = getPlayerPureOvr();
     
-    // 포메이션 전술 완성 보너스 계산 (각 +1, 최대 +2)
-    let hasKeyPlayer = false;
-    let hasTeamTactic = false;
+    // 포메이션 전술 완성 보너스 계산
+    const formTactic = getPlayerFormationTacticBonuses();
+    const hasKeyPlayer = formTactic.hasKeyPlayer;
+    const hasTeamTactic = formTactic.hasTeamTactic;
+    const formationBonus = formTactic.formationBonus;
+    
     let detailsLabel = "";
-    
-    if (currentFormation === '4-3-3') {
-        const cmCardId = squadFormation['CM'];
-        hasKeyPlayer = cmCardId && getAwakenedCard(cmCardId).stats && getAwakenedCard(cmCardId).stats.pas >= 80;
-        const avgPas = getTeamAverageStat('pas');
-        hasTeamTactic = avgPas >= 70;
-    } else if (currentFormation === '3-4-3') {
-        const cmCardId = squadFormation['CM'];
-        hasKeyPlayer = cmCardId && getAwakenedCard(cmCardId).stats && getAwakenedCard(cmCardId).stats.dri >= 80;
-        const avgDri = getTeamAverageStat('dri');
-        hasTeamTactic = avgDri >= 70;
-    } else if (currentFormation === '5-4-1') {
-        const lwCardId = squadFormation['LW'];
-        const rwCardId = squadFormation['RW'];
-        
-        if (lwCardId && getAwakenedCard(lwCardId).stats && getAwakenedCard(lwCardId).stats.pac >= 80) hasKeyPlayer = true;
-        if (rwCardId && getAwakenedCard(rwCardId).stats && getAwakenedCard(rwCardId).stats.pac >= 80) hasKeyPlayer = true;
-        
-        const avgDef = getTeamAverageStat('def');
-        hasTeamTactic = avgDef >= 60; // 수비 기준 60 이상으로 수정!
-    } else if (currentFormation === '4-2-3-1') {
-        const cmCardId = squadFormation['CM'];
-        hasKeyPlayer = cmCardId && getAwakenedCard(cmCardId).stats && getAwakenedCard(cmCardId).stats.dri >= 80;
-        const avgDri = getTeamAverageStat('dri');
-        hasTeamTactic = avgDri >= 70; // 4-2-3-1은 팀 평균 70이상으로 완화!
-    }
-    
-    let formationBonus = 0;
-    if (currentFormation !== '4-4-2') {
-        if (hasKeyPlayer) formationBonus += 1;
-        if (hasTeamTactic) formationBonus += 1;
-        
-        if (formationBonus > 0) {
-            detailsLabel = ` (+${formationBonus} 전술 완성)`;
-        }
+    if (currentFormation !== '4-4-2' && formationBonus > 0) {
+        detailsLabel = ` (+${formationBonus} 전술 완성)`;
     }
     
     avgOvr += formationBonus;
@@ -117,58 +87,27 @@ function syncJeonbukOvr() {
     // 실시간 세부 전술 달성 현황판 업데이트
     let detailedTacticName = "세부 전술 없음";
     let detailedTacticDesc = "해당 없음";
-    let isDetailedActive = false;
     
     if (currentFormation === '4-3-3') {
         detailedTacticName = "타겟맨 (Target Man)";
         detailedTacticDesc = "ST 피지컬 80 이상";
-        const stCardId = squadFormation['ST'];
-        isDetailedActive = stCardId && getAwakenedCard(stCardId).stats && getAwakenedCard(stCardId).stats.phy >= 80;
     } else if (currentFormation === '3-4-3') {
         detailedTacticName = "전방압박 (Gegenpressing)";
         detailedTacticDesc = "공격수 2명 속도 90 이상";
-        let fastAttackersCount = 0;
-        const attackers = ["LW", "ST", "RW"];
-        attackers.forEach(pos => {
-            const cardId = squadFormation[pos];
-            if (cardId && getAwakenedCard(cardId).stats && getAwakenedCard(cardId).stats.pac >= 90) {
-                fastAttackersCount++;
-            }
-        });
-        isDetailedActive = fastAttackersCount >= 2;
     } else if (currentFormation === '5-4-1') {
         detailedTacticName = "다이렉트 패스 (Direct Pass)";
         detailedTacticDesc = "패스 80이상 수비수 출전";
-        let passDefendersCount = 0;
-        const defenders = ["LB", "LCB", "CM", "RCB", "RB"];
-        defenders.forEach(pos => {
-            const cardId = squadFormation[pos];
-            if (cardId && CARDS_DATABASE[cardId]) {
-                const card = getAwakenedCard(cardId);
-                const isRealDefender = ['CB', 'LB', 'RB'].includes(card.position);
-                if (isRealDefender && card.stats && card.stats.pas >= 80) {
-                    passDefendersCount++;
-                }
-            }
-        });
-        isDetailedActive = passDefendersCount >= 1;
     } else if (currentFormation === '4-2-3-1') {
         detailedTacticName = "티키타카 (Tiki-Taka)";
         detailedTacticDesc = "미드필더 3명 패스 모두 83 이상";
-        let passMidfieldersCount = 0;
-        const midfielders = ["LCM", "CM", "RCM"];
-        midfielders.forEach(pos => {
-            const cardId = squadFormation[pos];
-            if (cardId && getAwakenedCard(cardId).stats && getAwakenedCard(cardId).stats.pas >= 83) {
-                passMidfieldersCount++;
-            }
-        });
-        isDetailedActive = passMidfieldersCount === 3;
     }
 
     const detailedTacticNameEl = document.getElementById('detailed-tactic-name');
     const detailedTacticDescEl = document.getElementById('detailed-tactic-desc');
     const detailedTacticStatusEl = document.getElementById('detailed-tactic-status');
+    
+    const detailedTactic = getPlayerDetailedTacticBonuses();
+    const isDetailedActive = detailedTactic.detailedTacticBonus > 0;
     
     if (detailedTacticNameEl && detailedTacticDescEl && detailedTacticStatusEl) {
         detailedTacticNameEl.innerText = detailedTacticName;
@@ -193,6 +132,281 @@ function syncJeonbukOvr() {
             }
         }
     }
+}
+
+// 2a. 플레이어의 포메이션 전술 완성 보너스 및 비례 공격/득점 확률 계산
+function getPlayerFormationTacticBonuses() {
+    let formationAttackBoost = 0;
+    let formationScoreBoost = 0;
+    let formationTacticDetailsHtml = "";
+    let formationBonus = 0;
+    let hasKeyPlayer = false;
+    let hasTeamTactic = false;
+
+    if (typeof currentFormation !== 'undefined' && currentFormation !== '4-4-2') {
+        if (currentFormation === '4-3-3') {
+            const cmCardId = squadFormation['CM'];
+            hasKeyPlayer = cmCardId && getAwakenedCard(cmCardId).stats && getAwakenedCard(cmCardId).stats.pas >= 80;
+            const avgPas = getTeamAverageStat('pas');
+            hasTeamTactic = avgPas >= 70;
+
+            if (hasKeyPlayer && hasTeamTactic) {
+                const cmPas = getAwakenedCard(cmCardId).stats.pas;
+                formationAttackBoost = (cmPas - 80) * 0.005;
+                formationTacticDetailsHtml = `⚽ <strong>[4-3-3 빌드업 완성]</strong> 핵심 CM(${getAwakenedCard(cmCardId).name})의 패스 능력치(${cmPas}) 비례 공격권 획득 확률 <span style="color:#ffd700; font-weight:800;">+${(formationAttackBoost * 100).toFixed(1)}%</span> 부스트 탑재!`;
+            }
+        } else if (currentFormation === '3-4-3') {
+            const cmCardId = squadFormation['CM'];
+            hasKeyPlayer = cmCardId && getAwakenedCard(cmCardId).stats && getAwakenedCard(cmCardId).stats.dri >= 80;
+            const avgPac = getTeamAverageStat('pac');
+            hasTeamTactic = avgPac >= 70;
+
+            if (hasKeyPlayer && hasTeamTactic) {
+                const cmDri = getAwakenedCard(cmCardId).stats.dri;
+                formationAttackBoost = (cmDri - 80) * 0.005;
+                formationTacticDetailsHtml = `🌀 <strong>[3-4-3 스위칭 완성]</strong> 핵심 CM(${getAwakenedCard(cmCardId).name})의 드리블 능력치(${cmDri}) 비례 공격권 획득 확률 <span style="color:#00ff87; font-weight:800;">+${(formationAttackBoost * 100).toFixed(1)}%</span> 부스트 탑재!`;
+            }
+        } else if (currentFormation === '5-4-1') {
+            const lwCardId = squadFormation['LW'];
+            const rwCardId = squadFormation['RW'];
+            let lwPac = 0;
+            let rwPac = 0;
+
+            if (lwCardId) {
+                const card = getAwakenedCard(lwCardId);
+                if (card && card.stats && card.stats.pac >= 80) {
+                    hasKeyPlayer = true;
+                    lwPac = card.stats.pac;
+                }
+            }
+            if (rwCardId) {
+                const card = getAwakenedCard(rwCardId);
+                if (card && card.stats && card.stats.pac >= 80) {
+                    hasKeyPlayer = true;
+                    rwPac = card.stats.pac;
+                }
+            }
+
+            const avgDef = getTeamAverageStat('def');
+            hasTeamTactic = avgDef >= 60;
+
+            if (hasKeyPlayer && hasTeamTactic) {
+                const bestPac = Math.max(lwPac, rwPac);
+                formationScoreBoost = (bestPac - 80) * 0.005;
+                formationTacticDetailsHtml = `⚡ <strong>[5-4-1 역습 완성]</strong> 에이스 윙어 최고속도(${bestPac}) 비례 득점 성공 확률 <span style="color:#ff3e6c; font-weight:800;">+${(formationScoreBoost * 100).toFixed(1)}%</span> 부스트 탑재!`;
+            }
+        } else if (currentFormation === '4-2-3-1') {
+            const cmCardId = squadFormation['CM'];
+            hasKeyPlayer = cmCardId && getAwakenedCard(cmCardId).stats && getAwakenedCard(cmCardId).stats.dri >= 80;
+            const avgDri = getTeamAverageStat('dri');
+            hasTeamTactic = avgDri >= 70;
+
+            if (hasKeyPlayer && hasTeamTactic) {
+                const cmDri = getAwakenedCard(cmCardId).stats.dri;
+                formationAttackBoost = (cmDri - 80) * 0.005;
+                formationTacticDetailsHtml = `⚽ <strong>[4-2-3-1 점유율 완성]</strong> 핵심 AM(${getAwakenedCard(cmCardId).name})의 드리블 능력치(${cmDri}) 비례 공격권 획득 확률 <span style="color:#00d2fc; font-weight:800;">+${(formationAttackBoost * 100).toFixed(1)}%</span> 부스트 탑재!`;
+            }
+        }
+
+        if (hasKeyPlayer) formationBonus += 1;
+        if (hasTeamTactic) formationBonus += 1;
+    }
+
+    return {
+        formationAttackBoost,
+        formationScoreBoost,
+        formationTacticDetailsHtml,
+        formationBonus,
+        hasKeyPlayer,
+        hasTeamTactic
+    };
+}
+
+// 2b. 플레이어의 세부전술 및 전술 적합도 보너스 계산
+function getPlayerDetailedTacticBonuses() {
+    let detailedTacticBonus = 0;
+    let suitabilityBonus = 0;
+    let detailedTacticLabel = "";
+    let suitabilityLabel = "";
+
+    if (typeof currentFormation !== 'undefined') {
+        if (currentFormation === '4-3-3') {
+            const stCardId = squadFormation['ST'];
+            const isDetailedActive = stCardId && getAwakenedCard(stCardId).stats && getAwakenedCard(stCardId).stats.phy >= 80;
+            if (isDetailedActive) {
+                detailedTacticBonus = 0.05;
+                detailedTacticLabel = ` [세부전술: 타겟맨 활성 (+5.0%)]`;
+            }
+            const avgPas = getTeamAverageStat('pas');
+            suitabilityBonus = Math.max(0, (avgPas - 70) * 0.01);
+            if (suitabilityBonus > 0) {
+                suitabilityLabel = ` [전술적합(PAS): +${(suitabilityBonus * 100).toFixed(1)}%]`;
+            }
+        } else if (currentFormation === '3-4-3') {
+            let fastAttackersCount = 0;
+            const attackers = ["LW", "ST", "RW"];
+            attackers.forEach(pos => {
+                const cardId = squadFormation[pos];
+                if (cardId && getAwakenedCard(cardId).stats && getAwakenedCard(cardId).stats.pac >= 90) {
+                    fastAttackersCount++;
+                }
+            });
+            const isDetailedActive = fastAttackersCount >= 2;
+            if (isDetailedActive) {
+                detailedTacticBonus = 0.05;
+                detailedTacticLabel = ` [세부전술: 전방압박 활성 (+5.0%)]`;
+            }
+            const avgPac = getTeamAverageStat('pac');
+            suitabilityBonus = Math.max(0, (avgPac - 70) * 0.01);
+            if (suitabilityBonus > 0) {
+                suitabilityLabel = ` [전술적합(PAC): +${(suitabilityBonus * 100).toFixed(1)}%]`;
+            }
+        } else if (currentFormation === '5-4-1') {
+            let passDefendersCount = 0;
+            const defenders = ["LB", "LCB", "CM", "RCB", "RB"];
+            defenders.forEach(pos => {
+                const cardId = squadFormation[pos];
+                if (cardId && CARDS_DATABASE[cardId]) {
+                    const card = getAwakenedCard(cardId);
+                    const isRealDefender = ['CB', 'LB', 'RB'].includes(card.position);
+                    if (isRealDefender && card.stats && card.stats.pas >= 80) {
+                        passDefendersCount++;
+                    }
+                }
+            });
+            const isDetailedActive = passDefendersCount >= 1;
+            if (isDetailedActive) {
+                detailedTacticBonus = 0.05;
+                detailedTacticLabel = ` [세부전술: 다이렉트 패스 활성 (+5.0%)]`;
+            }
+            const avgDef = getTeamAverageStat('def');
+            suitabilityBonus = Math.max(0, (avgDef - 60) * 0.01);
+            if (suitabilityBonus > 0) {
+                suitabilityLabel = ` [전술적합(DEF): +${(suitabilityBonus * 100).toFixed(1)}%]`;
+            }
+        } else if (currentFormation === '4-2-3-1') {
+            let passMidfieldersCount = 0;
+            const midfielders = ["LCM", "CM", "RCM"];
+            midfielders.forEach(pos => {
+                const cardId = squadFormation[pos];
+                if (cardId && getAwakenedCard(cardId).stats && getAwakenedCard(cardId).stats.pas >= 83) {
+                    passMidfieldersCount++;
+                }
+            });
+            const isDetailedActive = passMidfieldersCount === 3;
+            if (isDetailedActive) {
+                detailedTacticBonus = 0.05;
+                detailedTacticLabel = ` [세부전술: 티키타카 활성 (+5.0%)]`;
+            }
+            const avgDri = getTeamAverageStat('dri');
+            suitabilityBonus = Math.max(0, (avgDri - 70) * 0.01);
+            if (suitabilityBonus > 0) {
+                suitabilityLabel = ` [전술적합(DRI): +${(suitabilityBonus * 100).toFixed(1)}%]`;
+            }
+        }
+    }
+
+    return {
+        detailedTacticBonus,
+        suitabilityBonus,
+        detailedTacticLabel,
+        suitabilityLabel
+    };
+}
+
+// 2c. 친선경기 상대(AI)의 포메이션 OVR 보너스 수치 계산
+function getOpponentFormationTacticStatus(opponentData) {
+    if (!opponentData) return 0;
+    
+    const formation = opponentData.squadFormation || {};
+    const deck = opponentData.playerDeck || {};
+    const currentFormation = opponentData.currentFormation || '4-4-2';
+    
+    let hasKeyPlayer = false;
+    let hasTeamTactic = false;
+    
+    const getOpponentAwakenedCardLocal = (cardId) => {
+        if (!cardId || !CARDS_DATABASE[cardId]) return null;
+        const cardCopy = JSON.parse(JSON.stringify(CARDS_DATABASE[cardId]));
+        if (deck && deck[cardId]) {
+            const level = deck[cardId].awakening || 0;
+            cardCopy.rating += level;
+        }
+        return cardCopy;
+    };
+    
+    const getOpponentTeamAverageStatLocal = (statKey) => {
+        let totalStat = 0;
+        TACTICAL_POSITIONS.forEach(pos => {
+            const cardId = formation[pos];
+            const card = getOpponentAwakenedCardLocal(cardId);
+            if (card && card.stats && card.stats[statKey] !== undefined) {
+                totalStat += card.stats[statKey];
+            } else {
+                totalStat += 50;
+            }
+        });
+        return Math.round(totalStat / 11);
+    };
+    
+    if (currentFormation === '4-3-3') {
+        const cmCardId = formation['CM'];
+        const cmCard = getOpponentAwakenedCardLocal(cmCardId);
+        hasKeyPlayer = cmCard && cmCard.stats && cmCard.stats.pas >= 80;
+        const avgPas = getOpponentTeamAverageStatLocal('pas');
+        hasTeamTactic = avgPas >= 70;
+    } else if (currentFormation === '3-4-3') {
+        const cmCardId = formation['CM'];
+        const cmCard = getOpponentAwakenedCardLocal(cmCardId);
+        hasKeyPlayer = cmCard && cmCard.stats && cmCard.stats.dri >= 80;
+        const avgPac = getOpponentTeamAverageStatLocal('pac');
+        hasTeamTactic = avgPac >= 70;
+    } else if (currentFormation === '5-4-1') {
+        const lwCardId = formation['LW'];
+        const rwCardId = formation['RW'];
+        const lwCard = getOpponentAwakenedCardLocal(lwCardId);
+        const rwCard = getOpponentAwakenedCardLocal(rwCardId);
+        if (lwCard && lwCard.stats && lwCard.stats.pac >= 80) hasKeyPlayer = true;
+        if (rwCard && rwCard.stats && rwCard.stats.pac >= 80) hasKeyPlayer = true;
+        const avgDef = getOpponentTeamAverageStatLocal('def');
+        hasTeamTactic = avgDef >= 60;
+    } else if (currentFormation === '4-2-3-1') {
+        const cmCardId = formation['CM'];
+        const cmCard = getOpponentAwakenedCardLocal(cmCardId);
+        hasKeyPlayer = cmCard && cmCard.stats && cmCard.stats.dri >= 80;
+        const avgDri = getOpponentTeamAverageStatLocal('dri');
+        hasTeamTactic = avgDri >= 70;
+    }
+    
+    let formationBonus = 0;
+    if (currentFormation !== '4-4-2') {
+        if (hasKeyPlayer) formationBonus += 1;
+        if (hasTeamTactic) formationBonus += 1;
+    }
+    
+    return formationBonus;
+}
+
+// 2d. 최종 매치 OVR 통합 연산 (홈어드밴티지 및 친선전 유도 포함)
+function calculateFinalMatchOvrs(venueType, isPlayerHome, opponentBaseOvr, isFriendlyMode = false, opponentData = null) {
+    let playerOvr = getPlayerPureOvr();
+    let opponentOvr = opponentBaseOvr;
+    
+    if (!isFriendlyMode) {
+        // 리그와 컵 모드는 포메이션 OVR 완성 보너스 적용
+        const formTactic = getPlayerFormationTacticBonuses();
+        playerOvr += formTactic.formationBonus;
+    }
+    
+    if (venueType === 'league') {
+        if (isPlayerHome) {
+            playerOvr += 2;
+        } else {
+            opponentOvr += 2;
+        }
+    }
+    
+    return { playerOvr, opponentOvr };
 }
 
 // 3. 포메이션 세부 전술 연동 매치 코멘터리 생성 (리그 & 친선경기 시뮬레이터 공용)

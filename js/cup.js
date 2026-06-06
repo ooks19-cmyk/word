@@ -715,141 +715,24 @@ function startCupMatchSimulation() {
     } catch(e) {}
 
     // 실제 전북 현대 스쿼드 OVR 및 전술 보너스 연산
-    let playerOvr = (typeof getPlayerPureOvr === 'function') ? getPlayerPureOvr() : 70;
-    let formationBonus = 0;
-    
-    if (typeof currentFormation !== 'undefined' && currentFormation !== '4-4-2') {
-        let hasKeyPlayer = false;
-        let hasTeamTactic = false;
-        
-        if (currentFormation === '4-3-3') {
-            const cmCardId = squadFormation['CM'];
-            hasKeyPlayer = cmCardId && getAwakenedCard(cmCardId).stats && getAwakenedCard(cmCardId).stats.pas >= 80;
-            hasTeamTactic = getTeamAverageStat('pas') >= 70;
-        } else if (currentFormation === '3-4-3') {
-            const cmCardId = squadFormation['CM'];
-            hasKeyPlayer = cmCardId && getAwakenedCard(cmCardId).stats && getAwakenedCard(cmCardId).stats.dri >= 80;
-            hasTeamTactic = getTeamAverageStat('dri') >= 70;
-        } else if (currentFormation === '5-4-1') {
-            const lwCardId = squadFormation['LW'];
-            const rwCardId = squadFormation['RW'];
-            if (lwCardId && getAwakenedCard(lwCardId).stats && getAwakenedCard(lwCardId).stats.pac >= 80) hasKeyPlayer = true;
-            if (rwCardId && getAwakenedCard(rwCardId).stats && getAwakenedCard(rwCardId).stats.pac >= 80) hasKeyPlayer = true;
-            hasTeamTactic = getTeamAverageStat('def') >= 60;
-        } else if (currentFormation === '4-2-3-1') {
-            const cmCardId = squadFormation['CM'];
-            hasKeyPlayer = cmCardId && getAwakenedCard(cmCardId).stats && getAwakenedCard(cmCardId).stats.dri >= 80;
-            hasTeamTactic = getTeamAverageStat('dri') >= 70;
-        }
-        
-        if (hasKeyPlayer) formationBonus += 1;
-        if (hasTeamTactic) formationBonus += 1;
-    }
-    playerOvr += formationBonus;
+    const formTactic = getPlayerFormationTacticBonuses();
+    const formationAttackBoost = formTactic.formationAttackBoost;
+    const formationScoreBoost = formTactic.formationScoreBoost;
+    const formationTacticDetailsHtml = formTactic.formationTacticDetailsHtml;
 
-    let formationAttackBoost = 0;
-    let formationScoreBoost = 0;
-    let formationTacticDetailsHtml = "";
-    
-    if (currentFormation === '4-3-3') {
-        const cmCardId = squadFormation['CM'];
-        if (cmCardId && getAwakenedCard(cmCardId).stats && getAwakenedCard(cmCardId).stats.pas >= 80 && getTeamAverageStat('pas') >= 70) {
-            const cmPas = getAwakenedCard(cmCardId).stats.pas;
-            formationAttackBoost = (cmPas - 80) * 0.005;
-            formationTacticDetailsHtml = `⚽ <strong>[4-3-3 빌드업 완성]</strong> 핵심 CM(${getAwakenedCard(cmCardId).name})의 패스 능력치(${cmPas}) 비례 공격권 획득 확률 <span style="color:#ffd700; font-weight:800;">+${(formationAttackBoost * 100).toFixed(1)}%</span> 부스트 탑재!`;
-        }
-    } else if (currentFormation === '3-4-3') {
-        const cmCardId = squadFormation['CM'];
-        if (cmCardId && getAwakenedCard(cmCardId).stats && getAwakenedCard(cmCardId).stats.dri >= 80 && getTeamAverageStat('dri') >= 70) {
-            const cmDri = getAwakenedCard(cmCardId).stats.dri;
-            formationAttackBoost = (cmDri - 80) * 0.005;
-            formationTacticDetailsHtml = `🌀 <strong>[3-4-3 스위칭 완성]</strong> 핵심 CM(${getAwakenedCard(cmCardId).name})의 드리블 능력치(${cmDri}) 비례 공격권 획득 확률 <span style="color:#00ff87; font-weight:800;">+${(formationAttackBoost * 100).toFixed(1)}%</span> 부스트 탑재!`;
-        }
-    } else if (currentFormation === '5-4-1') {
-        const lwCardId = squadFormation['LW'];
-        const rwCardId = squadFormation['RW'];
-        let hasKeyPlayer = false;
-        let lwPac = 0;
-        let rwPac = 0;
-        if (lwCardId) {
-            const card = getAwakenedCard(lwCardId);
-            if (card && card.stats && card.stats.pac >= 80) { hasKeyPlayer = true; lwPac = card.stats.pac; }
-        }
-        if (rwCardId) {
-            const card = getAwakenedCard(rwCardId);
-            if (card && card.stats && card.stats.pac >= 80) { hasKeyPlayer = true; rwPac = card.stats.pac; }
-        }
-        if (hasKeyPlayer && getTeamAverageStat('def') >= 60) {
-            const bestPac = Math.max(lwPac, rwPac);
-            formationScoreBoost = (bestPac - 80) * 0.005;
-            formationTacticDetailsHtml = `⚡ <strong>[5-4-1 역습 완성]</strong> 에이스 윙어 최고속도(${bestPac}) 비례 득점 성공 확률 <span style="color:#ff3e6c; font-weight:800;">+${(formationScoreBoost * 100).toFixed(1)}%</span> 부스트 탑재!`;
-        }
-    } else if (currentFormation === '4-2-3-1') {
-        const cmCardId = squadFormation['CM'];
-        if (cmCardId && getAwakenedCard(cmCardId).stats && getAwakenedCard(cmCardId).stats.dri >= 80 && getTeamAverageStat('dri') >= 70) {
-            const cmDri = getAwakenedCard(cmCardId).stats.dri;
-            formationAttackBoost = (cmDri - 80) * 0.005;
-            formationTacticDetailsHtml = `⚽ <strong>[4-2-3-1 점유율 완성]</strong> 핵심 AM(${getAwakenedCard(cmCardId).name})의 드리블 능력치(${cmDri}) 비례 공격권 획득 확률 <span style="color:#00d2fc; font-weight:800;">+${(formationAttackBoost * 100).toFixed(1)}%</span> 부스트 탑재!`;
-        }
-    }
-
-    let detailedTacticBonus = 0;
-    let suitabilityBonus = 0;
-    let detailedTacticLabel = "";
-    let suitabilityLabel = "";
-    
-    if (currentFormation === '4-3-3') {
-        const stCardId = squadFormation['ST'];
-        if (stCardId && getAwakenedCard(stCardId).stats && getAwakenedCard(stCardId).stats.phy >= 80) {
-            detailedTacticBonus = 0.05;
-            detailedTacticLabel = ` [세부전술: 타겟맨 활성 (+5.0%)]`;
-        }
-        suitabilityBonus = Math.max(0, (getTeamAverageStat('pas') - 70) * 0.01);
-        if (suitabilityBonus > 0) suitabilityLabel = ` [전술적합(PAS): +${(suitabilityBonus * 100).toFixed(1)}%]`;
-    } else if (currentFormation === '3-4-3') {
-        let fastAttackersCount = 0;
-        ["LW", "ST", "RW"].forEach(pos => {
-            const cardId = squadFormation[pos];
-            if (cardId && getAwakenedCard(cardId).stats && getAwakenedCard(cardId).stats.pac >= 90) fastAttackersCount++;
-        });
-        if (fastAttackersCount >= 2) {
-            detailedTacticBonus = 0.05;
-            detailedTacticLabel = ` [세부전술: 전방압박 활성 (+5.0%)]`;
-        }
-        suitabilityBonus = Math.max(0, (getTeamAverageStat('dri') - 70) * 0.01);
-        if (suitabilityBonus > 0) suitabilityLabel = ` [전술적합(DRI): +${(suitabilityBonus * 100).toFixed(1)}%]`;
-    } else if (currentFormation === '5-4-1') {
-        let passDefendersCount = 0;
-        ["LB", "LCB", "CM", "RCB", "RB"].forEach(pos => {
-            const cardId = squadFormation[pos];
-            if (cardId && CARDS_DATABASE[cardId]) {
-                const card = getAwakenedCard(cardId);
-                if (['CB', 'LB', 'RB'].includes(card.position) && card.stats && card.stats.pas >= 80) passDefendersCount++;
-            }
-        });
-        if (passDefendersCount >= 1) {
-            detailedTacticBonus = 0.05;
-            detailedTacticLabel = ` [세부전술: 다이렉트 패스 활성 (+5.0%)]`;
-        }
-        suitabilityBonus = Math.max(0, (getTeamAverageStat('def') - 60) * 0.01);
-        if (suitabilityBonus > 0) suitabilityLabel = ` [전술적합(DEF): +${(suitabilityBonus * 100).toFixed(1)}%]`;
-    } else if (currentFormation === '4-2-3-1') {
-        let passMidfieldersCount = 0;
-        ["LCM", "CM", "RCM"].forEach(pos => {
-            const cardId = squadFormation[pos];
-            if (cardId && getAwakenedCard(cardId).stats && getAwakenedCard(cardId).stats.pas >= 83) passMidfieldersCount++;
-        });
-        if (passMidfieldersCount === 3) {
-            detailedTacticBonus = 0.05;
-            detailedTacticLabel = ` [세부전술: 티키타카 활성 (+5.0%)]`;
-        }
-        suitabilityBonus = Math.max(0, (getTeamAverageStat('dri') - 70) * 0.01);
-        if (suitabilityBonus > 0) suitabilityLabel = ` [전술적합(DRI): +${(suitabilityBonus * 100).toFixed(1)}%]`;
-    }
+    const detailedTactic = getPlayerDetailedTacticBonuses();
+    const detailedTacticBonus = detailedTactic.detailedTacticBonus;
+    const suitabilityBonus = detailedTactic.suitabilityBonus;
+    const detailedTacticLabel = detailedTactic.detailedTacticLabel;
+    const suitabilityLabel = detailedTactic.suitabilityLabel;
 
     const isHome = playerMatch.team1.id === 'jeonbuk';
     const opponent = isHome ? playerMatch.team2 : playerMatch.team1;
-    const diff = playerOvr - opponent.rating;
+
+    const finalOvrs = calculateFinalMatchOvrs('neutral', isHome, opponent.rating, false);
+    const playerOvr = finalOvrs.playerOvr;
+    const opponentOvr = finalOvrs.opponentOvr;
+    const diff = playerOvr - opponentOvr;
     
     const maxProb = 0.80;
     const minProb = 0.20;

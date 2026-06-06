@@ -307,7 +307,7 @@ const CARDS_DATABASE = {
         },
         stats: {
             pac: 83,
-            sho: 74,
+            sho: 79,
             pas: 72,
             dri: 79,
             def: 45,
@@ -332,7 +332,7 @@ const CARDS_DATABASE = {
         },
         stats: {
             pac: 89,
-            sho: 72,
+            sho: 77,
             pas: 70,
             dri: 80,
             def: 35,
@@ -582,7 +582,7 @@ const CARDS_DATABASE = {
         },
         stats: {
             pac: 86,
-            sho: 75,
+            sho: 80,
             pas: 72,
             dri: 81,
             def: 38,

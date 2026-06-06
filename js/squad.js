@@ -176,6 +176,9 @@ function renderSquadFormation() {
             else if (pos === 'CM') displayPos = 'CB';
         } else if (currentFormation === '3-4-3') {
             if (pos === 'RCM') displayPos = 'DM';
+            else if (pos === 'LCM') displayPos = 'CB';
+            else if (pos === 'LB') displayPos = 'CM';
+            else if (pos === 'RB') displayPos = 'CM';
         } else if (currentFormation === '4-2-3-1') {
             if (pos === 'LW') displayPos = 'LM';
             else if (pos === 'RW') displayPos = 'RM';
@@ -307,6 +310,9 @@ function openCardSelector(position) {
         else if (position === 'CM') displayTitle = 'CB';
     } else if (currentFormation === '3-4-3') {
         if (position === 'RCM') displayTitle = 'DM';
+        else if (position === 'LCM') displayTitle = 'CB';
+        else if (position === 'LB') displayTitle = 'CM';
+        else if (position === 'RB') displayTitle = 'CM';
     } else if (currentFormation === '4-2-3-1') {
         if (position === 'LW') displayTitle = 'LM';
         else if (position === 'RW') displayTitle = 'RM';
@@ -518,6 +524,9 @@ function selectPlayerForPosition(cardId) {
         else if (activeSelectorPosition === 'CM') displayTitle = 'CB';
     } else if (currentFormation === '3-4-3') {
         if (activeSelectorPosition === 'RCM') displayTitle = 'DM';
+        else if (activeSelectorPosition === 'LCM') displayTitle = 'CB';
+        else if (activeSelectorPosition === 'LB') displayTitle = 'CM';
+        else if (activeSelectorPosition === 'RB') displayTitle = 'CM';
     } else if (currentFormation === '4-2-3-1') {
         if (activeSelectorPosition === 'LW') displayTitle = 'LM';
         else if (activeSelectorPosition === 'RW') displayTitle = 'RM';
