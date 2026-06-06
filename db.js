@@ -14,6 +14,32 @@ const firebaseConfig = {
     measurementId: "G-HKJ97FTF6F"
 };
 
+// Helper to recursively remove undefined fields and replace them with null (or skip) for Firestore compatibility
+function cleanUndefined(obj) {
+    if (obj === null || obj === undefined) {
+        return null;
+    }
+    if (Array.isArray(obj)) {
+        return obj.map(item => item === undefined ? null : cleanUndefined(item));
+    }
+    if (typeof obj === 'object') {
+        const proto = Object.getPrototypeOf(obj);
+        if (proto === null || proto === Object.prototype) {
+            const result = {};
+            for (const key in obj) {
+                if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                    const val = obj[key];
+                    if (val !== undefined) {
+                        result[key] = cleanUndefined(val);
+                    }
+                }
+            }
+            return result;
+        }
+    }
+    return obj;
+}
+
 const dbService = {
     isFirebase: false,
     firestore: null,
@@ -151,10 +177,18 @@ const dbService = {
         const normalizedId = id.trim().toLowerCase();
         if (!normalizedId) return;
 
+        // Firestore에서 undefined 필드 오류 방지를 위한 정제 작업
+        let cleanData = progressData;
+        try {
+            cleanData = cleanUndefined(progressData);
+        } catch (e) {
+            console.error("Data sanitization failed for progressData", e);
+        }
+
         if (this.isFirebase) {
             try {
                 await this.firestore.collection('fc_star_users').doc(normalizedId).update({
-                    ...progressData,
+                    ...cleanData,
                     updatedAt: new Date().toISOString()
                 });
                 console.log("☁️ Firestore 실시간 클라우드 백업 완료!");
@@ -167,7 +201,7 @@ const dbService = {
             if (users[normalizedId]) {
                 users[normalizedId] = {
                     ...users[normalizedId],
-                    ...progressData,
+                    ...cleanData,
                     updatedAt: new Date().toISOString()
                 };
                 this._saveLocalUsers(users);
