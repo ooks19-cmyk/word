@@ -842,7 +842,7 @@ const CARDS_DATABASE = {
     "cho_gue_sung": {
         id: "cho_gue_sung",
         name: "조규성",
-        rating: 84,
+        rating: 87,
         position: "ST",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
@@ -856,12 +856,12 @@ const CARDS_DATABASE = {
             glow: "#ff2a55"
         },
         stats: {
-            pac: 80,
-            sho: 86,
-            pas: 72,
-            dri: 76,
-            def: 42,
-            phy: 86
+            pac: 83,
+            sho: 89,
+            pas: 75,
+            dri: 79,
+            def: 45,
+            phy: 89
         }
     },
     "jens_castrop": {
@@ -961,6 +961,106 @@ const CARDS_DATABASE = {
             pas: 87,
             dri: 85,
             def: 74,
+            phy: 79
+        }
+    },
+    "oh_hyeon_gyu": {
+        id: "oh_hyeon_gyu",
+        name: "오현규",
+        rating: 83,
+        position: "ST",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "KOREA",
+        image: "player/오현규.png",
+        rarity: "special",
+        description: "강인한 피지컬과 폭발적인 슈팅력, 그리고 끈질긴 전방 압박 능력을 겸비한 대한민국 국가대표 공격수 오현규입니다. 문전에서의 침착함과 적극적인 돌파로 언제든 득점을 터뜨릴 수 있는 해결사입니다.",
+        theme: {
+            primary: "#da1a32",
+            secondary: "#1d2b58",
+            glow: "#ff2a55"
+        },
+        stats: {
+            pac: 84,
+            sho: 85,
+            pas: 70,
+            dri: 77,
+            def: 37,
+            phy: 85
+        }
+    },
+    "lee_gi_hyeok": {
+        id: "lee_gi_hyeok",
+        name: "이기혁",
+        rating: 83,
+        position: "CB",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "GANGWON",
+        image: "player/이기혁.png",
+        rarity: "special",
+        description: "중앙 수비수와 측면 수비수, 미드필더까지 소화할 수 있는 다재다능한 멀티 플레이어 이기혁입니다. 안정적인 수비 능력과 뛰어난 패스 능력을 바탕으로 후방 빌드업에서 핵심적인 역할을 수행합니다.",
+        theme: {
+            primary: "#e65c00",
+            secondary: "#ffffff",
+            glow: "#ff9933"
+        },
+        stats: {
+            pac: 78,
+            sho: 65,
+            pas: 85,
+            dri: 78,
+            def: 82,
+            phy: 80
+        }
+    },
+    "lee_su_bin": {
+        id: "lee_su_bin",
+        name: "이수빈",
+        rating: 76,
+        position: "CM",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "JEONBUK",
+        image: "player/이수빈.png",
+        rarity: "normal",
+        description: "부드러운 볼 제어 능력과 넓은 시야, 그리고 안정적인 패스 공급으로 팀의 빌드업을 조율하는 전북 현대의 미드필더 이수빈입니다. 적극적인 공수 조율과 조용한 헌신으로 중원에 안정감을 불어넣습니다.",
+        theme: {
+            primary: "#005a3c",
+            secondary: "#ffffff",
+            glow: "#00ff87"
+        },
+        stats: {
+            pac: 72,
+            sho: 65,
+            pas: 78,
+            dri: 75,
+            def: 72,
+            phy: 73
+        }
+    },
+    "hwang_hee_chan": {
+        id: "hwang_hee_chan",
+        name: "황희찬",
+        rating: 84,
+        position: "ST",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "KOREA",
+        image: "player/황희찬.png",
+        rarity: "special",
+        description: "우직한 돌파와 강인한 피지컬로 상대를 압도하며 '코리안 가이'라는 별명으로 프리미어리그를 폭격하는 국가대표 스트라이커 황희찬입니다. 폭발적인 가속도와 저돌적인 문전 침투로 득점을 노립니다.",
+        theme: {
+            primary: "#da1a32",
+            secondary: "#1d2b58",
+            glow: "#ff2a55"
+        },
+        stats: {
+            pac: 88,
+            sho: 85,
+            pas: 72,
+            dri: 82,
+            def: 38,
             phy: 79
         }
     }
