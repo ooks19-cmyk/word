@@ -530,9 +530,26 @@ function checkLevelUpRewards(level) {
         showLevelRewardModal(
             "🚀 특별 목표 알림 🚀",
             "Lv. 2 달성을 축하합니다!",
-            "레벨 10이 되면 특급 윙어 <strong>'이승우'</strong>, 레벨 20이 되면 월드클래스 <strong>'손흥민'</strong>, 레벨 30이 되면 파리의 마술사 <strong>'이강인'</strong>, 레벨 40이 되면 태극전사 <strong>'이승우(스페셜)'</strong>, 레벨 50이 되면 영원한 산소탱크 <strong>'박지성'</strong>, 레벨 60이 되면 마스터 플레이메이커 <strong>'기성용'</strong>, 레벨 70이 되면 괴물 수비수 <strong>'김민재'</strong>, 레벨 80이 되면 중원의 열정 엔진 <strong>'이재성'</strong>, 레벨 90이 되면 왼발의 마술사 <strong>'이동경'</strong> 특별 카드, 레벨 110이 되면 대한민국의 핵심 사령탑 <strong>'황인범'</strong> 특별 카드, 레벨 120이 되면 대한민국 황소 <strong>'황희찬'</strong> 특별 카드 등 다양한 특별 보상을 즉시 받으실 수 있습니다!<br><br>열심히 단어 공부를 하고 특별한 혜택을 쟁취해보세요!"
+            "레벨 10이 되면 특급 윙어 <strong>'이승우'</strong>, 레벨 20이 되면 월드클래스 <strong>'손흥민'</strong>, 레벨 30이 되면 파리의 마술사 <strong>'이강인'</strong>, 레벨 40이 되면 태극전사 <strong>'이승우(스페셜)'</strong>, 레벨 50이 되면 영원한 산소탱크 <strong>'박지성'</strong>, 레벨 60이 되면 마스터 플레이메이커 <strong>'기성용'</strong>, 레벨 70이 되면 괴물 수비수 <strong>'김민재'</strong>, 레벨 80이 되면 중원의 열정 엔진 <strong>'이재성'</strong>, 레벨 90이 되면 왼발의 마술사 <strong>'이동경'</strong> 특별 카드, 레벨 110이 되면 대한민국의 핵심 사령탑 <strong>'황인범'</strong> 특별 카드, 레벨 120이 되면 대한민국 황소 <strong>'황희찬'</strong> 특별 카드, 레벨 130이 되면 대구 FC의 전설 <strong>'세징야'</strong> 특별 카드가 지급되며, 레벨 140부터는 10레벨 달성 시마다 <strong>5 FP(포인트)</strong>를 받으실 수 있습니다!<br><br>열심히 단어 공부를 하고 특별한 혜택을 쟁취해보세요!"
         );
     } else if (level > 0 && level % 10 === 0) {
+        if (level > 130) {
+            // 레벨 140부터는 5 FP 지급
+            userPoints += 5;
+            try {
+                localStorage.setItem('fc_star_user_points', userPoints.toString());
+            } catch(e) {}
+            renderUserPoints();
+            saveUserProgress();
+            
+            showLevelRewardModal(
+                "🎁 특별 레벨업 보상 🎁",
+                `Lv. ${level} 달성을 축하합니다!`,
+                `축하합니다! 레벨 ${level} 도달 기념으로 특별 보상인 <strong>5 FP(포인트)</strong>가 지급되었습니다!<br><br>앞으로도 레벨 10이 오를 때마다 5 FP가 지급됩니다!`
+            );
+            return;
+        }
+
         let cardId = "";
         let isRandom = false;
         
@@ -558,8 +575,10 @@ function checkLevelUpRewards(level) {
             cardId = "hwang_in_beom";
         } else if (level === 120) {
             cardId = "hwang_hee_chan";
+        } else if (level === 130) {
+            cardId = "cesinha";
         } else {
-            // Award random card
+            // Award random card (e.g. level 100)
             if (typeof CARDS_DATABASE !== 'undefined') {
                 const keys = Object.keys(CARDS_DATABASE);
                 if (keys.length > 0) {
@@ -621,14 +640,20 @@ function checkLevelUpRewards(level) {
                 awardMessage = `축하합니다! 레벨 110 도달 기념으로 대한민국 국가대표 중원의 마에스트로 <strong>'황인범'</strong> 스페셜 카드가 지급되었습니다!<br><br>${detailMsg}`;
             } else if (level === 120) {
                 awardMessage = `축하합니다! 레벨 120 도달 기념으로 대한민국 프리미어리거 '황소' <strong>'황희찬'</strong> 스페셜 카드가 지급되었습니다!<br><br>${detailMsg}`;
+            } else if (level === 130) {
+                awardMessage = `축하합니다! 레벨 130 도달 기념으로 대구 FC의 살아있는 전설 <strong>'세징야'</strong> 스페셜 카드가 지급되었습니다!<br><br>${detailMsg}`;
             } else {
                 awardMessage = `축하합니다! 레벨 ${level} 도달 기념으로 K리그 최고의 스타 <strong>'${cardObj.name}'</strong> 선수카드가 무작위 특별 보상으로 지급되었습니다!<br><br>${detailMsg}`;
             }
                 
+            let subText = "앞으로도 레벨 10이 오를 때마다 '특별한' 선물이 지급됩니다!";
+            if (level === 130) {
+                subText = "앞으로 레벨 140부터는 10레벨마다 5 FP가 지급됩니다!";
+            }
             showLevelRewardModal(
                 "🎁 특별 레벨업 보상 🎁",
                 `Lv. ${level} 달성을 축하합니다!`,
-                `${awardMessage}<br><br>앞으로도 레벨 10이 오를 때마다 '특별한' 선물이 지급됩니다!`
+                `${awardMessage}<br><br>${subText}`
             );
         }
     }

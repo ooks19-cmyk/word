@@ -281,13 +281,13 @@ function isPositionCompatible(displayPos, cardPos) {
         return ['ST', 'LW', 'RW'].includes(cardPos);
     }
     if (['LW', 'RW', 'LM', 'RM'].includes(displayPos)) {
-        return ['LW', 'RW'].includes(cardPos);
+        return ['LW', 'RW', 'CAM'].includes(cardPos);
     }
     if (displayPos === 'AM') {
-        return ['CM', 'LW', 'RW'].includes(cardPos);
+        return ['CM', 'LW', 'RW', 'CAM'].includes(cardPos);
     }
     if (['CM', 'LCM', 'RCM', 'DM'].includes(displayPos)) {
-        return cardPos === 'CM';
+        return ['CM', 'CAM'].includes(cardPos);
     }
     if (['CB', 'LCB', 'RCB', 'LB', 'RB'].includes(displayPos)) {
         return ['CB', 'LB', 'RB'].includes(cardPos);

@@ -1088,6 +1088,81 @@ const CARDS_DATABASE = {
             def: 45,
             phy: 77
         }
+    },
+    "lingard": {
+        id: "lingard",
+        name: "린가드",
+        rating: 85,
+        position: "LW",
+        nation: "England",
+        nationFlag: "https://flagcdn.com/w40/gb-eng.png",
+        club: "FC SEOUL",
+        image: "player/린가드.png",
+        rarity: "special",
+        description: "잉글랜드 국가대표와 맨체스터 유나이티드 출신의 월드스타로, FC 서울의 측면 공격 핵심 윙어입니다. 뛰어난 오프더볼 움직임과 창의적인 연계 플레이, 그리고 저돌적인 측면 돌파로 공격진에 활력을 불어넣습니다.",
+        theme: {
+            primary: "#e50012",
+            secondary: "#000000",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 83,
+            sho: 82,
+            pas: 84,
+            dri: 86,
+            def: 47,
+            phy: 70
+        }
+    },
+    "cesinha": {
+        id: "cesinha",
+        name: "세징야",
+        rating: 85,
+        position: "CAM",
+        nation: "Brazil",
+        nationFlag: "https://flagcdn.com/w40/br.png",
+        club: "DAEGU FC",
+        image: "player/세징야.webp",
+        rarity: "special",
+        description: "대구 FC의 살아있는 전설이자 K리그 최고의 공격형 미드필더 세징야입니다. 압도적인 테크닉과 강력한 중거리 슛, 그리고 예리한 플레이메이킹 능력을 겸비했습니다.",
+        theme: {
+            primary: "#00d2fc",
+            secondary: "#1e3a8a",
+            glow: "#00d2fc"
+        },
+        stats: {
+            pac: 83,
+            sho: 86,
+            pas: 85,
+            dri: 86,
+            def: 42,
+            phy: 75
+        }
+    },
+    "mugosa": {
+        id: "mugosa",
+        name: "무고사",
+        rating: 83,
+        position: "ST",
+        nation: "Montenegro",
+        nationFlag: "https://flagcdn.com/w40/me.png",
+        club: "INCHEON UTD",
+        image: "player/무고사.png",
+        rarity: "normal",
+        description: "인천 유나이티드의 상징이자 K리그 최고의 스트라이커 무고사입니다. 탁월한 골 결정력과 높은 문전 집중력으로 어떠한 위치에서도 득점을 만들어내는 해결사입니다.",
+        theme: {
+            primary: "#0020c2",
+            secondary: "#000000",
+            glow: "#0055ff"
+        },
+        stats: {
+            pac: 78,
+            sho: 87,
+            pas: 71,
+            dri: 79,
+            def: 36,
+            phy: 81
+        }
     }
 };
 
