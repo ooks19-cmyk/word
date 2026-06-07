@@ -833,7 +833,10 @@ function startAclMatchSimulation() {
                     // 일반 경기 찬스 시뮬레이션
                     const isPlayerTurn = Math.random() < playerAttackProb;
                     if (isPlayerTurn) {
-                        const option = [0, 1, 2, 5][Math.floor(Math.random() * 4)];
+                        const attackOptions = [0, 1, 2];
+                        if (currentFormation === '4-2-3-1') attackOptions.push(5);
+                        const option = attackOptions[Math.floor(Math.random() * attackOptions.length)];
+                        
                         const isGoal = Math.random() < (0.32 + formationScoreBoost);
                         const commDataLocal = { ...commentaryData, ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName };
                         
@@ -873,15 +876,22 @@ function startAclMatchSimulation() {
         });
         
         // 점수 실시간 반영
-        document.getElementById('aclHomeScore').textContent = playerScoreVal;
-        document.getElementById('aclAwayScore').textContent = opponentScoreVal;
+        if (isHome) {
+            document.getElementById('aclHomeScore').textContent = playerScoreVal;
+            document.getElementById('aclAwayScore').textContent = opponentScoreVal;
+        } else {
+            document.getElementById('aclHomeScore').textContent = opponentScoreVal;
+            document.getElementById('aclAwayScore').textContent = playerScoreVal;
+        }
         
         // 결과 처리
         if (playerScoreVal === opponentScoreVal) {
             addCommentary('FT', `[종료] 전후반 90분이 종료되었습니다. 스코어 ${playerScoreVal}:${opponentScoreVal}. 승부를 가리기 위한 연장/승부차기로 돌입합니다!`, 'system');
             simulateAclOvertimeOrPenalties(playerScoreVal, opponentScoreVal, playerMatch, playerScorerName, playerAssisterName, opponent);
         } else {
-            finalizeAclMatch(playerScoreVal, opponentScoreVal, playerMatch);
+            const score1 = isHome ? playerScoreVal : opponentScoreVal;
+            const score2 = isHome ? opponentScoreVal : playerScoreVal;
+            finalizeAclMatch(score1, score2, playerMatch);
         }
         return;
     }
@@ -898,7 +908,9 @@ function startAclMatchSimulation() {
                     simulateAclOvertimeOrPenalties(playerScoreVal, opponentScoreVal, playerMatch, playerScorerName, playerAssisterName, opponent);
                 }, 1000);
             } else {
-                finalizeAclMatch(playerScoreVal, opponentScoreVal, playerMatch);
+                const score1 = isHome ? playerScoreVal : opponentScoreVal;
+                const score2 = isHome ? opponentScoreVal : playerScoreVal;
+                finalizeAclMatch(score1, score2, playerMatch);
             }
             return;
         }
@@ -938,7 +950,10 @@ function startAclMatchSimulation() {
                 // 일반 경기 찬스 시뮬레이션
                 const isPlayerTurn = Math.random() < playerAttackProb;
                 if (isPlayerTurn) {
-                    const option = [0, 1, 2, 5][Math.floor(Math.random() * 4)];
+                    const attackOptions = [0, 1, 2];
+                    if (currentFormation === '4-2-3-1') attackOptions.push(5);
+                    const option = attackOptions[Math.floor(Math.random() * attackOptions.length)];
+                    
                     const isGoal = Math.random() < (0.32 + formationScoreBoost);
                     const commDataLocal = { ...commentaryData, ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName };
                     
@@ -979,8 +994,13 @@ function startAclMatchSimulation() {
                 }
             }
             
-            document.getElementById('aclHomeScore').textContent = playerScoreVal;
-            document.getElementById('aclAwayScore').textContent = opponentScoreVal;
+            if (isHome) {
+                document.getElementById('aclHomeScore').textContent = playerScoreVal;
+                document.getElementById('aclAwayScore').textContent = opponentScoreVal;
+            } else {
+                document.getElementById('aclHomeScore').textContent = opponentScoreVal;
+                document.getElementById('aclAwayScore').textContent = playerScoreVal;
+            }
         } else if (currentMin === 45) {
             addCommentary('HT', `[하프타임] 전반전이 종료되었습니다. 스코어 ${playerScoreVal}:${opponentScoreVal}. 잠시 휴식 후 후반전이 시작됩니다.`, 'system');
         } else if (currentMin === 90) {
@@ -993,65 +1013,149 @@ function startAclMatchSimulation() {
 
 function simulateAclOvertimeOrPenalties(score1, score2, playerMatch, playerScorerName, playerAssisterName, opponent) {
     const isHome = playerMatch.team1.id === 'jeonbuk';
-    const activeGkName = (squadFormation["GK"] && CARDS_DATABASE[squadFormation["GK"]]) ? CARDS_DATABASE[squadFormation["GK"]].name : "무명 골키퍼";
+    const timeDisplay = document.getElementById('aclSbTimeDisplay');
     
-    // 연장전 생략하고 간략 연출 후 바로 승부차기 진행
     const addCommentary = (min, text, type = 'normal') => {
         const commBox = document.getElementById('aclCommentaryScroll');
         const item = document.createElement('div');
         item.className = `comm-item comm-${type}`;
-        item.innerHTML = `<strong>${min}</strong> ${text}`;
+        const timestamp = min === 'SYSTEM' || min === 'FT' || min === 'HT' || min === '종료' || min === 'PK' || String(min).startsWith('PK') ? '' : `<strong style="color:#00ff87; margin-right: 6px;">${min}</strong>`;
+        item.innerHTML = `${timestamp}${text}`;
         if (commBox) {
             commBox.appendChild(item);
             commBox.scrollTop = commBox.scrollHeight;
         }
     };
 
-    addCommentary("AET", "연장 전후반 30분 동안 양 팀 모두 신중하게 경기를 풀었으나 추가 득점 없이 끝났습니다! 결국 승부차기로 돌입합니다.", "system");
-
-    let pkTimer;
-    
-    const pkData = {
+    const etData = {
         team1Name: playerMatch.team1.name,
         team2Name: playerMatch.team2.name,
         rating1: playerMatch.team1.rating,
         rating2: playerMatch.team2.rating,
-        isTeam1Jeonbuk: isHome
+        score1: isHome ? score1 : score2,
+        score2: isHome ? score2 : score1,
+        playerScorerName: playerScorerName,
+        playerAssisterName: playerAssisterName,
+        isTeam1Jeonbuk: isHome,
+        opponentTeamId: opponent.id
     };
-    
-    let pkResult = simulatePenaltyShootoutEngine(pkData);
-    if (isDeveloperMode) {
-        pkResult.events.forEach(ev => {
-            addCommentary(ev.round === 0 ? 'PK' : `PK ${ev.round}`, ev.text, ev.success ? "goal" : "normal");
-            
-            // 점수 실시간 반영
-            document.getElementById('aclHomeScore').textContent = `${score1} (${ev.score1})`;
-            document.getElementById('aclAwayScore').textContent = `${score2} (${ev.score2})`;
-        });
+
+    const etResult = simulateExtraTimeEngine(etData);
+
+    const runActualAclPenaltyShootout = (etScore1, etScore2) => {
+        if (timeDisplay) {
+            timeDisplay.textContent = "PK";
+            timeDisplay.classList.remove('live-ticking');
+        }
         
-        finalizeAclMatch(score1, score2, playerMatch, pkResult.pkScore1, pkResult.pkScore2);
+        const pkData = {
+            team1Name: playerMatch.team1.name,
+            team2Name: playerMatch.team2.name,
+            rating1: playerMatch.team1.rating,
+            rating2: playerMatch.team2.rating,
+            isTeam1Jeonbuk: isHome
+        };
+        
+        const pkResult = simulatePenaltyShootoutEngine(pkData);
+        if (isDeveloperMode) {
+            pkResult.events.forEach(ev => {
+                addCommentary(ev.round === 0 ? 'PK' : `PK ${ev.round}`, ev.text, ev.success ? "goal" : "normal");
+                
+                // 점수 실시간 반영
+                document.getElementById('aclHomeScore').textContent = `${etScore1} (${ev.score1})`;
+                document.getElementById('aclAwayScore').textContent = `${etScore2} (${ev.score2})`;
+            });
+            
+            finalizeAclMatch(etScore1, etScore2, playerMatch, pkResult.pkScore1, pkResult.pkScore2);
+            return;
+        }
+        
+        let pkIdx = 0;
+        const pkTimer = setInterval(() => {
+            if (pkIdx < pkResult.events.length) {
+                const ev = pkResult.events[pkIdx];
+                addCommentary(ev.round === 0 ? 'PK' : `PK ${ev.round}`, ev.text, ev.success ? "goal" : "normal");
+                
+                if (ev.success && typeof playGoalSound === 'function') {
+                    try { playGoalSound(); } catch (e) {}
+                }
+                
+                // 점수 실시간 반영
+                document.getElementById('aclHomeScore').textContent = `${etScore1} (${ev.score1})`;
+                document.getElementById('aclAwayScore').textContent = `${etScore2} (${ev.score2})`;
+                
+                pkIdx++;
+            } else {
+                clearInterval(pkTimer);
+                finalizeAclMatch(etScore1, etScore2, playerMatch, pkResult.pkScore1, pkResult.pkScore2);
+            }
+        }, 1200);
+    };
+
+    if (isDeveloperMode) {
+        if (timeDisplay) {
+            timeDisplay.textContent = "종료";
+            timeDisplay.classList.remove('live-ticking');
+        }
+        
+        etResult.events.forEach(ev => {
+            if (ev.type === 'goal') {
+                document.getElementById('aclHomeScore').textContent = ev.score1;
+                document.getElementById('aclAwayScore').textContent = ev.score2;
+                
+                const isGoalByPlayer = (ev.side === 'team1' && isHome) || (ev.side === 'team2' && !isHome);
+                if (isGoalByPlayer) {
+                    addAclPlayerStatRecord(isHome ? playerMatch.team1 : playerMatch.team2, playerScorerName, playerAssisterName);
+                } else {
+                    addAclPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, ev.scorerName, ev.assisterName);
+                }
+            }
+            addCommentary(ev.min, ev.text, ev.type === 'goal' ? 'goal' : (ev.type === 'system' ? 'system' : 'normal'));
+        });
+
+        if (etResult.score1 === etResult.score2) {
+            addCommentary('SYSTEM', "⚖️ 연장 120분 혈투 끝에도 승부가 나지 않았습니다! 최후의 승부차기로 돌입합니다.", "system");
+            runActualAclPenaltyShootout(etResult.score1, etResult.score2);
+        } else {
+            finalizeAclMatch(etResult.score1, etResult.score2, playerMatch);
+        }
         return;
     }
-    
-    let pkIdx = 0;
-    
-    pkTimer = setInterval(() => {
-        if (pkIdx < pkResult.events.length) {
-            const ev = pkResult.events[pkIdx];
-            addCommentary(ev.round === 0 ? 'PK' : `PK ${ev.round}`, ev.text, ev.success ? "goal" : "normal");
+
+    let etTick = 0;
+    const etTimer = setInterval(() => {
+        if (etTick < etResult.events.length) {
+            const ev = etResult.events[etTick];
+            if (timeDisplay) timeDisplay.textContent = ev.min;
             
-            if (ev.success && typeof playGoalSound === 'function') {
-                try { playGoalSound(); } catch (e) {}
+            if (ev.type === 'goal') {
+                if (typeof playGoalSound === 'function') {
+                    try { playGoalSound(); } catch (e) {}
+                }
+                document.getElementById('aclHomeScore').textContent = ev.score1;
+                document.getElementById('aclAwayScore').textContent = ev.score2;
+                
+                const isGoalByPlayer = (ev.side === 'team1' && isHome) || (ev.side === 'team2' && !isHome);
+                if (isGoalByPlayer) {
+                    addAclPlayerStatRecord(isHome ? playerMatch.team1 : playerMatch.team2, playerScorerName, playerAssisterName);
+                } else {
+                    addAclPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, ev.scorerName, ev.assisterName);
+                }
             }
             
-            // 점수 실시간 반영
-            document.getElementById('aclHomeScore').textContent = `${score1} (${ev.score1})`;
-            document.getElementById('aclAwayScore').textContent = `${score2} (${ev.score2})`;
-            
-            pkIdx++;
+            addCommentary(ev.min, ev.text, ev.type === 'goal' ? 'goal' : (ev.type === 'system' ? 'system' : 'normal'));
+            etTick++;
         } else {
-            clearInterval(pkTimer);
-            finalizeAclMatch(score1, score2, playerMatch, pkResult.pkScore1, pkResult.pkScore2);
+            clearInterval(etTimer);
+            
+            if (etResult.score1 === etResult.score2) {
+                addCommentary('SYSTEM', "⚖️ 연장 120분 혈투 끝에도 승부가 나지 않았습니다! 최후의 승부차기로 돌입합니다.", "system");
+                setTimeout(() => {
+                    runActualAclPenaltyShootout(etResult.score1, etResult.score2);
+                }, 1200);
+            } else {
+                finalizeAclMatch(etResult.score1, etResult.score2, playerMatch);
+            }
         }
     }, 1200);
 }
