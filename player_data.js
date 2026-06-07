@@ -1043,13 +1043,13 @@ const CARDS_DATABASE = {
         id: "hwang_hee_chan",
         name: "황희찬",
         rating: 84,
-        position: "ST",
+        position: "LW",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
         image: "player/황희찬.png",
         rarity: "special",
-        description: "우직한 돌파와 강인한 피지컬로 상대를 압도하며 '코리안 가이'라는 별명으로 프리미어리그를 폭격하는 국가대표 스트라이커 황희찬입니다. 폭발적인 가속도와 저돌적인 문전 침투로 득점을 노립니다.",
+        description: "우직한 돌파와 강인한 피지컬로 상대를 압도하며 '코리안 가이'라는 별명으로 프리미어리그를 폭격하는 국가대표 윙어 황희찬입니다. 폭발적인 가속도와 저돌적인 문전 침투로 득점을 노립니다.",
         theme: {
             primary: "#da1a32",
             secondary: "#1d2b58",
@@ -1062,6 +1062,31 @@ const CARDS_DATABASE = {
             dri: 82,
             def: 38,
             phy: 79
+        }
+    },
+    "song_min_kyu": {
+        id: "song_min_kyu",
+        name: "송민규",
+        rating: 83,
+        position: "LW",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "JEONBUK",
+        image: "player/송민규.png",
+        rarity: "normal",
+        description: "뛰어난 볼 키핑 능력과 측면에서의 저돌적인 온더볼 플레이로 찬스를 창출하는 전북 현대의 핵심 공격수입니다. 탄탄한 피지컬을 바탕으로 등지는 플레이와 지능적인 연계에 강점이 있습니다.",
+        theme: {
+            primary: "#005a3c",
+            secondary: "#ffffff",
+            glow: "#00ff87"
+        },
+        stats: {
+            pac: 81,
+            sho: 82,
+            pas: 78,
+            dri: 85,
+            def: 45,
+            phy: 77
         }
     }
 };
