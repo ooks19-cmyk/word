@@ -418,6 +418,14 @@ function resetLeagueSeason() {
     if (typeof initCupTab === 'function') {
         initCupTab();
     }
+
+    // 아챔 리셋 연동 (새 아챔 세션 준비)
+    if (typeof resetAclStateData === 'function') {
+        resetAclStateData();
+    }
+    if (typeof initAclTab === 'function') {
+        initAclTab();
+    }
     
     syncJeonbukOvr();
     renderLeagueTable();
@@ -564,7 +572,7 @@ function startMatchSimulation() {
         return;
     }
     
-    // KFA 코리아컵 완료 여부 체크 (33라운드 최종전 진입 시 차단)
+    // KFA 코리아컵 & ACL 완료 여부 체크 (33라운드 최종전 진입 시 차단)
     if (leagueRound === 33) {
         let isCupFinished = false;
         try {
@@ -579,6 +587,22 @@ function startMatchSimulation() {
         
         if (!isCupFinished) {
             alert("⚠️ K리그1 33라운드 최종전을 시작하기 전에 코리아컵(리그컵) 결승전을 완료해야 합니다!\n코리아컵 탭으로 이동하여 대회를 마쳐주세요.");
+            return;
+        }
+
+        let isAclFinished = false;
+        try {
+            const savedAcl = localStorage.getItem('fc_star_acl_state');
+            if (savedAcl) {
+                const aclStateParsed = JSON.parse(savedAcl);
+                isAclFinished = aclStateParsed.isFinished;
+            }
+        } catch (e) {
+            console.warn("ACL state check failed:", e);
+        }
+        
+        if (!isAclFinished) {
+            alert("⚠️ K리그1 33라운드 최종전을 시작하기 전에 AFC 챔피언스리그(아챔)를 완료해야 합니다!\n아챔 탭으로 이동하여 대회를 마쳐주세요.");
             return;
         }
     }
@@ -1353,6 +1377,41 @@ function checkSeasonChampion() {
         console.warn("Cup Hall of Fame check failed:", e);
     }
     
+    // 아챔(AFC 챔피언스리그) 시즌 성적 조회
+    let aclRecordText = "미참가";
+    try {
+        const savedAcl = localStorage.getItem('fc_star_acl_state');
+        if (savedAcl) {
+            const aclStateParsed = JSON.parse(savedAcl);
+            
+            // 전북 현대 성적 판별
+            if (aclStateParsed.bracket && aclStateParsed.bracket.winner && aclStateParsed.bracket.winner.id === 'jeonbuk') {
+                aclRecordText = "우승 🏆";
+            } else {
+                const rounds = [2, 4, 8, 16];
+                let foundRecord = false;
+                for (let r of rounds) {
+                    const matches = aclStateParsed.bracket[r] || [];
+                    const jbMatch = matches.find(m => (m.team1 && m.team1.id === 'jeonbuk') || (m.team2 && m.team2.id === 'jeonbuk'));
+                    if (jbMatch) {
+                        if (r === 2) aclRecordText = "준우승 🥈";
+                        else if (r === 4) aclRecordText = "4강 탈락";
+                        else if (r === 8) aclRecordText = "8강 탈락";
+                        else if (r === 16) aclRecordText = "16강 탈락";
+                        foundRecord = true;
+                        break;
+                    }
+                }
+                
+                if (!foundRecord && !aclStateParsed.isFinished) {
+                    aclRecordText = `진행 중 (${aclStateParsed.round}강전)`;
+                }
+            }
+        }
+    } catch (e) {
+        console.warn("ACL Hall of Fame check failed:", e);
+    }
+    
     const record = {
         year: leagueYear,
         jeonbukRank: jbRank,
@@ -1365,7 +1424,8 @@ function checkSeasonChampion() {
         champion: champion.name,
         topScorer: (topScorer && topScorer.teamId === 'jeonbuk') ? { name: topScorer.name, goals: topScorer.goals } : null,
         topAssister: (topAssister && topAssister.teamId === 'jeonbuk') ? { name: topAssister.name, assists: topAssister.assists } : null,
-        cupRecord: cupRecordText
+        cupRecord: cupRecordText,
+        aclRecord: aclRecordText
     };
     
     // 중복 방지 검증 후 추가
@@ -1461,7 +1521,38 @@ function checkSeasonChampion() {
     trophyContainer.style.textAlign = 'center';
     trophyContainer.style.animation = 'goalPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
     
-    if (isJeonbukChamp) {
+    const isTreble = isJeonbukChamp && cupRecordText.includes("우승") && aclRecordText.includes("우승");
+    
+    if (isTreble) {
+        // Add treble bonus reward (+10 FP)
+        userPoints += 10;
+        try {
+            localStorage.setItem('fc_star_user_points', userPoints.toString());
+        } catch(e) {}
+        renderUserPoints();
+        
+        showToast("🏆 역사적인 트레블(3관왕) 달성! 보너스 10 FP 지급!");
+        
+        trophyContainer.style.background = 'radial-gradient(circle, rgba(0,255,135,0.25) 0%, rgba(10,14,26,0.98) 80%)';
+        trophyContainer.style.border = '2.5px solid #ffd700';
+        trophyContainer.style.boxShadow = '0 0 35px rgba(255, 215, 0, 0.4), 0 0 20px rgba(0, 255, 135, 0.3)';
+        
+        trophyContainer.innerHTML = `
+            <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 1.5rem;">
+                <i class="fa-solid fa-crown" style="font-size: 3.5rem; color:#ffd700; filter:drop-shadow(0 0 15px rgba(255,215,0,0.6)); animation: float 3s ease-in-out infinite;"></i>
+                <i class="fa-solid fa-trophy" style="font-size: 3.5rem; color:#00d2fc; filter:drop-shadow(0 0 15px rgba(0,210,252,0.6)); animation: float 3s ease-in-out infinite 0.5s;"></i>
+                <i class="fa-solid fa-earth-asia" style="font-size: 3.5rem; color:#00ff87; filter:drop-shadow(0 0 15px rgba(0,255,135,0.6)); animation: float 3s ease-in-out infinite 1s;"></i>
+            </div>
+            <h2 style="font-size:1.80rem; font-weight:900; background: linear-gradient(135deg, #ffd700 0%, #00ff87 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:0.8rem; text-shadow: 0 0 10px rgba(0,255,135,0.25);">👑 역사적인 트레블 달성! 👑</h2>
+            <p style="color:var(--text-light); font-size:1.05rem; line-height:1.6; margin-bottom:1rem;">
+                축하합니다! 전북 현대가 ${leagueYear} 시즌 **K리그1 + 코리아컵 + AFC 챔피언스리그**를 모두 제패하며 위대한 **트레블(3관왕)**을 완성했습니다!<br>
+                아시아 축구 역사에 영원히 기억될 대기록의 주인공이 되었습니다.<br>
+                <strong style="color: #ffd700; font-size: 1.05rem;">🎁 트레블 달성 보상: +10 FP</strong>
+            </p>
+            ${captainAwakenedMsg}
+            <button class="btn-open-pack" onclick="closeChampModal()" style="margin-top:1.5rem;">다음 시즌 시작하기</button>
+        `;
+    } else if (isJeonbukChamp) {
         trophyContainer.innerHTML = `
             <i class="fa-solid fa-trophy" style="font-size: 5rem; color:#ffd700; filter:drop-shadow(0 0 25px rgba(255,215,0,0.6)); margin-bottom:1.5rem; animation: float 3s ease-in-out infinite;"></i>
             <h2 style="font-size:1.8rem; font-weight:900; background:var(--gold-gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:0.8rem;">🎉 리그 우승 달성! 🎉</h2>
@@ -1533,6 +1624,14 @@ function startNextSeason() {
     if (typeof initCupTab === 'function') {
         initCupTab();
     }
+
+    // 아챔 새 시즌 리셋 연동
+    if (typeof resetAclStateData === 'function') {
+        resetAclStateData();
+    }
+    if (typeof initAclTab === 'function') {
+        initAclTab();
+    }
     
     // 3. 순위표 렌더링 및 프리뷰 정보 새로고침
     syncJeonbukOvr();
@@ -1555,6 +1654,7 @@ function renderHallOfFame() {
     const gridEl = document.getElementById('fameGrid');
     const placeholderEl = document.getElementById('emptyFamePlaceholder');
     const countEl = document.getElementById('fameSeasonCount');
+    const headerEl = document.getElementById('fameClubHeader');
     
     if (!gridEl) return;
     
@@ -1567,10 +1667,70 @@ function renderHallOfFame() {
     
     if (hallOfFame.length === 0) {
         if (placeholderEl) placeholderEl.style.display = 'flex';
+        if (headerEl) headerEl.style.display = 'none';
         return;
     }
     
     if (placeholderEl) placeholderEl.style.display = 'none';
+
+    // Calculate championships
+    let kLeagueTitles = 0;
+    let cupTitles = 0;
+    let aclTitles = 0;
+
+    hallOfFame.forEach(record => {
+        if (record.jeonbukRank === 1) {
+            kLeagueTitles++;
+        }
+        if (record.cupRecord && record.cupRecord.includes("우승")) {
+            cupTitles++;
+        }
+        if (record.aclRecord && record.aclRecord.includes("우승")) {
+            aclTitles++;
+        }
+    });
+
+    // Render Club Header
+    if (headerEl) {
+        headerEl.style.display = 'flex';
+        headerEl.style.flexWrap = 'wrap'; // Responsive wrap for mobile
+        
+        headerEl.innerHTML = `
+            <div class="fame-club-info" style="display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 200px;">
+                <img src="img/mark_jb.svg" class="logo-emblem" alt="Jeonbuk Hyundai Motors Logo" style="height: 60px; width: 60px; object-fit: contain; filter: drop-shadow(0 0 8px rgba(0, 255, 135, 0.6)); animation: emblemPulse 3s ease-in-out infinite alternate;">
+                <div>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin-bottom: 2px;">전북 현대 모터스</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">명예의 전당 트로피 룸</p>
+                </div>
+            </div>
+            <div class="fame-trophy-shelf" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-left: auto;">
+                <!-- K-League Trophy -->
+                <div class="trophy-badge-container" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${kLeagueTitles > 0 ? 'rgba(255, 215, 0, 0.3)' : 'rgba(255, 255, 255, 0.05)'}; padding: 0.5rem 0.8rem; border-radius: 14px; min-width: 110px; transition: all 0.3s; ${kLeagueTitles > 0 ? 'box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);' : ''}">
+                    <i class="fa-solid fa-crown" style="font-size: 1.6rem; color: ${kLeagueTitles > 0 ? '#ffd700' : '#4b5563'}; filter: ${kLeagueTitles > 0 ? 'drop-shadow(0 0 6px rgba(255, 215, 0, 0.6))' : 'none'};"></i>
+                    <div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">K리그1</div>
+                        <div style="font-size: 0.9rem; font-weight: 800; color: ${kLeagueTitles > 0 ? '#fff' : '#6b7280'};">${kLeagueTitles}회 우승</div>
+                    </div>
+                </div>
+                <!-- Korea Cup Trophy -->
+                <div class="trophy-badge-container" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${cupTitles > 0 ? 'rgba(0, 210, 252, 0.3)' : 'rgba(255, 255, 255, 0.05)'}; padding: 0.5rem 0.8rem; border-radius: 14px; min-width: 110px; transition: all 0.3s; ${cupTitles > 0 ? 'box-shadow: 0 0 15px rgba(0, 210, 252, 0.1);' : ''}">
+                    <i class="fa-solid fa-trophy" style="font-size: 1.6rem; color: ${cupTitles > 0 ? '#00d2fc' : '#4b5563'}; filter: ${cupTitles > 0 ? 'drop-shadow(0 0 6px rgba(0, 210, 252, 0.6))' : 'none'};"></i>
+                    <div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">코리아컵</div>
+                        <div style="font-size: 0.9rem; font-weight: 800; color: ${cupTitles > 0 ? '#fff' : '#6b7280'};">${cupTitles}회 우승</div>
+                    </div>
+                </div>
+                <!-- ACL Trophy -->
+                <div class="trophy-badge-container" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${aclTitles > 0 ? 'rgba(0, 255, 135, 0.3)' : 'rgba(255, 255, 255, 0.05)'}; padding: 0.5rem 0.8rem; border-radius: 14px; min-width: 110px; transition: all 0.3s; ${aclTitles > 0 ? 'box-shadow: 0 0 15px rgba(0, 255, 135, 0.1);' : ''}">
+                    <i class="fa-solid fa-earth-asia" style="font-size: 1.6rem; color: ${aclTitles > 0 ? '#00ff87' : '#4b5563'}; filter: ${aclTitles > 0 ? 'drop-shadow(0 0 6px rgba(0, 255, 135, 0.6))' : 'none'};"></i>
+                    <div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">아챔 (ACL)</div>
+                        <div style="font-size: 0.9rem; font-weight: 800; color: ${aclTitles > 0 ? '#fff' : '#6b7280'};">${aclTitles}회 우승</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
     
     hallOfFame.forEach(record => {
         const card = document.createElement('div');
@@ -1617,6 +1777,7 @@ function renderHallOfFame() {
                     <span>시즌 전적: <strong>33전 ${record.jeonbukRecord.w}승 ${record.jeonbukRecord.d}무 ${record.jeonbukRecord.l}패</strong></span>
                     <span>시즌 우승팀: <strong>${record.champion}</strong></span>
                     ${record.cupRecord ? `<span>코리아컵 성적: <strong style="color: #00d2fc;">${record.cupRecord}</strong></span>` : ''}
+                    ${record.aclRecord ? `<span>아챔 성적: <strong style="color: #00ff87;">${record.aclRecord}</strong></span>` : ''}
                 </div>
                 ${awardHtml}
             </div>

@@ -73,5 +73,80 @@ const OTHER_TEAMS_PLAYERS_PRESET = [
     { id: "virtual_real_madrid_player_1", name: "음바페", teamId: "virtual_레알마드리드", teamName: "레알마드리드" },
     
     // 20. 토쿄FC (virtual_토쿄fc)
-    { id: "virtual_tokyo_fc_player_1", name: "마츠키", teamId: "virtual_토쿄fc", teamName: "토쿄FC" }
+    { id: "virtual_tokyo_fc_player_1", name: "마츠키", teamId: "virtual_토쿄fc", teamName: "토쿄FC" },
+    
+    // 21. 비셀 고베 (vissel_kobe)
+    { id: "vissel_kobe_player_1", name: "오사코", teamId: "vissel_kobe", teamName: "비셀 고베" },
+    { id: "vissel_kobe_player_2", name: "무토", teamId: "vissel_kobe", teamName: "비셀 고베" },
+    
+    // 22. 요코하마 마리노스 (yokohama_marinos)
+    { id: "yokohama_marinos_player_1", name: "에우베르", teamId: "yokohama_marinos", teamName: "요코하마 마리노스" },
+    { id: "yokohama_marinos_player_2", name: "로페즈", teamId: "yokohama_marinos", teamName: "요코하마 마리노스" },
+    
+    // 23. 가와사키 프론탈레 (kawasaki_frontale)
+    { id: "kawasaki_frontale_player_1", name: "이에나가", teamId: "kawasaki_frontale", teamName: "가와사키 프론탈레" },
+    { id: "kawasaki_frontale_player_2", name: "와키자카", teamId: "kawasaki_frontale", teamName: "가와사키 프론탈레" },
+    
+    // 24. 상하이 포트 (shanghai_port)
+    { id: "shanghai_port_player_1", name: "오스카", teamId: "shanghai_port", teamName: "상하이 포트" },
+    { id: "shanghai_port_player_2", name: "바르가스", teamId: "shanghai_port", teamName: "상하이 포트" },
+    
+    // 25. FC 부리람 (buriram_united)
+    { id: "buriram_united_player_1", name: "차이뎃", teamId: "buriram_united", teamName: "FC 부리람" },
+    { id: "buriram_united_player_2", name: "두가우", teamId: "buriram_united", teamName: "FC 부리람" },
+    
+    // 26. 알 힐랄 (al_hilal)
+    { id: "al_hilal_player_1", name: "미트로비치", teamId: "al_hilal", teamName: "알 힐랄" },
+    { id: "al_hilal_player_2", name: "말콤", teamId: "al_hilal", teamName: "알 힐랄" },
+    { id: "al_hilal_player_3", name: "네베스", teamId: "al_hilal", teamName: "알 힐랄" },
+    
+    // 27. 알 나스르 (al_nassr)
+    { id: "al_nassr_player_1", name: "호날두", teamId: "al_nassr", teamName: "알 나스르" },
+    { id: "al_nassr_player_2", name: "마네", teamId: "al_nassr", teamName: "알 나스르" },
+    { id: "al_nassr_player_3", name: "브로조비치", teamId: "al_nassr", teamName: "알 나스르" },
+    
+    // 28. 알 아흘리 (al_ahli)
+    { id: "al_ahli_player_1", name: "토니", teamId: "al_ahli", teamName: "알 아흘리" },
+    { id: "al_ahli_player_2", name: "피르미누", teamId: "al_ahli", teamName: "알 아흘리" },
+    { id: "al_ahli_player_3", name: "마레즈", teamId: "al_ahli", teamName: "알 아흘리" },
+    
+    // 29. 알 이티하드 (al_itihad)
+    { id: "al_itihad_player_1", name: "벤제마", teamId: "al_itihad", teamName: "알 이티하드" },
+    { id: "al_itihad_player_2", name: "캉테", teamId: "al_itihad", teamName: "알 이티하드" },
+    { id: "al_itihad_player_3", name: "디아비", teamId: "al_itihad", teamName: "알 이티하드" },
+    
+    // 30. 알 아인 (al_ain)
+    { id: "al_ain_player_1", name: "라히미", teamId: "al_ain", teamName: "알 아인" },
+    { id: "al_ain_player_2", name: "카쿠", teamId: "al_ain", teamName: "알 아인" },
+    
+    // 31. 알 사드 (al_sadd)
+    { id: "al_sadd_player_1", name: "아피프", teamId: "al_sadd", teamName: "알 사드" },
+    { id: "al_sadd_player_2", name: "무히카", teamId: "al_sadd", teamName: "알 사드" },
+    
+    // 32. 페르세폴리스 (persepolis)
+    { id: "persepolis_player_1", name: "알리푸르", teamId: "persepolis", teamName: "페르세폴리스" },
+    { id: "persepolis_player_2", name: "아미리", teamId: "persepolis", teamName: "페르세폴리스" },
+    
+    // 33. 파흐타코르 (pakhtakor)
+    { id: "pakhtakor_player_1", name: "체란", teamId: "pakhtakor", teamName: "파흐타코르" },
+    { id: "pakhtakor_player_2", name: "소비르호자예브", teamId: "pakhtakor", teamName: "파흐타코르" }
+];
+
+const ACL_TEAMS_PRESET = [
+    // 동아시아 5팀 (플레이어 전북현대 + 다른 K리그 2팀은 런타임에 동기화/추출됨)
+    { id: "vissel_kobe", name: "비셀 고베", rating: 77, color: "#800020" },
+    { id: "yokohama_marinos", name: "요코하마 마리노스", rating: 76, color: "#2563eb" },
+    { id: "kawasaki_frontale", name: "가와사키 프론탈레", rating: 75, color: "#38bdf8" },
+    { id: "shanghai_port", name: "상하이 포트", rating: 74, color: "#dc2626" },
+    { id: "buriram_united", name: "FC 부리람", rating: 70, color: "#1e3a8a" },
+    
+    // 서아시아 8팀
+    { id: "al_hilal", name: "알 힐랄", rating: 81, color: "#004baf" },
+    { id: "al_nassr", name: "알 나스르", rating: 80, color: "#fbbf24" },
+    { id: "al_ahli", name: "알 아흘리", rating: 78, color: "#10b981" },
+    { id: "al_itihad", name: "알 이티하드", rating: 77, color: "#f59e0b" },
+    { id: "al_ain", name: "알 아인", rating: 76, color: "#7c3aed" },
+    { id: "al_sadd", name: "알 사드", rating: 75, color: "#f3f4f6" },
+    { id: "persepolis", name: "페르세폴리스", rating: 74, color: "#ef4444" },
+    { id: "pakhtakor", name: "파흐타코르", rating: 71, color: "#ea580c" }
 ];

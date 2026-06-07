@@ -96,8 +96,8 @@ function switchMatchSubTab(tabId) {
         if (item.btn && item.layout) {
             if (key === tabId) {
                 item.btn.classList.add('active');
-                // 리그, 친선경기, 코리아컵은 기존 .match-layout(flex)을 사용하므로 flex로 보여주고, 나머지는 block
-                item.layout.style.display = (key === 'league' || key === 'friendly' || key === 'cup') ? 'flex' : 'block';
+                // 리그, 친선경기, 코리아컵, 아챔은 기존 .match-layout(flex)을 사용하므로 flex로 보여주고, 나머지는 block
+                item.layout.style.display = (key === 'league' || key === 'friendly' || key === 'cup' || key === 'acl') ? 'flex' : 'block';
                 item.layout.classList.add('active');
             } else {
                 item.btn.classList.remove('active');
@@ -118,6 +118,8 @@ function switchMatchSubTab(tabId) {
         if (typeof renderLeagueTable === 'function') renderLeagueTable();
     } else if (tabId === 'cup') {
         if (typeof initCupTab === 'function') initCupTab();
+    } else if (tabId === 'acl') {
+        if (typeof initAclTab === 'function') initAclTab();
     }
 
     // 클릭 사운드 피드백 (sound.js 연계)
@@ -136,6 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderSquadFormation(); // Initialize squad pitch rendering
     initLeague();           // Initialize K League Standing & Fixtures
     if (typeof initCup === 'function') initCup(); // Initialize KFA Cup State
+    if (typeof initAcl === 'function') initAcl(); // Initialize ACL State
     renderUserPoints();     // Sync user gacha points on load
     // CARDS_DATABASE 포지션 유효성 검사 (ST, LW, RW, CM, CB, LB, RB, GK)
     try {
