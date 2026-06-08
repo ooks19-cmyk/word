@@ -292,7 +292,7 @@ const CARDS_DATABASE = {
     "kim_seung_sub": {
         id: "kim_seung_sub",
         name: "김승섭",
-        rating: 78,
+        rating: 84,
         position: "LW",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
@@ -306,12 +306,12 @@ const CARDS_DATABASE = {
             glow: "#00d2ff"
         },
         stats: {
-            pac: 83,
-            sho: 79,
-            pas: 72,
-            dri: 79,
-            def: 45,
-            phy: 65
+            pac: 86,
+            sho: 84,
+            pas: 77,
+            dri: 84,
+            def: 55,
+            phy: 70
         }
     },
     "lee_dong_jun": {
@@ -917,7 +917,7 @@ const CARDS_DATABASE = {
     "jeon_byung_kwan": {
         id: "jeon_byung_kwan",
         name: "전병관",
-        rating: 78,
+        rating: 83,
         position: "LW",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
@@ -931,12 +931,12 @@ const CARDS_DATABASE = {
             glow: "#00d2ff"
         },
         stats: {
-            pac: 83,
-            sho: 75,
-            pas: 71,
-            dri: 78,
-            def: 38,
-            phy: 65
+            pac: 86,
+            sho: 80,
+            pas: 76,
+            dri: 83,
+            def: 43,
+            phy: 70
         }
     },
     "hwang_in_beom": {
@@ -1017,7 +1017,7 @@ const CARDS_DATABASE = {
     "lee_su_bin": {
         id: "lee_su_bin",
         name: "이수빈",
-        rating: 76,
+        rating: 82,
         position: "CM",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
@@ -1031,12 +1031,12 @@ const CARDS_DATABASE = {
             glow: "#00ff87"
         },
         stats: {
-            pac: 72,
-            sho: 65,
-            pas: 78,
-            dri: 75,
-            def: 72,
-            phy: 73
+            pac: 80,
+            sho: 70,
+            pas: 83,
+            dri: 80,
+            def: 80,
+            phy: 78
         }
     },
     "hwang_hee_chan": {
@@ -1092,7 +1092,7 @@ const CARDS_DATABASE = {
     "lingard": {
         id: "lingard",
         name: "린가드",
-        rating: 85,
+        rating: 86,
         position: "LW",
         nation: "England",
         nationFlag: "https://flagcdn.com/w40/gb-eng.png",
@@ -1110,7 +1110,7 @@ const CARDS_DATABASE = {
             sho: 82,
             pas: 84,
             dri: 86,
-            def: 47,
+            def: 55,
             phy: 70
         }
     },
