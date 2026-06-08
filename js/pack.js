@@ -8,7 +8,13 @@ function openPack() {
         return;
     }
 
-    const keys = Object.keys(CARDS_DATABASE);
+    let keys = Object.keys(CARDS_DATABASE).filter(k => !(playerDeck[k] && playerDeck[k].awakening >= 5));
+    
+    // 만약 모든 카드가 5각성이어서 뽑을 카드가 없다면 폴백으로 전체 카드 허용
+    if (keys.length === 0) {
+        keys = Object.keys(CARDS_DATABASE);
+    }
+    
     const legendKeys = keys.filter(k => CARDS_DATABASE[k].rarity === 'legend');
     const specialKeys = keys.filter(k => CARDS_DATABASE[k].rarity === 'special');
     const normalKeys = keys.filter(k => CARDS_DATABASE[k].rarity === 'normal');
