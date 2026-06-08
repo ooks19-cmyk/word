@@ -835,19 +835,20 @@ function determineScorerAndAssister(selectedOption) {
             assisterName = activeLW;
         }
     } else if (selectedOption === 5) { // AM/CM 돌파 (4-2-3-1 연출)
-        scorerId = squadFormation["CM"];
-        scorerName = activeCM;
+        // AM(CM)이 스루패스 도움을 주고, 전방의 ST, LW, RW가 득점함
         const rand = Math.random();
-        if (rand < 0.3) {
-            assisterId = squadFormation["LCM"];
-            assisterName = activeLCM;
-        } else if (rand < 0.6) {
-            assisterId = squadFormation["RCM"];
-            assisterName = activeRCM;
+        if (rand < 0.6) {
+            scorerId = squadFormation["ST"];
+            scorerName = activeST;
         } else if (rand < 0.8) {
-            assisterId = squadFormation["ST"];
-            assisterName = activeST;
+            scorerId = squadFormation["LW"];
+            scorerName = activeLW;
+        } else {
+            scorerId = squadFormation["RW"];
+            scorerName = activeRW;
         }
+        assisterId = squadFormation["CM"];
+        assisterName = activeCM;
     }
 
     return { scorerId, scorerName, assisterId, assisterName };
