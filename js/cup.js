@@ -839,10 +839,7 @@ function startCupMatchSimulation() {
                             if (cmCardId && CARDS_DATABASE[cmCardId]) chancePlayerStat = getAwakenedCard(cmCardId).stats.dri || 75;
                         }
                         
-                        const playerChanceBonus = Math.max(0, (chancePlayerStat - opponent.rating) * 0.01);
-                        const maxScoreProb = 0.50;
-                        const minScoreProb = 0.10;
-                        const scoreProb = Math.min(maxScoreProb, Math.max(minScoreProb, 0.24 + (activeDiff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus));
+                        const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponent.rating, formationScoreBoost, suitabilityBonus);
                         const isGoal = Math.random() < scoreProb;
                         
                         const activePlayers = { ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName };
@@ -866,10 +863,7 @@ function startCupMatchSimulation() {
                             playerGkStat = getAwakenedCard(gkCardId).stats.def || getAwakenedCard(gkCardId).rating || 70;
                         }
                         
-                        const playerDef = getTeamAverageStat('def');
-                        const playerDefBonus = Math.max(0, (playerDef - 70) * 0.01);
-                        const gkBonus = (playerGkStat + 5 - opponent.rating) * 0.01;
-                        const oppScoreProb = Math.min(0.50, Math.max(0.10, 0.40 - (activeDiff * 0.026) - playerDefBonus - gkBonus));
+                        const oppScoreProb = calculateOpponentScoreProb(activeDiff, opponentOvr, playerGkStat);
                         const isGoal = Math.random() < oppScoreProb;
                         
                         addCommentary(currentMin, getMatchEventCommentary('OPP_ATTACK', commentaryData, false), 'attack');
@@ -1015,10 +1009,7 @@ function startCupMatchSimulation() {
                         if (cmCardId && CARDS_DATABASE[cmCardId]) chancePlayerStat = getAwakenedCard(cmCardId).stats.dri || 75;
                     }
                     
-                    const playerChanceBonus = Math.max(0, (chancePlayerStat - opponent.rating) * 0.01);
-                    const maxScoreProb = 0.50;
-                    const minScoreProb = 0.10;
-                    const scoreProb = Math.min(maxScoreProb, Math.max(minScoreProb, 0.24 + (activeDiff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus));
+                    const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponent.rating, formationScoreBoost, suitabilityBonus);
                     const isGoal = Math.random() < scoreProb;
                     
                     const activePlayers = { ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName };
@@ -1056,10 +1047,7 @@ function startCupMatchSimulation() {
                         playerGkStat = getAwakenedCard(gkCardId).stats.def || getAwakenedCard(gkCardId).rating || 70;
                     }
                     
-                    const playerDef = getTeamAverageStat('def');
-                    const playerDefBonus = Math.max(0, (playerDef - 70) * 0.01);
-                    const gkBonus = (playerGkStat + 5 - opponent.rating) * 0.01;
-                    const oppScoreProb = Math.min(0.50, Math.max(0.10, 0.40 - (activeDiff * 0.026) - playerDefBonus - gkBonus));
+                    const oppScoreProb = calculateOpponentScoreProb(activeDiff, opponentOvr, playerGkStat);
                     const isGoal = Math.random() < oppScoreProb;
                     
                     addCommentary(currentMin, getMatchEventCommentary('OPP_ATTACK', commentaryData, false), 'attack');

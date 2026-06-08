@@ -946,3 +946,18 @@ function determineOpponentScorerAndAssister(opponentTeamId) {
         assisterName: assister ? assister.name : null
     };
 }
+
+// 10. 공통 슛 득점 확률 계산 함수 (플레이어 및 상대팀)
+function calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentRating, formationScoreBoost, suitabilityBonus) {
+    const playerChanceBonus = Math.max(0, (chancePlayerStat - opponentRating) * 0.01);
+    const maxScoreProb = 0.50;
+    const minScoreProb = 0.10;
+    return Math.min(maxScoreProb, Math.max(minScoreProb, 0.24 + (activeDiff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus));
+}
+
+function calculateOpponentScoreProb(activeDiff, opponentOvr, playerGkStat) {
+    const playerDef = getTeamAverageStat('def');
+    const playerDefBonus = Math.max(0, (playerDef - 70) * 0.01);
+    const gkBonus = (playerGkStat + 5 - opponentOvr) * 0.01;
+    return Math.min(0.50, Math.max(0.10, 0.40 - (activeDiff * 0.026) - playerDefBonus - gkBonus));
+}

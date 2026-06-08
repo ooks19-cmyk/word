@@ -50,14 +50,15 @@ const OTHER_TEAMS_PLAYERS_PRESET = [
     
     // 13. 대구FC (daegu_fc)
     { id: "daegu_player_1", name: "세징야", teamId: "daegu_fc", teamName: "대구FC" },
-    
+    { id: "daegu_player_2", name: "에드가", teamId: "daegu_fc", teamName: "대구FC" },    
+
     // 14. 부산 (busan_ipark) - 주요선수 미지정으로 기본 봇 선수 매핑
-    { id: "busan_player_default_1", name: "상대 공격수", teamId: "busan_ipark", teamName: "부산" },
-    { id: "busan_player_default_2", name: "상대 미드필더", teamId: "busan_ipark", teamName: "부산" },
+    { id: "busan_player_default_1", name: "가브리엘", teamId: "busan_ipark", teamName: "부산" },
+    { id: "busan_player_default_2", name: "크리스찬", teamId: "busan_ipark", teamName: "부산" },
     
     // 15. 서울E (seoul_e_land) - 주요선수 미지정으로 기본 봇 선수 매핑
-    { id: "seoule_player_default_1", name: "상대 공격수", teamId: "seoul_e_land", teamName: "서울E" },
-    { id: "seoule_player_default_2", name: "상대 미드필더", teamId: "seoul_e_land", teamName: "서울E" },
+    { id: "seoule_player_default_1", name: "박재용", teamId: "seoul_e_land", teamName: "서울E" },
+    { id: "seoule_player_default_2", name: "에울레르", teamId: "seoul_e_land", teamName: "서울E" },
     
     // 16. LA FC (virtual_la_fc)
     { id: "virtual_la_fc_player_1", name: "손흥민", teamId: "virtual_la_fc", teamName: "LA FC" },
