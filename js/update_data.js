@@ -2,12 +2,24 @@
 
 const UPDATE_LOGS = [
     {
-        version: "v1.7.2",
-        date: "2026.06.08",
+        version: "v1.7.3",
+        date: "2026.06.09",
         latest: true,
         borderColor: "#00ff87",
         titleColor: "#00ff87",
         badgeText: "LATEST",
+        items: [
+            "<strong>신규 친구(Friend) 탭 추가</strong>: 다른 유저를 ID로 검색하거나 전체 랭킹에서 확인하여, 해당 유저의 레벨, K리그 통산 전적(w/d/l/득실), 그리고 친선경기 전적을 실시간으로 간편하게 조회할 수 있습니다.",
+            "<strong>친구 스쿼드 피치 뷰 구현</strong>: 친구가 현재 구성해둔 베스트 11 포메이션과 선수 배치 상태(OVR, 강화 등급, 포지션)를 축구 피치 레이아웃 상에서 시각적(읽기 전용)으로 살펴볼 수 있습니다."
+        ]
+    },
+    {
+        version: "v1.7.2",
+        date: "2026.06.08",
+        latest: false,
+        borderColor: "#ffd700",
+        titleColor: "#ffd700",
+        badgeText: "",
         items: [
             "<strong>신규 스페셜 카드 추가 (이동국99)</strong>: 1999년도 K리그에 혜성처럼 등장해 센세이션을 일으킨 포항 스틸러스 시절의 젊은 이동국 선수가 스페셜 카드로 추가되었습니다. 리그 신인왕과 득점왕을 향해 질주하던 압도적인 피지컬과 폭발적인 슈팅력이 스펙에 고스란히 반영되었습니다."
         ]

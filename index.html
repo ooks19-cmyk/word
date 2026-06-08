@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FC STAR CARD - 축구 카드 수집 게임</title>
     <link rel="stylesheet" href="style.css?v=1.3">
+    <link rel="stylesheet" href="css/friend.css?v=1.0">
     <!-- PWA Web App Manifest & iOS App Capabilities -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#005a3c">
@@ -66,6 +67,9 @@
         </button>
         <button class="tab-btn" id="tabFameBtn" onclick="switchTab('fame')">
             <i class="fa-solid fa-award" style="margin-right: 6px;"></i>명예의 전당
+        </button>
+        <button class="tab-btn" id="tabFriendBtn" onclick="switchTab('friend')">
+            <i class="fa-solid fa-user-group" style="margin-right: 6px;"></i>친구
         </button>
     </div>
 
@@ -897,6 +901,90 @@
             </div>
         </section>
 
+        <!-- 친구 섹션 -->
+        <section id="friendSection" class="page-section">
+            <div class="friend-container-v2">
+                <!-- 1. Top Section: 검색 및 유저 목록 (가로형 캐러셀) -->
+                <div class="friend-top-panel">
+                    <div class="friend-search-box-v2">
+                        <input type="text" id="friendSearchInput" placeholder="유저 ID 검색...">
+                        <button id="btnFriendSearch" onclick="searchFriend()"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        <button id="btnFriendRefresh" onclick="initFriendTab(true)" title="유저 목록 새로고침 (클라우드 동기화)" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #cbd5e1; width: 38px; height: 38px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; border: 1px solid rgba(255, 255, 255, 0.15); transition: all 0.2s;"><i class="fa-solid fa-arrows-rotate"></i></button>
+                    </div>
+                    <div class="friend-carousel-wrapper">
+                        <div class="friend-carousel-list" id="friendListScroll">
+                            <!-- 유저 목록이 가로 방향으로 동적 삽입되는 영역 -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 2. Bottom Section: 상세 전적 요약 & 대형 경기장 -->
+                <div class="friend-main-panel" id="friendDetailPanel">
+                    <!-- 선택 전 기본 안내문구 -->
+                    <div class="empty-friend-detail" id="friendDetailPlaceholder">
+                        <i class="fa-solid fa-user-ninja" style="font-size: 3.5rem; color: var(--text-muted); margin-bottom: 1.2rem;"></i>
+                        <p>상단 목록에서 유저를 선택하여 상세 전적과 포메이션 스쿼드를 대형 피치로 확인하세요.</p>
+                    </div>
+                    
+                    <!-- 유저 정보 & 스쿼드 피치 영역 (선택 시 활성화) -->
+                    <div class="friend-detail-layout" id="friendDetailContent" style="display: none;">
+                        <!-- 가로로 길게 배치되는 전적 요약 바 -->
+                        <div class="friend-summary-bar">
+                            <div class="friend-summary-user">
+                                <span class="user-id" id="friendDetailId">USER_ID</span>
+                                <span class="user-level">Lv.<strong id="friendDetailLevel">1</strong></span>
+                            </div>
+                            <div class="friend-summary-stats">
+                                <div class="stat-item">
+                                    <span class="label">통산 K리그 전적</span>
+                                    <span class="val" id="friendCareerRecord">0승 0무 0패</span>
+                                    <span class="sub" id="friendCareerGoalDiff">득실차 0 (득 0 / 실 0)</span>
+                                </div>
+                                <div class="stat-divider"></div>
+                                <div class="stat-item">
+                                    <span class="label">친선 경기 전적</span>
+                                    <span class="val" id="friendFriendlyRecord">0승 0무 0패</span>
+                                    <span class="sub" id="friendFriendlyPts">0 pts</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 상대방 베스트 11 스쿼드 피치 (대형) -->
+                        <div class="pitch-outer-wrapper">
+                            <div class="squad-header" style="padding-bottom: 0.8rem; justify-content: space-between; align-items: center; display: flex; width: 100%;">
+                                <span class="header-tactic-badge active" id="friendActiveTactic" style="border: 1px solid rgba(255, 215, 0, 0.4); background: rgba(0, 0, 0, 0.4); color: #ffd700; font-weight: 800; padding: 0.35rem 0.8rem; border-radius: 12px; font-size: 0.75rem;">4-4-2 무전술</span>
+                                <div class="deck-count">
+                                    팀 OVR: <span id="friendTeamOvr" style="color:#ffd700; font-weight:900;">70</span>
+                                </div>
+                            </div>
+                            
+                            <div class="football-pitch friend-pitch">
+                                <!-- 피치 라인 마킹 -->
+                                <div class="pitch-line pitch-center-circle"></div>
+                                <div class="pitch-line pitch-half-line"></div>
+                                <div class="pitch-line pitch-penalty-area-top"></div>
+                                <div class="pitch-line pitch-penalty-area-bottom"></div>
+                                <div class="pitch-line pitch-center-spot"></div>
+                                
+                                <!-- 11개 고정 슬롯 배치 (클릭 비활성화, 스타일만 반영) -->
+                                <div class="pitch-slot read-only-slot" id="friend-slot-LW" style="top: 15%; left: 15%;"></div>
+                                <div class="pitch-slot read-only-slot" id="friend-slot-ST" style="top: 8%; left: 50%;"></div>
+                                <div class="pitch-slot read-only-slot" id="friend-slot-RW" style="top: 15%; left: 85%;"></div>
+                                <div class="pitch-slot read-only-slot" id="friend-slot-LCM" style="top: 44%; left: 22%;"></div>
+                                <div class="pitch-slot read-only-slot" id="friend-slot-CM" style="top: 50%; left: 50%;"></div>
+                                <div class="pitch-slot read-only-slot" id="friend-slot-RCM" style="top: 44%; left: 78%;"></div>
+                                <div class="pitch-slot read-only-slot" id="friend-slot-LB" style="top: 73%; left: 12%;"></div>
+                                <div class="pitch-slot read-only-slot" id="friend-slot-LCB" style="top: 77%; left: 36%;"></div>
+                                <div class="pitch-slot read-only-slot" id="friend-slot-RCB" style="top: 77%; left: 64%;"></div>
+                                <div class="pitch-slot read-only-slot" id="friend-slot-RB" style="top: 73%; left: 88%;"></div>
+                                <div class="pitch-slot read-only-slot" id="friend-slot-GK" style="top: 90%; left: 50%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <!-- CARD SELECTION DRAWER -->
@@ -1290,6 +1378,7 @@
     <script src="js/acl.js?v=2.3"></script>
     <script src="js/friendly.js?v=1.7"></script>
     <script src="js/update_data.js?v=1.4"></script>
+    <script src="js/friend.js?v=1.0"></script>
     <script src="js/auth.js?v=1.8"></script>
     <script src="app.js?v=1.5"></script>
 </body>

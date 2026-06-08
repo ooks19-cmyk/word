@@ -1,0 +1,307 @@
+/* css/friend.css - FC STAR CARD Friend Tab Restructured Styling */
+
+.friend-container-v2 {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 760px; /* Aligns perfectly with the football pitch max-width for center alignment */
+    margin: 0 auto;
+    padding: 0.5rem 0;
+}
+
+/* TOP PANEL - HORIZONTAL CAROUSEL & SEARCH */
+.friend-top-panel {
+    background: rgba(10, 14, 26, 0.45);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 1.2rem;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+}
+
+.friend-search-box-v2 {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.friend-search-box-v2 input {
+    flex: 1;
+    background: rgba(15, 19, 34, 0.9);
+    border: 1px solid var(--glass-border);
+    color: #fff;
+    padding: 0.6rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.friend-search-box-v2 input:focus {
+    border-color: #ffd700;
+}
+
+.friend-search-box-v2 button {
+    background: var(--gold-gradient);
+    color: #000;
+    border: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.friend-search-box-v2 button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(255,215,0,0.3);
+}
+
+.friend-search-box-v2 button#btnFriendRefresh:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    color: #fff !important;
+    box-shadow: none;
+}
+
+.friend-carousel-wrapper {
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px;
+}
+
+.friend-carousel-list {
+    display: flex;
+    gap: 10px;
+    width: max-content;
+    padding: 2px;
+}
+
+/* Horizontal scrolling scrollbar customization */
+.friend-carousel-wrapper::-webkit-scrollbar {
+    height: 5px;
+}
+.friend-carousel-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+}
+.friend-carousel-wrapper::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.friend-item {
+    flex: 0 0 150px; /* Fixed width for horizontal items */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.friend-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.friend-item.active {
+    border-color: #00ff87;
+    background: rgba(0, 255, 135, 0.08);
+    box-shadow: 0 0 12px rgba(0, 255, 135, 0.15);
+}
+
+.friend-item-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.friend-item-name {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #fff;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 130px;
+}
+
+.friend-item-level {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.friend-item-badge {
+    font-size: 0.68rem;
+    font-weight: 900;
+    background: rgba(0, 210, 252, 0.12);
+    color: #00d2fc;
+    padding: 1px 6px;
+    border-radius: 6px;
+    border: 1px solid rgba(0, 210, 252, 0.2);
+    margin-top: 2px;
+}
+
+.friend-item.my-account {
+    border-color: rgba(255, 215, 0, 0.25);
+    background: rgba(255, 215, 0, 0.04);
+}
+.friend-item.my-account .friend-item-name::after {
+    content: " (나)";
+    color: #ffd700;
+    font-size: 0.72rem;
+    font-weight: bold;
+}
+
+/* BOTTOM PANEL - DETAILED STATS SUMMARY & LARGE PITCH */
+.friend-main-panel {
+    width: 100%;
+}
+
+.empty-friend-detail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    text-align: center;
+    background: rgba(10, 14, 26, 0.45);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 3.5rem 1.5rem;
+    backdrop-filter: blur(10px);
+}
+
+.friend-detail-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    width: 100%;
+}
+
+/* HORIZONTAL SUMMARY BAR */
+.friend-summary-bar {
+    background: rgba(10, 14, 26, 0.45);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 1rem 1.5rem;
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+
+.friend-summary-user {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-align: left;
+}
+
+.friend-summary-user .user-id {
+    font-size: 1.15rem;
+    font-weight: 900;
+    color: #ffd700;
+}
+
+.friend-summary-user .user-level {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #fff;
+    background: rgba(0, 255, 135, 0.15);
+    border: 1px solid rgba(0, 255, 135, 0.3);
+    padding: 1px 8px;
+    border-radius: 10px;
+    width: fit-content;
+    margin-top: 2px;
+}
+
+.friend-summary-stats {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.friend-summary-stats .stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    text-align: right;
+}
+
+.friend-summary-stats .stat-item .label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.friend-summary-stats .stat-item .val {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+.friend-summary-stats .stat-item .sub {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+}
+
+.friend-summary-stats .stat-divider {
+    width: 1px;
+    height: 30px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* READ-ONLY PITCH SPECIFIC ADJUSTMENTS (Shares style with squad.css) */
+.read-only-slot {
+    pointer-events: none !important;
+    cursor: default !important;
+}
+
+.read-only-slot:hover {
+    transform: translate(-50%, -50%) scale(1) !important;
+}
+
+/* MOBILE RESPONSIVE TWEAKS */
+@media (max-width: 600px) {
+    .friend-summary-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1rem 1.2rem;
+    }
+    
+    .friend-summary-stats {
+        width: 100%;
+        justify-content: space-between;
+        gap: 0.5rem;
+    }
+    
+    .friend-summary-stats .stat-item {
+        text-align: left;
+    }
+    
+    .friend-summary-stats .stat-divider {
+        display: none;
+    }
+}

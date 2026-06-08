@@ -26,6 +26,10 @@ function switchTab(tabName) {
         'fame': {
             btn: document.getElementById('tabFameBtn'),
             section: document.getElementById('fameSection')
+        },
+        'friend': {
+            btn: document.getElementById('tabFriendBtn'),
+            section: document.getElementById('friendSection')
         }
     };
 
@@ -65,6 +69,10 @@ function switchTab(tabName) {
         }
     } else if (tabName === 'fame') {
         renderHallOfFame();
+    } else if (tabName === 'friend') {
+        if (typeof initFriendTab === 'function') {
+            initFriendTab();
+        }
     }
     
     renderUserPoints(); // Ensure header points are sync'd
@@ -142,11 +150,11 @@ document.addEventListener('DOMContentLoaded', () => {
     renderUserPoints();     // Sync user gacha points on load
     // CARDS_DATABASE 포지션 유효성 검사 (ST, LW, RW, CM, CB, LB, RB, GK)
     try {
-        const VALID_POSITIONS = ['ST', 'LW', 'RW', 'CM', 'CB', 'LB', 'RB', 'GK'];
+        const VALID_POSITIONS = ['ST', 'LW', 'RW', 'CM', 'CB', 'LB', 'RB', 'GK', 'CAM'];
         Object.keys(CARDS_DATABASE).forEach(cardId => {
             const card = CARDS_DATABASE[cardId];
             if (card && card.position && !VALID_POSITIONS.includes(card.position)) {
-                console.error(`[FC STAR 포지션 제한 오류] 카드 ID '${cardId}' (${card.name})의 포지션 '${card.position}'은(는) 허용되지 않는 값입니다. 'ST, LW, RW, CM, CB, LB, RB, GK' 중 하나여야 합니다.`);
+                console.error(`[FC STAR 포지션 제한 오류] 카드 ID '${cardId}' (${card.name})의 포지션 '${card.position}'은(는) 허용되지 않는 값입니다. 'ST, LW, RW, CM, CB, LB, RB, GK, CAM' 중 하나여야 합니다.`);
             }
         });
     } catch (e) {
