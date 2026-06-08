@@ -1163,6 +1163,31 @@ const CARDS_DATABASE = {
             def: 36,
             phy: 81
         }
+    },
+    "lee_dong_gook_99": {
+        id: "lee_dong_gook_99",
+        name: "이동국99",
+        rating: 86,
+        position: "ST",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "POHANG",
+        image: "player/이동국99.png",
+        rarity: "special",
+        description: "1999년 K리그를 뒤흔든 '라이온 킹' 이동국의 파릇파릇한 젊은 시절 카드입니다. 리그 신인왕과 득점왕을 노리던 폭발적인 피지컬과 예리한 돌파력, 그리고 전매특허인 강력한 발리슛을 구사한 특급 공격수입니다.",
+        theme: {
+            primary: "#e60012",
+            secondary: "#000000",
+            glow: "#ff2a55"
+        },
+        stats: {
+            pac: 87,
+            sho: 88,
+            pas: 81,
+            dri: 72,
+            def: 35,
+            phy: 83
+        }
     }
 };
 
