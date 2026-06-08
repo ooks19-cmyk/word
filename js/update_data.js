@@ -2,12 +2,23 @@
 
 const UPDATE_LOGS = [
     {
-        version: "v1.7.1",
-        date: "2026.06.07",
+        version: "v1.7.2",
+        date: "2026.06.08",
         latest: true,
         borderColor: "#00ff87",
         titleColor: "#00ff87",
         badgeText: "LATEST",
+        items: [
+            "<strong>신규 스페셜 카드 추가 (이동국99)</strong>: 1999년도 K리그에 혜성처럼 등장해 센세이션을 일으킨 포항 스틸러스 시절의 젊은 이동국 선수가 스페셜 카드로 추가되었습니다. 리그 신인왕과 득점왕을 향해 질주하던 압도적인 피지컬과 폭발적인 슈팅력이 스펙에 고스란히 반영되었습니다."
+        ]
+    },
+    {
+        version: "v1.7.1",
+        date: "2026.06.07",
+        latest: false,
+        borderColor: "#ffd700",
+        titleColor: "#ffd700",
+        badgeText: "",
         items: [
             "<strong>신규 선수 카드 데이터베이스 추가</strong>: 제시 린가드(OVR 85, LW), 세징야(OVR 85, CAM), 무고사(OVR 83, ST), 송민규(OVR 83, LW) 총 4명의 K리그 인기 선수가 신규 카드로 추가되었습니다. (세징야 선수는 webp 이미지 연동)",
             "<strong>공격형 미드필더(CAM) 포지션 배치 제한 완화</strong>: 전술 판에서 CAM 속성의 선수를 측면 공격수/윙어(LW, RW, LM, RM) 및 중앙 미드필더(CM, LCM, RCM, DM) 위치에 유연하게 기용할 수 있도록 배치 규칙을 개선했습니다.",
