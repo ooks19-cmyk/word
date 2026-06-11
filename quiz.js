@@ -172,6 +172,26 @@ function getTodayYYMMDD() {
     return yy + mm + dd; // 예: "260531"
 }
 
+// 현재 로드된 퀴즈 세트가 오늘 날짜의 스케줄 세트인지 확인하는 함수
+function isTodayQuizSchedule() {
+    if (typeof QUIZ_WORDS_BY_DATE === 'undefined' || !QUIZ_WORDS_BY_DATE || Object.keys(QUIZ_WORDS_BY_DATE).length === 0) {
+        return false;
+    }
+    const today = getTodayYYMMDD();
+    const scheduleDates = Object.keys(QUIZ_WORDS_BY_DATE).sort();
+    
+    let activeDate = null;
+    for (let i = 0; i < scheduleDates.length; i++) {
+        if (scheduleDates[i] <= today) {
+            activeDate = scheduleDates[i];
+        } else {
+            break;
+        }
+    }
+    return activeDate === today;
+}
+
+
 // 현재 날짜에 맞는 최적의 단어 풀을 실시간 판단하여 가져오는 함수
 function getScheduledWordPool() {
     if (typeof QUIZ_WORDS_BY_DATE === 'undefined' || !QUIZ_WORDS_BY_DATE || Object.keys(QUIZ_WORDS_BY_DATE).length === 0) {
@@ -344,14 +364,41 @@ function renderQuizCurrent() {
             qBarEl.style.width = `${pct}%`;
         }
 
-        // Focus input field
-        const inputField = document.getElementById('quizAnswerInput');
-        if (inputField) {
-            inputField.value = '';
-            inputField.style.borderColor = '';
-            inputField.style.boxShadow = '';
-            inputField.disabled = false;
-            setTimeout(() => inputField.focus(), 50);
+        // Mode Switching: Multiple Choice (당일 스케줄인 경우) vs Short Answer (그 외)
+        const isMultipleChoice = isTodayQuizSchedule();
+        const quizChoicesWrapper = document.getElementById('quizChoicesWrapper');
+        const quizInputWrapper = document.querySelector('.quiz-input-wrapper');
+        const btnQuizSubmit = document.getElementById('btnQuizSubmit');
+        const actionButtons = document.querySelector('.quiz-action-buttons');
+        const qLabel = document.querySelector('.quiz-question-label');
+
+        if (isMultipleChoice) {
+            // 4지선다형 객관식 모드
+            if (qLabel) qLabel.innerText = "다음 영어 단어의 올바른 뜻을 선택하세요";
+            if (quizInputWrapper) quizInputWrapper.style.display = 'none';
+            if (btnQuizSubmit) btnQuizSubmit.style.display = 'none';
+            if (actionButtons) actionButtons.style.gridTemplateColumns = '1fr';
+            if (quizChoicesWrapper) {
+                quizChoicesWrapper.style.display = 'grid';
+                generateQuizChoices(currentItem, quizChoicesWrapper);
+            }
+        } else {
+            // 주관식 입력 모드
+            if (qLabel) qLabel.innerText = "다음 영어 단어의 뜻을 입력하세요";
+            if (quizChoicesWrapper) quizChoicesWrapper.style.display = 'none';
+            if (quizInputWrapper) quizInputWrapper.style.display = 'block';
+            if (btnQuizSubmit) btnQuizSubmit.style.display = 'inline-flex';
+            if (actionButtons) actionButtons.style.gridTemplateColumns = '1fr 1.5fr';
+
+            // Focus input field
+            const inputField = document.getElementById('quizAnswerInput');
+            if (inputField) {
+                inputField.value = '';
+                inputField.style.borderColor = '';
+                inputField.style.boxShadow = '';
+                inputField.disabled = false;
+                setTimeout(() => inputField.focus(), 50);
+            }
         }
 
         // Auto-play TTS if enabled
@@ -362,6 +409,131 @@ function renderQuizCurrent() {
         }
     } catch(e) {
         console.error("renderQuizCurrent 에러 발생:", e);
+    }
+}
+
+// 4지선다형 객관식의 보기들을 생성하고 렌더링하는 함수
+function generateQuizChoices(currentItem, wrapperEl) {
+    try {
+        wrapperEl.innerHTML = '';
+        
+        const activePool = getScheduledWordPool();
+        // 현재 단어를 제외한 활성 풀의 단어 후보군
+        let wrongCandidates = activePool.filter(w => w.word !== currentItem.word);
+        
+        // 만약 후보군이 3개 미만이면 전체 풀에서 수급
+        if (wrongCandidates.length < 3 && typeof QUIZ_WORDS !== 'undefined') {
+            wrongCandidates = QUIZ_WORDS.filter(w => w.word !== currentItem.word);
+        }
+        
+        // 후보군 셔플 후 오답 3개 뜻 추출
+        const shuffledWrongs = [...wrongCandidates];
+        for (let i = shuffledWrongs.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffledWrongs[i], shuffledWrongs[j]] = [shuffledWrongs[j], shuffledWrongs[i]];
+        }
+        const wrongMeanings = shuffledWrongs.slice(0, 3).map(w => w.meaning);
+        
+        // 정답과 오답 병합
+        const allChoices = [currentItem.meaning, ...wrongMeanings];
+        
+        // 보기 전체 셔플
+        for (let i = allChoices.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [allChoices[i], allChoices[j]] = [allChoices[j], allChoices[i]];
+        }
+        
+        // 보기 버튼 생성
+        allChoices.forEach(choice => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-choice';
+            btn.innerText = choice;
+            btn.onclick = () => selectChoice(btn, choice, currentItem.meaning);
+            wrapperEl.appendChild(btn);
+        });
+    } catch (e) {
+        console.error("generateQuizChoices 에러:", e);
+    }
+}
+
+// 객관식 보기 클릭 시 정오답 판정 및 트랜지션 처리 함수
+function selectChoice(btnEl, selectedChoice, correctMeaning) {
+    try {
+        if (isQuizAnswering) return;
+        isQuizAnswering = true;
+        
+        // 모든 보기 버튼 비활성화 (더블클릭 방지)
+        const buttons = document.querySelectorAll('.btn-choice');
+        buttons.forEach(btn => btn.disabled = true);
+        
+        const isCorrect = (selectedChoice === correctMeaning);
+        
+        if (isCorrect) {
+            btnEl.classList.add('correct');
+            createSparkParticles(true, '#00ff87');
+            
+            setTimeout(() => {
+                try {
+                    quizSolvedCount++;
+                    
+                    // 정답 처리 시 큐에서 제거
+                    quizQueue.splice(quizCurrentIndex, 1);
+                    
+                    if (quizSolvedCount >= 5) {
+                        // 퀴즈 완전 정복 성공
+                        userPoints += 1;
+                        userLevel += 1;
+                        
+                        try {
+                            localStorage.setItem('fc_star_user_points', userPoints.toString());
+                            localStorage.setItem('fc_star_user_level', userLevel.toString());
+                        } catch(e) {}
+                        
+                        renderUserPoints();
+                        if (typeof renderUserLevel === 'function') renderUserLevel();
+                        
+                        if (typeof checkLevelUpRewards === 'function') {
+                            checkLevelUpRewards(userLevel);
+                        }
+                        
+                        const compLvlVal = document.getElementById('completeLevelVal');
+                        if (compLvlVal) compLvlVal.innerText = userLevel;
+                        
+                        const compOverlay = document.getElementById('quizCompleteOverlay');
+                        if (compOverlay) compOverlay.style.display = 'flex';
+                        playSound('reveal', 0.3);
+                        createSparkParticles(true, '#ffd700');
+                        
+                        saveQuizState();
+                    } else {
+                        // 다음 문제 진행
+                        isQuizAnswering = false;
+                        if (quizCurrentIndex >= quizQueue.length) {
+                            quizCurrentIndex = 0;
+                        }
+                        saveQuizState();
+                        renderQuizCurrent();
+                    }
+                } catch(innerErr) {
+                    console.error("객관식 정답 처리 내부 타이머 에러:", innerErr);
+                    isQuizAnswering = false;
+                }
+            }, 1000);
+        } else {
+            // 오답 처리
+            btnEl.classList.add('incorrect');
+            playSound('rumble', 0.3);
+            showToast("오답입니다! 다시 한 번 생각해보세요.");
+            
+            setTimeout(() => {
+                btnEl.classList.remove('incorrect');
+                buttons.forEach(btn => btn.disabled = false);
+                isQuizAnswering = false;
+            }, 1000);
+        }
+    } catch (e) {
+        console.error("selectChoice 에러:", e);
+        isQuizAnswering = false;
     }
 }
 

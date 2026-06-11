@@ -238,7 +238,7 @@ function getPlayerDetailedTacticBonuses() {
                 detailedTacticLabel = ` [세부전술: 타겟맨 활성 (+5.0%)]`;
             }
             const avgPas = getTeamAverageStat('pas');
-            suitabilityBonus = Math.max(0, (avgPas - 70) * 0.01);
+            suitabilityBonus = Math.max(0, (avgPas - 70) * 0.005);
             if (suitabilityBonus > 0) {
                 suitabilityLabel = ` [전술적합(PAS): +${(suitabilityBonus * 100).toFixed(1)}%]`;
             }
@@ -257,7 +257,7 @@ function getPlayerDetailedTacticBonuses() {
                 detailedTacticLabel = ` [세부전술: 전방압박 활성 (+5.0%)]`;
             }
             const avgPac = getTeamAverageStat('pac');
-            suitabilityBonus = Math.max(0, (avgPac - 70) * 0.01);
+            suitabilityBonus = Math.max(0, (avgPac - 70) * 0.005);
             if (suitabilityBonus > 0) {
                 suitabilityLabel = ` [전술적합(PAC): +${(suitabilityBonus * 100).toFixed(1)}%]`;
             }
@@ -280,7 +280,7 @@ function getPlayerDetailedTacticBonuses() {
                 detailedTacticLabel = ` [세부전술: 다이렉트 패스 활성 (+5.0%)]`;
             }
             const avgDef = getTeamAverageStat('def');
-            suitabilityBonus = Math.max(0, (avgDef - 60) * 0.01);
+            suitabilityBonus = Math.max(0, (avgDef - 60) * 0.005);
             if (suitabilityBonus > 0) {
                 suitabilityLabel = ` [전술적합(DEF): +${(suitabilityBonus * 100).toFixed(1)}%]`;
             }
@@ -299,7 +299,7 @@ function getPlayerDetailedTacticBonuses() {
                 detailedTacticLabel = ` [세부전술: 티키타카 활성 (+5.0%)]`;
             }
             const avgDri = getTeamAverageStat('dri');
-            suitabilityBonus = Math.max(0, (avgDri - 70) * 0.01);
+            suitabilityBonus = Math.max(0, (avgDri - 70) * 0.005);
             if (suitabilityBonus > 0) {
                 suitabilityLabel = ` [전술적합(DRI): +${(suitabilityBonus * 100).toFixed(1)}%]`;
             }

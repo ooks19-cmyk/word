@@ -6,6 +6,13 @@
  */
 
 const QUIZ_WORDS_BY_DATE = {
+    "260612": [
+        { word: "apple", meaning: "사과" },
+        { word: "banana", meaning: "바나나" },
+        { word: "cherry", meaning: "체리" },
+        { word: "grape", meaning: "포도" },
+        { word: "orange", meaning: "오렌지" }
+    ],
     "260531": [
         { word: "activity", meaning: "활동, 사용 기록 (예: 게임 이용 내역)" },
         { word: "asleep", meaning: "잠이 든, 자고 있는" },

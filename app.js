@@ -207,8 +207,56 @@ document.addEventListener('DOMContentLoaded', () => {
                         syncUserDataOnLogin(userData);
                         console.log("🟢 세션 복원 성공!");
                     } else {
-                        localStorage.removeItem('fc_star_current_user');
-                        openAuthModal(true); // 세션 복원 실패 시 강제 로그인
+                        // If it's a guest user, they might have been created offline and not registered in the cloud yet.
+                        // Try to register the guest user to the cloud.
+                        if (savedUser.startsWith('guest_')) {
+                            console.log("🛠 신규 온라인 게스트 세션 등록 중... ID:", savedUser);
+                            try {
+                                await dbService.register(savedUser, "fc_star_guest_pwd");
+                                currentUser = savedUser;
+                                // Save local progress to the cloud so they don't lose anything
+                                if (typeof saveUserProgress === 'function') {
+                                    saveUserProgress();
+                                }
+                                console.log("🟢 게스트 세션 클라우드 등록 완료!");
+                                
+                                // Load local data and render UI
+                                if (typeof loadFriendlyMatchesState === 'function') {
+                                    loadFriendlyMatchesState();
+                                }
+                                if (typeof updateAuthBadgeUI === 'function') updateAuthBadgeUI();
+                                if (typeof updateDevModeUI === 'function') updateDevModeUI();
+                                renderUserPoints();
+                                updateTotalCardCount();
+                                renderDeck();
+                                renderSquadFormation();
+                                if (typeof syncJeonbukOvr === 'function') syncJeonbukOvr();
+                                if (typeof updateMatchPreviewBoard === 'function') updateMatchPreviewBoard();
+                                if (typeof renderLeagueTable === 'function') renderLeagueTable();
+                                if (typeof renderLeagueStats === 'function') renderLeagueStats();
+                                if (typeof renderCareerStats === 'function') renderCareerStats();
+                            } catch (regErr) {
+                                console.warn("⚠️ 게스트 클라우드 등록 실패 (오프라인/오류), 로컬로 계속 진행:", regErr);
+                                currentUser = savedUser;
+                                if (typeof loadFriendlyMatchesState === 'function') {
+                                    loadFriendlyMatchesState();
+                                }
+                                if (typeof updateAuthBadgeUI === 'function') updateAuthBadgeUI();
+                                if (typeof updateDevModeUI === 'function') updateDevModeUI();
+                                renderUserPoints();
+                                updateTotalCardCount();
+                                renderDeck();
+                                renderSquadFormation();
+                                if (typeof syncJeonbukOvr === 'function') syncJeonbukOvr();
+                                if (typeof updateMatchPreviewBoard === 'function') updateMatchPreviewBoard();
+                                if (typeof renderLeagueTable === 'function') renderLeagueTable();
+                                if (typeof renderLeagueStats === 'function') renderLeagueStats();
+                                if (typeof renderCareerStats === 'function') renderCareerStats();
+                            }
+                        } else {
+                            localStorage.removeItem('fc_star_current_user');
+                            openAuthModal(true); // 세션 복원 실패 시 강제 로그인
+                        }
                     }
                 } catch (err) {
                     if (err.message === "network_error") {

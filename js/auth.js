@@ -477,6 +477,88 @@ async function handleAuthSubmit() {
     }
 }
 
+async function handleGuestPlay() {
+    if (isAuthSubmitting) return;
+    
+    // 1. Generate or retrieve guest ID
+    let guestId = localStorage.getItem('fc_star_guest_id');
+    if (!guestId) {
+        const randStr = Math.random().toString(36).substring(2, 10); // 8 random characters
+        guestId = `guest_${randStr}`;
+        localStorage.setItem('fc_star_guest_id', guestId);
+    }
+    
+    isAuthSubmitting = true;
+    const btnGuest = document.getElementById('btnGuestAuth');
+    if (btnGuest) {
+        btnGuest.disabled = true;
+        btnGuest.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="margin-right: 6px;"></i>게스트 시작 중...`;
+    }
+    
+    const guestPw = "fc_star_guest_pwd"; // secure/fixed guest password
+    
+    try {
+        showToast("게스트 세션 생성 중...");
+        
+        let userData = null;
+        try {
+            // Try logging in (in case the guest account is already registered in the cloud)
+            userData = await dbService.login(guestId, guestPw);
+        } catch (loginErr) {
+            // If it doesn't exist, register it
+            if (loginErr.message && loginErr.message.includes("존재하지 않는 아이디")) {
+                userData = await dbService.register(guestId, guestPw);
+            } else {
+                throw loginErr;
+            }
+        }
+        
+        currentUser = guestId;
+        localStorage.setItem('fc_star_current_user', guestId);
+        
+        // Sync and refresh
+        if (userData) {
+            syncUserDataOnLogin(userData);
+            // Backup existing local data to cloud immediately (just in case they had offline progress before registering)
+            saveUserProgress();
+        }
+        
+        closeAuthModal();
+        showToast("게스트 모드로 게임을 시작합니다!");
+    } catch (err) {
+        console.warn("⚠️ 클라우드 게스트 생성 실패 (오프라인 모드 진입):", err);
+        // Offline / network fallback: directly start guest mode locally
+        currentUser = guestId;
+        localStorage.setItem('fc_star_current_user', guestId);
+        
+        // Trigger UI rendering
+        if (typeof updateAuthBadgeUI === 'function') updateAuthBadgeUI();
+        if (typeof updateDevModeUI === 'function') updateDevModeUI();
+        if (typeof loadFriendlyMatchesState === 'function') {
+            loadFriendlyMatchesState();
+        }
+        
+        renderUserPoints();
+        updateTotalCardCount();
+        renderDeck();
+        renderSquadFormation();
+        if (typeof syncJeonbukOvr === 'function') syncJeonbukOvr();
+        if (typeof updateMatchPreviewBoard === 'function') updateMatchPreviewBoard();
+        if (typeof renderLeagueTable === 'function') renderLeagueTable();
+        if (typeof renderLeagueStats === 'function') renderLeagueStats();
+        if (typeof renderCareerStats === 'function') renderCareerStats();
+        
+        closeAuthModal();
+        showToast("⚠️ 오프라인 게스트 모드로 인게임에 진입했습니다.");
+    } finally {
+        isAuthSubmitting = false;
+        if (btnGuest) {
+            btnGuest.disabled = false;
+            btnGuest.innerHTML = `<i class="fa-solid fa-user-secret" style="margin-right: 6px;"></i>로그인 없이 시작 (게스트)`;
+        }
+    }
+}
+
 function handleLogout() {
     const confirmLogout = confirm("정말 로그아웃 하시겠습니까?\n로그아웃 시 비회원 로컬 모드로 전환됩니다.");
     if (confirmLogout) {

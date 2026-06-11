@@ -149,6 +149,9 @@
                             <div class="quiz-input-glow"></div>
                         </div>
 
+                        <!-- 객관식 선택지 컨테이너 -->
+                        <div class="quiz-choices-wrapper" id="quizChoicesWrapper" style="display: none;"></div>
+
                         <!-- Pass 정답 공개 피드백 창 (기본 숨김) -->
                         <div class="quiz-feedback-box" id="quizFeedbackBox" style="display: none;">
                             <div class="feedback-icon" id="feedbackIcon"><i class="fa-solid fa-circle-info"></i></div>
@@ -1101,6 +1104,10 @@
                         <i class="fa-solid fa-key" style="margin-right: 6px;"></i>로그인 완료
                     </button>
 
+                    <button class="btn-open-pack" id="btnGuestAuth" onclick="handleGuestPlay()" style="width: 100%; margin-top: 0.6rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); color: #cbd5e1; box-shadow: none;">
+                        <i class="fa-solid fa-user-secret" style="margin-right: 6px;"></i>로그인 없이 시작 (게스트)
+                    </button>
+
                     <!-- Toggle Mode Link -->
                     <div style="text-align: center; margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">
                         <span id="authToggleHint">아직 계정이 없으신가요?</span>
@@ -1361,23 +1368,23 @@
     </div>
 
     <script src="player_data.js?v=1.18"></script>
-    <script src="quiz_data.js?v=1.2"></script>
+    <script src="quiz_data.js?v=1.3"></script>
     <script src="other_teams_data.js?v=1.4"></script>
-    <script src="db.js?v=1.8"></script>
+    <script src="db.js?v=1.9"></script>
     <script src="sound.js?v=1.2"></script>
     <script src="js/state.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/card.js?v=1.3"></script>
-    <script src="quiz.js"></script>
+    <script src="quiz.js?v=1.1"></script>
     <script src="js/pack.js?v=1.3"></script>
     <script src="js/deck.js"></script>
     <script src="js/squad.js?v=1.3"></script>
-    <script src="js/match_algorithm.js?v=1.6"></script>
+    <script src="js/match_algorithm.js?v=1.7"></script>
     <script src="js/league.js?v=2.2"></script>
     <script src="js/cup.js?v=2.0"></script>
     <script src="js/acl.js?v=2.3"></script>
     <script src="js/friendly.js?v=1.7"></script>
-    <script src="js/update_data.js?v=1.4"></script>
+    <script src="js/update_data.js?v=1.5"></script>
     <script src="js/friend.js?v=1.0"></script>
     <script src="js/auth.js?v=1.8"></script>
     <script src="app.js?v=1.5"></script>

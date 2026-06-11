@@ -53,6 +53,13 @@ const dbService = {
                 }
                 this.firestore = firebase.firestore();
                 this.isFirebase = true;
+                
+                // 오프라인 데이터 지속성 캐시 활성화
+                this.firestore.enablePersistence({ synchronizeTabs: true })
+                    .catch((err) => {
+                        console.warn("⚠️ Firestore Persistence 활성화 실패:", err.code);
+                    });
+
                 console.log("🟢 Firebase Firestore 클라우드 원격 연결 완료!");
             } catch (error) {
                 console.error("🔴 Firebase 초기화 에러 (로컬 모의 클라우드로 대체):", error);
@@ -89,6 +96,8 @@ const dbService = {
 
         if (this.isFirebase) {
             try {
+                // 오프라인 상태 고정을 강제로 해제하고 즉시 백엔드 연결 활성화
+                await this.firestore.enableNetwork();
                 const doc = await this.firestore.collection('fc_star_users').doc(normalizedId).get();
                 if (!doc.exists) {
                     throw new Error("존재하지 않는 아이디입니다.");
@@ -149,6 +158,8 @@ const dbService = {
 
         if (this.isFirebase) {
             try {
+                // 오프라인 상태 고정을 강제로 해제하고 즉시 백엔드 연결 활성화
+                await this.firestore.enableNetwork();
                 const docRef = this.firestore.collection('fc_star_users').doc(normalizedId);
                 const doc = await docRef.get();
                 if (doc.exists) {
