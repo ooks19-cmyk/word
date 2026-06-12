@@ -958,8 +958,8 @@ const CARDS_DATABASE = {
         stats: {
             pac: 80,
             sho: 78,
-            pas: 87,
-            dri: 85,
+            pas: 89,
+            dri: 87,
             def: 74,
             phy: 79
         }
@@ -1187,6 +1187,106 @@ const CARDS_DATABASE = {
             dri: 72,
             def: 35,
             phy: 83
+        }
+    },
+    "kim_seung_gyu": {
+        id: "kim_seung_gyu",
+        name: "김승규",
+        rating: 84,
+        position: "GK",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "KOREA",
+        image: "player/김승규.png",
+        rarity: "special",
+        description: "대한민국 축구 국가대표팀의 베테랑 수문장이자 빌드업 축구의 핵심 골키퍼 김승규입니다. 뛰어난 반사신경과 안정적인 선방력은 물론, 정확한 패싱 능력을 바탕으로 후방 빌드업 전술을 주도하는 든든한 골키퍼입니다.",
+        theme: {
+            primary: "#da1a32",
+            secondary: "#1d2b58",
+            glow: "#ff2a55"
+        },
+        stats: {
+            pac: 83,
+            sho: 81,
+            pas: 80,
+            dri: 84,
+            def: 86,
+            phy: 82
+        }
+    },
+    "lee_han_beom": {
+        id: "lee_han_beom",
+        name: "이한범",
+        rating: 83,
+        position: "CB",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "KOREA",
+        image: "player/이한범.png",
+        rarity: "special",
+        description: "대한민국 수비의 미래를 짊어진 대형 센터백 이한범입니다. 압도적인 피지컬을 활용한 공중볼 장악과 타이트한 대인 마크가 돋보이며, 안정적인 패스 능력과 경기 리딩 능력까지 갖춘 육각형 수비수입니다.",
+        theme: {
+            primary: "#da1a32",
+            secondary: "#1d2b58",
+            glow: "#ff2a55"
+        },
+        stats: {
+            pac: 79,
+            sho: 50,
+            pas: 75,
+            dri: 72,
+            def: 83,
+            phy: 82
+        }
+    },
+    "seol_young_woo": {
+        id: "seol_young_woo",
+        name: "설영우",
+        rating: 83,
+        position: "RB",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "KOREA",
+        image: "player/설영우.png",
+        rarity: "special",
+        description: "대한민국 축구 국가대표팀의 핵심 풀백 설영우입니다. 지치지 않는 기동력과 안정적인 수비력은 물론, 날카로운 오버래핑과 정교한 크로스로 측면 공격에 큰 힘을 보태는 현대적인 측면 수비수입니다.",
+        theme: {
+            primary: "#da1a32",
+            secondary: "#1d2b58",
+            glow: "#ff2a55"
+        },
+        stats: {
+            pac: 84,
+            sho: 63,
+            pas: 78,
+            dri: 80,
+            def: 82,
+            phy: 80
+        }
+    },
+    "paik_seung_ho": {
+        id: "paik_seung_ho",
+        name: "백승호",
+        rating: 84,
+        position: "CM",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "KOREA",
+        image: "player/백승호.png",
+        rarity: "special",
+        description: "바르셀로나 유스 출신의 뛰어난 테크닉과 자로 잰 듯한 킥력을 장착한 미드필더 백승호입니다. 넓은 시야와 침착한 경기 조율력, 그리고 상대 골문을 직접 노리는 날카로운 중거리 슈팅 능력을 지니고 있습니다.",
+        theme: {
+            primary: "#da1a32",
+            secondary: "#1d2b58",
+            glow: "#ff2a55"
+        },
+        stats: {
+            pac: 80,
+            sho: 79,
+            pas: 84,
+            dri: 84,
+            def: 75,
+            phy: 78
         }
     }
 };
