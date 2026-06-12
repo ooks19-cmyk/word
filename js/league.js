@@ -492,6 +492,17 @@ function updateMatchPreviewBoard() {
     const opponent = leagueTeams.find(t => t.id === fixture.opponent);
     const jeonbuk = leagueTeams.find(t => t.id === 'jeonbuk');
     
+    // K리그 상대팀 분위기 설정 및 바인딩
+    if (typeof prepareOpponentMood === 'function') {
+        if (!currentOpponentMood || currentOpponentMood.opponentId !== opponent.id) {
+            prepareOpponentMood(opponent.id);
+        }
+    }
+    const mood = (typeof currentOpponentMood !== 'undefined' && currentOpponentMood) ? currentOpponentMood : { modifier: 0, label: "보통", emoji: "😐" };
+    const moodModifierSign = mood.modifier > 0 ? `+${mood.modifier}` : (mood.modifier < 0 ? `${mood.modifier}` : '');
+    const moodModifierText = mood.modifier !== 0 ? ` (${moodModifierSign})` : '';
+    const oppOvrDisplayHtml = `${opponent.rating + mood.modifier} <span style="font-size: 0.72rem; color: #ffd700; border: 1px solid rgba(255, 215, 0, 0.2); background: rgba(255, 215, 0, 0.1); padding: 1px 4px; border-radius: 4px; margin-left: 4px; font-weight: bold; vertical-align: middle;">${mood.emoji}${moodModifierText}</span>`;
+
     document.getElementById('matchRoundVal').innerText = leagueRound;
     document.getElementById('sbTimeDisplay').innerText = "VS";
     document.getElementById('homeScore').innerText = "0";
@@ -503,13 +514,13 @@ function updateMatchPreviewBoard() {
         document.getElementById('homeEmblem').innerHTML = `<img src="img/mark_jb.svg" alt="전북 현대" class="match-emblem-img" style="height: 48px; width: 48px; filter: drop-shadow(0 0 10px rgba(0, 255, 135, 0.6));">`;
         
         document.getElementById('awayTeamName').innerText = opponent.name;
-        document.getElementById('awayTeamOvr').innerText = opponent.rating;
+        document.getElementById('awayTeamOvr').innerHTML = oppOvrDisplayHtml;
         document.getElementById('awayEmblem').innerHTML = `<img src="${getTeamEmblemPath(opponent.id)}" alt="${opponent.name}" class="match-emblem-img" style="height: 48px; width: 48px; filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.35)); object-fit: contain;">`;
         
         document.getElementById('matchVenueDisplay').innerText = "홈 경기 (전주성) - HOME ADVANTAGE +2 OVR";
     } else {
         document.getElementById('homeTeamName').innerText = opponent.name;
-        document.getElementById('homeTeamOvr').innerText = opponent.rating;
+        document.getElementById('homeTeamOvr').innerHTML = oppOvrDisplayHtml;
         document.getElementById('homeEmblem').innerHTML = `<img src="${getTeamEmblemPath(opponent.id)}" alt="${opponent.name}" class="match-emblem-img" style="height: 48px; width: 48px; filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.35)); object-fit: contain;">`;
         
         document.getElementById('awayTeamName').innerText = jeonbuk.name;

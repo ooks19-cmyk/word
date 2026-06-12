@@ -387,10 +387,44 @@ function getOpponentFormationTacticStatus(opponentData) {
     return formationBonus;
 }
 
+// 상대팀 분위기 글로벌 상태 및 제어 변수/함수
+let currentOpponentMood = null;
+let lastOpponentMood = null;
+
+function prepareOpponentMood(opponentId) {
+    if (currentOpponentMood && currentOpponentMood.opponentId === opponentId) {
+        return currentOpponentMood;
+    }
+    const moods = [
+        { modifier: 2, label: "최상", emoji: "😆" },
+        { modifier: 1, label: "좋음", emoji: "🙂" },
+        { modifier: 0, label: "보통", emoji: "😐" },
+        { modifier: -1, label: "저조", emoji: "😕" },
+        { modifier: -2, label: "최악", emoji: "😢" }
+    ];
+    const rolled = moods[Math.floor(Math.random() * moods.length)];
+    currentOpponentMood = {
+        opponentId: opponentId,
+        modifier: rolled.modifier,
+        label: rolled.label,
+        emoji: rolled.emoji
+    };
+    return currentOpponentMood;
+}
+
 // 2d. 최종 매치 OVR 통합 연산 (홈어드밴티지 및 친선전 유도 포함)
 function calculateFinalMatchOvrs(venueType, isPlayerHome, opponentBaseOvr, isFriendlyMode = false, opponentData = null) {
     let playerOvr = getPlayerPureOvr();
     let opponentOvr = opponentBaseOvr;
+    
+    // 리그 모드인 경우에만 상대팀 분위기 보정 적용
+    if (venueType === 'league' && currentOpponentMood) {
+        opponentOvr += currentOpponentMood.modifier;
+        lastOpponentMood = currentOpponentMood; // 코멘터리용 백업
+        currentOpponentMood = null; // 사용 완료 후 즉시 소비
+    } else {
+        lastOpponentMood = null;
+    }
     
     if (!isFriendlyMode) {
         // 리그와 컵 모드는 포메이션 OVR 완성 보너스 적용
@@ -506,7 +540,12 @@ function getMatchEventCommentary(type, data, isFriendly = false, isDevMode = fal
         if (isFriendly) {
             return `⚽ 🤝 친선 경기 매칭 전력 분석 | 나의 구단 OVR ${playerOvr} vs 상대 ${opponentName} OVR ${opponentOvr} (홈 ADV: 0)`;
         } else {
-            return `경기 시작 전력 분석 | 전북 OVR ${playerOvr} (${isPlayerHome ? '홈' : '원정'}) vs ${opponentName} OVR ${opponentOvr}`;
+            let moodText = "";
+            if (lastOpponentMood) {
+                const modifierSign = lastOpponentMood.modifier > 0 ? `+${lastOpponentMood.modifier}` : (lastOpponentMood.modifier < 0 ? `${lastOpponentMood.modifier}` : '0');
+                moodText = ` [상대 분위기: ${lastOpponentMood.label} ${lastOpponentMood.emoji} OVR ${modifierSign}]`;
+            }
+            return `경기 시작 전력 분석 | 전북 OVR ${playerOvr} (${isPlayerHome ? '홈' : '원정'}) vs ${opponentName} OVR ${opponentOvr}${moodText}`;
         }
     }
 
