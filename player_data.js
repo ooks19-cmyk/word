@@ -958,9 +958,9 @@ const CARDS_DATABASE = {
         stats: {
             pac: 80,
             sho: 78,
-            pas: 89,
-            dri: 87,
-            def: 74,
+            pas: 90,
+            dri: 89,
+            def: 75,
             phy: 79
         }
     },
@@ -1287,6 +1287,56 @@ const CARDS_DATABASE = {
             dri: 84,
             def: 75,
             phy: 78
+        }
+    },
+    "lee_tae_seok": {
+        id: "lee_tae_seok",
+        name: "이태석",
+        rating: 84,
+        position: "LB",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "KOREA",
+        image: "player/이태석.png",
+        rarity: "special",
+        description: "대한민국 국가대표팀(KOREA)의 좌측 측면을 든든하게 책임지는 지칠 줄 모르는 기동력의 윙백입니다. 빠른 오버랩핑과 날카로운 크로스, 영리한 수비 포지셔닝으로 공수 양면에서 맹활약하는 스페셜 풀백입니다.",
+        theme: {
+            primary: "#005a3c",
+            secondary: "#ffd700",
+            glow: "#00ff87"
+        },
+        stats: {
+            pac: 85,
+            sho: 68,
+            pas: 78,
+            dri: 81,
+            def: 80,
+            phy: 78
+        }
+    },
+    "ahn_jung_hwan": {
+        id: "ahn_jung_hwan",
+        name: "안정환",
+        rating: 89,
+        position: "LW",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "KOREA",
+        image: "player/안정환.png",
+        rarity: "legend",
+        description: "대한민국 축구 역사상 최고의 판타지스타이자 테크니션입니다. 2002년 한일 월드컵의 영웅으로 이탈리아전 결승 골을 비롯한 결정적인 경기마다 해결사 역할을 톡톡히 해냈으며, 감각적인 드리블과 우아한 볼 터치, 그리고 폭발적인 슈팅력으로 전 세계를 놀라게 한 레전드 윙어입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 86,
+            sho: 91,
+            pas: 84,
+            dri: 90,
+            def: 35,
+            phy: 75
         }
     }
 };
