@@ -387,6 +387,37 @@ function getOpponentFormationTacticStatus(opponentData) {
     return formationBonus;
 }
 
+/**
+ * 플레이어 포메이션과 상대팀 포메이션 간의 상성을 비교하여 찬스 확률 보너스를 반환합니다.
+ * 3-4-3 > 4-3-3 > 5-4-1 > 4-2-3-1 > 3-4-3 순으로 상성 우세가 적용됩니다.
+ * @param {string} playerForm 플레이어 포메이션 (예: "3-4-3")
+ * @param {string} oppForm 상대팀 포메이션 (예: "4-3-3")
+ * @returns {number} 찬스 확률 보너스 (+0.05, -0.05, 또는 0)
+ */
+function getFormationCompatibilityBonus(playerForm, oppForm) {
+    if (!playerForm || !oppForm) return 0;
+    
+    const pForm = playerForm.trim();
+    const oForm = oppForm.trim();
+    
+    if (pForm === oForm) return 0;
+    
+    const compatibility = {
+        '3-4-3': '4-3-3',
+        '4-3-3': '5-4-1',
+        '5-4-1': '4-2-3-1',
+        '4-2-3-1': '3-4-3'
+    };
+    
+    if (compatibility[pForm] === oForm) {
+        return 0.10; // 플레이어 우세 (+10% 찬스)
+    } else if (compatibility[oForm] === pForm) {
+        return -0.10; // 상대 우세 (-10% 찬스)
+    }
+    
+    return 0; // 상성 없음 (4-4-2 등)
+}
+
 // 상대팀 분위기 글로벌 상태 및 제어 변수/함수
 let currentOpponentMood = null;
 let lastOpponentMood = null;
@@ -396,11 +427,11 @@ function prepareOpponentMood(opponentId) {
         return currentOpponentMood;
     }
     const moods = [
-        { modifier: 2, label: "최상", emoji: "😆" },
+        { modifier: 1, label: "최상", emoji: "😆" },
         { modifier: 1, label: "좋음", emoji: "🙂" },
         { modifier: 0, label: "보통", emoji: "😐" },
         { modifier: -1, label: "저조", emoji: "😕" },
-        { modifier: -2, label: "최악", emoji: "😢" }
+        { modifier: -1, label: "최악", emoji: "😢" }
     ];
     const rolled = moods[Math.floor(Math.random() * moods.length)];
     currentOpponentMood = {
@@ -533,7 +564,8 @@ function getMatchEventCommentary(type, data, isFriendly = false, isDevMode = fal
         activeGk = "무명 골키퍼",
         detailedTacticLabel = "",
         suitabilityLabel = "",
-        playerAttackProb = 0.5
+        playerAttackProb = 0.5,
+        compatibilityBonus = 0
     } = data || {};
 
     if (type === 'PRE_ANALYZE') {
@@ -550,7 +582,13 @@ function getMatchEventCommentary(type, data, isFriendly = false, isDevMode = fal
     }
 
     if (type === 'TACTIC_ANALYZE') {
-        return `⚙️ <strong>[세부 전술 및 적합 분석]</strong>${detailedTacticLabel}${suitabilityLabel} 반영 완료! (공격 찬스 확률: ${Math.round(playerAttackProb * 100)}%)`;
+        let compatibilityText = "";
+        if (compatibilityBonus > 0) {
+            compatibilityText = " [포메이션 상성 우세: 찬스 확률 +5.0% ⚡]";
+        } else if (compatibilityBonus < 0) {
+            compatibilityText = " [포메이션 상성 열세: 찬스 확률 -5.0% ⚠️]";
+        }
+        return `⚙️ <strong>[세부 전술 및 적합 분석]</strong>${detailedTacticLabel}${suitabilityLabel}${compatibilityText} 반영 완료! (공격 찬스 확률: ${Math.round(playerAttackProb * 100)}%)`;
     }
 
     if (type === 'KICKOFF') {
@@ -755,9 +793,13 @@ function simulatePenaltyShootoutEngine(data) {
     let pkScore2 = 0;
     let rounds = 5;
     
+    // 일괄적으로 우리팀(전북 현대) 성공 확률 70%, 상대팀 성공 확률 60% 적용
+    const prob1 = isTeam1Jeonbuk ? 0.70 : 0.60;
+    const prob2 = isTeam1Jeonbuk ? 0.60 : 0.70;
+    
     for (let r = 1; r <= rounds; r++) {
-        const success1 = Math.random() < 0.75;
-        const success2 = Math.random() < 0.72;
+        const success1 = Math.random() < prob1;
+        const success2 = Math.random() < prob2;
         
         if (success1) pkScore1++;
         pkEvents.push({
@@ -782,8 +824,8 @@ function simulatePenaltyShootoutEngine(data) {
     
     let sdRound = 6;
     while (pkScore1 === pkScore2) {
-        const success1 = Math.random() < 0.70;
-        const success2 = Math.random() < 0.70;
+        const success1 = Math.random() < prob1;
+        const success2 = Math.random() < prob2;
         
         if (success1) pkScore1++;
         pkEvents.push({
@@ -905,7 +947,7 @@ function rollSpecialMatchEvent(activePlayers, opponentName) {
 
     const rand = Math.random();
 
-    if (rand < 0.25) { // 1. 플레이어 패널티킥 획득
+    if (rand < 0.50) { // 1. 플레이어 패널티킥 획득 (확률 50%)
         const isGoal = Math.random() < 0.80; // 플레이어 PK 성공률 80%
         return {
             type: "pk_player",
@@ -915,7 +957,7 @@ function rollSpecialMatchEvent(activePlayers, opponentName) {
             eventGoal: `골!!! 키커로 나선 ${activeST} 선수가 침착하게 골키퍼 타이밍을 빼앗아 왼쪽 골대 모서리로 정확하게 찔러 넣습니다! 패널티킥 선제 득점 성공! ⚽`,
             eventFail: `아아! 패널티킥 실축! 키커 ${activeST} 선수의 강력한 슛이 골키퍼 선방에 막힌 후 크로스바 위로 벗어납니다! 완벽한 기회가 무산되며 깊은 탄식이 흐릅니다.`
         };
-    } else if (rand < 0.50) { // 2. 상대팀 패널티킥 획득
+    } else { // 2. 상대팀 패널티킥 획득 (확률 50%)
         const isGoal = Math.random() < 0.75; // 상대팀 PK 성공률 75%
         return {
             type: "pk_opponent",
@@ -924,24 +966,6 @@ function rollSpecialMatchEvent(activePlayers, opponentName) {
             eventDesc: `[패널티킥 허용] 위기! 상대팀 공격수가 박스 모퉁이에서 현란한 드리블로 돌파를 시도하는 과정에서 전북 수비수의 다리에 걸려 쓰러집니다. 주심의 킥오프 휘슬과 함께 패널티킥이 선언됩니다.`,
             eventGoal: `실점! 상대 키커가 골키퍼 손끝을 스치고 빠르게 지나가는 레이저 슈팅으로 패널티킥 득점을 올립니다.`,
             eventFail: `키퍼의 미친 슈퍼세이브!!! 전북의 수호신 ${activeGK} 골키퍼가 한 마리 새처럼 날아올라 상대의 날카로운 PK 슛을 손끝으로 쳐냅니다! 전주성이 엄청난 환호와 흥분으로 물듭니다! 🧤`
-        };
-    } else if (rand < 0.75) { // 3. 상대팀 레드카드 퇴장
-        return {
-            type: "red_opponent",
-            isGoal: false,
-            ovrChange: 5, // 전북에 상대적 OVR +5 버프 효과
-            eventDesc: `[돌발 상황! 상대 퇴장] 상대팀 수비수가 기습 돌파를 전개하며 공간을 완전히 허물던 전북의 ${activeLW} 선수를 고의성 짙은 위험한 백태클로 저지합니다! 분노한 주심이 가차 없이 레드카드를 꺼내 듭니다!`,
-            eventGoal: ``,
-            eventFail: `상대 수비수가 다이렉트 퇴장을 당하며 상대팀은 10명으로 남은 시간을 버텨야 하는 큰 위기에 직면합니다. 전북 현대가 수적 우세를 안고 그라운드를 지배합니다!`
-        };
-    } else { // 4. 전북 현대 레드카드 퇴장
-        return {
-            type: "red_player",
-            isGoal: false,
-            ovrChange: -5, // 전북에 상대적 OVR -5 디버프 효과
-            eventDesc: `[악재 발생! 전북 퇴장] 아아! 수비 라인이 무너지며 단독 역습 찬스를 맞은 상대 공격수를 저지하려던 전북의 수비수가 깊은 태클을 범하고 맙니다! 주심이 지체 없이 레드카드를 선언합니다!`,
-            eventGoal: ``,
-            eventFail: `전북 수비수의 다이렉트 퇴장! 전북 현대는 경기 종료까지 10명으로 버텨야 하는 크나큰 전술적 악재를 만났습니다. OVR 전력 격차 연산에 손실이 가산됩니다.`
         };
     }
 }

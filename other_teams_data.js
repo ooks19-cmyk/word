@@ -151,3 +151,40 @@ const ACL_TEAMS_PRESET = [
     { id: "persepolis", name: "페르세폴리스", rating: 74, color: "#ef4444" },
     { id: "pakhtakor", name: "파흐타코르", rating: 71, color: "#ea580c" }
 ];
+
+const TEAM_FORMATIONS_PRESET = {
+    // K리그 1
+    "jeonbuk": "4-3-3",
+    "ulsan": "4-2-3-1",
+    "seoul": "3-4-3", // 피드백 반영: 서울 3-4-3 설정
+    "pohang": "5-4-1",
+    "gangwon": "3-4-3",
+    "gwangju": "4-3-3",
+    "gimcheon": "4-4-2",
+    "bucheon_fc": "3-4-3",
+    "jeju": "5-4-1",
+    "daejeon": "4-2-3-1",
+    "anyang": "4-4-2",
+    "incheon": "5-4-1",
+    
+    // 코리아컵 K리그 2 추가 구단
+    "suwon_samsung": "4-2-3-1",
+    "daegu_fc": "3-4-3",
+    "busan_ipark": "4-3-3",
+    "seoul_e_land": "4-4-2",
+    
+    // 아챔 해외 팀 프리셋
+    "vissel_kobe": "4-3-3",
+    "yokohama_marinos": "4-2-3-1",
+    "kawasaki_frontale": "4-3-3",
+    "shanghai_port": "3-4-3",
+    "buriram_united": "5-4-1",
+    "al_hilal": "4-2-3-1",
+    "al_nassr": "4-3-3",
+    "al_ahli": "4-2-3-1",
+    "al_itihad": "3-4-3",
+    "al_ain": "4-2-3-1",
+    "al_sadd": "5-4-1",
+    "persepolis": "4-4-2",
+    "pakhtakor": "4-4-2"
+};

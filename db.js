@@ -139,6 +139,7 @@ const dbService = {
             userLevel: 1, // 초기 레벨
             playerDeck: {}, // 소유한 카드 덱 데이터
             squadFormation: {}, // 베스트 11 포메이션 배치 상황
+            squadFormations: { '4-4-2': {}, '4-3-3': {}, '3-4-3': {}, '5-4-1': {}, '4-2-3-1': {} }, // 각 포메이션별 개별 스쿼드 배치 상황
             leagueRound: 1, // K리그 리그 현재 라운드
             leagueTeams: [], // K리그 12팀 실시간 승점 상태 (비어있으면 로컬 프리셋으로 자동초기화)
             quizOffset: 0, // 단어 퀴즈 현재 공부 진도 오프셋

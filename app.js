@@ -75,6 +75,11 @@ function switchTab(tabName) {
         }
     }
     
+    // 수석코치 조언 플로팅 버튼 노출 제어
+    if (typeof updateFloatingAdvisorBtnVisibility === 'function') {
+        updateFloatingAdvisorBtnVisibility(tabName);
+    }
+    
     renderUserPoints(); // Ensure header points are sync'd
 }
 
@@ -358,7 +363,8 @@ function checkAndCloseActiveModal() {
         { id: 'friendlyMatchModal', active: (el) => el.style.display === 'flex' || el.classList.contains('active'), close: () => { if (typeof closeFriendlyMatchModal === 'function') closeFriendlyMatchModal(); } },
         { id: 'friendlyCloseModal', active: (el) => el.style.display === 'flex' || el.classList.contains('active'), close: () => { if (typeof closeFriendlyCloseModal === 'function') closeFriendlyCloseModal(); } },
         { id: 'revealModal', active: (el) => el.classList.contains('active'), close: () => { if (typeof closeRevealModal === 'function') closeRevealModal(); } },
-        { id: 'updateLogModal', active: (el) => el.classList.contains('active'), close: () => { if (typeof closeUpdateLogModal === 'function') closeUpdateLogModal(); } }
+        { id: 'updateLogModal', active: (el) => el.classList.contains('active'), close: () => { if (typeof closeUpdateLogModal === 'function') closeUpdateLogModal(); } },
+        { id: 'advisorModal', active: (el) => el.classList.contains('active'), close: () => { if (typeof closeCoachAdvisorModal === 'function') closeCoachAdvisorModal(); } }
     ];
 
     for (const m of modals) {

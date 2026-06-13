@@ -407,6 +407,23 @@
                         </div>
                     </div>
                     
+                    <!-- 상대팀 전력 및 포메이션 분석 프레임 (리그) -->
+                    <div class="opponent-analysis-card" id="leagueOpponentAnalysisCard" style="margin-bottom: 1rem;">
+                        <div class="opponent-analysis-header">
+                            <span><i class="fa-solid fa-chart-simple"></i> 상대팀 전력 및 포메이션 분석</span>
+                            <span class="opponent-analysis-vs-badge" id="leagueOpponentMatchupBadge">VS</span>
+                        </div>
+                        <div class="opponent-analysis-body">
+                            <div class="opponent-analysis-info-row">
+                                <span>상대 포메이션: <strong id="leagueOpponentFormationText" style="color: #ffd700;">-</strong></span>
+                                <span>컨디션: <span id="leagueOpponentMoodText">-</span></span>
+                            </div>
+                            <div class="opponent-analysis-tactic-row" id="leagueOpponentCompatibilityText">
+                                상성 관계 분석 대기 중...
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- Live Text Broadcast Commentary Box -->
                     <div class="commentary-box-wrapper">
                         <div class="commentary-header">
@@ -494,7 +511,9 @@
                         </div>
                     </div>
 
-
+                    <button class="btn-open-pack" id="btnAutoMatch" onclick="startLeagueAutoSimulation()" style="width: 100%; margin-top: 1.5rem; background: linear-gradient(135deg, #10b981, #059669); border-color: rgba(16, 185, 129, 0.4); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2); font-weight: 800;">
+                        <i class="fa-solid fa-forward" style="margin-right: 8px;"></i>리그 자동 진행 (즉시 완료)
+                    </button>
                 </div>
             </div>
 
@@ -530,6 +549,23 @@
                                 <div class="sb-emblem" id="cupAwayEmblem"><i class="fa-solid fa-shield-halved"></i></div>
                                 <h3 id="cupAwayTeamName">대구FC</h3>
                                 <span class="sb-ovr-tag" style="color: #ffd700; border-color: rgba(255,215,0,0.2);">OVR <span id="cupAwayTeamOvr">73</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 상대팀 전력 및 포메이션 분석 프레임 (컵) -->
+                    <div class="opponent-analysis-card" id="cupOpponentAnalysisCard" style="margin-bottom: 1rem; border-color: rgba(0, 210, 252, 0.15);">
+                        <div class="opponent-analysis-header" style="color: #00d2fc;">
+                            <span><i class="fa-solid fa-chart-simple"></i> 상대팀 전력 및 포메이션 분석</span>
+                            <span class="opponent-analysis-vs-badge" id="cupOpponentMatchupBadge" style="background: rgba(0, 210, 252, 0.08); color: #00d2fc; border-color: rgba(0, 210, 252, 0.25);">VS</span>
+                        </div>
+                        <div class="opponent-analysis-body">
+                            <div class="opponent-analysis-info-row">
+                                <span>상대 포메이션: <strong id="cupOpponentFormationText" style="color: #00d2fc;">-</strong></span>
+                                <span>컨디션: <span id="cupOpponentMoodText">-</span></span>
+                            </div>
+                            <div class="opponent-analysis-tactic-row" id="cupOpponentCompatibilityText">
+                                상성 관계 분석 대기 중...
                             </div>
                         </div>
                     </div>
@@ -644,6 +680,23 @@
                                 <div class="sb-emblem" id="aclAwayEmblem"><i class="fa-solid fa-shield-halved"></i></div>
                                 <h3 id="aclAwayTeamName">알 힐랄</h3>
                                 <span class="sb-ovr-tag" style="color: #ffd700; border-color: rgba(255,215,0,0.2);">OVR <span id="aclAwayTeamOvr">81</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 상대팀 전력 및 포메이션 분석 프레임 (아챔) -->
+                    <div class="opponent-analysis-card" id="aclOpponentAnalysisCard" style="margin-bottom: 1rem; border-color: rgba(0, 255, 135, 0.15);">
+                        <div class="opponent-analysis-header" style="color: #00ff87;">
+                            <span><i class="fa-solid fa-chart-simple"></i> 상대팀 전력 및 포메이션 분석</span>
+                            <span class="opponent-analysis-vs-badge" id="aclOpponentMatchupBadge" style="background: rgba(0, 255, 135, 0.08); color: #00ff87; border-color: rgba(0, 255, 135, 0.25);">VS</span>
+                        </div>
+                        <div class="opponent-analysis-body">
+                            <div class="opponent-analysis-info-row">
+                                <span>상대 포메이션: <strong id="aclOpponentFormationText" style="color: #00ff87;">-</strong></span>
+                                <span>컨디션: <span id="aclOpponentMoodText">-</span></span>
+                            </div>
+                            <div class="opponent-analysis-tactic-row" id="aclOpponentCompatibilityText">
+                                상성 관계 분석 대기 중...
                             </div>
                         </div>
                     </div>
@@ -1384,9 +1437,34 @@
     <script src="js/cup.js?v=2.0"></script>
     <script src="js/acl.js?v=2.3"></script>
     <script src="js/friendly.js?v=1.7"></script>
+    <!-- 수석코치 조언 플로팅 버튼 -->
+    <button id="floatingAdvisorBtn" class="floating-advisor-btn" onclick="showCoachAdvice()" title="수석코치의 조언" style="display: none;">
+        <span class="btn-emoji">👔</span>
+        <span class="btn-text">전술 조언</span>
+    </button>
+
+    <!-- 수석코치 조언 모달 -->
+    <div id="advisorModal" class="drawer-overlay" onclick="closeCoachAdvisorModal()">
+        <div class="selector-drawer auth-modal-drawer" style="max-width: 440px; width: 90%; height: auto; border-radius: 24px; display: flex; flex-direction: column; overflow: hidden; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 1.5rem; background: #0f172a; border: 1.5px solid rgba(255,255,255,0.08); box-shadow: var(--card-shadow); backdrop-filter: blur(15px);" onclick="event.stopPropagation()">
+            <div class="drawer-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 0.8rem; margin-bottom: 1rem;">
+                <h3 style="font-size: 1.1rem; font-weight: 800; margin: 0; color: #00ff87; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-user-tie"></i> 수석코치의 전술 조언
+                </h3>
+                <button class="btn-close-drawer" onclick="closeCoachAdvisorModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="drawer-content" id="advisorModalBody" style="overflow-y: auto; max-height: 60vh; text-align: left;">
+                <!-- Loaded dynamically via js/coach_advisor.js -->
+            </div>
+            
+            <button class="btn-open-pack" onclick="closeCoachAdvisorModal()" style="width: 100%; margin-top: 1.2rem; padding: 0.75rem; font-weight: 800;">확인</button>
+        </div>
+    </div>
+
     <script src="js/update_data.js?v=1.5"></script>
     <script src="js/friend.js?v=1.0"></script>
     <script src="js/auth.js?v=1.8"></script>
+    <script src="js/coach_advisor.js?v=1.0"></script>
     <script src="app.js?v=1.5"></script>
 </body>
 </html>

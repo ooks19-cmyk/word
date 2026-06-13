@@ -485,6 +485,8 @@ function updateMatchPreviewBoard() {
         document.getElementById('homeScore').innerText = "-";
         document.getElementById('awayScore').innerText = "-";
         document.getElementById('matchVenueDisplay').innerText = "시즌이 모두 종료되었습니다. 리셋을 눌러 새 시즌을 시작하세요!";
+        const analysisCard = document.getElementById('leagueOpponentAnalysisCard');
+        if (analysisCard) analysisCard.style.display = 'none';
         return;
     }
     
@@ -501,7 +503,37 @@ function updateMatchPreviewBoard() {
     const mood = (typeof currentOpponentMood !== 'undefined' && currentOpponentMood) ? currentOpponentMood : { modifier: 0, label: "보통", emoji: "😐" };
     const moodModifierSign = mood.modifier > 0 ? `+${mood.modifier}` : (mood.modifier < 0 ? `${mood.modifier}` : '');
     const moodModifierText = mood.modifier !== 0 ? ` (${moodModifierSign})` : '';
-    const oppOvrDisplayHtml = `${opponent.rating + mood.modifier} <span style="font-size: 0.72rem; color: #ffd700; border: 1px solid rgba(255, 215, 0, 0.2); background: rgba(255, 215, 0, 0.1); padding: 1px 4px; border-radius: 4px; margin-left: 4px; font-weight: bold; vertical-align: middle;">${mood.emoji}${moodModifierText}</span>`;
+    // 피드백 반영: 상대팀 컨디션 정보가 분석 카드에 노출되므로 OVR 옆의 이모지 배지는 제거하고 점수만 출력
+    const oppOvrDisplayHtml = `${opponent.rating + mood.modifier}`;
+
+    // 상대팀 포메이션 정보 로드 및 상성 분석
+    const oppFormation = TEAM_FORMATIONS_PRESET[opponent.id] || "4-4-2";
+    const compBonus = getFormationCompatibilityBonus(currentFormation, oppFormation);
+    
+    // UI에 바인딩
+    const analysisCard = document.getElementById('leagueOpponentAnalysisCard');
+    if (analysisCard) {
+        analysisCard.style.display = 'block';
+        document.getElementById('leagueOpponentFormationText').innerText = oppFormation;
+        document.getElementById('leagueOpponentMoodText').innerHTML = `${mood.label} ${mood.emoji}${mood.modifier !== 0 ? ` (OVR ${mood.modifier > 0 ? '+' + mood.modifier : mood.modifier})` : ''}`;
+        
+        const compTextEl = document.getElementById('leagueOpponentCompatibilityText');
+        if (compTextEl) {
+            compTextEl.className = 'opponent-analysis-tactic-row';
+            if (compBonus > 0) {
+                compTextEl.style.display = 'block';
+                compTextEl.classList.add('tactic-advantage');
+                compTextEl.innerHTML = `전북 현대의 <strong>${currentFormation}</strong> 전술이 상대의 <strong>${oppFormation}</strong> 전술에 상성상 우세합니다! (공격 찬스 확률 +5.0% ⚡)`;
+            } else if (compBonus < 0) {
+                compTextEl.style.display = 'block';
+                compTextEl.classList.add('tactic-disadvantage');
+                compTextEl.innerHTML = `상대의 <strong>${oppFormation}</strong> 전술이 전북 현대의 <strong>${currentFormation}</strong> 전술에 상성상 우세합니다. (공격 찬스 확률 -5.0% ⚠️)`;
+            } else {
+                // 피드백 반영: 상성이 비겼을 때(보너스 0)는 한 줄 설명 영역 숨김
+                compTextEl.style.display = 'none';
+            }
+        }
+    }
 
     document.getElementById('matchRoundVal').innerText = leagueRound;
     document.getElementById('sbTimeDisplay').innerText = "VS";
@@ -574,6 +606,290 @@ function renderLeagueTable() {
         
         tbody.appendChild(row);
     });
+}
+
+function startLeagueAutoSimulation() {
+    if (isMatchRunning) {
+        showToast("⚠️ 현재 경기가 진행 중입니다.");
+        return;
+    }
+    if (leagueRound > 33) {
+        showToast("시즌이 종료되었습니다. 우측 상단의 '시즌 리셋'을 진행해주세요!");
+        return;
+    }
+    
+    const inputVal = prompt("몇 경기를 자동 진행할까요?", "10");
+    if (inputVal === null) return;
+    
+    const roundsToSimulate = parseInt(inputVal, 10);
+    if (isNaN(roundsToSimulate) || roundsToSimulate <= 0) {
+        showToast("⚠️ 올바른 경기 수를 입력해주세요.");
+        return;
+    }
+    
+    let simulatedCount = 0;
+    let wins = 0;
+    let draws = 0;
+    let losses = 0;
+    
+    const todayStr = new Date().toLocaleDateString('ko-KR');
+    
+    // 날짜가 변경되었을 경우 오늘의 경기 진행수 초기화
+    if (matchLastDate !== todayStr) {
+        matchTodayCount = 0;
+        localStorage.setItem('fc_star_match_today_count', '0');
+    }
+    
+    for (let i = 0; i < roundsToSimulate; i++) {
+        if (leagueRound > 33) {
+            alert(`시즌이 종료되어 자동진행이 중단되었습니다.\n진행된 경기: ${simulatedCount}경기 (${wins}승 ${draws}무 ${losses}패)`);
+            break;
+        }
+        
+        // 33라운드 최종전 직전, 결승전 완료 상태 검사
+        if (leagueRound === 33) {
+            let isCupFinished = false;
+            try {
+                const savedCup = localStorage.getItem('fc_star_cup_state');
+                if (savedCup) {
+                    const cupStateParsed = JSON.parse(savedCup);
+                    isCupFinished = cupStateParsed.isFinished;
+                }
+            } catch (e) {
+                console.warn("Cup state check failed:", e);
+            }
+            
+            if (!isCupFinished) {
+                alert(`⚠️ K리그1 33라운드 최종전을 시작하기 전에 코리아컵 결승전을 완료해야 하므로 자동진행이 중단되었습니다!\n진행된 경기: ${simulatedCount}경기 (${wins}승 ${draws}무 ${losses}패)`);
+                break;
+            }
+    
+            let isAclFinished = false;
+            try {
+                const savedAcl = localStorage.getItem('fc_star_acl_state');
+                if (savedAcl) {
+                    const aclStateParsed = JSON.parse(savedAcl);
+                    isAclFinished = aclStateParsed.isFinished;
+                }
+            } catch (e) {
+                console.warn("ACL state check failed:", e);
+            }
+            
+            if (!isAclFinished) {
+                alert(`⚠️ K리그1 33라운드 최종전을 시작하기 전에 AFC 챔피언스리그를 완료해야 하므로 자동진행이 중단되었습니다!\n진행된 경기: ${simulatedCount}경기 (${wins}승 ${draws}무 ${losses}패)`);
+                break;
+            }
+        }
+        
+        // 일일 경기 제한 검사 (개발자 모드 아닐 시)
+        if (!isDeveloperMode && matchTodayCount >= 10) {
+            alert(`⚠️ 하루 최대 10경기 진행 제한에 도달하여 자동진행이 중단되었습니다.\n진행된 경기: ${simulatedCount}경기 (${wins}승 ${draws}무 ${losses}패)\n내일 다시 도전해 주세요!`);
+            break;
+        }
+        
+        // 1. 전북 현대 OVR 동기화
+        syncJeonbukOvr();
+        
+        const fixture = JEONBUK_FIXTURES[leagueRound - 1];
+        const opponent = leagueTeams.find(t => t.id === fixture.opponent);
+        const jeonbuk = leagueTeams.find(t => t.id === 'jeonbuk');
+        
+        // 2. 포메이션 전술 보너스 연산
+        const formTactic = getPlayerFormationTacticBonuses();
+        const formationAttackBoost = formTactic.formationAttackBoost;
+        const formationScoreBoost = formTactic.formationScoreBoost;
+    
+        const isPlayerHome = fixture.isHome;
+        const finalOvrs = calculateFinalMatchOvrs('league', isPlayerHome, opponent.rating, false);
+        const playerOvr = finalOvrs.playerOvr;
+        const opponentOvr = finalOvrs.opponentOvr;
+        const diff = playerOvr - opponentOvr;
+        
+        // Score counters
+        let playerScoreVal = 0;
+        let opponentScoreVal = 0;
+        
+        const detailedTactic = getPlayerDetailedTacticBonuses();
+        const detailedTacticBonus = detailedTactic.detailedTacticBonus;
+        const suitabilityBonus = detailedTactic.suitabilityBonus;
+        
+        const activeAttacker = squadFormation["ST"] ? CARDS_DATABASE[squadFormation["ST"]].name : "무명 스트라이커";
+        const activeLw = squadFormation["LW"] ? CARDS_DATABASE[squadFormation["LW"]].name : "무명 윙어";
+        const activeRw = squadFormation["RW"] ? CARDS_DATABASE[squadFormation["RW"]].name : "무명 윙백";
+        const activeCm = squadFormation["CM"] ? CARDS_DATABASE[squadFormation["CM"]].name : "무명 미드필더";
+        const activeGk = squadFormation["GK"] ? CARDS_DATABASE[squadFormation["GK"]].name : "무명 골키퍼";
+        
+        const maxProb = 0.80;
+        const minProb = 0.20;
+        
+        const opponentFormation = TEAM_FORMATIONS_PRESET[opponent.id] || "4-4-2";
+        const compatibilityBonus = getFormationCompatibilityBonus(currentFormation, opponentFormation);
+        let activeDiff = diff;
+        let activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (diff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
+        
+        const eventMins = [15, 45, 63, 82, 88];
+        
+        eventMins.forEach(currentMin => {
+            const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm, GK: activeGk };
+            const specialEvent = rollSpecialMatchEvent(activePlayers, opponent.name);
+            
+            if (specialEvent) {
+                if (specialEvent.type === "pk_player") {
+                    if (specialEvent.isGoal) {
+                        playerScoreVal++;
+                        const goalData = determineScorerAndAssister(1);
+                        processPlayerGoal(goalData);
+                    }
+                } else if (specialEvent.type === "pk_opponent") {
+                    if (specialEvent.isGoal) {
+                        opponentScoreVal++;
+                        const oppGoalData = determineOpponentScorerAndAssister(opponent.id);
+                        if (oppGoalData.scorerId) {
+                            registerGoal(oppGoalData.scorerId, oppGoalData.scorerName, opponent.id, opponent.name);
+                        }
+                        if (oppGoalData.assisterId) {
+                            registerAssist(oppGoalData.assisterId, oppGoalData.assisterName, opponent.id, opponent.name);
+                        }
+                    }
+                } else if (specialEvent.type === "red_opponent") {
+                    activeDiff += specialEvent.ovrChange;
+                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
+                } else if (specialEvent.type === "red_player") {
+                    activeDiff += specialEvent.ovrChange;
+                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
+                }
+            } else {
+                const isPlayerAttack = Math.random() < activePlayerAttackProb;
+                if (isPlayerAttack) {
+                    let attackOptions = [0, 1, 2];
+                    if (currentFormation === '4-2-3-1') attackOptions.push(5);
+                    
+                    const selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
+                    let chancePlayerStat = 75;
+                    
+                    if (selectedOption === 0) {
+                        const lwCardId = squadFormation['LW'];
+                        if (lwCardId && CARDS_DATABASE[lwCardId]) {
+                            const card = getAwakenedCard(lwCardId);
+                            chancePlayerStat = Math.round(((card.stats.dri || 75) + (card.stats.sho || 75)) / 2);
+                        }
+                    } else if (selectedOption === 1) {
+                        const stCardId = squadFormation['ST'];
+                        if (stCardId && CARDS_DATABASE[stCardId]) {
+                            const card = getAwakenedCard(stCardId);
+                            chancePlayerStat = card.stats.sho || 75;
+                        }
+                    } else if (selectedOption === 2) {
+                        const rwCardId = squadFormation['RW'];
+                        if (rwCardId && CARDS_DATABASE[rwCardId]) {
+                            const card = getAwakenedCard(rwCardId);
+                            chancePlayerStat = Math.round(((card.stats.pac || 75) + (card.stats.sho || 75)) / 2);
+                        }
+                    } else if (selectedOption === 5) {
+                        const cmCardId = squadFormation['CM'];
+                        if (cmCardId && CARDS_DATABASE[cmCardId]) {
+                            const card = getAwakenedCard(cmCardId);
+                            chancePlayerStat = card.stats.dri || 75;
+                        }
+                    }
+                    
+                    const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponent.rating, formationScoreBoost, suitabilityBonus);
+                    const isGoal = Math.random() < scoreProb;
+                    if (isGoal) {
+                        playerScoreVal++;
+                        const goalData = determineScorerAndAssister(selectedOption);
+                        processPlayerGoal(goalData);
+                    }
+                } else {
+                    let playerGkStat = 70;
+                    const gkCardId = squadFormation['GK'];
+                    if (gkCardId && CARDS_DATABASE[gkCardId]) {
+                        const card = getAwakenedCard(gkCardId);
+                        playerGkStat = card.stats.def || card.rating || 70;
+                    }
+                    
+                    const oppScoreProb = calculateOpponentScoreProb(activeDiff, opponentOvr, playerGkStat);
+                    const isGoal = Math.random() < oppScoreProb;
+                    if (isGoal) {
+                        opponentScoreVal++;
+                        const oppGoalData = determineOpponentScorerAndAssister(opponent.id);
+                        if (oppGoalData.scorerId) {
+                            registerGoal(oppGoalData.scorerId, oppGoalData.scorerName, opponent.id, opponent.name);
+                        }
+                        if (oppGoalData.assisterId) {
+                            registerAssist(oppGoalData.assisterId, oppGoalData.assisterName, opponent.id, opponent.name);
+                        }
+                    }
+                }
+            }
+        });
+        
+        const isWinner = playerScoreVal > opponentScoreVal;
+        const isDraw = playerScoreVal === opponentScoreVal;
+        
+        if (isWinner) {
+            wins++;
+            jeonbuk.w += 1; jeonbuk.pts += 3;
+            opponent.l += 1;
+        } else if (isDraw) {
+            draws++;
+            jeonbuk.d += 1; jeonbuk.pts += 1;
+            opponent.d += 1; opponent.pts += 1;
+        } else {
+            losses++;
+            jeonbuk.l += 1;
+            opponent.w += 1; opponent.pts += 3;
+        }
+        
+        jeonbuk.p += 1; jeonbuk.gf += playerScoreVal; jeonbuk.ga += opponentScoreVal; jeonbuk.gd = jeonbuk.gf - jeonbuk.ga;
+        opponent.p += 1; opponent.gf += opponentScoreVal; opponent.ga += playerScoreVal; opponent.gd = opponent.gf - opponent.ga;
+        
+        simulateOtherMatches(fixture.opponent);
+        leagueRound += 1;
+        simulatedCount++;
+        matchTodayCount += 1;
+    }
+    
+    if (simulatedCount > 0) {
+        matchLastDate = todayStr;
+        
+        try {
+            localStorage.setItem('fc_star_league_teams', JSON.stringify(leagueTeams));
+            localStorage.setItem('fc_star_league_round', leagueRound.toString());
+            localStorage.setItem('fc_star_match_last_date', matchLastDate);
+            localStorage.setItem('fc_star_match_today_count', matchTodayCount.toString());
+            localStorage.setItem('fc_star_user_points', userPoints.toString());
+            localStorage.setItem('fc_star_league_stats', JSON.stringify(leaguePlayerStats));
+        } catch(e) {
+            console.warn("Saving standing failed", e);
+        }
+        
+        renderUserPoints();
+        renderLeagueTable();
+        renderLeagueStats();
+        
+        // 메인 스크롤 코멘터리 박스 리셋
+        const commBox = document.getElementById('commentaryScroll');
+        if (commBox) {
+            commBox.innerHTML = `<div class="comm-item comm-system">리그 자동 진행이 완료되었습니다. (${simulatedCount}경기 완료)</div>`;
+        }
+        
+        document.getElementById('homeScore').innerText = "-";
+        document.getElementById('awayScore').innerText = "-";
+        document.getElementById('sbTimeDisplay').innerText = "대기";
+        
+        if (leagueRound > 33) {
+            setTimeout(() => {
+                checkSeasonChampion();
+            }, 500);
+        } else {
+            updateMatchPreviewBoard();
+        }
+        
+        saveUserProgress();
+        
+        alert(`🏆 리그 자동 진행이 완료되었습니다!\n\n▶ 진행 경기: ${simulatedCount}경기\n▶ 결과: ${wins}승 ${draws}무 ${losses}패\n▶ 현재 라운드: ${leagueRound > 33 ? '시즌 종료' : leagueRound + '라운드'}`);
+    }
 }
 
 function startMatchSimulation() {
@@ -713,7 +1029,11 @@ function startMatchSimulation() {
     // Capped probabilities to balance the luck and stats, plus tactical Gegenpressing boost and formation attack boost
     const maxProb = 0.80; // 상한 80%로 조정!
     const minProb = 0.20;
-    const playerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (diff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus)); // 베이스 40%, 격차 0.019 적용!
+    
+    const opponentFormation = TEAM_FORMATIONS_PRESET[opponent.id] || "4-4-2";
+    const compatibilityBonus = getFormationCompatibilityBonus(currentFormation, opponentFormation);
+    const playerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (diff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus)); // 베이스 40%, 격차 0.019, 상성 보너스 적용!
+    
     let activeDiff = diff;
     let activePlayerAttackProb = playerAttackProb;
 
@@ -728,7 +1048,8 @@ function startMatchSimulation() {
         activeGk: activeGk,
         detailedTacticLabel: detailedTacticLabel,
         suitabilityLabel: suitabilityLabel,
-        playerAttackProb: playerAttackProb
+        playerAttackProb: playerAttackProb,
+        compatibilityBonus: compatibilityBonus
     };
 
     addCommentary('SYSTEM', getMatchEventCommentary('PRE_ANALYZE', commentaryData, false), 'system');
@@ -785,11 +1106,11 @@ function startMatchSimulation() {
                         }
                     } else if (specialEvent.type === "red_opponent") {
                         activeDiff += specialEvent.ovrChange; // +5
-                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus));
+                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
                         addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     } else if (specialEvent.type === "red_player") {
                         activeDiff += specialEvent.ovrChange; // -5
-                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus));
+                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
                         addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     }
                 } else {
@@ -1019,13 +1340,13 @@ function startMatchSimulation() {
                     }
                 } else if (specialEvent.type === "red_opponent") {
                     activeDiff += specialEvent.ovrChange; // +5
-                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus));
+                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
                     setTimeout(() => {
                         addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     }, 450);
                 } else if (specialEvent.type === "red_player") {
                     activeDiff += specialEvent.ovrChange; // -5
-                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus));
+                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
                     setTimeout(() => {
                         addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     }, 450);

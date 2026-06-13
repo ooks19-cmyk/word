@@ -101,6 +101,7 @@ function saveUserProgress() {
         userLevel: userLevel,
         playerDeck: playerDeck,
         squadFormation: squadFormation,
+        squadFormations: squadFormations,
         currentFormation: currentFormation,
         squadNumbers: squadNumbers,
         squadCaptain: squadCaptain,
@@ -140,8 +141,26 @@ function syncUserDataOnLogin(userData) {
         userPoints = userData.userPoints || 0;
         userLevel = userData.userLevel || 1;
         playerDeck = userData.playerDeck || {};
-        squadFormation = userData.squadFormation || {};
         currentFormation = userData.currentFormation || '4-4-2';
+        
+        squadFormations = userData.squadFormations || {
+            '4-4-2': {},
+            '4-3-3': {},
+            '3-4-3': {},
+            '5-4-1': {},
+            '4-2-3-1': {}
+        };
+        // Migrate old flat format if necessary
+        if (!userData.squadFormations && userData.squadFormation) {
+            squadFormations[currentFormation] = userData.squadFormation;
+        }
+        // Ensure all are objects
+        ['4-4-2', '4-3-3', '3-4-3', '5-4-1', '4-2-3-1'].forEach(f => {
+            if (!squadFormations[f] || typeof squadFormations[f] !== 'object') {
+                squadFormations[f] = {};
+            }
+        });
+        squadFormation = squadFormations[currentFormation];
         squadCaptain = userData.squadCaptain || null;
         leagueRound = userData.leagueRound || 1;
         
@@ -246,6 +265,7 @@ function syncUserDataOnLogin(userData) {
         localStorage.setItem('fc_star_user_points', userPoints.toString());
         localStorage.setItem('fc_star_user_level', userLevel.toString());
         localStorage.setItem('fc_star_player_deck', JSON.stringify(playerDeck));
+        localStorage.setItem('fc_star_squad_formations', JSON.stringify(squadFormations));
         localStorage.setItem('fc_star_squad_formation', JSON.stringify(squadFormation));
         localStorage.setItem('fc_star_current_formation', currentFormation);
         localStorage.setItem('fc_star_league_teams', JSON.stringify(leagueTeams));
@@ -568,6 +588,7 @@ function handleLogout() {
         // Clean active local states to avoid leakage, then reload
         localStorage.removeItem('fc_star_user_points');
         localStorage.removeItem('fc_star_player_deck');
+        localStorage.removeItem('fc_star_squad_formations');
         localStorage.removeItem('fc_star_squad_formation');
         localStorage.removeItem('fc_star_league_teams');
         localStorage.removeItem('fc_star_league_round');

@@ -1,21 +1,41 @@
 // js/squad.js - 포메이션 & 비밀 작전 보드 모듈
 
 // 9. SQUAD FORMATION BOARD LOGIC
+let squadFormations = {
+    '4-4-2': {},
+    '4-3-3': {},
+    '3-4-3': {},
+    '5-4-1': {},
+    '4-2-3-1': {}
+};
 let squadFormation = {};
 let activeSelectorPosition = null;
 
-
 try {
-    const savedFormation = localStorage.getItem('fc_star_squad_formation');
-    if (savedFormation) {
-        squadFormation = JSON.parse(savedFormation);
-        if (!squadFormation || typeof squadFormation !== 'object') {
-            squadFormation = {};
+    const savedFormations = localStorage.getItem('fc_star_squad_formations');
+    if (savedFormations) {
+        squadFormations = JSON.parse(savedFormations);
+        // Ensure all are objects
+        ['4-4-2', '4-3-3', '3-4-3', '5-4-1', '4-2-3-1'].forEach(f => {
+            if (!squadFormations[f] || typeof squadFormations[f] !== 'object') {
+                squadFormations[f] = {};
+            }
+        });
+    } else {
+        // Fallback migration for old single formation data
+        const savedFormation = localStorage.getItem('fc_star_squad_formation');
+        if (savedFormation) {
+            const parsedOld = JSON.parse(savedFormation);
+            if (parsedOld && typeof parsedOld === 'object') {
+                squadFormations[currentFormation] = parsedOld;
+            }
         }
     }
 } catch (e) {
-    squadFormation = {};
+    console.warn("Error loading squadFormations, fallback to defaults.", e);
 }
+
+squadFormation = squadFormations[currentFormation];
 
 // 11 Key tactical board positions
 const TACTICAL_POSITIONS = ["GK", "LB", "LCB", "RCB", "RB", "LCM", "CM", "RCM", "LW", "ST", "RW"];
@@ -544,6 +564,7 @@ function selectPlayerForPosition(cardId) {
     
     // Save to localStorage
     try {
+        localStorage.setItem('fc_star_squad_formations', JSON.stringify(squadFormations));
         localStorage.setItem('fc_star_squad_formation', JSON.stringify(squadFormation));
     } catch(e) {
         console.warn("Saving squad formation failed:", e);
@@ -570,6 +591,7 @@ function releasePlayerFromPosition() {
     
     // Save to localStorage
     try {
+        localStorage.setItem('fc_star_squad_formations', JSON.stringify(squadFormations));
         localStorage.setItem('fc_star_squad_formation', JSON.stringify(squadFormation));
     } catch(e) {
         console.warn("Saving squad formation failed:", e);
@@ -707,6 +729,9 @@ function changeFormation(type) {
     try {
         localStorage.setItem('fc_star_current_formation', type);
     } catch (e) {}
+    
+    // Update active formation squad reference
+    squadFormation = squadFormations[currentFormation];
     
     closeFormationModal();
     renderSquadFormation();

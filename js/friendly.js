@@ -479,6 +479,8 @@ function updateFriendlyMatchPreview() {
                 commBox.innerHTML = '<div class="comm-item comm-system">🏆 오늘의 친선 릴레이 매칭을 모두 완료했습니다! 새로운 상대 팀은 내일 다시 갱신됩니다.</div>';
             }
         }
+        const analysisCard = document.getElementById('friendlyOpponentAnalysisCard');
+        if (analysisCard) analysisCard.style.display = 'none';
         return;
     }
 
@@ -530,6 +532,34 @@ function updateFriendlyMatchPreview() {
 
     const fVenueDisp = document.getElementById('friendlyMatchVenueDisplay');
     if (fVenueDisp) fVenueDisp.innerText = `원정팀 전술: ${opponent.activeFormation} | OVR 보정 없음 (홈어드밴티지: 0)`;
+
+    // 상대팀 정보 요약 프레임 연동
+    const oppFormation = opponent.activeFormation || "4-4-2";
+    const compBonus = getFormationCompatibilityBonus(currentFormation, oppFormation);
+    
+    const analysisCard = document.getElementById('friendlyOpponentAnalysisCard');
+    if (analysisCard) {
+        analysisCard.style.display = 'block';
+        document.getElementById('friendlyOpponentFormationText').innerText = oppFormation;
+        document.getElementById('friendlyOpponentMoodText').innerHTML = `보통 😐`; // 친선전 컨디션 보통 고정
+        
+        const compTextEl = document.getElementById('friendlyOpponentCompatibilityText');
+        if (compTextEl) {
+            compTextEl.className = 'opponent-analysis-tactic-row';
+            if (compBonus > 0) {
+                compTextEl.style.display = 'block';
+                compTextEl.classList.add('tactic-advantage');
+                compTextEl.innerHTML = `전북 현대의 <strong>${currentFormation}</strong> 전술이 상대의 <strong>${oppFormation}</strong> 전술에 상성상 우세합니다! (공격 찬스 확률 +5.0% ⚡)`;
+            } else if (compBonus < 0) {
+                compTextEl.style.display = 'block';
+                compTextEl.classList.add('tactic-disadvantage');
+                compTextEl.innerHTML = `상대의 <strong>${oppFormation}</strong> 전술이 전북 현대의 <strong>${currentFormation}</strong> 전술에 상성상 우세합니다. (공격 찬스 확률 -5.0% ⚠️)`;
+            } else {
+                // 피드백 반영: 상성이 비겼을 때(보너스 0)는 설명 숨김
+                compTextEl.style.display = 'none';
+            }
+        }
+    }
 
     // 상대 정보 세부 디테일 판넬 업데이트
     const infoDetailEl = document.querySelector('#matchLayoutFriendly .friendly-panel div[style*="background: rgba(255,255,255,0.02)"]');
@@ -847,7 +877,10 @@ function startFriendlyMatchSimulation() {
     const suitabilityLabel = detailedTactic.suitabilityLabel;
     const isDetailedActive = detailedTacticBonus > 0;
 
-    const playerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (diff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus));
+    const oppFormation = opponent.activeFormation || "4-4-2";
+    const compatibilityBonus = getFormationCompatibilityBonus(currentFormation, oppFormation);
+    const playerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (diff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
+    
     let activeDiff = diff;
     let activePlayerAttackProb = playerAttackProb;
 
@@ -861,7 +894,8 @@ function startFriendlyMatchSimulation() {
         activeGk: activeGk,
         detailedTacticLabel: detailedTacticLabel,
         suitabilityLabel: suitabilityLabel,
-        playerAttackProb: playerAttackProb
+        playerAttackProb: playerAttackProb,
+        compatibilityBonus: compatibilityBonus
     };
 
     addCommentary('SYSTEM', getMatchEventCommentary('PRE_ANALYZE', commentaryData, true), 'system');
@@ -963,11 +997,11 @@ function startFriendlyMatchSimulation() {
                         }
                     } else if (specialEvent.type === "red_opponent") {
                         activeDiff += specialEvent.ovrChange; // +5
-                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus));
+                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
                         addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     } else if (specialEvent.type === "red_player") {
                         activeDiff += specialEvent.ovrChange; // -5
-                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus));
+                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
                         addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     }
                 } else {
@@ -1106,13 +1140,13 @@ function startFriendlyMatchSimulation() {
                     }
                 } else if (specialEvent.type === "red_opponent") {
                     activeDiff += specialEvent.ovrChange; // +5
-                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus));
+                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
                     setTimeout(() => {
                         addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     }, 450);
                 } else if (specialEvent.type === "red_player") {
                     activeDiff += specialEvent.ovrChange; // -5
-                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus));
+                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
                     setTimeout(() => {
                         addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     }, 450);

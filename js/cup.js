@@ -324,6 +324,10 @@ function updatePlayerTeamOvr() {
 
 // 5. 스코어보드 정보 업데이트
 function updateCupScoreboard() {
+    // 상대팀 분석 카드 숨기기
+    const analysisCard = document.getElementById('cupOpponentAnalysisCard');
+    if (analysisCard) analysisCard.style.display = 'none';
+
     if (cupState.isFinished) {
         const winner = cupState.bracket.winner || { name: '전북 현대', rating: 75 };
         const isPlayerWinner = winner.id === 'jeonbuk';
@@ -373,6 +377,8 @@ function updateCupScoreboard() {
         }
         document.getElementById('cupMatchVenueDisplay').textContent = "전북 현대가 탈락했습니다.";
         
+        if (analysisCard) analysisCard.style.display = 'none';
+        
         if (btn) {
             btn.disabled = true;
             btn.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="margin-right: 8px;"></i>토너먼트 탈락`;
@@ -387,6 +393,34 @@ function updateCupScoreboard() {
     document.getElementById('cupAwayTeamName').textContent = t2.name;
     document.getElementById('cupHomeTeamOvr').textContent = t1.rating;
     document.getElementById('cupAwayTeamOvr').textContent = t2.rating;
+
+    // 상대팀 정보 요약 프레임 연동
+    const opponent = t1.id === 'jeonbuk' ? t2 : t1;
+    const oppFormation = TEAM_FORMATIONS_PRESET[opponent.id] || "4-4-2";
+    const compBonus = getFormationCompatibilityBonus(currentFormation, oppFormation);
+    
+    if (analysisCard) {
+        analysisCard.style.display = 'block';
+        document.getElementById('cupOpponentFormationText').innerText = oppFormation;
+        document.getElementById('cupOpponentMoodText').innerHTML = `보통 😐`; // 컵 대회 컨디션 보통 고정
+        
+        const compTextEl = document.getElementById('cupOpponentCompatibilityText');
+        if (compTextEl) {
+            compTextEl.className = 'opponent-analysis-tactic-row';
+            if (compBonus > 0) {
+                compTextEl.style.display = 'block';
+                compTextEl.classList.add('tactic-advantage');
+                compTextEl.innerHTML = `전북 현대의 <strong>${currentFormation}</strong> 전술이 상대의 <strong>${oppFormation}</strong> 전술에 상성상 우세합니다! (공격 찬스 확률 +5.0% ⚡)`;
+            } else if (compBonus < 0) {
+                compTextEl.style.display = 'block';
+                compTextEl.classList.add('tactic-disadvantage');
+                compTextEl.innerHTML = `상대의 <strong>${oppFormation}</strong> 전술이 전북 현대의 <strong>${currentFormation}</strong> 전술에 상성상 우세합니다. (공격 찬스 확률 -5.0% ⚠️)`;
+            } else {
+                // 피드백 반영: 상성이 비겼을 때(보너스 0)는 설명 숨김
+                compTextEl.style.display = 'none';
+            }
+        }
+    }
     
     if (playerMatch.status === 'completed') {
         let score1Str = playerMatch.score1;
@@ -736,7 +770,11 @@ function startCupMatchSimulation() {
     
     const maxProb = 0.80;
     const minProb = 0.20;
-    const playerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (diff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus));
+    
+    const oppFormation = TEAM_FORMATIONS_PRESET[opponent.id] || "4-4-2";
+    const compatibilityBonus = getFormationCompatibilityBonus(currentFormation, oppFormation);
+    const playerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (diff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
+    
     let activeDiff = diff;
     let activePlayerAttackProb = playerAttackProb;
 
@@ -750,7 +788,8 @@ function startCupMatchSimulation() {
         activeGk: (squadFormation["GK"] && CARDS_DATABASE[squadFormation["GK"]]) ? CARDS_DATABASE[squadFormation["GK"]].name : "무명 골키퍼",
         detailedTacticLabel: detailedTacticLabel,
         suitabilityLabel: suitabilityLabel,
-        playerAttackProb: playerAttackProb
+        playerAttackProb: playerAttackProb,
+        compatibilityBonus: compatibilityBonus
     };
 
     let playerScoreVal = 0;
@@ -1409,7 +1448,10 @@ function finalizeCupMatch(score1, score2, playerMatch, pkScore1 = undefined, pkS
         let rewardPoints = 0;
         let rewardText = "";
         
-        if (cupState.round === 4) {
+        if (cupState.round === 8) {
+            rewardPoints = 5;
+            rewardText = "8강 진출 보상 5 FP를 획득했습니다!";
+        } else if (cupState.round === 4) {
             rewardPoints = 5;
             rewardText = "4강 진출 보상 5 FP를 획득했습니다!";
         } else if (cupState.round === 2) {
@@ -1425,7 +1467,7 @@ function finalizeCupMatch(score1, score2, playerMatch, pkScore1 = undefined, pkS
             if (typeof renderUserPoints === 'function') renderUserPoints();
             showToast(`아쉽게 패배하여 탈락했습니다. 하지만 ${rewardText}`);
         } else {
-            showToast(`패배하여 탈락했습니다. (16강/8강 탈락은 보상이 없습니다)`);
+            showToast(`패배하여 탈락했습니다. (16강 탈락은 보상이 없습니다)`);
         }
         
         // 플레이어 탈락 시 남은 대회 자동 시뮬레이션 완료 처리

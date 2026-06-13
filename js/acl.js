@@ -381,6 +381,10 @@ function updateAclPlayerTeamOvr() {
 
 // 5. 스코어보드 정보 업데이트
 function updateAclScoreboard() {
+    // 상대팀 분석 카드 숨기기
+    const analysisCard = document.getElementById('aclOpponentAnalysisCard');
+    if (analysisCard) analysisCard.style.display = 'none';
+
     if (aclState.isFinished) {
         const winner = aclState.bracket.winner || { name: '전북 현대', rating: 75 };
         const isPlayerWinner = winner.id === 'jeonbuk';
@@ -430,6 +434,8 @@ function updateAclScoreboard() {
         }
         document.getElementById('aclMatchVenueDisplay').textContent = "전북 현대가 탈락했습니다.";
         
+        if (analysisCard) analysisCard.style.display = 'none';
+        
         if (btn) {
             btn.disabled = true;
             btn.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="margin-right: 8px;"></i>토너먼트 탈락`;
@@ -444,6 +450,34 @@ function updateAclScoreboard() {
     document.getElementById('aclAwayTeamName').textContent = t2.name;
     document.getElementById('aclHomeTeamOvr').textContent = t1.rating;
     document.getElementById('aclAwayTeamOvr').textContent = t2.rating;
+
+    // 상대팀 정보 요약 프레임 연동
+    const opponent = t1.id === 'jeonbuk' ? t2 : t1;
+    const oppFormation = TEAM_FORMATIONS_PRESET[opponent.id] || "4-4-2";
+    const compBonus = getFormationCompatibilityBonus(currentFormation, oppFormation);
+    
+    if (analysisCard) {
+        analysisCard.style.display = 'block';
+        document.getElementById('aclOpponentFormationText').innerText = oppFormation;
+        document.getElementById('aclOpponentMoodText').innerHTML = `보통 😐`; // 아챔 대회 컨디션 보통 고정
+        
+        const compTextEl = document.getElementById('aclOpponentCompatibilityText');
+        if (compTextEl) {
+            compTextEl.className = 'opponent-analysis-tactic-row';
+            if (compBonus > 0) {
+                compTextEl.style.display = 'block';
+                compTextEl.classList.add('tactic-advantage');
+                compTextEl.innerHTML = `전북 현대의 <strong>${currentFormation}</strong> 전술이 상대의 <strong>${oppFormation}</strong> 전술에 상성상 우세합니다! (공격 찬스 확률 +5.0% ⚡)`;
+            } else if (compBonus < 0) {
+                compTextEl.style.display = 'block';
+                compTextEl.classList.add('tactic-disadvantage');
+                compTextEl.innerHTML = `상대의 <strong>${oppFormation}</strong> 전술이 전북 현대의 <strong>${currentFormation}</strong> 전술에 상성상 우세합니다. (공격 찬스 확률 -5.0% ⚠️)`;
+            } else {
+                // 피드백 반영: 상성이 비겼을 때(보너스 0)는 설명 숨김
+                compTextEl.style.display = 'none';
+            }
+        }
+    }
     
     if (playerMatch.status === 'completed') {
         let score1Str = playerMatch.score1;
@@ -793,7 +827,10 @@ function startAclMatchSimulation() {
     
     const maxProb = 0.80;
     const minProb = 0.20;
-    let activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus));
+    
+    const oppFormation = TEAM_FORMATIONS_PRESET[opponent.id] || "4-4-2";
+    const compatibilityBonus = getFormationCompatibilityBonus(currentFormation, oppFormation);
+    let activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
 
     const commentaryData = {
         playerOvr: playerOvr,
@@ -805,7 +842,8 @@ function startAclMatchSimulation() {
         activeGk: (squadFormation["GK"] && CARDS_DATABASE[squadFormation["GK"]]) ? CARDS_DATABASE[squadFormation["GK"]].name : "무명 골키퍼",
         detailedTacticLabel: detailedTacticLabel,
         suitabilityLabel: suitabilityLabel,
-        playerAttackProb: activePlayerAttackProb
+        playerAttackProb: activePlayerAttackProb,
+        compatibilityBonus: compatibilityBonus
     };
 
     let playerScoreVal = 0;
@@ -857,11 +895,11 @@ function startAclMatchSimulation() {
                         }
                     } else if (specialEvent.type === "red_opponent") {
                         activeDiff += specialEvent.ovrChange; // +5
-                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus));
+                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
                         addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     } else if (specialEvent.type === "red_player") {
                         activeDiff += specialEvent.ovrChange; // -5
-                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus));
+                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
                         addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     }
                 } else {
@@ -1018,11 +1056,11 @@ function startAclMatchSimulation() {
                     }
                 } else if (specialEvent.type === "red_opponent") {
                     activeDiff += specialEvent.ovrChange; // +5
-                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus));
+                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
                     addCommentary(currentMin, specialEvent.eventFail, 'normal');
                 } else if (specialEvent.type === "red_player") {
                     activeDiff += specialEvent.ovrChange; // -5
-                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus));
+                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
                     addCommentary(currentMin, specialEvent.eventFail, 'normal');
                 }
             } else {
