@@ -65,17 +65,64 @@ header {
     -webkit-text-fill-color: transparent;
 }
 
+body {
+    --emblem-glow-color: rgba(0, 255, 135, 0.65);
+    --emblem-glow-color-pulse: rgba(0, 255, 135, 0.85);
+    --jb-theme-color: #00ff87;
+    --jb-theme-bg: rgba(0, 90, 60, 0.2);
+}
+
+body.hard-mode {
+    --emblem-glow-color: rgba(255, 255, 255, 0.85) !important;
+    --emblem-glow-color-pulse: rgba(255, 255, 255, 1) !important;
+    --jb-theme-color: #ffffff !important;
+    --jb-theme-bg: rgba(255, 255, 255, 0.2) !important;
+}
+
+body.hell-mode {
+    --emblem-glow-color: rgba(255, 215, 0, 0.85) !important;
+    --emblem-glow-color-pulse: rgba(255, 215, 0, 1) !important;
+    --jb-theme-color: #ffd700 !important;
+    --jb-theme-bg: rgba(255, 215, 0, 0.25) !important;
+}
+
 .logo-emblem {
     height: 38px;
     width: 38px;
     object-fit: contain;
-    filter: drop-shadow(0 0 6px rgba(0, 255, 135, 0.5));
-    animation: emblemPulse 3s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 3px var(--emblem-glow-color)) 
+            drop-shadow(0 0 8px var(--emblem-glow-color-pulse));
+    animation: emblemPulse 2.5s ease-in-out infinite alternate;
+}
+
+.match-emblem-glow {
+    filter: drop-shadow(0 0 4px var(--emblem-glow-color)) 
+            drop-shadow(0 0 10px var(--emblem-glow-color)) 
+            drop-shadow(0 0 20px var(--emblem-glow-color-pulse)) !important;
+}
+
+/* Increase specificity to override .sb-home .sb-emblem or .sb-away .sb-emblem in match.css */
+.sb-team .sb-emblem.jeonbuk-emblem-box,
+.jeonbuk-emblem-box {
+    border-color: var(--jb-theme-color) !important;
+    background: var(--jb-theme-bg) !important;
+    box-shadow: 0 0 8px var(--emblem-glow-color), 
+                0 0 22px var(--emblem-glow-color-pulse) !important;
+    transition: all 0.3s ease;
 }
 
 @keyframes emblemPulse {
-    0% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(0, 255, 135, 0.4)); }
-    100% { transform: scale(1.05); filter: drop-shadow(0 0 12px rgba(0, 255, 135, 0.7)); }
+    0% { 
+        transform: scale(1); 
+        filter: drop-shadow(0 0 3px var(--emblem-glow-color)) 
+                drop-shadow(0 0 6px var(--emblem-glow-color)); 
+    }
+    100% { 
+        transform: scale(1.06); 
+        filter: drop-shadow(0 0 4px var(--emblem-glow-color-pulse)) 
+                drop-shadow(0 0 12px var(--emblem-glow-color-pulse)) 
+                drop-shadow(0 0 24px var(--emblem-glow-color-pulse)); 
+    }
 }
 
 .nav-tabs {
@@ -464,3 +511,245 @@ input:checked + .dev-slider::before {
         margin-bottom: 2px;
     }
 }
+
+/* ==========================================================================
+   ACHIEVEMENTS SYSTEM STYLING
+   ========================================================================== */
+.achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.25rem;
+    padding: 0.5rem 0 2rem 0;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.achievement-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.achievement-card:hover {
+    transform: translateY(-4px);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Locked & Unlocked states */
+.achievement-card.locked {
+    border-color: rgba(255, 255, 255, 0.04);
+}
+
+.achievement-card.locked .ach-icon {
+    filter: grayscale(1) opacity(0.4);
+}
+
+.achievement-card.unlocked {
+    border-color: rgba(255, 215, 0, 0.25);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.05);
+}
+
+.achievement-card.unlocked::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--gold-gradient);
+}
+
+.achievement-card.unlocked .ach-icon {
+    color: #ffd700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    animation: goldPulse 2s infinite alternate;
+}
+
+@keyframes goldPulse {
+    0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255,215,0,0.3)); }
+    100% { transform: scale(1.08); filter: drop-shadow(0 0 8px rgba(255,215,0,0.6)); }
+}
+
+/* Icon Styling */
+.ach-icon-wrapper {
+    width: 56px;
+    height: 56px;
+    min-width: 56px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    color: #9ca3af;
+    transition: all 0.3s ease;
+}
+
+.achievement-card.unlocked .ach-icon-wrapper {
+    background: rgba(255, 215, 0, 0.06);
+    border-color: rgba(255, 215, 0, 0.2);
+}
+
+/* Info and texts */
+.ach-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    text-align: left;
+}
+
+.ach-name {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0;
+}
+
+.achievement-card.unlocked .ach-name {
+    color: #ffd700;
+}
+
+.ach-short-desc {
+    font-size: 0.76rem;
+    color: #9ca3af;
+    margin: 0;
+    line-height: 1.4;
+    word-break: keep-all;
+}
+
+/* Mini Progress Bar inside cards */
+.ach-progress-bar-mini {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 2px;
+    margin-top: 0.4rem;
+    overflow: hidden;
+}
+
+.ach-progress-fill-mini {
+    height: 100%;
+    background: linear-gradient(90deg, #ffd700, #ff9f43);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+.achievement-card.locked .ach-progress-fill-mini {
+    background: #64748b;
+}
+
+/* Actions inside card */
+.ach-action {
+    display: flex;
+    align-items: center;
+}
+
+/* Claim Button Styling */
+.btn-ach-claim {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 0.5rem 0.8rem;
+    border-radius: 12px;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+}
+
+.btn-ach-claim.disabled {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: #64748b;
+    cursor: not-allowed;
+}
+
+.btn-ach-claim.active {
+    background: linear-gradient(135deg, #ffd700 0%, #ff9f43 100%);
+    color: #080a10;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+    animation: buttonPulse 1.5s infinite alternate;
+}
+
+.btn-ach-claim.active:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(255, 215, 0, 0.4);
+}
+
+.btn-ach-claim.claimed {
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    color: #10b981;
+    cursor: default;
+}
+
+@keyframes buttonPulse {
+    0% { box-shadow: 0 0 5px rgba(255, 215, 0, 0.3); }
+    100% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.6); }
+}
+
+/* Status badges inside Modal */
+.badge-locked {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    color: #ef4444;
+    padding: 4px 12px;
+    border-radius: 12px;
+}
+
+.badge-unlocked {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    background: rgba(255, 215, 0, 0.08);
+    border: 1px solid rgba(255, 215, 0, 0.25);
+    color: #ffd700;
+    padding: 4px 12px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.15);
+}
+
+.text-gold {
+    color: #ffd700;
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+}
+
+.text-muted {
+    color: #64748b;
+}
+
+/* Layout modifications for mobile */
+@media (max-width: 768px) {
+    .achievements-grid {
+        grid-template-columns: 1fr;
+        gap: 0.85rem;
+    }
+    .achievement-card {
+        padding: 1rem;
+    }
+}
+

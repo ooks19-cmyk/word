@@ -119,8 +119,14 @@ function saveUserProgress() {
         hallOfFame: hallOfFame,
         leaguePlayerStats: leaguePlayerStats,
         careerStats: careerStats,
+        careerStatsHard: careerStatsHard,
         cupState: typeof cupState !== 'undefined' ? cupState : null,
         aclState: typeof aclState !== 'undefined' ? aclState : null,
+        isHardMode: isHardMode,
+        userAchievements: userAchievements,
+        consecutiveLeagueTitles: consecutiveLeagueTitles,
+        currentWinStreak: currentWinStreak,
+        maxWinStreak: maxWinStreak,
         
         // 친선경기 ID별 실시간 클라우드 전적 연동 필드
         friendlyMatchesHistory: typeof friendlyMatchesHistory !== 'undefined' ? friendlyMatchesHistory : { w: 0, d: 0, l: 0, pts: 0 },
@@ -142,6 +148,7 @@ function syncUserDataOnLogin(userData) {
         userLevel = userData.userLevel || 1;
         playerDeck = userData.playerDeck || {};
         currentFormation = userData.currentFormation || '4-4-2';
+        isHardMode = userData.isHardMode || false;
         
         squadFormations = userData.squadFormations || {
             '4-4-2': {},
@@ -227,6 +234,25 @@ function syncUserDataOnLogin(userData) {
         }
         
         careerStats = userData.careerStats || { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+        careerStatsHard = userData.careerStatsHard || { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+        
+        // 업적 및 연승 클라우드 데이터 복원
+        userAchievements = userData.userAchievements || {
+            double: { unlocked: false, rewarded: false },
+            treble: { unlocked: false, rewarded: false },
+            invincible: { unlocked: false, rewarded: false },
+            threepeat: { unlocked: false, rewarded: false },
+            fivepeat: { unlocked: false, rewarded: false },
+            collector: { unlocked: false, rewarded: false },
+            worldclass: { unlocked: false, rewarded: false },
+            hardworldclass: { unlocked: false, rewarded: false },
+            streak10: { unlocked: false, rewarded: false },
+            streak20: { unlocked: false, rewarded: false },
+            streak30: { unlocked: false, rewarded: false }
+        };
+        consecutiveLeagueTitles = userData.consecutiveLeagueTitles || 0;
+        currentWinStreak = userData.currentWinStreak || 0;
+        maxWinStreak = userData.maxWinStreak || 0;
         
         // 코리아컵 상태 클라우드 데이터 복원
         if (userData.cupState) {
@@ -282,12 +308,19 @@ function syncUserDataOnLogin(userData) {
         localStorage.setItem('fc_star_hall_of_fame', JSON.stringify(hallOfFame));
         localStorage.setItem('fc_star_league_stats', JSON.stringify(leaguePlayerStats));
         localStorage.setItem('fc_star_career_stats', JSON.stringify(careerStats));
+        localStorage.setItem('fc_star_career_stats_hard', JSON.stringify(careerStatsHard));
         localStorage.setItem('fc_star_squad_numbers', JSON.stringify(squadNumbers));
+        localStorage.setItem('fc_star_is_hard_mode', isHardMode.toString());
+        localStorage.setItem('fc_star_user_achievements', JSON.stringify(userAchievements));
+        localStorage.setItem('fc_star_consecutive_titles', consecutiveLeagueTitles.toString());
+        localStorage.setItem('fc_star_current_win_streak', currentWinStreak.toString());
+        localStorage.setItem('fc_star_max_win_streak', maxWinStreak.toString());
         
         // 개발자 모드 UI 연동 복원
         updateDevModeUI();
         
         // Refresh all screens
+        if (typeof updateGlowTheme === 'function') updateGlowTheme();
         renderUserPoints();
         updateTotalCardCount();
         renderDeck();
@@ -302,6 +335,9 @@ function syncUserDataOnLogin(userData) {
         }
         if (typeof initAclTab === 'function') {
             initAclTab();
+        }
+        if (typeof renderAchievements === 'function') {
+            renderAchievements();
         }
         
         // Refresh Auth Badge

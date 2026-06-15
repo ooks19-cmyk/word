@@ -467,6 +467,12 @@ function updateMatchPreviewBoard() {
         seasonYearTextEl.innerText = `${leagueYear} 시즌`;
     }
 
+    // 어려움 모드 뱃지 갱신
+    const hardModeIndicatorEl = document.getElementById('leagueHardModeIndicator');
+    if (hardModeIndicatorEl) {
+        hardModeIndicatorEl.style.display = (typeof isHardMode !== 'undefined' && isHardMode) ? 'flex' : 'none';
+    }
+
     // 오늘의 경기 진행 횟수 UI 업데이트
     const matchTodayCountValEl = document.getElementById('matchTodayCountVal');
     if (matchTodayCountValEl) {
@@ -543,21 +549,41 @@ function updateMatchPreviewBoard() {
     if (fixture.isHome) {
         document.getElementById('homeTeamName').innerText = jeonbuk.name;
         document.getElementById('homeTeamOvr').innerText = jeonbuk.rating;
-        document.getElementById('homeEmblem').innerHTML = `<img src="img/mark_jb.svg" alt="전북 현대" class="match-emblem-img" style="height: 48px; width: 48px; filter: drop-shadow(0 0 10px rgba(0, 255, 135, 0.6));">`;
-        
         document.getElementById('awayTeamName').innerText = opponent.name;
         document.getElementById('awayTeamOvr').innerHTML = oppOvrDisplayHtml;
-        document.getElementById('awayEmblem').innerHTML = `<img src="${getTeamEmblemPath(opponent.id)}" alt="${opponent.name}" class="match-emblem-img" style="height: 48px; width: 48px; filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.35)); object-fit: contain;">`;
+        
+        const homeEmb = document.getElementById('homeEmblem');
+        const awayEmb = document.getElementById('awayEmblem');
+        if (homeEmb) {
+            homeEmb.innerHTML = `<img src="img/mark_jb.svg" alt="전북 현대" class="match-emblem-img match-emblem-glow" style="height: 48px; width: 48px; object-fit: contain;">`;
+            homeEmb.removeAttribute('style');
+            homeEmb.classList.add('jeonbuk-emblem-box');
+        }
+        if (awayEmb) {
+            awayEmb.innerHTML = `<img src="${getTeamEmblemPath(opponent.id)}" alt="${opponent.name}" class="match-emblem-img" style="height: 48px; width: 48px; filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.35)); object-fit: contain;">`;
+            awayEmb.removeAttribute('style');
+            awayEmb.classList.remove('jeonbuk-emblem-box');
+        }
         
         document.getElementById('matchVenueDisplay').innerText = "홈 경기 (전주성) - HOME ADVANTAGE +2 OVR";
     } else {
         document.getElementById('homeTeamName').innerText = opponent.name;
         document.getElementById('homeTeamOvr').innerHTML = oppOvrDisplayHtml;
-        document.getElementById('homeEmblem').innerHTML = `<img src="${getTeamEmblemPath(opponent.id)}" alt="${opponent.name}" class="match-emblem-img" style="height: 48px; width: 48px; filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.35)); object-fit: contain;">`;
-        
         document.getElementById('awayTeamName').innerText = jeonbuk.name;
         document.getElementById('awayTeamOvr').innerText = jeonbuk.rating;
-        document.getElementById('awayEmblem').innerHTML = `<img src="img/mark_jb.svg" alt="전북 현대" class="match-emblem-img" style="height: 48px; width: 48px; filter: drop-shadow(0 0 10px rgba(0, 255, 135, 0.6));">`;
+        
+        const homeEmb = document.getElementById('homeEmblem');
+        const awayEmb = document.getElementById('awayEmblem');
+        if (homeEmb) {
+            homeEmb.innerHTML = `<img src="${getTeamEmblemPath(opponent.id)}" alt="${opponent.name}" class="match-emblem-img" style="height: 48px; width: 48px; filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.35)); object-fit: contain;">`;
+            homeEmb.removeAttribute('style');
+            homeEmb.classList.remove('jeonbuk-emblem-box');
+        }
+        if (awayEmb) {
+            awayEmb.innerHTML = `<img src="img/mark_jb.svg" alt="전북 현대" class="match-emblem-img match-emblem-glow" style="height: 48px; width: 48px; object-fit: contain;">`;
+            awayEmb.removeAttribute('style');
+            awayEmb.classList.add('jeonbuk-emblem-box');
+        }
         
         document.getElementById('matchVenueDisplay').innerText = "원정 경기 - AWAY PENALTY";
     }
@@ -725,7 +751,7 @@ function startLeagueAutoSimulation() {
         const opponentFormation = TEAM_FORMATIONS_PRESET[opponent.id] || "4-4-2";
         const compatibilityBonus = getFormationCompatibilityBonus(currentFormation, opponentFormation);
         let activeDiff = diff;
-        let activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (diff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
+        let activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (diff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
         
         const eventMins = [15, 45, 63, 82, 88];
         
@@ -753,10 +779,10 @@ function startLeagueAutoSimulation() {
                     }
                 } else if (specialEvent.type === "red_opponent") {
                     activeDiff += specialEvent.ovrChange;
-                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
+                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
                 } else if (specialEvent.type === "red_player") {
                     activeDiff += specialEvent.ovrChange;
-                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
+                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
                 }
             } else {
                 const isPlayerAttack = Math.random() < activePlayerAttackProb;
@@ -831,14 +857,17 @@ function startLeagueAutoSimulation() {
             wins++;
             jeonbuk.w += 1; jeonbuk.pts += 3;
             opponent.l += 1;
+            if (typeof updateLeagueWinStreak === 'function') updateLeagueWinStreak(true, false);
         } else if (isDraw) {
             draws++;
             jeonbuk.d += 1; jeonbuk.pts += 1;
             opponent.d += 1; opponent.pts += 1;
+            if (typeof updateLeagueWinStreak === 'function') updateLeagueWinStreak(false, true);
         } else {
             losses++;
             jeonbuk.l += 1;
             opponent.w += 1; opponent.pts += 3;
+            if (typeof updateLeagueWinStreak === 'function') updateLeagueWinStreak(false, false);
         }
         
         jeonbuk.p += 1; jeonbuk.gf += playerScoreVal; jeonbuk.ga += opponentScoreVal; jeonbuk.gd = jeonbuk.gf - jeonbuk.ga;
@@ -1032,7 +1061,7 @@ function startMatchSimulation() {
     
     const opponentFormation = TEAM_FORMATIONS_PRESET[opponent.id] || "4-4-2";
     const compatibilityBonus = getFormationCompatibilityBonus(currentFormation, opponentFormation);
-    const playerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (diff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus)); // 베이스 40%, 격차 0.019, 상성 보너스 적용!
+    const playerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (diff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0))); // 베이스 40%, 격차 0.019, 상성 보너스 적용!
     
     let activeDiff = diff;
     let activePlayerAttackProb = playerAttackProb;
@@ -1106,11 +1135,11 @@ function startMatchSimulation() {
                         }
                     } else if (specialEvent.type === "red_opponent") {
                         activeDiff += specialEvent.ovrChange; // +5
-                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
+                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
                         addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     } else if (specialEvent.type === "red_player") {
                         activeDiff += specialEvent.ovrChange; // -5
-                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
+                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
                         addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     }
                 } else {
@@ -1228,9 +1257,18 @@ function startMatchSimulation() {
         jb.p += 1; jb.gf += playerScoreVal; jb.ga += opponentScoreVal; jb.gd = jb.gf - jb.ga;
         opp.p += 1; opp.gf += opponentScoreVal; opp.ga += playerScoreVal; opp.gd = opp.gf - opp.ga;
         
-        if (isWinner) { jb.w += 1; jb.pts += 3; opp.l += 1; }
-        else if (isDraw) { jb.d += 1; jb.pts += 1; opp.d += 1; opp.pts += 1; }
-        else { jb.l += 1; opp.w += 1; opp.pts += 3; }
+        if (isWinner) {
+            jb.w += 1; jb.pts += 3; opp.l += 1;
+            if (typeof updateLeagueWinStreak === 'function') updateLeagueWinStreak(true, false);
+        }
+        else if (isDraw) {
+            jb.d += 1; jb.pts += 1; opp.d += 1; opp.pts += 1;
+            if (typeof updateLeagueWinStreak === 'function') updateLeagueWinStreak(false, true);
+        }
+        else {
+            jb.l += 1; opp.w += 1; opp.pts += 3;
+            if (typeof updateLeagueWinStreak === 'function') updateLeagueWinStreak(false, false);
+        }
 
         simulateOtherMatches(fixture.opponent);
         leagueRound += 1;
@@ -1340,13 +1378,13 @@ function startMatchSimulation() {
                     }
                 } else if (specialEvent.type === "red_opponent") {
                     activeDiff += specialEvent.ovrChange; // +5
-                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
+                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
                     setTimeout(() => {
                         addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     }, 450);
                 } else if (specialEvent.type === "red_player") {
                     activeDiff += specialEvent.ovrChange; // -5
-                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
+                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
                     setTimeout(() => {
                         addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     }, 450);
@@ -1505,12 +1543,15 @@ function startMatchSimulation() {
             if (isWinner) {
                 jb.w += 1; jb.pts += 3;
                 opp.l += 1;
+                if (typeof updateLeagueWinStreak === 'function') updateLeagueWinStreak(true, false);
             } else if (isDraw) {
                 jb.d += 1; jb.pts += 1;
                 opp.d += 1; opp.pts += 1;
+                if (typeof updateLeagueWinStreak === 'function') updateLeagueWinStreak(false, true);
             } else {
                 jb.l += 1;
                 opp.w += 1; opp.pts += 3;
+                if (typeof updateLeagueWinStreak === 'function') updateLeagueWinStreak(false, false);
             }
             
             // 5. Simulate all other 5 K League fixtures for this round
@@ -1745,81 +1786,88 @@ function checkSeasonChampion() {
         topScorer: (topScorer && topScorer.teamId === 'jeonbuk') ? { name: topScorer.name, goals: topScorer.goals } : null,
         topAssister: (topAssister && topAssister.teamId === 'jeonbuk') ? { name: topAssister.name, assists: topAssister.assists } : null,
         cupRecord: cupRecordText,
-        aclRecord: aclRecordText
+        aclRecord: aclRecordText,
+        isHardMode: isHardMode
     };
     
     // 중복 방지 검증 후 추가
-    if (!hallOfFame.some(r => r.year === leagueYear)) {
+    if (!hallOfFame.some(r => r.year === leagueYear && r.isHardMode === isHardMode)) {
         hallOfFame.push(record);
         
         // Accumulate Club Career Stats
-        if (!careerStats) careerStats = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
-        careerStats.w += jb.w;
-        careerStats.d += jb.d;
-        careerStats.l += jb.l;
-        careerStats.gf += jb.gf;
-        careerStats.ga += jb.ga;
+        let activeCareer = isHardMode ? careerStatsHard : careerStats;
+        if (!activeCareer) {
+            activeCareer = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+            if (isHardMode) careerStatsHard = activeCareer;
+            else careerStats = activeCareer;
+        }
+        activeCareer.w += jb.w;
+        activeCareer.d += jb.d;
+        activeCareer.l += jb.l;
+        activeCareer.gf += jb.gf;
+        activeCareer.ga += jb.ga;
         
         // Accumulate player goals (Jeonbuk players only)
         const playersArray = Object.values(leaguePlayerStats || {});
         playersArray.forEach(p => {
             if (p.teamId === 'jeonbuk' && p.goals > 0) {
-                if (!careerStats.playerGoals) careerStats.playerGoals = {};
-                if (!careerStats.playerGoals[p.id]) {
-                    careerStats.playerGoals[p.id] = { name: p.name, goals: 0 };
+                if (!activeCareer.playerGoals) activeCareer.playerGoals = {};
+                if (!activeCareer.playerGoals[p.id]) {
+                    activeCareer.playerGoals[p.id] = { name: p.name, goals: 0 };
                 }
-                careerStats.playerGoals[p.id].goals += p.goals;
+                activeCareer.playerGoals[p.id].goals += p.goals;
             }
         });
         
         try {
             localStorage.setItem('fc_star_hall_of_fame', JSON.stringify(hallOfFame));
-            localStorage.setItem('fc_star_career_stats', JSON.stringify(careerStats));
+            if (isHardMode) {
+                localStorage.setItem('fc_star_career_stats_hard', JSON.stringify(careerStatsHard));
+            } else {
+                localStorage.setItem('fc_star_career_stats', JSON.stringify(careerStats));
+            }
         } catch (e) {}
     }
     
-    // 1-B. 구단 주장 각성 보너스 (+1) 연동 및 헌정 배너 생성
+    // 1-B. 리그 우승 보상 (+10 FP) 연동 및 헌정 배너 생성
     let captainAwakenedMsg = "";
-    if (isJeonbukChamp && squadCaptain && playerDeck[squadCaptain]) {
-        if (typeof playerDeck[squadCaptain].awakening !== 'number') {
-            playerDeck[squadCaptain].awakening = 0;
-        }
-        if (playerDeck[squadCaptain].awakening < 5) {
-            playerDeck[squadCaptain].awakening += 1;
-            const captainCard = CARDS_DATABASE[squadCaptain];
-            captainAwakenedMsg = `
-                <div class="captain-awakening-reward" style="margin-top: 1rem; padding: 0.8rem; background: rgba(255, 215, 0, 0.15); border: 1.5px solid rgba(255, 215, 0, 0.35); border-radius: 12px; font-size: 0.82rem; color: #ffd700; font-weight: bold; line-height: 1.45; text-align: left; box-shadow: 0 0 10px rgba(255, 215, 0, 0.25);">
-                     <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-                        <i class="fa-solid fa-crown" style="color: #ffd700; animation: keyPlayerLabelPulse 1s infinite alternate;"></i>
-                        <span style="font-size: 0.88rem; font-weight: 900;">캡틴 각성 레벨 +1 상향!</span>
-                    </div>
-                    우승을 지휘한 주장 <strong>${captainCard.name}</strong> 선수가<br>
-                    영구적으로 <strong>★${playerDeck[squadCaptain].awakening} 각성</strong> 등급으로 강화되었습니다!<br>
-                    <span style="font-size: 0.72rem; color: #cbd5e1; font-weight: normal;">(주장 OVR 및 6대 세부 스탯 +1 영구 증가)</span>
-                </div>
-            `;
+    if (isJeonbukChamp) {
+        if (typeof userPoints !== 'undefined') {
+            userPoints += 10;
         } else {
-            captainAwakenedMsg = `
-                <div class="captain-awakening-reward" style="margin-top: 1rem; padding: 0.8rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 12px; font-size: 0.82rem; color: #cbd5e1; line-height: 1.4; text-align: left;">
-                    👑 캡틴 <strong>${CARDS_DATABASE[squadCaptain].name}</strong> 선수는 이미 최대 각성 단계(★5)입니다. 명예로운 우승으로 주장 임무를 완벽히 마쳤습니다!
-                </div>
-            `;
+            userPoints = 10;
         }
         
+        // 연속 리그 우승 기록 갱신 및 업적 조건 판정
+        consecutiveLeagueTitles++;
         try {
-            localStorage.setItem('fc_star_player_deck', JSON.stringify(playerDeck));
-        } catch(e) {}
-    } else if (isJeonbukChamp && squadCaptain && !playerDeck[squadCaptain]) {
-        squadCaptain = null;
-        try { localStorage.removeItem('fc_star_squad_captain'); } catch(e) {}
-    }
-    
-    if (isJeonbukChamp && !squadCaptain) {
+            localStorage.setItem('fc_star_consecutive_titles', consecutiveLeagueTitles.toString());
+        } catch (e) {}
+
+        if (typeof checkLeagueEndAchievements === 'function') {
+            checkLeagueEndAchievements(true, jb.l);
+        }
+
         captainAwakenedMsg = `
-            <div class="captain-awakening-reward" style="margin-top: 1rem; padding: 0.8rem; background: rgba(255, 255, 255, 0.03); border: 1px dashed rgba(255, 255, 255, 0.15); border-radius: 12px; font-size: 0.78rem; color: #94a3b8; line-height: 1.45; text-align: left;">
-                <i class="fa-solid fa-circle-info" style="margin-right: 4px; color: #ff9f43;"></i> 현재 지정된 구단 주장이 없습니다. 포메이션 화면 피치 하단에서 주장을 임명하고 다음 우승 시 각성 보너스 혜택을 쟁취해보세요!
+            <div class="captain-awakening-reward" style="margin-top: 1rem; padding: 0.8rem; background: rgba(255, 215, 0, 0.15); border: 1.5px solid rgba(255, 215, 0, 0.35); border-radius: 12px; font-size: 0.82rem; color: #ffd700; font-weight: bold; line-height: 1.45; text-align: left; box-shadow: 0 0 10px rgba(255, 215, 0, 0.25);">
+                 <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                    <i class="fa-solid fa-trophy" style="color: #ffd700; animation: keyPlayerLabelPulse 1s infinite alternate;"></i>
+                    <span style="font-size: 0.88rem; font-weight: 900;">리그 우승 보상: +10 FP 지급!</span>
+                </div>
+                전북 현대의 위대한 우승을 축하드립니다!<br>
+                리그 우승 기념 보상으로 <strong>10 드림 포인트(FP)</strong>가 성공적으로 지급되었습니다.
             </div>
         `;
+        try {
+            localStorage.setItem('fc_star_user_points', userPoints.toString());
+        } catch(e) {}
+        renderUserPoints();
+    } else {
+        // 우승 실패 시 연속 우승 카운터 리셋
+        consecutiveLeagueTitles = 0;
+        try {
+            localStorage.setItem('fc_star_consecutive_titles', '0');
+        } catch (e) {}
     }
     
     // 2. 최종 결과 모달 활성화 및 커스터마이징
@@ -1971,23 +2019,40 @@ function startNextSeason() {
 }
 
 function renderHallOfFame() {
-    const gridEl = document.getElementById('fameGrid');
-    const placeholderEl = document.getElementById('emptyFamePlaceholder');
-    const countEl = document.getElementById('fameSeasonCount');
-    const headerEl = document.getElementById('fameClubHeader');
+    if (typeof switchFameSubTab === 'function') {
+        switchFameSubTab(isHardMode ? 'hard' : 'normal');
+    } else {
+        renderHallOfFameSub(isHardMode ? 'hard' : 'normal');
+    }
+}
+
+function renderHallOfFameSub(subTabId) {
+    const isHard = (subTabId === 'hard');
+    const suffix = isHard ? 'Hard' : 'Normal';
+    
+    const gridEl = document.getElementById('fameGrid' + suffix);
+    const placeholderEl = document.getElementById('emptyFamePlaceholder' + suffix);
+    const countEl = document.getElementById('fameSeasonCount' + suffix);
+    const headerEl = document.getElementById('fameClubHeader' + suffix);
     
     if (!gridEl) return;
     
+    const filteredFame = hallOfFame.filter(record => {
+        if (isHard) return record.isHardMode === true;
+        return !record.isHardMode;
+    });
+    
     // Update count display
-    if (countEl) countEl.innerText = hallOfFame.length;
+    if (countEl) countEl.innerText = filteredFame.length;
     
     // Clear dynamic cards
     const existingCards = gridEl.querySelectorAll('.fame-card');
     existingCards.forEach(c => c.remove());
     
-    if (hallOfFame.length === 0) {
+    if (filteredFame.length === 0) {
         if (placeholderEl) placeholderEl.style.display = 'flex';
         if (headerEl) headerEl.style.display = 'none';
+        renderCareerStatsSub(subTabId);
         return;
     }
     
@@ -1998,7 +2063,7 @@ function renderHallOfFame() {
     let cupTitles = 0;
     let aclTitles = 0;
 
-    hallOfFame.forEach(record => {
+    filteredFame.forEach(record => {
         if (record.jeonbukRank === 1) {
             kLeagueTitles++;
         }
@@ -2019,14 +2084,14 @@ function renderHallOfFame() {
             <div class="fame-club-info" style="display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 200px;">
                 <img src="img/mark_jb.svg" class="logo-emblem" alt="Jeonbuk Hyundai Motors Logo" style="height: 60px; width: 60px; object-fit: contain; filter: drop-shadow(0 0 8px rgba(0, 255, 135, 0.6)); animation: emblemPulse 3s ease-in-out infinite alternate;">
                 <div>
-                    <h3 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin-bottom: 2px;">전북 현대 모터스</h3>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin-bottom: 2px;">전북 현대 모터스 ${isHard ? '<span style="color:#ff3e6c;">[어려움]</span>' : ''}</h3>
                     <p style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">명예의 전당 트로피 룸</p>
                 </div>
             </div>
             <div class="fame-trophy-shelf" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-left: auto;">
                 <!-- K-League Trophy -->
-                <div class="trophy-badge-container" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${kLeagueTitles > 0 ? 'rgba(255, 215, 0, 0.3)' : 'rgba(255, 255, 255, 0.05)'}; padding: 0.5rem 0.8rem; border-radius: 14px; min-width: 110px; transition: all 0.3s; ${kLeagueTitles > 0 ? 'box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);' : ''}">
-                    <i class="fa-solid fa-crown" style="font-size: 1.6rem; color: ${kLeagueTitles > 0 ? '#ffd700' : '#4b5563'}; filter: ${kLeagueTitles > 0 ? 'drop-shadow(0 0 6px rgba(255, 215, 0, 0.6))' : 'none'};"></i>
+                <div class="trophy-badge-container" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${kLeagueTitles > 0 ? (isHard ? 'rgba(255, 62, 108, 0.4)' : 'rgba(255, 215, 0, 0.3)') : 'rgba(255, 255, 255, 0.05)'}; padding: 0.5rem 0.8rem; border-radius: 14px; min-width: 110px; transition: all 0.3s; ${kLeagueTitles > 0 ? (isHard ? 'box-shadow: 0 0 15px rgba(255, 62, 108, 0.2);' : 'box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);') : ''}">
+                    <i class="fa-solid fa-crown" style="font-size: 1.6rem; color: ${kLeagueTitles > 0 ? (isHard ? '#ff3e6c' : '#ffd700') : '#4b5563'}; filter: ${kLeagueTitles > 0 ? (isHard ? 'drop-shadow(0 0 6px rgba(255, 62, 108, 0.6))' : 'drop-shadow(0 0 6px rgba(255, 215, 0, 0.6))') : 'none'};"></i>
                     <div>
                         <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">K리그1</div>
                         <div style="font-size: 0.9rem; font-weight: 800; color: ${kLeagueTitles > 0 ? '#fff' : '#6b7280'};">${kLeagueTitles}회 우승</div>
@@ -2052,7 +2117,7 @@ function renderHallOfFame() {
         `;
     }
     
-    hallOfFame.forEach(record => {
+    filteredFame.forEach(record => {
         const card = document.createElement('div');
         card.className = 'fame-card';
         
@@ -2106,25 +2171,36 @@ function renderHallOfFame() {
         gridEl.appendChild(card);
     });
     
-    renderCareerStats();
+    renderCareerStatsSub(subTabId);
 }
 
 function renderCareerStats() {
-    const dashboardEl = document.getElementById('careerStatsDashboard');
+    renderCareerStatsSub(isHardMode ? 'hard' : 'normal');
+}
+
+function renderCareerStatsSub(subTabId) {
+    const isHard = (subTabId === 'hard');
+    const suffix = isHard ? 'Hard' : 'Normal';
+    const dashboardEl = document.getElementById('careerStatsDashboard' + suffix);
     if (!dashboardEl) return;
     
-    if (hallOfFame.length === 0) {
+    const activeCareer = isHard ? careerStatsHard : careerStats;
+    const filteredFame = hallOfFame.filter(record => {
+        if (isHard) return record.isHardMode === true;
+        return !record.isHardMode;
+    });
+    
+    if (filteredFame.length === 0) {
         dashboardEl.style.display = 'none';
         return;
     }
     
     dashboardEl.style.display = 'block';
     
-    const gd = careerStats.gf - careerStats.ga;
+    const gd = activeCareer.gf - activeCareer.ga;
     const gdSign = gd > 0 ? `+${gd}` : gd;
     
-    // Sort players for top 3 scorers
-    const topScorers = Object.values(careerStats.playerGoals || {})
+    const topScorers = Object.values(activeCareer.playerGoals || {})
         .filter(p => p.goals > 0)
         .sort((a, b) => b.goals - a.goals)
         .slice(0, 3);
@@ -2150,9 +2226,9 @@ function renderCareerStats() {
     }
     
     dashboardEl.innerHTML = `
-        <div style="background: linear-gradient(135deg, rgba(8, 10, 16, 0.6) 0%, rgba(15, 19, 34, 0.6) 100%); border: 1.5px solid rgba(255, 215, 0, 0.35); border-radius: 20px; padding: 1.2rem; margin-bottom: 1.5rem; box-shadow: var(--card-shadow); backdrop-filter: blur(10px);">
-            <h3 style="font-size: 1.1rem; font-weight: 900; background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
-                <i class="fa-solid fa-chart-line" style="color: #ffd700;"></i> 클럽 통산 누적 성적 (All-Time Career Stats)
+        <div style="background: linear-gradient(135deg, rgba(8, 10, 16, 0.6) 0%, rgba(15, 19, 34, 0.6) 100%); border: 1.5px solid ${isHard ? 'rgba(255, 62, 108, 0.45)' : 'rgba(255, 215, 0, 0.35)'}; border-radius: 20px; padding: 1.2rem; margin-bottom: 1.5rem; box-shadow: var(--card-shadow); backdrop-filter: blur(10px);">
+            <h3 style="font-size: 1.1rem; font-weight: 900; background: ${isHard ? 'linear-gradient(135deg, #ff3e6c, #ff6b6b)' : 'var(--gold-gradient)'}; -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-chart-line" style="color: ${isHard ? '#ff3e6c' : '#ffd700'};"></i> 클럽 통산 누적 성적 ${isHard ? '<span style="color:#ff3e6c; font-size:0.8rem;">[어려움]</span>' : ''} (All-Time Career Stats)
             </h3>
             
             <div style="display: flex; gap: 1.2rem; flex-wrap: wrap;">
@@ -2160,25 +2236,25 @@ function renderCareerStats() {
                 <div style="flex: 1.3; min-width: 250px; display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.6rem;">
                     <div style="background: rgba(255,255,255,0.03); padding: 0.6rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); text-align: center; display: flex; flex-direction: column; justify-content: center;">
                         <div style="font-size: 0.72rem; color: #94a3b8; margin-bottom: 0.2rem;">통산 경기</div>
-                        <div style="font-size: 1.3rem; font-weight: 900; color: #fff;">${careerStats.w + careerStats.d + careerStats.l}전</div>
+                        <div style="font-size: 1.3rem; font-weight: 900; color: #fff;">${activeCareer.w + activeCareer.d + activeCareer.l}전</div>
                     </div>
-                    <div style="background: rgba(0, 255, 135, 0.04); padding: 0.6rem; border-radius: 12px; border: 1px solid rgba(0, 255, 135, 0.12); text-align: center; display: flex; flex-direction: column; justify-content: center;">
-                        <div style="font-size: 0.72rem; color: #00ff87; margin-bottom: 0.2rem;">통산 전적</div>
-                        <div style="font-size: 1.05rem; font-weight: 800; color: #fff; margin-top: 0.1rem;">${careerStats.w}승 ${careerStats.d}무 ${careerStats.l}패</div>
+                    <div style="background: ${isHard ? 'rgba(255, 62, 108, 0.05)' : 'rgba(0, 255, 135, 0.04)'}; padding: 0.6rem; border-radius: 12px; border: 1.5px solid ${isHard ? 'rgba(255, 62, 108, 0.25)' : 'rgba(0, 255, 135, 0.12)'}; text-align: center; display: flex; flex-direction: column; justify-content: center;">
+                        <div style="font-size: 0.72rem; color: ${isHard ? '#ff3e6c' : '#00ff87'}; margin-bottom: 0.2rem;">통산 전적</div>
+                        <div style="font-size: 1.05rem; font-weight: 800; color: #fff; margin-top: 0.1rem;">${activeCareer.w}승 ${activeCareer.d}무 ${activeCareer.l}패</div>
                     </div>
                     <div style="background: rgba(255,255,255,0.03); padding: 0.6rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); text-align: center; display: flex; flex-direction: column; justify-content: center;">
                         <div style="font-size: 0.72rem; color: #94a3b8; margin-bottom: 0.2rem;">통산 득/실점</div>
-                        <div style="font-size: 1.05rem; font-weight: 800; color: #fff; margin-top: 0.1rem;">${careerStats.gf}득 / ${careerStats.ga}실</div>
+                        <div style="font-size: 1.05rem; font-weight: 800; color: #fff; margin-top: 0.1rem;">${activeCareer.gf}득 / ${activeCareer.ga}실</div>
                     </div>
-                    <div style="background: rgba(255, 215, 0, 0.04); padding: 0.6rem; border-radius: 12px; border: 1px solid rgba(255, 215, 0, 0.12); text-align: center; display: flex; flex-direction: column; justify-content: center;">
-                        <div style="font-size: 0.72rem; color: #ffd700; margin-bottom: 0.2rem;">통산 골득실</div>
-                        <div style="font-size: 1.3rem; font-weight: 900; color: #ffd700;">${gdSign}</div>
+                    <div style="background: ${isHard ? 'rgba(255, 62, 108, 0.05)' : 'rgba(255, 215, 0, 0.04)'}; padding: 0.6rem; border-radius: 12px; border: 1.5px solid ${isHard ? 'rgba(255, 62, 108, 0.25)' : 'rgba(255, 215, 0, 0.12)'}; text-align: center; display: flex; flex-direction: column; justify-content: center;">
+                        <div style="font-size: 0.72rem; color: ${isHard ? '#ff3e6c' : '#ffd700'}; margin-bottom: 0.2rem;">통산 골득실</div>
+                        <div style="font-size: 1.3rem; font-weight: 900; color: ${isHard ? '#ff3e6c' : '#ffd700'};">${gdSign}</div>
                     </div>
                 </div>
                 
                 <!-- Right Column: Top Scorers -->
                 <div style="flex: 1; min-width: 220px; background: rgba(10,14,26,0.3); border: 1px solid rgba(255,255,255,0.05); padding: 0.8rem; border-radius: 16px; display: flex; flex-direction: column; gap: 0.4rem;">
-                    <h4 style="font-size: 0.82rem; font-weight: 800; color: #ffd700; margin-bottom: 0.2rem; display: flex; align-items: center; gap: 6px;">
+                    <h4 style="font-size: 0.82rem; font-weight: 800; color: ${isHard ? '#ff3e6c' : '#ffd700'}; margin-bottom: 0.2rem; display: flex; align-items: center; gap: 6px;">
                         <i class="fa-solid fa-fire-flame-curved"></i> 클럽 통산 득점 랭킹 (Top 3)
                     </h4>
                     ${scorersHtml}
@@ -2186,4 +2262,27 @@ function renderCareerStats() {
             </div>
         </div>
     `;
+}
+
+// 전북 현대의 리그 경기 연승 기록 업데이트 헬퍼
+function updateLeagueWinStreak(isWin, isDraw) {
+    if (isWin) {
+        currentWinStreak++;
+        if (currentWinStreak > maxWinStreak) {
+            maxWinStreak = currentWinStreak;
+        }
+    } else {
+        // 무승부나 패배는 연승 리셋
+        currentWinStreak = 0;
+    }
+    
+    try {
+        localStorage.setItem('fc_star_current_win_streak', currentWinStreak.toString());
+        localStorage.setItem('fc_star_max_win_streak', maxWinStreak.toString());
+    } catch (e) {}
+
+    // 연승 업적 체크
+    if (typeof checkWinStreakAchievements === 'function') {
+        checkWinStreakAchievements(currentWinStreak);
+    }
 }

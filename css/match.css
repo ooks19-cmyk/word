@@ -441,28 +441,44 @@
 @media (max-width: 640px) {
     .league-table th, 
     .league-table td {
-        padding: 0.5rem 0.2rem !important;
-        font-size: 0.72rem !important;
+        padding: 0.45rem 0.12rem !important;
+        font-size: 0.7rem !important;
     }
     
     .league-team-col {
-        gap: 4px !important;
-        padding: 4px 2px !important;
+        gap: 3px !important;
+        padding: 4px 1px !important;
     }
     
     .league-team-col img {
-        height: 16px !important;
-        width: 16px !important;
+        height: 14px !important;
+        width: 14px !important;
     }
 
-    /* Hide Win, Draw, Loss columns to maximize space for team name */
+    /* 승, 무, 패 컬럼이 숨겨지지 않고 한 화면에 다 표시되도록 수정 */
     .league-table th:nth-child(5), /* 승 */
     .league-table td:nth-child(5),
     .league-table th:nth-child(6), /* 무 */
     .league-table td:nth-child(6),
     .league-table th:nth-child(7), /* 패 */
     .league-table td:nth-child(7) {
-        display: none !important;
+        display: table-cell !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .league-table th, 
+    .league-table td {
+        padding: 0.35rem 0.06rem !important;
+        font-size: 0.65rem !important;
+    }
+    .league-team-col {
+        gap: 2px !important;
+        padding: 2px 0px !important;
+    }
+    .league-team-col img {
+        height: 12px !important;
+        width: 12px !important;
     }
 }
 
@@ -549,7 +565,9 @@
    경기진행 서브 메뉴 탭 바 & 하위 뷰 스타일 (신규 추가)
    ========================================================================== */
 
-.match-sub-tabs {
+
+.match-sub-tabs,
+.fame-sub-tabs {
     display: flex;
     gap: 0.5rem;
     background: rgba(255, 255, 255, 0.03);
@@ -559,10 +577,13 @@
     margin-bottom: 1.5rem;
     max-width: 600px;
     width: 100%;
+    margin-left: auto;
+    margin-right: auto;
     backdrop-filter: blur(10px);
 }
 
-.match-sub-btn {
+.match-sub-btn,
+.fame-sub-btn {
     flex: 1;
     background: transparent;
     border: none;
@@ -579,27 +600,32 @@
     gap: 8px;
 }
 
-.match-sub-btn i {
+.match-sub-btn i,
+.fame-sub-btn i {
     font-size: 1rem;
     transition: transform 0.3s;
 }
 
-.match-sub-btn:hover {
+.match-sub-btn:hover,
+.fame-sub-btn:hover {
     color: var(--text-light);
     background: rgba(255, 255, 255, 0.03);
 }
 
-.match-sub-btn:hover i {
+.match-sub-btn:hover i,
+.fame-sub-btn:hover i {
     transform: scale(1.15);
 }
 
-.match-sub-btn.active {
+.match-sub-btn.active,
+.fame-sub-btn.active {
     background: var(--gold-gradient);
     color: #080a10;
     box-shadow: 0 4px 15px rgba(255, 215, 0, 0.25);
 }
 
-.match-sub-btn.active i {
+.match-sub-btn.active i,
+.fame-sub-btn.active i {
     color: #080a10;
 }
 

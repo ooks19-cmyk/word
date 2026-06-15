@@ -457,8 +457,22 @@ function updateCupScoreboard() {
 
     const homeEmblemEl = document.getElementById('cupHomeEmblem');
     const awayEmblemEl = document.getElementById('cupAwayEmblem');
-    if (homeEmblemEl) homeEmblemEl.innerHTML = getCupTeamEmblemHtml(t1, 36);
-    if (awayEmblemEl) awayEmblemEl.innerHTML = getCupTeamEmblemHtml(t2, 36);
+    if (homeEmblemEl) {
+        homeEmblemEl.innerHTML = getCupTeamEmblemHtml(t1, 48);
+        if (t1.id === 'jeonbuk') {
+            homeEmblemEl.classList.add('jeonbuk-emblem-box');
+        } else {
+            homeEmblemEl.classList.remove('jeonbuk-emblem-box');
+        }
+    }
+    if (awayEmblemEl) {
+        awayEmblemEl.innerHTML = getCupTeamEmblemHtml(t2, 48);
+        if (t2.id === 'jeonbuk') {
+            awayEmblemEl.classList.add('jeonbuk-emblem-box');
+        } else {
+            awayEmblemEl.classList.remove('jeonbuk-emblem-box');
+        }
+    }
     
     document.getElementById('cupMatchVenueDisplay').textContent = `${getCupRoundText(curRound)} 단판 승부 (중립 구장)`;
 }
@@ -622,7 +636,8 @@ function getCupTeamEmblemHtml(team, size = 18) {
     };
 
     if (k1Mapping[team.id]) {
-        return `<img src="${k1Mapping[team.id]}" alt="${team.name}" style="height: ${size}px; width: ${size}px; object-fit: contain; vertical-align: middle; flex-shrink: 0; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));">`;
+        const isJeonbukGlow = (team.id === 'jeonbuk' && size >= 30) ? 'match-emblem-glow' : '';
+        return `<img src="${k1Mapping[team.id]}" alt="${team.name}" class="match-emblem-img ${isJeonbukGlow}" style="height: ${size}px; width: ${size}px; object-fit: contain; vertical-align: middle; flex-shrink: 0; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));">`;
     } else {
         let color = '#94a3b8';
         if (team.id === 'suwon_samsung') color = '#2563eb'; // 수원 블루
@@ -773,7 +788,7 @@ function startCupMatchSimulation() {
     
     const oppFormation = TEAM_FORMATIONS_PRESET[opponent.id] || "4-4-2";
     const compatibilityBonus = getFormationCompatibilityBonus(currentFormation, oppFormation);
-    const playerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (diff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
+    const playerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (diff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
     
     let activeDiff = diff;
     let activePlayerAttackProb = playerAttackProb;
@@ -847,11 +862,11 @@ function startCupMatchSimulation() {
                         }
                     } else if (specialEvent.type === "red_opponent") {
                         activeDiff += specialEvent.ovrChange; // +5
-                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus));
+                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus - (isHardMode ? 0.05 : 0)));
                         addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     } else if (specialEvent.type === "red_player") {
                         activeDiff += specialEvent.ovrChange; // -5
-                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus));
+                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus - (isHardMode ? 0.05 : 0)));
                         addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     }
                 } else {
@@ -1013,13 +1028,13 @@ function startCupMatchSimulation() {
                     }
                 } else if (specialEvent.type === "red_opponent") {
                     activeDiff += specialEvent.ovrChange; // +5
-                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus));
+                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus - (isHardMode ? 0.05 : 0)));
                     setTimeout(() => {
                         addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     }, 400);
                 } else if (specialEvent.type === "red_player") {
                     activeDiff += specialEvent.ovrChange; // -5
-                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus));
+                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus - (isHardMode ? 0.05 : 0)));
                     setTimeout(() => {
                         addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     }, 400);

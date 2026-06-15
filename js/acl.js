@@ -514,8 +514,22 @@ function updateAclScoreboard() {
 
     const homeEmblemEl = document.getElementById('aclHomeEmblem');
     const awayEmblemEl = document.getElementById('aclAwayEmblem');
-    if (homeEmblemEl) homeEmblemEl.innerHTML = getAclTeamEmblemHtml(t1, 36);
-    if (awayEmblemEl) awayEmblemEl.innerHTML = getAclTeamEmblemHtml(t2, 36);
+    if (homeEmblemEl) {
+        homeEmblemEl.innerHTML = getAclTeamEmblemHtml(t1, 48);
+        if (t1.id === 'jeonbuk') {
+            homeEmblemEl.classList.add('jeonbuk-emblem-box');
+        } else {
+            homeEmblemEl.classList.remove('jeonbuk-emblem-box');
+        }
+    }
+    if (awayEmblemEl) {
+        awayEmblemEl.innerHTML = getAclTeamEmblemHtml(t2, 48);
+        if (t2.id === 'jeonbuk') {
+            awayEmblemEl.classList.add('jeonbuk-emblem-box');
+        } else {
+            awayEmblemEl.classList.remove('jeonbuk-emblem-box');
+        }
+    }
     
     document.getElementById('aclMatchVenueDisplay').textContent = `${getAclRoundText(curRound)} 단판 승부 (중립 구장)`;
 }
@@ -679,7 +693,8 @@ function getAclTeamEmblemHtml(team, size = 18) {
     };
 
     if (k1Mapping[team.id]) {
-        return `<img src="${k1Mapping[team.id]}" alt="${team.name}" style="height: ${size}px; width: ${size}px; object-fit: contain; vertical-align: middle; flex-shrink: 0; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));">`;
+        const isJeonbukGlow = (team.id === 'jeonbuk' && size >= 30) ? 'match-emblem-glow' : '';
+        return `<img src="${k1Mapping[team.id]}" alt="${team.name}" class="match-emblem-img ${isJeonbukGlow}" style="height: ${size}px; width: ${size}px; object-fit: contain; vertical-align: middle; flex-shrink: 0; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));">`;
     } else {
         // 해외 구단은 컬러 쉴드
         let color = '#a55eea';
@@ -830,7 +845,7 @@ function startAclMatchSimulation() {
     
     const oppFormation = TEAM_FORMATIONS_PRESET[opponent.id] || "4-4-2";
     const compatibilityBonus = getFormationCompatibilityBonus(currentFormation, oppFormation);
-    let activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
+    let activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
 
     const commentaryData = {
         playerOvr: playerOvr,
@@ -895,11 +910,11 @@ function startAclMatchSimulation() {
                         }
                     } else if (specialEvent.type === "red_opponent") {
                         activeDiff += specialEvent.ovrChange; // +5
-                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
+                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
                         addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     } else if (specialEvent.type === "red_player") {
                         activeDiff += specialEvent.ovrChange; // -5
-                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
+                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
                         addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     }
                 } else {
@@ -1056,11 +1071,11 @@ function startAclMatchSimulation() {
                     }
                 } else if (specialEvent.type === "red_opponent") {
                     activeDiff += specialEvent.ovrChange; // +5
-                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
+                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
                     addCommentary(currentMin, specialEvent.eventFail, 'normal');
                 } else if (specialEvent.type === "red_player") {
                     activeDiff += specialEvent.ovrChange; // -5
-                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus));
+                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
                     addCommentary(currentMin, specialEvent.eventFail, 'normal');
                 }
             } else {
@@ -1433,6 +1448,9 @@ function finalizeAclMatch(score1, score2, playerMatch, pkScore1 = undefined, pkS
         if (aclState.round === 8 || aclState.round === 4) {
             rewardPoints = 10;
             rewardText = "대회 8강/4강 탈락 보상 10 FP를 획득했습니다!";
+        } else if (aclState.round === 2) {
+            rewardPoints = 15;
+            rewardText = "결승 준우승 보상 15 FP를 획득했습니다!";
         }
 
         if (rewardPoints > 0) {
@@ -1441,7 +1459,7 @@ function finalizeAclMatch(score1, score2, playerMatch, pkScore1 = undefined, pkS
                 localStorage.setItem('fc_star_user_points', userPoints.toString());
             } catch(e) {}
             if (typeof renderUserPoints === 'function') renderUserPoints();
-            showToast(`아쉽게 탈락했습니다. 하지만 ${rewardText}`);
+            showToast(`아쉽게 패배했습니다. 하지만 ${rewardText}`);
         } else {
             showToast(`패배하여 탈락했습니다. (16강 탈락은 보상이 없습니다)`);
         }

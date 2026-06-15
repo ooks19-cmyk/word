@@ -145,6 +145,45 @@ function renderDeck() {
             }, { passive: false });
             
             wrapper.appendChild(cardEl);
+            
+            // 어려움 모드 특전: ★5 각성 완료된 카드에만 ★6 강화(10 FP) 버튼 노출
+            const deckCardObj = playerDeck[key];
+            if (typeof isHardMode !== 'undefined' && isHardMode && deckCardObj && deckCardObj.awakening === 5) {
+                const upgradeBtn = document.createElement('button');
+                upgradeBtn.className = 'btn-quick-upgrade-six';
+                upgradeBtn.style.marginTop = '0.8rem';
+                upgradeBtn.style.width = '100%';
+                upgradeBtn.style.padding = '0.55rem 0.8rem';
+                upgradeBtn.style.background = 'linear-gradient(135deg, #ffd700, #ff3e6c)';
+                upgradeBtn.style.border = 'none';
+                upgradeBtn.style.borderRadius = '10px';
+                upgradeBtn.style.color = '#080a10';
+                upgradeBtn.style.fontWeight = '800';
+                upgradeBtn.style.fontSize = '0.82rem';
+                upgradeBtn.style.cursor = 'pointer';
+                upgradeBtn.style.display = 'flex';
+                upgradeBtn.style.alignItems = 'center';
+                upgradeBtn.style.justifyContent = 'center';
+                upgradeBtn.style.gap = '6px';
+                upgradeBtn.style.boxShadow = '0 4px 12px rgba(255, 62, 108, 0.3)';
+                upgradeBtn.style.transition = 'all 0.2s';
+                upgradeBtn.innerHTML = `<i class="fa-solid fa-bolt" style="color: #080a10;"></i> ★6 강화 (10 FP)`;
+                
+                upgradeBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    upgradeCardToSix(key);
+                };
+                
+                upgradeBtn.onmouseover = () => {
+                    upgradeBtn.style.transform = 'scale(1.03)';
+                };
+                upgradeBtn.onmouseout = () => {
+                    upgradeBtn.style.transform = 'none';
+                };
+                
+                wrapper.appendChild(upgradeBtn);
+            }
+            
             grid.appendChild(wrapper);
         });
     }
@@ -157,4 +196,43 @@ function updateTotalCardCount() {
         total += playerDeck[key].quantity;
     });
     document.getElementById('totalCardsCount').innerText = total;
+}
+
+// 5.5 ★6 퀵 업그레이드 특전 구현
+function upgradeCardToSix(cardId) {
+    if (typeof userPoints === 'undefined' || userPoints < 10) {
+        alert("보유 포인트(FP)가 부족합니다. (10 FP 필요)");
+        return;
+    }
+    
+    const cardObj = playerDeck[cardId];
+    if (!cardObj) return;
+    
+    const confirmUpgrade = confirm(`정말로 10 FP를 사용하여 '${cardObj.card.name}' 선수를 ★6 각성으로 강화하시겠습니까?`);
+    if (!confirmUpgrade) return;
+    
+    userPoints -= 10;
+    cardObj.awakening = 6;
+    
+    try {
+        localStorage.setItem('fc_star_user_points', userPoints.toString());
+        localStorage.setItem('fc_star_player_deck', JSON.stringify(playerDeck));
+    } catch(e) {}
+    
+    if (typeof saveUserProgress === 'function') {
+        saveUserProgress();
+    }
+    
+    renderUserPoints();
+    renderDeck();
+    renderSquadFormation();
+    if (typeof syncJeonbukOvr === 'function') syncJeonbukOvr();
+    if (typeof updateMatchPreviewBoard === 'function') updateMatchPreviewBoard();
+    
+    // 파티클 성공 효과
+    if (typeof celebrateQuizSuccess === 'function') {
+        celebrateQuizSuccess();
+    }
+    
+    alert(`🎉 '${cardObj.card.name}' 선수가 ★6 각성(최종 강화)으로 고정 강화되었습니다! 🎉`);
 }

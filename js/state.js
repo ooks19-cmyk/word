@@ -25,6 +25,17 @@ try {
     userLevel = 1;
 }
 
+// 1.5 HARD MODE STATE
+let isHardMode = false;
+try {
+    const savedHardMode = localStorage.getItem('fc_star_is_hard_mode');
+    if (savedHardMode !== null) {
+        isHardMode = savedHardMode === 'true';
+    }
+} catch (e) {
+    isHardMode = false;
+}
+
 // 2. PLAYER DECK STATE (Loaded from LocalStorage with robust error handling)
 let playerDeck = {};
 try {
@@ -75,6 +86,15 @@ let isDeveloperMode = false;
 let leagueYear = 2026;
 let hallOfFame = [];
 let careerStats = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+let careerStatsHard = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+try {
+    const savedStats = localStorage.getItem('fc_star_career_stats');
+    if (savedStats) careerStats = JSON.parse(savedStats);
+} catch(e) {}
+try {
+    const savedStatsHard = localStorage.getItem('fc_star_career_stats_hard');
+    if (savedStatsHard) careerStatsHard = JSON.parse(savedStatsHard);
+} catch(e) {}
 
 let currentFormation = '4-4-2';
 try {
@@ -129,5 +149,55 @@ try {
 } catch (e) {
     squadCaptain = null;
 }
+
+// 6. ACHIEVEMENTS & LEAGUE WIN STREAKS STATE (업적 및 리그 연승 기록 상태)
+let userAchievements = {
+    double: { unlocked: false, rewarded: false },
+    treble: { unlocked: false, rewarded: false },
+    invincible: { unlocked: false, rewarded: false },
+    threepeat: { unlocked: false, rewarded: false },
+    fivepeat: { unlocked: false, rewarded: false },
+    collector: { unlocked: false, rewarded: false },
+    worldclass: { unlocked: false, rewarded: false },
+    hardworldclass: { unlocked: false, rewarded: false },
+    streak10: { unlocked: false, rewarded: false },
+    streak20: { unlocked: false, rewarded: false },
+    streak30: { unlocked: false, rewarded: false }
+};
+try {
+    const savedAchievements = localStorage.getItem('fc_star_user_achievements');
+    if (savedAchievements) {
+        const parsed = JSON.parse(savedAchievements);
+        if (parsed && typeof parsed === 'object') {
+            userAchievements = { ...userAchievements, ...parsed };
+        }
+    }
+} catch (e) {
+    // Fallback
+}
+
+let consecutiveLeagueTitles = 0;
+try {
+    const savedTitles = localStorage.getItem('fc_star_consecutive_titles');
+    if (savedTitles) {
+        consecutiveLeagueTitles = parseInt(savedTitles) || 0;
+    }
+} catch (e) {}
+
+let currentWinStreak = 0;
+try {
+    const savedCurrentStreak = localStorage.getItem('fc_star_current_win_streak');
+    if (savedCurrentStreak) {
+        currentWinStreak = parseInt(savedCurrentStreak) || 0;
+    }
+} catch (e) {}
+
+let maxWinStreak = 0;
+try {
+    const savedMaxStreak = localStorage.getItem('fc_star_max_win_streak');
+    if (savedMaxStreak) {
+        maxWinStreak = parseInt(savedMaxStreak) || 0;
+    }
+} catch (e) {}
 
 

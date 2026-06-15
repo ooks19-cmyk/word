@@ -481,7 +481,7 @@ function selectChoice(btnEl, selectedChoice, correctMeaning) {
                     
                     if (quizSolvedCount >= 5) {
                         // 퀴즈 완전 정복 성공
-                        userPoints += 1;
+                        userPoints += (typeof isHardMode !== 'undefined' && isHardMode) ? 2 : 1;
                         userLevel += 1;
                         
                         try {
@@ -498,6 +498,11 @@ function selectChoice(btnEl, selectedChoice, correctMeaning) {
                         
                         const compLvlVal = document.getElementById('completeLevelVal');
                         if (compLvlVal) compLvlVal.innerText = userLevel;
+                        
+                        const quizRewardPointVal = document.getElementById('quizRewardPointVal');
+                        if (quizRewardPointVal) {
+                            quizRewardPointVal.innerText = `+${(typeof isHardMode !== 'undefined' && isHardMode) ? 2 : 1} FP (가차 포인트) 획득!`;
+                        }
                         
                         const compOverlay = document.getElementById('quizCompleteOverlay');
                         if (compOverlay) compOverlay.style.display = 'flex';
@@ -587,7 +592,7 @@ function submitQuizAnswer() {
                     
                     if (quizSolvedCount >= 5) {
                         // QUIZ COMPLETED!
-                        userPoints += 1;
+                        userPoints += (typeof isHardMode !== 'undefined' && isHardMode) ? 2 : 1;
                         userLevel += 1; // 5문제를 완전 풀이 시 레벨 1 증가
                         
                         try {
@@ -606,6 +611,11 @@ function submitQuizAnswer() {
                         // Show Level Up in complete overlay
                         const compLvlVal = document.getElementById('completeLevelVal');
                         if (compLvlVal) compLvlVal.innerText = userLevel;
+                        
+                        const quizRewardPointVal = document.getElementById('quizRewardPointVal');
+                        if (quizRewardPointVal) {
+                            quizRewardPointVal.innerText = `+${(typeof isHardMode !== 'undefined' && isHardMode) ? 2 : 1} FP (가차 포인트) 획득!`;
+                        }
                         
                         // Show Success Screen
                         const compOverlay = document.getElementById('quizCompleteOverlay');
