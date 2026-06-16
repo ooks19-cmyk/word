@@ -305,3 +305,51 @@
         display: none;
     }
 }
+
+/* HARD MODE USER SPECIAL PRESENTATION IN FRIEND TAB */
+.friend-item.hard-mode {
+    border-color: rgba(255, 62, 108, 0.25);
+    background: rgba(255, 62, 108, 0.03);
+}
+
+.friend-item.hard-mode:hover {
+    border-color: rgba(255, 62, 108, 0.45);
+    background: rgba(255, 62, 108, 0.06);
+}
+
+.friend-item.hard-mode.active {
+    border-color: #ff3e6c;
+    background: rgba(255, 62, 108, 0.1);
+    box-shadow: 0 0 12px rgba(255, 62, 108, 0.2);
+}
+
+.friend-hard-badge {
+    background: linear-gradient(135deg, #ff3e6c 0%, #ff5b84 100%);
+    color: #fff;
+    font-size: 0.62rem;
+    font-weight: 900;
+    padding: 1px 5px;
+    border-radius: 5px;
+    margin-left: 5px;
+    vertical-align: middle;
+    border: 1px solid rgba(255, 62, 108, 0.4);
+    display: inline-block;
+    box-shadow: 0 2px 5px rgba(255, 62, 108, 0.25);
+}
+
+.friend-detail-hard-badge {
+    background: rgba(255, 62, 108, 0.15);
+    border: 1px solid rgba(255, 62, 108, 0.35);
+    color: #ff3e6c;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    width: fit-content;
+    margin-top: 4px;
+    animation: pulse 2s infinite;
+}
+

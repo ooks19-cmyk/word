@@ -155,14 +155,17 @@ function renderFriendList(users) {
             tempOvr = 70 + (parseInt(userLvl) > 15 ? 15 : parseInt(userLvl));
         }
 
+        const isHard = user.isHardMode === true;
+        const hardBadge = isHard ? `<span class="friend-hard-badge">HARD</span>` : '';
+
         const itemEl = document.createElement('div');
-        itemEl.className = 'friend-item' + (isMe ? ' my-account' : '') + (selectedFriendId === userId ? ' active' : '');
+        itemEl.className = 'friend-item' + (isMe ? ' my-account' : '') + (isHard ? ' hard-mode' : '') + (selectedFriendId === userId ? ' active' : '');
         itemEl.id = `friend-item-${userId}`;
         itemEl.onclick = () => selectFriend(userId);
 
         itemEl.innerHTML = `
             <div class="friend-item-info">
-                <span class="friend-item-name">${userId}</span>
+                <span class="friend-item-name">${userId}${hardBadge}</span>
                 <span class="friend-item-level">레벨 ${userLvl}</span>
             </div>
             <span class="friend-item-badge">OVR ${tempOvr}</span>
@@ -213,6 +216,24 @@ function selectFriend(userId) {
     // 1. 프로필 카드 바인딩
     document.getElementById('friendDetailId').innerText = user.id.toUpperCase();
     document.getElementById('friendDetailLevel').innerText = user.userLevel || 1;
+
+    // 기존에 생성된 뱃지가 있다면 제거
+    const existingBadge = document.getElementById('friendDetailHardBadge');
+    if (existingBadge) {
+        existingBadge.remove();
+    }
+    
+    // 어려움 모드인 경우 뱃지 추가
+    if (user.isHardMode === true) {
+        const summaryUserEl = document.querySelector('.friend-summary-user');
+        if (summaryUserEl) {
+            const badgeEl = document.createElement('span');
+            badgeEl.id = 'friendDetailHardBadge';
+            badgeEl.className = 'friend-detail-hard-badge';
+            badgeEl.innerHTML = `<i class="fa-solid fa-fire-flame-curved" style="margin-right: 4px;"></i>어려움 모드`;
+            summaryUserEl.appendChild(badgeEl);
+        }
+    }
 
     // 통산 전적 바인딩
     const career = user.careerStats || { w: 0, d: 0, l: 0, gf: 0, ga: 0 };
