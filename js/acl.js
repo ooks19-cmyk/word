@@ -98,6 +98,7 @@ function resetAclStateData() {
             const randDiff = Math.floor(Math.random() * 4) - 2; // -2, -1, 0, 1 중 하나
             adjustedRating = Math.max(55, playerOvr + randDiff);
         }
+        adjustedRating = Math.min(adjustedRating, 92); // 92 캡 적용
         
         initializedTeams.push({
             id: team.id,
@@ -340,9 +341,11 @@ function updateAclPlayerTeamOvr() {
             if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {
                 const leagueTeam = leagueTeams.find(t => t.id === team.id);
                 if (leagueTeam && leagueTeam.rating !== undefined) {
-                    team.rating = leagueTeam.rating;
+                    team.rating = Math.min(leagueTeam.rating, 92);
                 }
             }
+        } else {
+            team.rating = Math.min(team.rating, 92);
         }
     });
     
@@ -356,9 +359,11 @@ function updateAclPlayerTeamOvr() {
                     if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {
                         const leagueTeam = leagueTeams.find(t => t.id === match.team1.id);
                         if (leagueTeam && leagueTeam.rating !== undefined) {
-                            match.team1.rating = leagueTeam.rating;
+                            match.team1.rating = Math.min(leagueTeam.rating, 92);
                         }
                     }
+                } else {
+                    match.team1.rating = Math.min(match.team1.rating, 92);
                 }
             }
             if (match.team2) {
@@ -368,9 +373,11 @@ function updateAclPlayerTeamOvr() {
                     if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {
                         const leagueTeam = leagueTeams.find(t => t.id === match.team2.id);
                         if (leagueTeam && leagueTeam.rating !== undefined) {
-                            match.team2.rating = leagueTeam.rating;
+                            match.team2.rating = Math.min(leagueTeam.rating, 92);
                         }
                     }
+                } else {
+                    match.team2.rating = Math.min(match.team2.rating, 92);
                 }
             }
         });

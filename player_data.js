@@ -89,6 +89,31 @@ const CARDS_DATABASE = {
             phy: 68
         }
     },
+    "yang_hyun_jun": {
+        id: "yang_hyun_jun",
+        name: "양현준",
+        rating: 85,
+        position: "RW",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "CELTIC",
+        image: "player/양현준.webp",
+        rarity: "special",
+        description: "폭발적인 스피드와 저돌적인 드리블 돌파력을 지닌 대한민국의 차세대 윙어 양현준입니다. 과감한 1대1 돌파와 날카로운 크로스로 경기장 측면을 지배하는 대한민국 국가대표팀의 미래이자 스페셜 공격수입니다.",
+        theme: {
+            primary: "#da1a32",
+            secondary: "#1d2b58",
+            glow: "#ff2a55"
+        },
+        stats: {
+            pac: 88,
+            sho: 82,
+            pas: 79,
+            dri: 86,
+            def: 42,
+            phy: 70
+        }
+    },
     "lee_kang_in": {
         id: "lee_kang_in",
         name: "이강인",
@@ -1337,6 +1362,31 @@ const CARDS_DATABASE = {
             dri: 90,
             def: 35,
             phy: 75
+        }
+    },
+    "lionel_messi": {
+        id: "lionel_messi",
+        name: "리오넬 메시",
+        rating: 93,
+        position: "RW",
+        nation: "Argentina",
+        nationFlag: "https://flagcdn.com/w40/ar.png",
+        club: "INTER MIAMI",
+        image: "player/메시.png",
+        rarity: "worldclass",
+        description: "축구 역사상 가장 위대한 선수(G.O.A.T)로 꼽히는 리오넬 메시입니다. 신의 경지에 다다른 플레이메이킹, 경이로운 볼 컨트롤, 그리고 상대 수비를 완전히 무력화시키는 압도적인 시야와 득점력을 지닌 축구계의 살아있는 신화이자 월드클래스 거장입니다.",
+        theme: {
+            primary: "#000a20",
+            secondary: "#4facfe",
+            glow: "#00f2fe"
+        },
+        stats: {
+            pac: 86,
+            sho: 91,
+            pas: 92,
+            dri: 94,
+            def: 40,
+            phy: 70
         }
     }
 };

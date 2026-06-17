@@ -80,6 +80,13 @@ try {
 let currentUser = null;
 let authMode = 'login'; // 'login' or 'register'
 let isAuthSubmitting = false;
+let lastSyncedUpdatedAt = "";
+try {
+    const savedSyncedTime = localStorage.getItem('fc_star_last_synced_updated_at');
+    if (savedSyncedTime) lastSyncedUpdatedAt = savedSyncedTime;
+} catch (e) {
+    lastSyncedUpdatedAt = "";
+}
 
 // DEVELOPER MODE & MULTI-YEAR LEAGUE STATE VARIABLES
 let isDeveloperMode = false;

@@ -471,6 +471,9 @@ function calculateFinalMatchOvrs(venueType, isPlayerHome, opponentBaseOvr, isFri
         }
     }
     
+    // 최종 매치 상대팀 OVR 최대 92 제한
+    opponentOvr = Math.min(opponentOvr, 92);
+    
     return { playerOvr, opponentOvr };
 }
 

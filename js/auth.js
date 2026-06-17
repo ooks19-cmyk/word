@@ -133,7 +133,8 @@ function saveUserProgress() {
         friendlyCurrentOpponentIndex: typeof friendlyCurrentOpponentIndex !== 'undefined' ? friendlyCurrentOpponentIndex : 0,
         friendlyMatchesToday: typeof friendlyMatchesToday !== 'undefined' ? friendlyMatchesToday : 0,
         friendlyMatchLastDate: typeof friendlyMatchLastDate !== 'undefined' ? friendlyMatchLastDate : "",
-        friendlySeasonStartDate: localStorage.getItem(`fc_star_friendly_season_start_date_${myId}`) || new Date().toISOString()
+        friendlySeasonStartDate: localStorage.getItem(`fc_star_friendly_season_start_date_${myId}`) || new Date().toISOString(),
+        lastSyncedUpdatedAt: lastSyncedUpdatedAt
     };
     
     dbService.saveProgress(currentUser, progressData);
@@ -144,6 +145,7 @@ function syncUserDataOnLogin(userData) {
     
     try {
         // Restore progress
+        lastSyncedUpdatedAt = userData.updatedAt || "";
         userPoints = userData.userPoints || 0;
         userLevel = userData.userLevel || 1;
         playerDeck = userData.playerDeck || {};
@@ -311,6 +313,7 @@ function syncUserDataOnLogin(userData) {
         localStorage.setItem('fc_star_career_stats_hard', JSON.stringify(careerStatsHard));
         localStorage.setItem('fc_star_squad_numbers', JSON.stringify(squadNumbers));
         localStorage.setItem('fc_star_is_hard_mode', isHardMode.toString());
+        localStorage.setItem('fc_star_last_synced_updated_at', lastSyncedUpdatedAt);
         localStorage.setItem('fc_star_user_achievements', JSON.stringify(userAchievements));
         localStorage.setItem('fc_star_consecutive_titles', consecutiveLeagueTitles.toString());
         localStorage.setItem('fc_star_current_win_streak', currentWinStreak.toString());

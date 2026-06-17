@@ -809,7 +809,7 @@ function renderSquadNumbersList() {
                 playerNameAndOvr = `${cardData.name} <span class="badge-ovr">${starStr}OVR ${cardData.rating}</span>`;
                 
                 // 등급 판정
-                if (cardData.rarity === 'legend') {
+                if (cardData.rarity === 'legend' || cardData.rarity === 'worldclass') {
                     cardClass = 'legend';
                 } else if (cardData.rating >= 80) {
                     cardClass = 'premium';

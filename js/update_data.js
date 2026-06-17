@@ -2,12 +2,25 @@
 
 const UPDATE_LOGS = [
     {
-        version: "v1.8.0",
-        date: "2026.06.15",
+        version: "v1.9.0",
+        date: "2026.06.18",
         latest: true,
         borderColor: "#ff3e6c",
         titleColor: "#ff3e6c",
         badgeText: "LATEST",
+        items: [
+            "<strong>상대팀 최대 OVR 92 제한 (밸런스 패치)</strong>: 게임 내 모든 매치 모드(K리그1, 코리아컵, AFC 챔피언스리그, 친선전)에서 상대팀(또는 AI 봇, 타 유저)의 전력 OVR이 최대 92를 초과하지 못하도록 한계값 캡(Cap)을 적용했습니다. 이를 통해 전력 격차로 인한 급격한 난이도 상승을 방지하고 게임 밸런스를 균형 있게 조절하였습니다.",
+            "<strong>양현준 스페셜 카드 신규 출시</strong>: 대한민국 국가대표팀의 차세대 윙어인 <strong>양현준</strong>(OVR 85, RW) 카드가 스페셜 등급으로 새롭게 추가되었습니다. 소속 클럽은 CELTIC으로 연동되었으며, 이미지 포맷은 <strong>webp</strong> 파일로 안전하게 결합되었습니다. 또한 사용자 요청에 맞춰 <strong>슈팅(SHO) 능력치를 82</strong>로 상향 보정하여 출시했습니다.",
+            "<strong>PWA 오프라인 캐싱 최신화</strong>: 서비스 워커의 <code>CACHE_NAME</code>을 <code>'fc-star-v185'</code>로 판올림하고, <code>index.html</code> 내 로드되는 각 스크립트 자산들의 캐시 버전을 일제히 상향하여 유저 브라우저에 신규 카드 데이터 및 변경된 OVR 캡 알고리즘이 캐시 지연 없이 즉각적으로 반영되도록 개선했습니다."
+        ]
+    },
+    {
+        version: "v1.8.0",
+        date: "2026.06.15",
+        latest: false,
+        borderColor: "#ffd700",
+        titleColor: "#ffd700",
+        badgeText: "",
         items: [
             "<strong>명예의 전당 하위 탭 분리 및 어려움 모드(Hard Mode) 전격 출시</strong>: 명예의 전당 탭 최상단에 일반/어려움/지옥/업적 4개의 하위 메뉴바가 신설되었습니다. 일반 모드 도중 어려움 모드 탭을 누르면 즉시 확인 팝업을 거쳐 '어려움 진입 모달'이 활성화됩니다.",
             "<strong>어려움 모드 진입 및 이적 규칙</strong>: 어려움 모드 진입 시, 현재 덱의 전체 카드 대신 오직 <strong>베스트 11 포메이션에 배치된 11명의 선수</strong> 중 <strong>정확히 3명</strong>의 카드만 선택해 어려움 모드로 보유한 채 진입할 수 있습니다. 나머지 카드 및 리그/컵/아챔 진행 상황은 전면 리셋됩니다.",

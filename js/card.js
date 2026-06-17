@@ -54,6 +54,7 @@ function generateCardHTML(cardData) {
     let badgeText = '일반';
     let badgeShadow = 'none';
     let badgeBorder = '1px solid rgba(255, 255, 255, 0.2)';
+    let imageGradeClass = 'grade-gold';
 
     if (rarity === 'legend') {
         badgeBg = 'linear-gradient(135deg, #ff0055 0%, #ffaa00 50%, #ffd700 100%)';
@@ -61,12 +62,21 @@ function generateCardHTML(cardData) {
         badgeText = '👑 전설';
         badgeShadow = '0 0 10px rgba(255, 215, 0, 0.7), 0 2px 4px rgba(0,0,0,0.5)';
         badgeBorder = '1px solid rgba(255, 255, 255, 0.4)';
+        imageGradeClass = 'grade-legend';
     } else if (rarity === 'special') {
         badgeBg = 'linear-gradient(135deg, #da1a32 0%, #1d2b58 100%)'; // 대한민국 국가대표 Red & Navy 테마
         badgeColor = '#fff';
         badgeText = '✨ 스페셜';
         badgeShadow = '0 0 12px rgba(218, 26, 50, 0.8), 0 2px 4px rgba(0,0,0,0.5)';
         badgeBorder = '1px solid rgba(255, 255, 255, 0.5)';
+        imageGradeClass = 'grade-elite';
+    } else if (rarity === 'worldclass') {
+        badgeBg = 'linear-gradient(135deg, #00f2fe 0%, #4facfe 50%, #0000ff 100%)'; // 월드클래스 테마
+        badgeColor = '#fff';
+        badgeText = '🌍 월드클래스';
+        badgeShadow = '0 0 12px rgba(0, 242, 254, 0.8), 0 2px 4px rgba(0,0,0,0.5)';
+        badgeBorder = '1px solid rgba(0, 242, 254, 0.5)';
+        imageGradeClass = 'grade-worldclass';
     }
 
     const rarityBadgeHTML = `
@@ -101,7 +111,7 @@ function generateCardHTML(cardData) {
         </div>
         
         <!-- Decorated Image Frame (Real Player Portrait with neon background, frame border, and hologram badge) -->
-        <div class="card-image-container grade-gold">
+        <div class="card-image-container ${imageGradeClass}">
             <div class="card-portrait-background" style="background: radial-gradient(circle at 50% 40%, ${cardData.theme.primary}aa 0%, #080a10 85%);">
                 <!-- Tech grid line overlay inside portrait -->
                 <div class="portrait-grid"></div>

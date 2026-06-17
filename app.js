@@ -366,6 +366,7 @@ function checkAndCloseActiveModal() {
         { id: 'revealModal', active: (el) => el.classList.contains('active'), close: () => { if (typeof closeRevealModal === 'function') closeRevealModal(); } },
         { id: 'updateLogModal', active: (el) => el.classList.contains('active'), close: () => { if (typeof closeUpdateLogModal === 'function') closeUpdateLogModal(); } },
         { id: 'advisorModal', active: (el) => el.classList.contains('active'), close: () => { if (typeof closeCoachAdvisorModal === 'function') closeCoachAdvisorModal(); } },
+        { id: 'hardModeExplainModal', active: (el) => el.classList.contains('active') || el.style.display === 'flex', close: () => { if (typeof closeHardModeExplainModal === 'function') closeHardModeExplainModal(); } },
         { id: 'hardModeEntryModal', active: (el) => el.classList.contains('active') || el.style.display === 'flex', close: () => { if (typeof closeHardModeEntryModal === 'function') closeHardModeEntryModal(); } },
         { id: 'achievementDetailModal', active: (el) => el.style.display === 'flex' || el.classList.contains('active'), close: () => { if (typeof closeAchievementModal === 'function') closeAchievementModal(); } }
     ];
@@ -397,20 +398,7 @@ function closeUpdateLogModal() {
 // 명예의 전당 하위 탭 전환
 function switchFameSubTab(subTabName) {
     if (subTabName === 'hard' && !isHardMode) {
-        const confirmGo = confirm(
-            "어려움 모드로 전환하시겠습니까?\n\n" +
-            "★ 어려움 모드 특전 및 규칙 안내 ★\n" +
-            "- 승리가 약간 어려워 집니다 (경기 시 공격 찬스 확률 -5%).\n" +
-            "- 3명의 선수는 데리고 갈 수 있고, 그중 한 명은 6강화 보너스를 드립니다.\n" +
-            "- 어려움 모드 진입 보너스로 즉시 10포인트(FP)를 선물해 드립니다.\n" +
-            "- 어려움 모드에선 단어 퀴즈를 풀면 2포인트를 줍니다.\n" +
-            "- 나의 덱에서 ★5 각성 카드를 10 FP로 ★6 각성시킬 수 있는 특전이 주어집니다.\n\n" +
-            "※ 주의: 선택된 3명 이외의 카드와 리그/컵/아챔 성적은 모두 초기화됩니다.\n\n" +
-            "어려움 모드 진입 설정을 진행하시겠습니까?"
-        );
-        if (confirmGo) {
-            openHardModeEntryModal();
-        }
+        openHardModeExplainModal();
         return;
     }
     
@@ -459,6 +447,28 @@ function switchFameSubTab(subTabName) {
     if (typeof playClickSound === 'function') {
         try { playClickSound(); } catch (e) {}
     }
+}
+
+// 어려움 모드 안내 모달 제어 함수군
+function openHardModeExplainModal() {
+    const modal = document.getElementById('hardModeExplainModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        modal.classList.add('active');
+    }
+}
+
+function closeHardModeExplainModal() {
+    const modal = document.getElementById('hardModeExplainModal');
+    if (modal) {
+        modal.style.display = 'none';
+        modal.classList.remove('active');
+    }
+}
+
+function proceedToHardModeEntry() {
+    closeHardModeExplainModal();
+    openHardModeEntryModal();
 }
 
 // 어려움 진입 모달 오픈
@@ -594,7 +604,7 @@ function submitHardModeEntry() {
         "[주의 및 규칙 확인]\n" +
         "- 선택한 3명 이외의 모든 카드와 리그/컵/아챔 성적이 전면 리셋됩니다.\n" +
         "- 지정하신 1명의 선수가 ★6 각성(최종 강화) 상태로 지급됩니다.\n" +
-        "- 진입 선물 보너스로 10 FP가 즉시 지급됩니다.\n" +
+        "- 진입 선물 보너스로 10 FP 및 월드클래스 '리오넬 메시' 카드가 지급됩니다.\n" +
         "- 승리가 약간 어려워집니다 (공격 찬스 확률 -5%).\n" +
         "- 단어 퀴즈 클리어 시 2포인트를 줍니다.\n\n" +
         "이대로 어려움 모드를 시작하시겠습니까?"
@@ -614,6 +624,16 @@ function submitHardModeEntry() {
     if (playerDeck[targetCardId]) {
         playerDeck[targetCardId].awakening = 6;
         playerDeck[targetCardId].quantity = 1;
+    }
+    
+    // 2.5. 어려움 모드 진입 보상으로 월드 클래스 카드(리오넬 메시) 지급
+    const messiId = "lionel_messi";
+    if (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE[messiId]) {
+        playerDeck[messiId] = {
+            card: CARDS_DATABASE[messiId],
+            quantity: 1,
+            awakening: 0
+        };
     }
     
     // 3. 포메이션 초기화 (3명 제외 포지션 비우기)
@@ -703,7 +723,7 @@ function submitHardModeEntry() {
     // 테마 후광(Glow) 갱신
     updateGlowTheme();
     
-    alert(`🔥 어려움 모드가 시작되었습니다! 🔥\n★6 각성 강화 혜택과 진입 선물 10 FP가 지급되었습니다!\n주력 선수를 앞세워 리그 정상을 향해 도전해보세요!`);
+    alert(`🔥 어려움 모드가 시작되었습니다! 🔥\n★6 각성 강화 혜택, 진입 선물 10 FP, 그리고 월드클래스 '리오넬 메시' 카드가 지급되었습니다!\n주력 선수를 앞세워 리그 정상을 향해 도전해보세요!`);
 }
 
 // 어려움/지옥모드 상태에 따른 팀 엠블럼 후광(Glow) 테마 갱신 헬퍼

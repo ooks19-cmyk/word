@@ -10,31 +10,43 @@ function openPack() {
 
     let keys = Object.keys(CARDS_DATABASE).filter(k => !(playerDeck[k] && playerDeck[k].awakening >= 5));
     
+    // 월드 클래스 등급은 어려움 모드 이상에서만 출현하도록 제한
+    if (typeof isHardMode === 'undefined' || !isHardMode) {
+        keys = keys.filter(k => CARDS_DATABASE[k].rarity !== 'worldclass');
+    }
+    
     // 만약 모든 카드가 5각성이어서 뽑을 카드가 없다면 폴백으로 전체 카드 허용
     if (keys.length === 0) {
         keys = Object.keys(CARDS_DATABASE);
+        if (typeof isHardMode === 'undefined' || !isHardMode) {
+            keys = keys.filter(k => CARDS_DATABASE[k].rarity !== 'worldclass');
+        }
     }
     
     const legendKeys = keys.filter(k => CARDS_DATABASE[k].rarity === 'legend');
     const specialKeys = keys.filter(k => CARDS_DATABASE[k].rarity === 'special');
+    const worldclassKeys = keys.filter(k => CARDS_DATABASE[k].rarity === 'worldclass');
     const normalKeys = keys.filter(k => CARDS_DATABASE[k].rarity === 'normal');
     
     let chosenKey = "";
     const rand = Math.random(); // 0.0 ~ 1.0
     
-    // Each individual Legend and Special card has exactly a 1% probability
+    // Each individual Legend, Special and World Class card has exactly a 1% probability
     const totalLegendProb = legendKeys.length * 0.01;
     const totalSpecialProb = specialKeys.length * 0.01;
-    const totalPremiumProb = totalLegendProb + totalSpecialProb;
+    const totalWorldclassProb = worldclassKeys.length * 0.01;
+    const totalPremiumProb = totalLegendProb + totalSpecialProb + totalWorldclassProb;
     
     if (rand < totalPremiumProb) {
-        // Draw from the premium pool (Legend or Special)
-        if (rand < totalLegendProb && legendKeys.length > 0) {
+        // Draw from the premium pool (World Class, Legend or Special)
+        if (rand < totalWorldclassProb && worldclassKeys.length > 0) {
+            chosenKey = worldclassKeys[Math.floor(Math.random() * worldclassKeys.length)];
+        } else if (rand < (totalWorldclassProb + totalLegendProb) && legendKeys.length > 0) {
             chosenKey = legendKeys[Math.floor(Math.random() * legendKeys.length)];
         } else if (specialKeys.length > 0) {
             chosenKey = specialKeys[Math.floor(Math.random() * specialKeys.length)];
         } else {
-            chosenKey = legendKeys[Math.floor(Math.random() * legendKeys.length)];
+            chosenKey = keys[Math.floor(Math.random() * keys.length)]; // Fallback
         }
     } else {
         // Draw from the normal pool (or fallback if empty)

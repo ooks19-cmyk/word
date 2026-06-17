@@ -1474,6 +1474,44 @@
         </div>
     </div>
 
+    <!-- HARD MODE EXPLAIN MODAL -->
+    <div class="drawer-overlay" id="hardModeExplainModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(4, 5, 8, 0.82); backdrop-filter: blur(10px); z-index: 1300; align-items: center !important; justify-content: center !important;" onclick="closeHardModeExplainModal()">
+        <div class="tactic-modal-drawer" style="max-width: 440px; width: 92%; height: auto; max-height: 85vh; border-radius: 28px; display: flex; flex-direction: column; background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%); border: 2px solid rgba(255, 62, 108, 0.25); overflow: hidden; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 30px rgba(255, 62, 108, 0.2);" onclick="event.stopPropagation()">
+            <div class="drawer-header" style="display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.02);">
+                <h3 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin: 0; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-fire-flame-curved" style="color: #ff3e6c;"></i>
+                    <span>어려움 모드 안내</span>
+                </h3>
+                <button class="btn-close-drawer" onclick="closeHardModeExplainModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="drawer-content" style="padding: 1.5rem; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 1.2rem;">
+                <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; text-align: center; margin: 0; word-break: keep-all;">
+                    더 높은 난이도와 특별한 혜택이 적용되는 <strong>어려움 모드</strong>에 도전하시겠습니까?
+                </p>
+                
+                <div style="display: flex; flex-direction: column; gap: 0.65rem; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); padding: 1.2rem; border-radius: 16px;">
+                    <div style="font-size: 0.88rem; font-weight: 800; color: #ff3e6c; margin-bottom: 0.2rem;">⚡ 경기가 쪼금 더 어려워져요!</div>
+                    <div style="font-size: 0.82rem; color: #cbd5e1; display: flex; gap: 6px;"><i class="fa-solid fa-circle-minus" style="color: #ff3e6c; margin-top: 2px;"></i> <span>경기가 약간 더 쫄깃해져요! (골 찬스 확률이 조금 줄어들어요 ⚽)</span></div>
+                    <div style="font-size: 0.82rem; color: #cbd5e1; display: flex; gap: 6px;"><i class="fa-solid fa-circle-minus" style="color: #ff3e6c; margin-top: 2px;"></i> <span>아끼는 에이스 선수 3명만 데려갈 수 있고, 다른 카드와 경기 기록은 새로 시작해요! 🔄</span></div>
+                    
+                    <div style="font-size: 0.88rem; font-weight: 800; color: #00ff87; margin-top: 0.6rem; margin-bottom: 0.2rem;">🎁 우주 최강 선물 꾸러미!</div>
+                    <div style="font-size: 0.82rem; color: #cbd5e1; display: flex; gap: 6px;"><i class="fa-solid fa-gift" style="color: #00ff87; margin-top: 2px;"></i> <span>세계 최고의 축구신 <strong>'리오넬 메시'</strong> 카드를 바로 선물해요! 🌍</span></div>
+                    <div style="font-size: 0.82rem; color: #cbd5e1; display: flex; gap: 6px;"><i class="fa-solid fa-gift" style="color: #00ff87; margin-top: 2px;"></i> <span>카드 뽑기 보너스 포인트 <strong>10 FP</strong>를 바로 드려요! 🪙</span></div>
+                    <div style="font-size: 0.82rem; color: #cbd5e1; display: flex; gap: 6px;"><i class="fa-solid fa-gift" style="color: #00ff87; margin-top: 2px;"></i> <span>데려가는 선수 중 1명을 <strong>최종 진화 ★6성</strong>으로 엄청 강하게 만들어 줘요! ⭐</span></div>
+                    <div style="font-size: 0.82rem; color: #cbd5e1; display: flex; gap: 6px;"><i class="fa-solid fa-gift" style="color: #00ff87; margin-top: 2px;"></i> <span>영어 단어 퀴즈를 풀면 포인트를 <strong>2배(+2 FP)로 듬뿍</strong> 드려요! 🔠</span></div>
+                    <div style="font-size: 0.82rem; color: #cbd5e1; display: flex; gap: 6px;"><i class="fa-solid fa-gift" style="color: #00ff87; margin-top: 2px;"></i> <span>내 덱에 있는 ★5성 카드를 10 FP로 <strong>★6성 최종 카드</strong>로 업그레이드할 수 있어요!</span></div>
+                    <div style="font-size: 0.82rem; color: #cbd5e1; display: flex; gap: 6px;"><i class="fa-solid fa-gift" style="color: #00ff87; margin-top: 2px;"></i> <span>카드 뽑기 상자에서 번쩍이는 멋진 <strong>월드클래스 카드</strong>들이 나와요!</span></div>
+                </div>
+            </div>
+            
+            <div class="drawer-footer" style="padding: 1.2rem 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.02); display: flex; gap: 10px;">
+                <button style="flex: 1; padding: 0.75rem 0; font-size: 0.88rem; font-weight: 800; cursor: pointer; border-radius: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); color: #cbd5e1;" onclick="closeHardModeExplainModal()">취소</button>
+                <button style="flex: 1; padding: 0.75rem 0; font-size: 0.88rem; font-weight: 800; cursor: pointer; border-radius: 12px; background: linear-gradient(135deg, #ff3e6c, #ff1a55); border: none; color: #fff; box-shadow: 0 4px 15px rgba(255, 62, 108, 0.35);" onclick="proceedToHardModeEntry()">도전하기</button>
+            </div>
+        </div>
+    </div>
+
     <!-- HARD MODE ENTRY MODAL -->
     <div class="drawer-overlay" id="hardModeEntryModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(4, 5, 8, 0.82); backdrop-filter: blur(10px); z-index: 1300; align-items: center !important; justify-content: center !important;" onclick="closeHardModeEntryModal()">
         <div class="tactic-modal-drawer" style="max-width: 460px; width: 92%; height: auto; max-height: 85vh; border-radius: 28px; display: flex; flex-direction: column; background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%); border: 2px solid rgba(255, 62, 108, 0.25); overflow: hidden; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 30px rgba(255, 62, 108, 0.2);" onclick="event.stopPropagation()">
@@ -1518,23 +1556,23 @@
         </div>
     </div>
 
-    <script src="player_data.js?v=1.18"></script>
+    <script src="player_data.js?v=1.19"></script>
     <script src="quiz_data.js?v=1.3"></script>
     <script src="other_teams_data.js?v=1.4"></script>
     <script src="db.js?v=1.9"></script>
     <script src="sound.js?v=1.2"></script>
     <script src="js/state.js"></script>
     <script src="js/utils.js"></script>
-    <script src="js/card.js?v=1.3"></script>
+    <script src="js/card.js?v=1.4"></script>
     <script src="quiz.js?v=1.1"></script>
     <script src="js/pack.js?v=1.3"></script>
     <script src="js/deck.js"></script>
     <script src="js/squad.js?v=1.3"></script>
-    <script src="js/match_algorithm.js?v=1.8"></script>
-    <script src="js/league.js?v=2.3"></script>
-    <script src="js/cup.js?v=2.0"></script>
-    <script src="js/acl.js?v=2.3"></script>
-    <script src="js/friendly.js?v=1.7"></script>
+    <script src="js/match_algorithm.js?v=1.9"></script>
+    <script src="js/league.js?v=2.4"></script>
+    <script src="js/cup.js?v=2.1"></script>
+    <script src="js/acl.js?v=2.4"></script>
+    <script src="js/friendly.js?v=1.8"></script>
     <script src="js/achievements.js?v=1.0"></script>
     <!-- 수석코치 조언 플로팅 버튼 -->
     <button id="floatingAdvisorBtn" class="floating-advisor-btn" onclick="showCoachAdvice()" title="수석코치의 조언" style="display: none;">

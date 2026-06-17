@@ -386,13 +386,13 @@ function resetLeagueSeasonState() {
             if (team.id === 'jeonbuk') {
                 team.rating = pureOvr;
             } else if (strongTeams.includes(team.id)) {
-                // 강팀 4팀: 플레이어 순수 OVR + 0 ~ +2 범위 랜덤
+                // 강팀 4팀: 플레이어 순수 OVR + 0 ~ +2 범위 랜덤 (최대 92 제한)
                 const offset = Math.floor(Math.random() * 3); // 0, 1, 2
-                team.rating = pureOvr + offset;
+                team.rating = Math.min(pureOvr + offset, 92);
             } else {
-                // 약팀 8팀: 플레이어 순수 OVR 0 ~ -5 범위 랜덤
+                // 약팀 8팀: 플레이어 순수 OVR 0 ~ -5 범위 랜덤 (최대 92 제한)
                 const offset = -Math.floor(Math.random() * 6); // 0, -1, -2, -3, -4, -5
-                team.rating = pureOvr + offset;
+                team.rating = Math.min(pureOvr + offset, 92);
             }
         });
     }

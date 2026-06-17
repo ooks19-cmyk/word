@@ -57,7 +57,7 @@ function generateVirtualFriendlyOpponents() {
     return selected.map((team, idx) => {
         // OVR +-2 오프셋 결정
         const offset = offsets[Math.floor(Math.random() * offsets.length)];
-        const rating = Math.max(60, playerOvr + offset);
+        const rating = Math.min(Math.max(60, playerOvr + offset), 92);
         
         return {
             id: `virtual_${team.name.replace(/\s+/g, '_').toLowerCase()}`,
@@ -151,7 +151,11 @@ function getOpponentTeamAverageStat(opponentData, statKey) {
 function getOpponentTotalOvr(opponentData) {
     let avgOvr = getOpponentPureOvr(opponentData);
     const formationBonus = getOpponentFormationTacticStatus(opponentData);
-    return avgOvr + formationBonus;
+    const totalOvr = avgOvr + formationBonus;
+    if (opponentData && opponentData.id !== 'jeonbuk') {
+        return Math.min(totalOvr, 92);
+    }
+    return totalOvr;
 }
 
 // Open Friendly Match modal and render other users list (excluding self and ooks12)
@@ -706,10 +710,15 @@ function processAndRenderStandings(allUsers, myId) {
             calculatedOvr = u.userLevel ? 70 + parseInt(u.userLevel) : 72;
         }
         
+        let displayRating = u.rating || calculatedOvr;
+        if (u.id !== 'jeonbuk' && u.id !== myId) {
+            displayRating = Math.min(displayRating, 92);
+        }
+        
         return {
             id: u.id,
             name: u.id.toUpperCase(),
-            rating: u.rating || calculatedOvr,
+            rating: displayRating,
             friendlyMatchesHistory: u.friendlyMatchesHistory,
             isMock: false
         };
