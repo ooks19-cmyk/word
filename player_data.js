@@ -517,7 +517,7 @@ const CARDS_DATABASE = {
     "cho_wi_je": {
         id: "cho_wi_je",
         name: "조위제",
-        rating: 75,
+        rating: 77,
         position: "CB",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
@@ -531,11 +531,11 @@ const CARDS_DATABASE = {
             glow: "#e2e8f0"
         },
         stats: {
-            pac: 72,
+            pac: 80,
             sho: 38,
             pas: 58,
             dri: 59,
-            def: 76,
+            def: 80,
             phy: 75
         }
     },
@@ -1387,6 +1387,81 @@ const CARDS_DATABASE = {
             dri: 94,
             def: 40,
             phy: 70
+        }
+    },
+    "kim_moon_hwan": {
+        id: "kim_moon_hwan",
+        name: "김문환",
+        rating: 83,
+        position: "RB",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "KOREA",
+        image: "player2/김문환.webp",
+        rarity: "special",
+        description: "대한민국 축구 국가대표팀의 지치지 않는 우측 풀백 김문환입니다. 왕성한 활동량을 바탕으로 한 헌신적인 수비와 폭발적인 오버래핑, 그리고 전방으로 공급하는 위협적인 얼리 크로스에 강점이 있는 스페셜 측면 수비수입니다.",
+        theme: {
+            primary: "#da1a32",
+            secondary: "#1d2b58",
+            glow: "#ff2a55"
+        },
+        stats: {
+            pac: 85,
+            sho: 62,
+            pas: 77,
+            dri: 79,
+            def: 81,
+            phy: 78
+        }
+    },
+    "yang_min_hyuk": {
+        id: "yang_min_hyuk",
+        name: "양민혁",
+        rating: 84,
+        position: "RW",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "KOREA",
+        image: "player2/양민혁.png",
+        rarity: "special",
+        description: "대한민국 축구의 초신성이자 폭발적인 스피드와 저돌적인 드리블을 갖춘 공격수 양민혁입니다. 나이답지 않은 침착한 결정력과 예측 불가능한 돌파력으로 상대 측면 수비를 허무는 특급 윙어입니다.",
+        theme: {
+            primary: "#da1a32",
+            secondary: "#1d2b58",
+            glow: "#ff2a55"
+        },
+        stats: {
+            pac: 88,
+            sho: 80,
+            pas: 78,
+            dri: 84,
+            def: 38,
+            phy: 68
+        }
+    },
+    "lee_myung_jae": {
+        id: "lee_myung_jae",
+        name: "이명재",
+        rating: 83,
+        position: "LB",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "KOREA",
+        image: "player2/이명재.webp",
+        rarity: "special",
+        description: "대한민국 축구 국가대표팀과 울산 HD의 날카로운 킥력을 장착한 좌측 풀백 이명재입니다. 안정적인 수비 위치 선정과 상대 측면을 허무는 정교한 궤적의 크로스로 공수 양면에서 맹활약하는 스페셜 풀백입니다.",
+        theme: {
+            primary: "#da1a32",
+            secondary: "#1d2b58",
+            glow: "#ff2a55"
+        },
+        stats: {
+            pac: 82,
+            sho: 64,
+            pas: 81,
+            dri: 77,
+            def: 82,
+            phy: 79
         }
     }
 };

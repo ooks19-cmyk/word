@@ -1019,12 +1019,31 @@ function calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentRating, 
     const playerChanceBonus = Math.max(0, (chancePlayerStat - opponentRating) * 0.01);
     const maxScoreProb = 0.50;
     const minScoreProb = 0.10;
-    return Math.min(maxScoreProb, Math.max(minScoreProb, 0.24 + (activeDiff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus));
+    const calculated = 0.24 + (activeDiff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus;
+    const prob = Math.min(maxScoreProb, Math.max(minScoreProb, calculated));
+    
+    console.log(`[시뮬레이션] 🟢 플레이어 슈팅 연산:
+    - OVR 차이 보정: ${(activeDiff * 0.019 * 100).toFixed(1)}% (격차: ${activeDiff})
+    - 슈팅 스탯 보정: ${(playerChanceBonus * 100).toFixed(1)}% (슈팅: ${chancePlayerStat} vs 수비: ${opponentRating})
+    - 전술/포메이션 보정: ${(formationScoreBoost * 100).toFixed(1)}%
+    - 전술 적합도 보정: ${(suitabilityBonus * 100).toFixed(1)}%
+    - 최종 계산 득점 확률: ${(prob * 100).toFixed(1)}% (보정 전: ${(calculated * 100).toFixed(1)}%)`);
+    
+    return prob;
 }
 
 function calculateOpponentScoreProb(activeDiff, opponentOvr, playerGkStat) {
     const playerDef = getTeamAverageStat('def');
     const playerDefBonus = Math.max(0, (playerDef - 70) * 0.01);
     const gkBonus = (playerGkStat + 5 - opponentOvr) * 0.01;
-    return Math.min(0.50, Math.max(0.10, 0.40 - (activeDiff * 0.026) - playerDefBonus - gkBonus));
+    const calculated = 0.40 - (activeDiff * 0.026) - playerDefBonus - gkBonus;
+    const prob = Math.min(0.50, Math.max(0.10, calculated));
+    
+    console.log(`[시뮬레이션] 🔴 상대팀 슈팅 연산:
+    - OVR 차이 보정: ${(-activeDiff * 0.026 * 100).toFixed(1)}% (격차: ${activeDiff})
+    - 수비력(DEF) 보정: ${(-playerDefBonus * 100).toFixed(1)}% (평균수비: ${playerDef})
+    - 골키퍼(GK) 보정: ${(-gkBonus * 100).toFixed(1)}% (GK수비: ${playerGkStat} vs 상대OVR: ${opponentOvr})
+    - 최종 계산 실점 확률: ${(prob * 100).toFixed(1)}% (보정 전: ${(calculated * 100).toFixed(1)}%)`);
+    
+    return prob;
 }

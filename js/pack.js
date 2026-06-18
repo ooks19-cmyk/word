@@ -203,4 +203,6 @@ function closeRevealModal() {
     const modal = document.getElementById('revealModal');
     modal.classList.remove('active');
     document.getElementById('card3dWrapper').classList.remove('reveal');
+    const btnCollect = document.getElementById('btnCollect');
+    if (btnCollect) btnCollect.style.display = 'none';
 }

@@ -1,39 +1,60 @@
-ID,이름,오버롤(OVR),포지션,국적,클럽,등급(Rarity),속도(PAC),슈팅(SHO),패스(PAS),드리블(DRI),수비(DEF),피지컬(PHY),설명
-son_heung_min,손흥민,89,LW,South Korea,LA FC,legend,91,89,84,87,42,72,"대한민국 축구 역사상 최고의 전설적인 공격수입니다. 탁월한 리더십과 훌륭한 인품, 그리고 그라운드 위에서 끝까지 최선을 다하는 헌신적인 태도로 동료 선수들과 온 국민의 열렬한 사랑과 성원을 받는 이 시대 최고의 축구 선수이자 아이콘입니다."
-lee_seung_woo,이승우,82,LW,South Korea,JEONBUK,normal,87,80,78,85,38,62,"번뜩이는 천재성과 예측 불가능한 플레이 스타일을 지닌 대한민국 최고의 크랙형 공격수입니다. 뛰어난 테크닉, 폭발적인 드리블 스피드, 그리고 독보적인 스타성으로 경기장 분위기를 한순간에 뒤바꿔 놓는 해결사입니다."
-lee_seung_woo_kr,이승우,86,LW,South Korea,KOREA,special,90,84,83,88,40,68,"가슴에 찬란한 태극 마크를 품고 대한민국의 붉은 함성을 이끄는 특급 국가대표 윙어 이승우입니다. 특유의 기동력과 지칠 줄 모르는 과감한 돌파력, 그리고 그라운드 위에서 번뜩이는 천재적인 플레이로 조국의 승리를 이끄는 스페셜 공격수입니다."
-lee_kang_in,이강인,86,RW,South Korea,PARIS SG,legend,83,82,89,89,45,68,"세계 최고의 명문 구단 중 하나인 파리 생제르맹(PSG)에서 활약 중인 대한민국의 대표 미드필더입니다. 압도적인 탈압박과 전매특허인 왼발 정밀 크로스, 그리고 그라운드를 종횡무진하는 마술 같은 시야로 경기를 주도하는 월드클래스 천재 크랙입니다."
-oberdan,오베르단,81,CM,Brazil,JEONBUK,normal,78,70,78,80,81,82,엄청난 활동량과 강력한 수비력을 겸비한 전북 현대의 핵심 수비형 미드필더입니다. 중원 전체를 커버하는 넓은 수비 범위와 지치지 않는 체력으로 팀의 엔진 역할을 수행합니다.
-song_bum_keun,송범근,82,GK,South Korea,JEONBUK,normal,80,79,75,82,82,81,뛰어난 반사신경과 안정적인 공중볼 처리 능력을 갖춘 전북 현대의 주전 골키퍼입니다. 위기 상황마다 보여주는 눈부신 슈퍼 세이브와 침착한 경기 운영으로 최후방 수비라인의 든든한 버팀목입니다.
-compagno,콤파뇨,79,ST,Italy,JEONBUK,normal,72,80,65,72,38,82,탁월한 피지컬과 높은 타점의 헤더를 자랑하는 전북 현대의 정통 타겟맨 스트라이커입니다. 박스 안에서의 압도적인 집중력과 찬스를 놓치지 않는 뛰어난 골 결정력으로 수비진에게 공포를 줍니다.
-tiago,티아고,79,ST,Brazil,JEONBUK,normal,76,79,63,74,40,83,"브라질 출신의 파워풀하고 돌파력이 뛰어난 전북 현대의 대형 공격수입니다. 탄탄한 피지컬을 활용한 포스트 플레이와 강력한 전방 압박, 묵직한 슈팅으로 매번 득점 기회를 노립니다."
-motta,모따,79,ST,Brazil,JEONBUK,normal,75,80,64,73,35,80,유연한 발재간과 탁월한 공간 침투력을 보유한 브라질 테크니션 포워드입니다. 감각적인 연계 플레이와 빠른 반박자 빠른 슈팅 타이밍으로 상대의 골문을 흔드는 크랙입니다.
-kim_jin_gyu,김진규,79,CM,South Korea,JEONBUK,normal,74,72,80,78,68,72,넓은 시야와 날카로운 패스로 빌드업의 중심을 잡는 플레이메이커입니다. 영리한 위치 선정과 지능적인 압박 타이밍으로 전북 현대 중원의 연결고리 역할을 확실하게 수행합니다.
-lee_yeong_jae,이영재,79,CM,South Korea,JEONBUK,normal,73,76,81,79,60,68,"마법 같은 왼발 킥력을 지닌 K리그 정상급 플레이메이커 미드필더입니다. 날카로운 세트피스 전담 키커이자, 한 번에 수비를 뚫어버리는 허를 찌르는 전진 패스가 매우 돋보입니다."
-kim_seung_sub,김승섭,78,LW,South Korea,JEONBUK,normal,83,74,72,79,45,65,빠른 스피드와 지치지 않는 체력으로 측면을 돌파하는 헌신적인 윙어입니다. 넓은 활동 영역을 바탕으로 한 날카로운 컷백과 활발한 수비 가담으로 전술적 다양성을 늘려줍니다.
-lee_dong_jun,이동준,78,RW,South Korea,JEONBUK,normal,89,72,70,80,35,60,K리그에서 가장 폭발적인 순간 가속도를 자랑하는 스피드 스타 윙어입니다. 수비 뒷공간을 완전히 허무는 순간적인 배후 침투와 과감한 일대일 돌파가 전매특허입니다.
-kim_tae_hwan,김태환,78,RB,South Korea,JEONBUK,normal,85,60,73,72,76,79,"전북 현대의 든든한 캡틴이자,"
-gamboa,감보아,78,CM,Portugal,JEONBUK,normal,72,65,75,74,78,80,포르투갈 출신의 탄탄한 기본기와 노련한 경기 조율 능력을 가진 중앙 미드필더입니다. 중원에서 침착한 볼 소유와 안정적인 전진 패스로 전체적인 공수 밸런스를 차분히 조절해 줍니다.
-kim_young_bin,김영빈,77,CB,South Korea,JEONBUK,normal,68,40,62,60,79,78,강력한 대인 방어 능력과 뛰어난 제공권 경합 능력을 자랑하는 중앙 수비수입니다. 안정적인 수비 위치 선정과 탁월한 투지로 전북 현대 최후방 수비진의 중심을 굳건하게 책임집니다.
-kang_sang_yoon,강상윤,76,CM,South Korea,JEONBUK,normal,75,68,76,75,65,68,넘치는 에너지와 적극적인 활동량을 바탕으로 넓은 중원을 누비는 유망주 미드필더입니다. 뛰어난 기동력과 지치지 않는 체력으로 공수 양면에서 헌신적인 엔진 역할을 수행합니다.
-kim_tae_hyeon,김태현,76,RB,South Korea,JEONBUK,normal,77,58,70,71,74,75,공수 밸런스가 뛰어나고 탄탄한 수비력을 가진 안정감 넘치는 우측 풀백입니다. 다부진 체격 조건을 앞세운 적극적인 수비 가담과 오버래핑 기동성으로 측면에 단단함을 보탭니다.
-maeng_seong_ung,맹성웅,76,CM,South Korea,JEONBUK,normal,70,60,75,72,75,73,침착한 포지셔닝과 깔끔한 대인 태클로 상대 공격을 차단하는 든든한 홀딩 미드필더입니다. 수비 지능이 매우 우수하여 팀 포백 라인을 앞선에서 보호하는 든든한 1차 저지선입니다.
-cho_wi_je,조위제,75,CB,South Korea,JEONBUK,normal,72,38,58,59,76,75,압도적인 하드웨어와 빠른 복귀 속도를 지닌 차세대 유망주 대형 센터백입니다. 적극적이고 타이트한 대인 마크와 과감한 공중 경합으로 수비 라인에 피지컬을 더해 줍니다.
-choi_woo_jin,최우진,74,LB,South Korea,JEONBUK,normal,80,62,71,73,70,66,뛰어난 순간 돌파력과 날카로운 크로스 능력을 지닌 다이내믹한 좌측 풀백입니다. 공간을 파고드는 폭발적인 오버래핑 훈련이 매우 뛰어나며 공수 모두 기여도가 높은 유망주입니다.
-lee_ju_hyeon,이주현,77,GK,South Korea,JEONBUK,normal,70,68,65,77,77,68,안정적인 방어 위치 선정과 놀라운 반사 신경을 보유한 유망주 수문장입니다. 공중볼 낙하지점 판단이 예리하며 골문 구석으로 날아오는 까다로운 슈팅도 과감히 잘 캐칭합니다.
-jeon_jin_woo,전진우,80,LW,South Korea,JEONBUK,normal,86,75,72,81,38,62,폭발적인 가속도와 유려한 개인 드리블 기술을 장착한 전북 현대의 다재다능한 공격수입니다. 상대 측면을 허물고 안쪽으로 꺾어 들어오는 과감한 침투와 위협적인 연계 플레이에 강점이 있습니다.
-park_ji_soo,박지수,81,CB,South Korea,JEONBUK,normal,75,48,68,67,82,83,"대한민국 축구 국가대표팀 출신의 피지컬이 압도적인 철벽 센터백입니다. 빠른 발을 활용한 커버 플레이와 탁월한 대인 방어 능력, 그리고 제공권 장악으로 팀의 최후방을 든든하게 지켜줍니다."
-jo_hyeon_woo,조현우,85,GK,South Korea,ULSAN HD,legend,85,83,75,85,85,82,"대한민국의 독보적인 넘버원 거미손 골키퍼입니다. 2018 러시아 월드컵 독일전의 신화를 쓴 주역으로, 믿기지 않는 동물적인 반사신경과 눈부신 공중볼 커버, 그리고 1대1 상황에서의 탁월한 선방 능력으로 골문을 완벽히 통제합니다."
-park_ji_sung,박지성,88,CM,South Korea,MANCHESTER UTD,legend,87,80,85,85,82,88,대한민국 축구 역사상 가장 위대한 전설적인 멀티 미드필더이자 맨체스터 유나이티드에서 활약했던 영원한 캡틴입니다.
-lee_dong_gook,이동국,82,ST,South Korea,JEONBUK,normal,78,84,72,76,38,81,"전북 현대의 불멸의 영웅이자 K리그 역대 최고의 스트라이커,"
-choi_chol_soon,최철순,80,CB,South Korea,JEONBUK,normal,78,55,68,70,82,82,전북 현대 왕조의 굳건한 기둥이자 팬들의 무한한 사랑을 받는
-park_jin_seob,박진섭,81,CB,South Korea,JEONBUK,normal,76,65,74,73,81,82,전북 현대의 핵심 수비형 미드필더이자 멀티 수비수 박진섭입니다. 지능적인 수비 위치 선정과 뛰어난 공중볼 장악력으로 빌드업의 핵심 역할을 수행하며 팀의 든든한 버팀목이 되어 줍니다.
-hong_jeong_ho,홍정호,82,CB,South Korea,JEONBUK,normal,74,58,76,72,83,81,"전북 현대의 든든한 베테랑 중앙 수비수이자 전설적인 리더 홍정호입니다. 탁월한 수비 리딩 능력과 강력한 대인 마크, 침착한 빌드업으로 최후방의 철벽 방어막을 지휘합니다."
-ki_sung_yueng,기성용,87,CM,South Korea,KOREA,legend,74,81,92,84,76,82,"대한민국 축구 역사상 최고의 딥라잉 플레이메이커이자 대표팀의 중원을 지휘했던 영원한 코어 미드필더 기성용입니다. 넓은 시야와 컴퓨터 같은 대지를 가르는 롱패스, 자로 잰 듯한 프리킥 킥력과 탁월한 키핑 능력으로 경기 조율의 마법을 부리는 전설적인 미드필더입니다."
-kim_min_jae,김민재,87,CB,South Korea,BAYERN MUNICH,legend,85,57,80,72,88,87,"압도적인 피지컬과 빠른 주력, 탁월한 대인 마크 능력으로 유럽 무대를 정복한 대한민국의 월드클래스 센터백 '괴물' 김민재입니다. 이탈리아 세리에 A 최우수 수비수 수상에 이어 독일 명문 바이에른 뮌헨에서 최강의 철벽 수비를 지휘하는 불멸의 전설입니다."
-lee_jae_sung,이재성,85,CM,South Korea,KOREA,special,82,78,86,84,72,76,"독보적인 활동량과 영리한 축구 지능을 겸비한 국가대표 미드필더입니다. 영리한 오프더볼 움직임과 날카로운 패싱력, 전방 압박 능력을 바탕으로 공수 양면에서 중원의 핵심 활력소 역할을 수행합니다."
-cho_gue_sung,조규성,84,ST,South Korea,KOREA,special,80,86,72,76,42,86,"조각 같은 비주얼과 압도적인 피지컬로 그라운드를 누비는 대한민국 국가대표 스트라이커 조규성입니다. 공중볼 타점 경합과 강력한 슈팅력, 헌신적인 전방 압박으로 매 경기 상대 골문을 직접 위협하는 해결사입니다."
-jens_castrop,옌스,85,CM,South Korea,KOREA,special,84,75,81,82,79,83,독일 무대에서 다져진 피지컬과 왕성한 활동량으로 대한민국 국가대표팀의 측면과 중원에 에너지를 불어넣는 신성 옌스 카스트로프입니다. 높은 전술적 이해도와 공수 양면에서의 헌신적인 플레이가 돋보입니다.
-lee_dong_gyeong,이동경,86,CM,South Korea,KOREA,special,83,86,87,85,49,73,왼발의 마술사라 불리며 창의적인 패스와 전매특허인 강력하고 정교한 중거리 슈팅을 장착한 특급 공격형 미드필더 이동경입니다. 순간적인 배후 침투와 위협적인 플레이메이킹으로 경기의 흐름을 단숨에 바꾸어 놓습니다.
-jeon_byung_kwan,전병관,78,LW,South Korea,JEONBUK,normal,83,75,71,78,38,65,빠른 순간 가속도와 날카로운 드리블로 측면 돌파를 즐기는 전북 현대의 영건 전병관입니다. 왕성한 활동량과 과감한 슈팅으로 매번 상대 골문을 위협하는 에너지 넘치는 공격수입니다.
-hwang_in_beom,황인범,86,CM,South Korea,KOREA,special,80,78,87,85,74,79,대한민국 축구 국가대표팀의 든든한 사령탑이자 중원의 마에스트로 황인범입니다. 지치지 않는 왕성한 활동량과 컴퓨터 같은 전진 패스, 그리고 넓은 시야와 지능적인 빌드업으로 대표팀 공수의 핵심 조율사 역할을 수행합니다.
+ID,이름,레이팅,포지션,국적,국적국기,클럽,이미지,희귀도,설명,PAC,SHO,PAS,DRI,DEF,PHY
+son_heung_min,손흥민,89,LW,South Korea,https://flagcdn.com/w40/kr.png,LA FC,player/손흥민.png,legend,"대한민국 축구 역사상 최고의 전설적인 공격수입니다. 탁월한 리더십과 훌륭한 인품, 그리고 그라운드 위에서 끝까지 최선을 다하는 헌신적인 태도로 동료 선수들과 온 국민의 열렬한 사랑과 성원을 받는 이 시대 최고의 축구 선수이자 아이콘입니다.",91,89,84,87,42,72
+lee_seung_woo,이승우,82,LW,South Korea,https://flagcdn.com/w40/kr.png,JEONBUK,player/이승우.png,normal,"번뜩이는 천재성과 예측 불가능한 플레이 스타일을 지닌 대한민국 최고의 크랙형 공격수입니다. 뛰어난 테크닉, 폭발적인 드리블 스피드, 그리고 독보적인 스타성으로 경기장 분위기를 한순간에 뒤바꿔 놓는 해결사입니다.",87,80,78,85,38,62
+lee_seung_woo_kr,이승우,86,LW,South Korea,https://flagcdn.com/w40/kr.png,KOREA,player/이승우_kr.png,special,"가슴에 찬란한 태극 마크를 품고 대한민국의 붉은 함성을 이끄는 특급 국가대표 윙어 이승우입니다. 특유의 기동력과 지칠 줄 모르는 과감한 돌파력, 그리고 그라운드 위에서 번뜩이는 천재적인 플레이로 조국의 승리를 이끄는 스페셜 공격수입니다.",90,84,83,88,40,68
+lee_kang_in,이강인,86,RW,South Korea,https://flagcdn.com/w40/kr.png,PARIS SG,player/이강인.png,legend,"세계 최고의 명문 구단 중 하나인 파리 생제르맹(PSG)에서 활약 중인 대한민국의 대표 미드필더입니다. 압도적인 탈압박과 전매특허인 왼발 정밀 크로스, 그리고 그라운드를 종횡무진하는 마술 같은 시야로 경기를 주도하는 월드클래스 천재 크랙입니다.",83,82,89,89,45,68
+oberdan,오베르단,81,CM,Brazil,https://flagcdn.com/w40/br.png,JEONBUK,player/오베르단.png,normal,엄청난 활동량과 강력한 수비력을 겸비한 전북 현대의 핵심 수비형 미드필더입니다. 중원 전체를 커버하는 넓은 수비 범위와 지치지 않는 체력으로 팀의 엔진 역할을 수행합니다.,78,70,78,80,81,82
+song_bum_keun,송범근,82,GK,South Korea,https://flagcdn.com/w40/kr.png,JEONBUK,player/송범근.png,normal,뛰어난 반사신경과 안정적인 공중볼 처리 능력을 갖춘 전북 현대의 주전 골키퍼입니다. 위기 상황마다 보여주는 눈부신 슈퍼 세이브와 침착한 경기 운영으로 최후방 수비라인의 든든한 버팀목입니다.,80,79,75,82,82,81
+compagno,콤파뇨,79,ST,Italy,https://flagcdn.com/w40/it.png,JEONBUK,player/콤파뇨.png,normal,탁월한 피지컬과 높은 타점의 헤더를 자랑하는 전북 현대의 정통 타겟맨 스트라이커입니다. 박스 안에서의 압도적인 집중력과 찬스를 놓치지 않는 뛰어난 골 결정력으로 수비진에게 공포를 줍니다.,72,80,65,72,38,82
+tiago,티아고,79,ST,Brazil,https://flagcdn.com/w40/br.png,JEONBUK,player/티아고.png,normal,"브라질 출신의 파워풀하고 돌파력이 뛰어난 전북 현대의 대형 공격수입니다. 탄탄한 피지컬을 활용한 포스트 플레이와 강력한 전방 압박, 묵직한 슈팅으로 매번 득점 기회를 노립니다.",76,79,63,74,40,83
+motta,모따,79,ST,Brazil,https://flagcdn.com/w40/br.png,JEONBUK,player/모따.png,normal,유연한 발재간과 탁월한 공간 침투력을 보유한 브라질 테크니션 포워드입니다. 감각적인 연계 플레이와 빠른 반박자 빠른 슈팅 타이밍으로 상대의 골문을 흔드는 크랙입니다.,75,80,64,73,35,80
+kim_jin_gyu,김진규,79,CM,South Korea,https://flagcdn.com/w40/kr.png,JEONBUK,player/김진규.png,normal,넓은 시야와 날카로운 패스로 빌드업의 중심을 잡는 플레이메이커입니다. 영리한 위치 선정과 지능적인 압박 타이밍으로 전북 현대 중원의 연결고리 역할을 확실하게 수행합니다.,74,72,80,78,68,72
+lee_yeong_jae,이영재,79,CM,South Korea,https://flagcdn.com/w40/kr.png,JEONBUK,player/이영재.png,normal,"마법 같은 왼발 킥력을 지닌 K리그 정상급 플레이메이커 미드필더입니다. 날카로운 세트피스 전담 키커이자, 한 번에 수비를 뚫어버리는 허를 찌르는 전진 패스가 매우 돋보입니다.",73,76,81,79,60,68
+kim_seung_sub,김승섭,84,LW,South Korea,https://flagcdn.com/w40/kr.png,JEONBUK,player/김승섭.png,normal,빠른 스피드와 지치지 않는 체력으로 측면을 돌파하는 헌신적인 윙어입니다. 넓은 활동 영역을 바탕으로 한 날카로운 컷백과 활발한 수비 가담으로 전술적 다양성을 늘려줍니다.,86,84,77,84,55,70
+lee_dong_jun,이동준,78,RW,South Korea,https://flagcdn.com/w40/kr.png,JEONBUK,player/이동준.png,normal,K리그에서 가장 폭발적인 순간 가속도를 자랑하는 스피드 스타 윙어입니다. 수비 뒷공간을 완전히 허무는 순간적인 배후 침투와 과감한 일대일 돌파가 전매특허입니다.,89,77,70,80,35,60
+kim_tae_hwan,김태환,78,RB,South Korea,https://flagcdn.com/w40/kr.png,JEONBUK,player/김태환.png,normal,"전북 현대의 든든한 캡틴이자,",85,60,73,72,76,79
+gamboa,감보아,78,CM,Portugal,https://flagcdn.com/w40/pt.png,JEONBUK,player/감보아.png,normal,포르투갈 출신의 탄탄한 기본기와 노련한 경기 조율 능력을 가진 중앙 미드필더입니다. 중원에서 침착한 볼 소유와 안정적인 전진 패스로 전체적인 공수 밸런스를 차분히 조절해 줍니다.,72,65,75,74,78,80
+kim_young_bin,김영빈,77,CB,South Korea,https://flagcdn.com/w40/kr.png,JEONBUK,player/김영빈.png,normal,강력한 대인 방어 능력과 뛰어난 제공권 경합 능력을 자랑하는 중앙 수비수입니다. 안정적인 수비 위치 선정과 탁월한 투지로 전북 현대 최후방 수비진의 중심을 굳건하게 책임집니다.,68,40,62,60,79,78
+kang_sang_yoon,강상윤,76,CM,South Korea,https://flagcdn.com/w40/kr.png,JEONBUK,player/강상윤.png,normal,넘치는 에너지와 적극적인 활동량을 바탕으로 넓은 중원을 누비는 유망주 미드필더입니다. 뛰어난 기동력과 지치지 않는 체력으로 공수 양면에서 헌신적인 엔진 역할을 수행합니다.,75,68,76,75,65,68
+kim_tae_hyeon,김태현,76,RB,South Korea,https://flagcdn.com/w40/kr.png,JEONBUK,player/김태현.png,normal,공수 밸런스가 뛰어나고 탄탄한 수비력을 가진 안정감 넘치는 우측 풀백입니다. 다부진 체격 조건을 앞세운 적극적인 수비 가담과 오버래핑 기동성으로 측면에 단단함을 보탭니다.,77,58,70,71,74,75
+maeng_seong_ung,맹성웅,76,CM,South Korea,https://flagcdn.com/w40/kr.png,JEONBUK,player/맹성웅.png,normal,침착한 포지셔닝과 깔끔한 대인 태클로 상대 공격을 차단하는 든든한 홀딩 미드필더입니다. 수비 지능이 매우 우수하여 팀 포백 라인을 앞선에서 보호하는 든든한 1차 저지선입니다.,70,60,75,72,75,73
+cho_wi_je,조위제,77,CB,South Korea,https://flagcdn.com/w40/kr.png,JEONBUK,player/조위제.png,normal,압도적인 하드웨어와 빠른 복귀 속도를 지닌 차세대 유망주 대형 센터백입니다. 적극적이고 타이트한 대인 마크와 과감한 공중 경합으로 수비 라인에 피지컬을 더해 줍니다.,80,38,58,59,80,75
+choi_woo_jin,최우진,74,LB,South Korea,https://flagcdn.com/w40/kr.png,JEONBUK,player/최우진.png,normal,뛰어난 순간 돌파력과 날카로운 크로스 능력을 지닌 다이내믹한 좌측 풀백입니다. 공간을 파고드는 폭발적인 오버래핑 훈련이 매우 뛰어나며 공수 모두 기여도가 높은 유망주입니다.,80,62,71,73,70,66
+lee_ju_hyeon,이주현,77,GK,South Korea,https://flagcdn.com/w40/kr.png,JEONBUK,player/이주현.png,normal,안정적인 방어 위치 선정과 놀라운 반사 신경을 보유한 유망주 수문장입니다. 공중볼 낙하지점 판단이 예리하며 골문 구석으로 날아오는 까다로운 슈팅도 과감히 잘 캐칭합니다.,70,68,65,77,77,68
+jeon_jin_woo,전진우,80,LW,South Korea,https://flagcdn.com/w40/kr.png,JEONBUK,player/전진우.webp,normal,폭발적인 가속도와 유려한 개인 드리블 기술을 장착한 전북 현대의 다재다능한 공격수입니다. 상대 측면을 허물고 안쪽으로 꺾어 들어오는 과감한 침투와 위협적인 연계 플레이에 강점이 있습니다.,86,80,72,81,38,62
+park_ji_soo,박지수,81,CB,South Korea,https://flagcdn.com/w40/kr.png,JEONBUK,player/박지수.webp,normal,"대한민국 축구 국가대표팀 출신의 피지컬이 압도적인 철벽 센터백입니다. 빠른 발을 활용한 커버 플레이와 탁월한 대인 방어 능력, 그리고 제공권 장악으로 팀의 최후방을 든든하게 지켜줍니다.",75,48,68,67,82,83
+jo_hyeon_woo,조현우,85,GK,South Korea,https://flagcdn.com/w40/kr.png,ULSAN HD,player/조현우.webp,legend,"대한민국의 독보적인 넘버원 거미손 골키퍼입니다. 2018 러시아 월드컵 독일전의 신화를 쓴 주역으로, 믿기지 않는 동물적인 반사신경과 눈부신 공중볼 커버, 그리고 1대1 상황에서의 탁월한 선방 능력으로 골문을 완벽히 통제합니다.",85,83,75,85,85,82
+park_ji_sung,박지성,88,CM,South Korea,https://flagcdn.com/w40/kr.png,MANCHESTER UTD,player/박지성.png,legend,대한민국 축구 역사상 가장 위대한 전설적인 멀티 미드필더이자 맨체스터 유나이티드에서 활약했던 영원한 캡틴입니다.,87,80,85,85,82,88
+lee_dong_gook,이동국,82,ST,South Korea,https://flagcdn.com/w40/kr.png,JEONBUK,player/이동국.png,normal,"전북 현대의 불멸의 영웅이자 K리그 역대 최고의 스트라이커,",78,84,72,76,38,81
+choi_chol_soon,최철순,80,CB,South Korea,https://flagcdn.com/w40/kr.png,JEONBUK,player/최철순.png,normal,전북 현대 왕조의 굳건한 기둥이자 팬들의 무한한 사랑을 받는,78,55,68,70,82,82
+park_jin_seob,박진섭,81,CB,South Korea,https://flagcdn.com/w40/kr.png,JEONBUK,player/박진섭.webp,normal,전북 현대의 핵심 수비형 미드필더이자 멀티 수비수 박진섭입니다. 지능적인 수비 위치 선정과 뛰어난 공중볼 장악력으로 빌드업의 핵심 역할을 수행하며 팀의 든든한 버팀목이 되어 줍니다.,76,65,74,73,81,82
+hong_jeong_ho,홍정호,82,CB,South Korea,https://flagcdn.com/w40/kr.png,JEONBUK,player/홍정호.webp,normal,"전북 현대의 든든한 베테랑 중앙 수비수이자 전설적인 리더 홍정호입니다. 탁월한 수비 리딩 능력과 강력한 대인 마크, 침착한 빌드업으로 최후방의 철벽 방어막을 지휘합니다.",74,58,76,72,83,81
+ki_sung_yueng,기성용,87,CM,South Korea,https://flagcdn.com/w40/kr.png,KOREA,player/기성용.png,legend,"대한민국 축구 역사상 최고의 딥라잉 플레이메이커이자 대표팀의 중원을 지휘했던 영원한 코어 미드필더 기성용입니다. 넓은 시야와 컴퓨터 같은 대지를 가르는 롱패스, 자로 잰 듯한 프리킥 킥력과 탁월한 키핑 능력으로 경기 조율의 마법을 부리는 전설적인 미드필더입니다.",74,81,92,84,76,82
+kim_min_jae,김민재,87,CB,South Korea,https://flagcdn.com/w40/kr.png,BAYERN MUNICH,player/김민재.webp,legend,"압도적인 피지컬과 빠른 주력, 탁월한 대인 마크 능력으로 유럽 무대를 정복한 대한민국의 월드클래스 센터백 '괴물' 김민재입니다. 이탈리아 세리에 A 최우수 수비수 수상에 이어 독일 명문 바이에른 뮌헨에서 최강의 철벽 수비를 지휘하는 불멸의 전설입니다.",85,57,80,72,88,87
+lee_jae_sung,이재성,85,CM,South Korea,https://flagcdn.com/w40/kr.png,KOREA,player/이재성.png,special,"독보적인 활동량과 영리한 축구 지능을 겸비한 국가대표 미드필더입니다. 영리한 오프더볼 움직임과 날카로운 패싱력, 전방 압박 능력을 바탕으로 공수 양면에서 중원의 핵심 활력소 역할을 수행합니다.",82,78,86,84,72,76
+cho_gue_sung,조규성,87,ST,South Korea,https://flagcdn.com/w40/kr.png,KOREA,player/조규성.png,special,"조각 같은 비주얼과 압도적인 피지컬로 그라운드를 누비는 대한민국 국가대표 스트라이커 조규성입니다. 공중볼 타점 경합과 강력한 슈팅력, 헌신적인 전방 압박으로 매 경기 상대 골문을 직접 위협하는 해결사입니다.",83,89,75,79,45,89
+jens_castrop,옌스,85,CM,South Korea,https://flagcdn.com/w40/kr.png,KOREA,player/옌스.webp,special,독일 무대에서 다져진 피지컬과 왕성한 활동량으로 대한민국 국가대표팀의 측면과 중원에 에너지를 불어넣는 신성 옌스 카스트로프입니다. 높은 전술적 이해도와 공수 양면에서의 헌신적인 플레이가 돋보입니다.,84,75,81,82,79,83
+lee_dong_gyeong,이동경,86,CM,South Korea,https://flagcdn.com/w40/kr.png,KOREA,player/이동경.png,special,왼발의 마술사라 불리며 창의적인 패스와 전매특허인 강력하고 정교한 중거리 슈팅을 장착한 특급 공격형 미드필더 이동경입니다. 순간적인 배후 침투와 위협적인 플레이메이킹으로 경기의 흐름을 단숨에 바꾸어 놓습니다.,83,86,87,85,49,73
+jeon_byung_kwan,전병관,83,LW,South Korea,https://flagcdn.com/w40/kr.png,JEONBUK,player/전병관.webp,normal,빠른 순간 가속도와 날카로운 드리블로 측면 돌파를 즐기는 전북 현대의 영건 전병관입니다. 왕성한 활동량과 과감한 슈팅으로 매번 상대 골문을 위협하는 에너지 넘치는 공격수입니다.,86,80,76,83,43,70
+hwang_in_beom,황인범,86,CM,South Korea,https://flagcdn.com/w40/kr.png,KOREA,player/황인범.webp,special,"대한민국 축구 국가대표팀의 든든한 사령탑이자 중원의 마에스트로 황인범입니다. 지치지 않는 왕성한 활동량과 컴퓨터 같은 전진 패스, 그리고 넓은 시야와 지능적인 빌드업으로 대표팀 공수의 핵심 조율사 역할을 수행합니다.",80,78,90,89,75,79
+oh_hyeon_gyu,오현규,83,ST,South Korea,https://flagcdn.com/w40/kr.png,KOREA,player/오현규.png,special,"강인한 피지컬과 폭발적인 슈팅력, 그리고 끈질긴 전방 압박 능력을 겸비한 대한민국 국가대표 공격수 오현규입니다. 문전에서의 침착함과 적극적인 돌파로 언제든 득점을 터뜨릴 수 있는 해결사입니다.",84,85,70,77,37,85
+lee_gi_hyeok,이기혁,83,CB,South Korea,https://flagcdn.com/w40/kr.png,GANGWON,player/이기혁.png,special,"중앙 수비수와 측면 수비수, 미드필더까지 소화할 수 있는 다재다능한 멀티 플레이어 이기혁입니다. 안정적인 수비 능력과 뛰어난 패스 능력을 바탕으로 후방 빌드업에서 핵심적인 역할을 수행합니다.",78,65,85,78,82,80
+lee_su_bin,이수빈,82,CM,South Korea,https://flagcdn.com/w40/kr.png,JEONBUK,player/이수빈.png,normal,"부드러운 볼 제어 능력과 넓은 시야, 그리고 안정적인 패스 공급으로 팀의 빌드업을 조율하는 전북 현대의 미드필더 이수빈입니다. 적극적인 공수 조율과 조용한 헌신으로 중원에 안정감을 불어넣습니다.",80,70,83,80,80,78
+hwang_hee_chan,황희찬,84,LW,South Korea,https://flagcdn.com/w40/kr.png,KOREA,player/황희찬.png,special,우직한 돌파와 강인한 피지컬로 상대를 압도하며 '코리안 가이'라는 별명으로 프리미어리그를 폭격하는 국가대표 윙어 황희찬입니다. 폭발적인 가속도와 저돌적인 문전 침투로 득점을 노립니다.,88,85,72,82,38,79
+song_min_kyu,송민규,83,LW,South Korea,https://flagcdn.com/w40/kr.png,JEONBUK,player/송민규.png,normal,뛰어난 볼 키핑 능력과 측면에서의 저돌적인 온더볼 플레이로 찬스를 창출하는 전북 현대의 핵심 공격수입니다. 탄탄한 피지컬을 바탕으로 등지는 플레이와 지능적인 연계에 강점이 있습니다.,81,82,78,85,45,77
+lingard,린가드,86,LW,England,https://flagcdn.com/w40/gb-eng.png,FC SEOUL,player/린가드.png,special,"잉글랜드 국가대표와 맨체스터 유나이티드 출신의 월드스타로, FC 서울의 측면 공격 핵심 윙어입니다. 뛰어난 오프더볼 움직임과 창의적인 연계 플레이, 그리고 저돌적인 측면 돌파로 공격진에 활력을 불어넣습니다.",83,82,84,86,55,70
+cesinha,세징야,85,CAM,Brazil,https://flagcdn.com/w40/br.png,DAEGU FC,player/세징야.webp,special,"대구 FC의 살아있는 전설이자 K리그 최고의 공격형 미드필더 세징야입니다. 압도적인 테크닉과 강력한 중거리 슛, 그리고 예리한 플레이메이킹 능력을 겸비했습니다.",83,86,85,86,42,75
+mugosa,무고사,83,ST,Montenegro,https://flagcdn.com/w40/me.png,INCHEON UTD,player/무고사.png,normal,인천 유나이티드의 상징이자 K리그 최고의 스트라이커 무고사입니다. 탁월한 골 결정력과 높은 문전 집중력으로 어떠한 위치에서도 득점을 만들어내는 해결사입니다.,78,87,71,79,36,81
+lee_dong_gook_99,이동국99,86,ST,South Korea,https://flagcdn.com/w40/kr.png,POHANG,player/이동국99.png,special,"1999년 K리그를 뒤흔든 '라이온 킹' 이동국의 파릇파릇한 젊은 시절 카드입니다. 리그 신인왕과 득점왕을 노리던 폭발적인 피지컬과 예리한 돌파력, 그리고 전매특허인 강력한 발리슛을 구사한 특급 공격수입니다.",87,88,81,72,35,83
+kim_seung_gyu,김승규,84,GK,South Korea,https://flagcdn.com/w40/kr.png,KOREA,player/김승규.png,special,"대한민국 축구 국가대표팀의 베테랑 수문장이자 빌드업 축구의 핵심 골키퍼 김승규입니다. 뛰어난 반사신경과 안정적인 선방력은 물론, 정확한 패싱 능력을 바탕으로 후방 빌드업 전술을 주도하는 든든한 골키퍼입니다.",83,81,80,84,86,82
+lee_han_beom,이한범,83,CB,South Korea,https://flagcdn.com/w40/kr.png,KOREA,player/이한범.png,special,"대한민국 수비의 미래를 짊어진 대형 센터백 이한범입니다. 압도적인 피지컬을 활용한 공중볼 장악과 타이트한 대인 마크가 돋보이며, 안정적인 패스 능력과 경기 리딩 능력까지 갖춘 육각형 수비수입니다.",79,50,75,72,83,82
+seol_young_woo,설영우,83,RB,South Korea,https://flagcdn.com/w40/kr.png,KOREA,player/설영우.png,special,"대한민국 축구 국가대표팀의 핵심 풀백 설영우입니다. 지치지 않는 기동력과 안정적인 수비력은 물론, 날카로운 오버래핑과 정교한 크로스로 측면 공격에 큰 힘을 보태는 현대적인 측면 수비수입니다.",84,63,78,80,82,80
+paik_seung_ho,백승호,84,CM,South Korea,https://flagcdn.com/w40/kr.png,KOREA,player/백승호.png,special,"바르셀로나 유스 출신의 뛰어난 테크닉과 자로 잰 듯한 킥력을 장착한 미드필더 백승호입니다. 넓은 시야와 침착한 경기 조율력, 그리고 상대 골문을 직접 노리는 날카로운 중거리 슈팅 능력을 지니고 있습니다.",80,79,84,84,75,78
+lee_tae_seok,이태석,84,LB,South Korea,https://flagcdn.com/w40/kr.png,KOREA,player/이태석.png,special,"대한민국 국가대표팀(KOREA)의 좌측 측면을 든든하게 책임지는 지칠 줄 모르는 기동력의 윙백입니다. 빠른 오버랩핑과 날카로운 크로스, 영리한 수비 포지셔닝으로 공수 양면에서 맹활약하는 스페셜 풀백입니다.",85,68,78,81,80,78
+ahn_jung_hwan,안정환,89,LW,South Korea,https://flagcdn.com/w40/kr.png,KOREA,player/안정환.png,legend,"대한민국 축구 역사상 최고의 판타지스타이자 테크니션입니다. 2002년 한일 월드컵의 영웅으로 이탈리아전 결승 골을 비롯한 결정적인 경기마다 해결사 역할을 톡톡히 해냈으며, 감각적인 드리블과 우아한 볼 터치, 그리고 폭발적인 슈팅력으로 전 세계를 놀라게 한 레전드 윙어입니다.",86,91,84,90,35,75
+lionel_messi,리오넬 메시,93,RW,Argentina,https://flagcdn.com/w40/ar.png,INTER MIAMI,player/메시.png,worldclass,"축구 역사상 가장 위대한 선수(G.O.A.T)로 꼽히는 리오넬 메시입니다. 신의 경지에 다다른 플레이메이킹, 경이로운 볼 컨트롤, 그리고 상대 수비를 완전히 무력화시키는 압도적인 시야와 득점력을 지닌 축구계의 살아있는 신화이자 월드클래스 거장입니다.",86,91,92,94,40,70
+kim_moon_hwan,김문환,83,RB,South Korea,https://flagcdn.com/w40/kr.png,KOREA,player2/김문환.webp,special,"대한민국 축구 국가대표팀의 지치지 않는 우측 풀백 김문환입니다. 왕성한 활동량을 바탕으로 한 헌신적인 수비와 폭발적인 오버래핑, 그리고 전방으로 공급하는 위협적인 얼리 크로스에 강점이 있는 스페셜 측면 수비수입니다.",85,62,77,79,81,78
+yang_min_hyuk,양민혁,84,RW,South Korea,https://flagcdn.com/w40/kr.png,KOREA,player2/양민혁.png,special,"대한민국 축구의 초신성이자 폭발적인 스피드와 저돌적인 드리블을 갖춘 공격수 양민혁입니다. 나이답지 않은 침착한 결정력과 예측 불가능한 돌파력으로 상대 측면 수비를 허무는 특급 윙어입니다.",88,80,78,84,38,68
+lee_myung_jae,이명재,83,LB,South Korea,https://flagcdn.com/w40/kr.png,KOREA,player2/이명재.webp,special,"대한민국 축구 국가대표팀과 울산 HD의 날카로운 킥력을 장착한 좌측 풀백 이명재입니다. 안정적인 수비 위치 선정과 상대 측면을 허무는 정교한 궤적의 크로스로 공수 양면에서 맹활약하는 스페셜 풀백입니다.",82,64,81,77,82,79
+
+

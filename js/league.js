@@ -1875,7 +1875,10 @@ function checkSeasonChampion() {
     modal.classList.add('active');
     
     const card3d = document.getElementById('card3dWrapper');
-    card3d.style.display = 'none'; // Hide player card
+    if (card3d) card3d.style.display = 'none'; // Hide player card
+    
+    const btnCollect = document.getElementById('btnCollect');
+    if (btnCollect) btnCollect.style.display = 'none'; // 영입 버튼 숨기기 (리그 우승 팝업 누수 방지)
     
     const stage = document.querySelector('.reveal-stage');
     const trophyContainer = document.createElement('div');
