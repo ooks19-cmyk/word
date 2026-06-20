@@ -120,6 +120,8 @@ function saveUserProgress() {
         leaguePlayerStats: leaguePlayerStats,
         careerStats: careerStats,
         careerStatsHard: careerStatsHard,
+        pvpStats: typeof userPvpStats !== 'undefined' ? userPvpStats : { w: 0, d: 0, l: 0 },
+        pvpOpponentStats: typeof userPvpOpponentStats !== 'undefined' ? userPvpOpponentStats : {},
         cupState: typeof cupState !== 'undefined' ? cupState : null,
         aclState: typeof aclState !== 'undefined' ? aclState : null,
         isHardMode: isHardMode,
@@ -237,6 +239,13 @@ function syncUserDataOnLogin(userData) {
         
         careerStats = userData.careerStats || { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
         careerStatsHard = userData.careerStatsHard || { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+        userPvpStats = userData.pvpStats || { w: 0, d: 0, l: 0 };
+        userPvpOpponentStats = userData.pvpOpponentStats || {};
+
+        localStorage.setItem('fc_star_pvp_w', userPvpStats.w.toString());
+        localStorage.setItem('fc_star_pvp_d', userPvpStats.d.toString());
+        localStorage.setItem('fc_star_pvp_l', userPvpStats.l.toString());
+        localStorage.setItem('fc_star_pvp_opp_stats', JSON.stringify(userPvpOpponentStats));
         
         // 업적 및 연승 클라우드 데이터 복원
         userAchievements = userData.userAchievements || {
@@ -634,6 +643,10 @@ function handleLogout() {
         localStorage.removeItem('fc_star_squad_numbers');
         localStorage.removeItem('fc_star_squad_captain');
         localStorage.removeItem('fc_star_cup_state');
+        localStorage.removeItem('fc_star_pvp_w');
+        localStorage.removeItem('fc_star_pvp_d');
+        localStorage.removeItem('fc_star_pvp_l');
+        localStorage.removeItem('fc_star_pvp_opp_stats');
         
         showToast("성공적으로 로그아웃되었습니다! 로컬 모드로 리로딩합니다...");
         

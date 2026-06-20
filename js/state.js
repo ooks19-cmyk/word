@@ -103,6 +103,24 @@ try {
     if (savedStatsHard) careerStatsHard = JSON.parse(savedStatsHard);
 } catch(e) {}
 
+let userPvpStats = { w: 0, d: 0, l: 0 };
+let userPvpOpponentStats = {}; // 상대방별 PvP 전적 { opponentId: { w: 0, d: 0, l: 0 } }
+try {
+    const savedPvpW = localStorage.getItem('fc_star_pvp_w');
+    const savedPvpD = localStorage.getItem('fc_star_pvp_d');
+    const savedPvpL = localStorage.getItem('fc_star_pvp_l');
+    if (savedPvpW !== null) userPvpStats.w = parseInt(savedPvpW) || 0;
+    if (savedPvpD !== null) userPvpStats.d = parseInt(savedPvpD) || 0;
+    if (savedPvpL !== null) userPvpStats.l = parseInt(savedPvpL) || 0;
+
+    const savedPvpOpp = localStorage.getItem('fc_star_pvp_opp_stats');
+    if (savedPvpOpp) {
+        userPvpOpponentStats = JSON.parse(savedPvpOpp) || {};
+    }
+} catch (e) {
+    userPvpOpponentStats = {};
+}
+
 let currentFormation = '4-4-2';
 try {
     const savedFormation = localStorage.getItem('fc_star_current_formation');

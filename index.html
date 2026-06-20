@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/global.css?v=1.7">
     <link rel="stylesheet" href="style.css?v=1.6">
     <link rel="stylesheet" href="css/friend.css?v=1.2">
+    <link rel="stylesheet" href="css/realtime.css?v=1.0">
     <!-- PWA Web App Manifest & iOS App Capabilities -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#005a3c">
@@ -1013,7 +1014,18 @@
 
         <!-- 친구 섹션 -->
         <section id="friendSection" class="page-section">
-            <div class="friend-container-v2">
+            <!-- 친구 서브 탭바 추가 -->
+            <div class="friend-sub-tabs">
+                <button class="friend-sub-btn active" id="friendSubTabInfo" onclick="switchFriendSubTab('info')">
+                    <i class="fa-solid fa-user-group"></i><span>친구 정보</span>
+                </button>
+                <button class="friend-sub-btn" id="friendSubTabPvP" onclick="switchFriendSubTab('pvp')">
+                    <i class="fa-solid fa-tower-broadcast"></i><span>실시간 대결 (PvP)</span>
+                </button>
+            </div>
+
+            <!-- 1. 친구 정보 탭 뷰 (기존 화면) -->
+            <div class="friend-container-v2 friend-layout-sub active" id="friendLayoutInfo">
                 <!-- 1. Top Section: 검색 및 유저 목록 (가로형 캐러셀) -->
                 <div class="friend-top-panel">
                     <div class="friend-search-box-v2">
@@ -1090,6 +1102,203 @@
                                 <div class="pitch-slot read-only-slot" id="friend-slot-GK" style="top: 90%; left: 50%;"></div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. 실시간 대결 (PvP) 탭 뷰 (신규) -->
+            <div class="friend-layout-sub" id="friendLayoutPvP" style="display: none;">
+                <div class="pvp-setup-container">
+                    
+                    <!-- [A] 매칭/대기 단계 뷰 -->
+                    <div id="pvpSetupView" class="pvp-card">
+                        <h3 class="pvp-setup-title">
+                            <i class="fa-solid fa-gamepad"></i> 1대1 실시간 대결 방 설정
+                        </h3>
+                        <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0; line-height: 1.5; word-break: keep-all;">
+                            Firestore 실시간 채널을 통해 다른 플레이어와 1대1 대결을 진행합니다.<br>
+                            한 명은 대결 방을 개설(Host)하고, 상대방은 방 코드 6자리를 입력해 참여(Guest)하세요.
+                        </p>
+                        <div class="pvp-setup-options">
+                            <!-- Host 방 개설 박스 -->
+                            <div class="pvp-setup-box">
+                                <h4>대결 방 만들기 (Host)</h4>
+                                <p style="font-size: 0.72rem; color: var(--text-muted); margin: 0; line-height: 1.4;">새로운 대결 방을 생성하고 난수 코드를 발행하여 대기합니다.</p>
+                                <button class="pvp-btn pvp-btn-purple" id="btnCreatePvpRoom" onclick="handleCreatePvpRoom()" style="margin-top: auto;">
+                                    <i class="fa-solid fa-plus"></i> 방 코드 발행 및 개설
+                                </button>
+                            </div>
+                            <!-- Guest 참가 박스 -->
+                            <div class="pvp-setup-box">
+                                <h4>방 참여하기 (Guest)</h4>
+                                <div class="pvp-input-code-wrapper">
+                                    <input type="text" id="pvpRoomCodeInput" class="pvp-input-code" placeholder="방 코드 6자리" maxlength="6" autocomplete="off">
+                                </div>
+                                <button class="pvp-btn pvp-btn-green" id="btnJoinPvpRoom" onclick="handleJoinPvpRoom()" style="margin-top: 0.4rem;">
+                                    <i class="fa-solid fa-right-to-bracket"></i> 대결 방 입장
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- 상대 전적 랭킹 보드 (신규) -->
+                        <div class="pvp-opponent-history-section" style="margin-top: 1.5rem; padding-top: 1.2rem; border-top: 1px solid var(--glass-border); width: 100%;">
+                            <h4 style="font-size: 0.88rem; font-weight: 800; color: #ffd700; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 6px;">
+                                <i class="fa-solid fa-ranking-star"></i> 1대1 실시간 상대 전적 (PvP Leaderboard)
+                            </h4>
+                            <div id="pvpOpponentStatsList" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 180px; overflow-y: auto; padding-right: 4px;">
+                                <div style="text-align: center; color: var(--text-muted); font-size: 0.76rem; padding: 10px;">상대 대결 전적이 없습니다. 첫 경기를 치러보세요!</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- [B] 실시간 대기실(Lobby) 뷰 -->
+                    <div id="pvpLobbyView" class="pvp-card" style="display: none;">
+                        <h3 class="pvp-setup-title" style="justify-content: space-between;">
+                            <span><i class="fa-solid fa-users"></i> 대결 준비 대기실</span>
+                            <span id="pvpLobbyRoomCodeLabel" style="font-size: 0.95rem; color: #a55eea; background: rgba(165,94,234,0.1); border: 1px solid rgba(165,94,234,0.3); padding: 2px 10px; border-radius: 8px; font-weight: 900;">방 코드: ------</span>
+                        </h3>
+                        
+                        <div class="pvp-lobby-grid">
+                            <!-- Host Profile Box -->
+                            <div class="pvp-lobby-team-box host-box" id="pvpLobbyHostCard">
+                                <div class="pvp-lobby-avatar"><i class="fa-solid fa-user-shield"></i></div>
+                                <h4 class="pvp-lobby-id" id="pvpHostNameLabel">HOST_ID</h4>
+                                <span class="pvp-lobby-ovr" id="pvpHostOvrLabel">OVR 70</span>
+                                
+                                <div class="pvp-lobby-tactic-row">
+                                    <span class="pvp-lobby-label">포메이션 선택</span>
+                                    <select id="pvpHostFormationSelect" class="pvp-formation-select" onchange="changePvpFormation(true, this.value)">
+                                        <option value="4-4-2">4-4-2</option>
+                                        <option value="4-3-3">4-3-3</option>
+                                        <option value="3-4-3">3-4-3</option>
+                                        <option value="5-4-1">5-4-1</option>
+                                        <option value="4-2-3-1">4-2-3-1</option>
+                                    </select>
+                                    <span id="pvpHostFormationMasked" class="pvp-tactic-masked" style="display: none;">
+                                        <i class="fa-solid fa-lock"></i> 비공개
+                                    </span>
+                                </div>
+                                <div class="pvp-lobby-tactic-row">
+                                    <span class="pvp-lobby-label">대표 에이스</span>
+                                    <span class="pvp-lobby-val" id="pvpHostAceLabel">-</span>
+                                </div>
+                            </div>
+                            
+                            <div class="pvp-lobby-vs">VS</div>
+                            
+                            <!-- Guest Profile Box -->
+                            <div class="pvp-lobby-team-box guest-box waiting-active" id="pvpLobbyGuestCard">
+                                <div id="pvpGuestBoxContent" style="display: none; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 0.8rem;">
+                                    <div class="pvp-lobby-avatar"><i class="fa-solid fa-user-gear"></i></div>
+                                    <h4 class="pvp-lobby-id" id="pvpGuestNameLabel">GUEST_ID</h4>
+                                    <span class="pvp-lobby-ovr" id="pvpGuestOvrLabel">OVR 70</span>
+                                    
+                                    <div class="pvp-lobby-tactic-row">
+                                        <span class="pvp-lobby-label">포메이션 선택</span>
+                                        <select id="pvpGuestFormationSelect" class="pvp-formation-select" onchange="changePvpFormation(false, this.value)">
+                                            <option value="4-4-2">4-4-2</option>
+                                            <option value="4-3-3">4-3-3</option>
+                                            <option value="3-4-3">3-4-3</option>
+                                            <option value="5-4-1">5-4-1</option>
+                                            <option value="4-2-3-1">4-2-3-1</option>
+                                        </select>
+                                        <span id="pvpGuestFormationMasked" class="pvp-tactic-masked" style="display: none;">
+                                            <i class="fa-solid fa-lock"></i> 비공개
+                                        </span>
+                                    </div>
+                                    <div class="pvp-lobby-tactic-row">
+                                        <span class="pvp-lobby-label">대표 에이스</span>
+                                        <span class="pvp-lobby-val" id="pvpGuestAceLabel">-</span>
+                                    </div>
+                                    <div class="pvp-lobby-tactic-row" id="pvpGuestReadyBadgeContainer" style="display: none; align-items: center; justify-content: center; margin-top: 5px;">
+                                        <span class="pvp-lobby-badge-ready"><i class="fa-solid fa-bolt"></i> READY</span>
+                                    </div>
+                                </div>
+                                <div id="pvpGuestBoxPlaceholder" style="padding: 2.5rem 0; color: var(--text-muted);">
+                                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 1.5rem; margin-bottom: 0.8rem; display: block; color: var(--text-muted);"></i>
+                                    상대 유저의 입장을 대기 중...
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 대기실 버튼 통제 -->
+                        <div style="display: flex; gap: 8px; margin-top: 1rem; width: 100%;">
+                            <button class="pvp-btn pvp-btn-gray" onclick="handleExitPvpRoom()" style="flex: 1;">
+                                <i class="fa-solid fa-arrow-left"></i> 대기실 나가기
+                            </button>
+                            
+                            <!-- Guest용 준비 완료 버튼 -->
+                            <button class="pvp-btn pvp-btn-green" id="btnPvpGuestReady" onclick="handleToggleGuestReady()" style="flex: 1.5; display: none;">
+                                <i class="fa-solid fa-check"></i> 준비 완료
+                            </button>
+                            
+                            <!-- Host용 대결 시작 버튼 -->
+                            <button class="pvp-btn pvp-btn-purple" id="btnPvpHostStart" onclick="handleStartPvpMatch()" style="flex: 1.5; display: none;" disabled>
+                                <i class="fa-solid fa-play"></i> 대결 시작
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- [C] 실시간 중계 단계 뷰 -->
+                    <div id="pvpMatchView" class="pvp-match-container" style="display: none;">
+                        
+                        <!-- 스코어보드 -->
+                        <div class="scoreboard-container pvp-sb">
+                            <div class="team-vs-display">
+                                <div class="sb-team sb-home">
+                                    <div class="sb-emblem" id="pvpHomeEmblem" style="border-color: #a55eea; background: rgba(165,94,234,0.15);"><i class="fa-solid fa-user-shield" style="color: #a55eea;"></i></div>
+                                    <h3 id="pvpHomeName">호스트팀</h3>
+                                    <span class="sb-ovr-tag" style="color: #a55eea; border-color: rgba(165,94,234,0.25);">OVR <strong id="pvpHomeOvr">70</strong></span>
+                                    <!-- 실제 중계 시점에 상성을 노출하기 위한 태그 -->
+                                    <span id="pvpHomeFormationBadge" style="font-size: 0.65rem; color: #a55eea; background: rgba(165,94,234,0.08); padding: 1px 6px; border-radius: 4px; margin-top: 4px; font-weight: 800;">4-4-2</span>
+                                </div>
+                                <div class="sb-score-board">
+                                    <div class="sb-time pvp-sb-time" id="pvpSbTime">0'</div>
+                                    <div class="sb-scores" style="font-size: 2.2rem;">
+                                        <span id="pvpHomeScore">0</span> - <span id="pvpAwayScore">0</span>
+                                    </div>
+                                    <div class="sb-match-venue" id="pvpMatchCompatibilityLabel" style="color: #cbd5e1; font-size: 0.6rem; font-weight: 700;">실시간 포메이션 상성 연산 완료</div>
+                                </div>
+                                <div class="sb-team sb-away">
+                                    <div class="sb-emblem" id="pvpAwayEmblem" style="border-color: #4b7bec; background: rgba(75,123,236,0.15);"><i class="fa-solid fa-user-gear" style="color: #4b7bec;"></i></div>
+                                    <h3 id="pvpAwayName">게스트팀</h3>
+                                    <span class="sb-ovr-tag" style="color: #4b7bec; border-color: rgba(75,123,236,0.25);">OVR <strong id="pvpAwayOvr">70</strong></span>
+                                    <!-- 실제 중계 시점에 상성을 노출하기 위한 태그 -->
+                                    <span id="pvpAwayFormationBadge" style="font-size: 0.65rem; color: #4b7bec; background: rgba(75,123,236,0.08); padding: 1px 6px; border-radius: 4px; margin-top: 4px; font-weight: 800;">4-4-2</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 문자 중계 박스 -->
+                        <div class="commentary-box-wrapper pvp-comm" style="margin-bottom: 0.5rem;">
+                            <div class="commentary-header pvp-comm-header">
+                                <span><i class="fa-solid fa-radio"></i> 1대1 실시간 대결 문자 중계</span>
+                                <span class="live-pulse pvp-live-badge" id="pvpLiveIndicator">LIVE</span>
+                            </div>
+                            <div class="commentary-scroll" id="pvpCommentaryScroll" style="height: 240px;">
+                                <div class="comm-item comm-system">경기 개시 대기 중...</div>
+                            </div>
+                        </div>
+
+                        <!-- 대결 종료 컨트롤 -->
+                        <div class="match-controls" id="pvpMatchControls" style="display: none; margin-top: 0.5rem; flex-direction: column; gap: 8px; width: 100%;">
+                            <div id="pvpRematchInfo" style="font-size: 0.8rem; color: #ffd700; font-weight: bold; text-align: center; margin-bottom: 4px;">[1 / 3 게임 진행 완료]</div>
+                            <div style="display: flex; gap: 8px; width: 100%;">
+                                <!-- Guest 재대결 신청 버튼 -->
+                                <button id="btnPvpGuestRematch" class="pvp-btn pvp-btn-green" onclick="handleGuestRematch()" style="flex: 1; display: none;">
+                                    <i class="fa-solid fa-arrows-rotate"></i> 재대결 신청
+                                </button>
+                                <!-- Host 재대결 대기실 이동 버튼 -->
+                                <button id="btnPvpHostRematch" class="pvp-btn pvp-btn-purple" onclick="handleHostRematch()" style="flex: 1; display: none;" disabled>
+                                    <i class="fa-solid fa-person-shelter"></i> 대기실로 이동 (재대결)
+                                </button>
+                                <!-- 대결 종료 / 나가기 버튼 -->
+                                <button class="pvp-btn pvp-btn-gray" onclick="handleExitPvpRoom()" style="flex: 1;">
+                                    <i class="fa-solid fa-right-from-bracket"></i> 대결 종료
+                                </button>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -1640,6 +1849,7 @@
     <script src="js/update_data.js?v=1.5"></script>
     <script src="js/friend.js?v=1.1"></script>
     <script src="js/auth.js?v=1.8"></script>
+    <script src="js/realtime.js?v=1.0"></script>
     <script src="js/coach_advisor.js?v=1.0"></script>
     <script src="app.js?v=1.5"></script>
     <script>

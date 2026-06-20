@@ -40,6 +40,19 @@ function cleanUndefined(obj) {
     return obj;
 }
 
+// Helper to safely parse any date value (including Firestore Timestamp) into Unix milliseconds
+function safeGetTime(dateVal) {
+    if (!dateVal) return 0;
+    if (typeof dateVal.toDate === 'function') {
+        try {
+            return dateVal.toDate().getTime();
+        } catch(e) {}
+    }
+    const d = new Date(dateVal);
+    const t = d.getTime();
+    return isNaN(t) ? 0 : t;
+}
+
 const dbService = {
     isFirebase: false,
     firestore: null,
@@ -98,7 +111,8 @@ const dbService = {
             try {
                 // 오프라인 상태 고정을 강제로 해제하고 즉시 백엔드 연결 활성화
                 await this.firestore.enableNetwork();
-                const doc = await this.firestore.collection('fc_star_users').doc(normalizedId).get();
+                // Force server fetch to prevent stale local cache overwriting newer server data.
+                const doc = await this.firestore.collection('fc_star_users').doc(normalizedId).get({ source: 'server' });
                 if (!doc.exists) {
                     throw new Error("존재하지 않는 아이디입니다.");
                 }
@@ -153,6 +167,8 @@ const dbService = {
             hallOfFame: [], // 명예의 전당 기록
             leaguePlayerStats: {}, // 리그 선수 개인 스탯 기록
             careerStats: { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} }, // 통산 성적
+            pvpStats: { w: 0, d: 0, l: 0 }, // 실시간 PvP 전적
+            pvpOpponentStats: {}, // 상대방별 PvP 전적
             cupState: null, // 코리아컵 대회 진행도 및 스탯
             updatedAt: new Date().toISOString()
         };
@@ -162,7 +178,8 @@ const dbService = {
                 // 오프라인 상태 고정을 강제로 해제하고 즉시 백엔드 연결 활성화
                 await this.firestore.enableNetwork();
                 const docRef = this.firestore.collection('fc_star_users').doc(normalizedId);
-                const doc = await docRef.get();
+                // Force server fetch to prevent stale local cache overwriting newer server data.
+                const doc = await docRef.get({ source: 'server' });
                 if (doc.exists) {
                     throw new Error("이미 존재하는 아이디입니다.");
                 }
@@ -199,10 +216,39 @@ const dbService = {
 
         if (this.isFirebase) {
             try {
-                await this.firestore.collection('fc_star_users').doc(normalizedId).update({
+                const docRef = this.firestore.collection('fc_star_users').doc(normalizedId);
+                // Force server fetch to check actual latest remote updatedAt timestamp.
+                const doc = await docRef.get({ source: 'server' });
+                if (doc.exists) {
+                    const remoteData = doc.data();
+                    const remoteUpdatedAt = remoteData.updatedAt;
+                    const localSyncedTime = progressData.lastSyncedUpdatedAt;
+                    
+                    const remoteTime = safeGetTime(remoteUpdatedAt);
+                    const localTime = safeGetTime(localSyncedTime);
+                    
+                    if (remoteTime > 0 && remoteTime > localTime) {
+                        console.warn("⚠️ 클라우드 데이터가 더 최신입니다. 로컬 덮어쓰기를 취소합니다.");
+                        if (typeof showToast === 'function') {
+                            showToast("⚠️ 다른 기기에서 저장된 최신 데이터가 발견되어 덮어쓰기가 방지되었습니다. 페이지를 새로고침하세요.");
+                        }
+                        return;
+                    }
+                }
+                
+                const newTimestamp = new Date().toISOString();
+                await docRef.update({
                     ...cleanData,
-                    updatedAt: new Date().toISOString()
+                    updatedAt: newTimestamp
                 });
+                
+                if (typeof lastSyncedUpdatedAt !== 'undefined') {
+                    lastSyncedUpdatedAt = newTimestamp;
+                    try {
+                        localStorage.setItem('fc_star_last_synced_updated_at', newTimestamp);
+                    } catch(e) {}
+                }
+                
                 console.log("☁️ Firestore 실시간 클라우드 백업 완료!");
             } catch (error) {
                 console.error("Firestore 백업 저장 실패 (원격 배경):", error);
@@ -229,7 +275,8 @@ const dbService = {
 
         if (this.isFirebase) {
             try {
-                const doc = await this.firestore.collection('fc_star_users').doc(normalizedId).get();
+                // Force server fetch to prevent stale local cache overwriting newer server data.
+                const doc = await this.firestore.collection('fc_star_users').doc(normalizedId).get({ source: 'server' });
                 return doc.exists ? doc.data() : null;
             } catch (error) {
                 console.error("Firebase 유저 조회 실패:", error);
@@ -463,6 +510,236 @@ const dbService = {
             // 2차 폴백: 가상 봇 데이터 제공
             console.log("🟢 캐시 부재로 2차 폴백 가상 봇 상대 로드 완료!");
             return fallbackOpponents;
+        }
+    },
+
+    // 1대1 실시간 PvP 대결 방 생성 (Host)
+    async createPvpRoom(roomId, hostId, squadData, formationName) {
+        if (!this.isFirebase || !this.firestore) {
+            throw new Error("실시간 대결은 Firebase 로그인 및 온라인 연결 상태에서만 가동할 수 있습니다.");
+        }
+        try {
+            const cleanSquad = cleanUndefined(squadData.squad || {});
+            const cleanDeck = cleanUndefined(squadData.playerDeck || {});
+            
+            const roomData = {
+                roomId: roomId,
+                status: "waiting",
+                guestReady: false,
+                guestRematchReady: false,
+                gameCount: 1,
+                host: {
+                    id: hostId,
+                    ovr: squadData.ovr || 70,
+                    formation: formationName || "4-4-2",
+                    squad: cleanSquad,
+                    playerDeck: cleanDeck
+                },
+                guest: null,
+                matchState: {
+                    minute: 0,
+                    hostScore: 0,
+                    guestScore: 0,
+                    currentEvent: {
+                        type: "system",
+                        min: 0,
+                        text: "대결 대기실이 성공적으로 개설되었습니다. 상대방(Guest)의 참가를 기다리는 중...",
+                        side: "neutral"
+                    },
+                    eventsLog: []
+                },
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            await this.firestore.collection('fc_star_rooms').doc(roomId).set(roomData);
+            console.log(`[PvP] 🟢 방 생성 완료: ${roomId}`);
+            return roomData;
+        } catch (error) {
+            console.error("PvP 방 생성 실패:", error);
+            throw error;
+        }
+    },
+
+    // 1대1 실시간 PvP 대결 방 참가 (Guest)
+    async joinPvpRoom(roomId, guestId, squadData, formationName) {
+        if (!this.isFirebase || !this.firestore) {
+            throw new Error("실시간 대결은 Firebase 로그인 및 온라인 연결 상태에서만 가동할 수 있습니다.");
+        }
+        try {
+            const docRef = this.firestore.collection('fc_star_rooms').doc(roomId);
+            const doc = await docRef.get();
+            if (!doc.exists) {
+                throw new Error("존재하지 않는 방 코드입니다.");
+            }
+            
+            const roomData = doc.data();
+            if (roomData.status !== "waiting") {
+                throw new Error("이미 만원이거나 게임이 시작된 방입니다.");
+            }
+            if (roomData.host.id === guestId) {
+                throw new Error("자기 자신의 방에는 참가할 수 없습니다.");
+            }
+            
+            const cleanSquad = cleanUndefined(squadData.squad || {});
+            const cleanDeck = cleanUndefined(squadData.playerDeck || {});
+            
+            const guestData = {
+                id: guestId,
+                ovr: squadData.ovr || 70,
+                formation: formationName || "4-4-2",
+                squad: cleanSquad,
+                playerDeck: cleanDeck
+            };
+            
+            await docRef.update({
+                status: "ready",
+                guest: guestData,
+                guestReady: false,
+                guestRematchReady: false,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            console.log(`[PvP] 🟢 방 참가 완료: ${roomId}`);
+            return guestData;
+        } catch (error) {
+            console.error("PvP 방 참가 실패:", error);
+            throw error;
+        }
+    },
+
+    // 대기실 내 실시간 포메이션 수정 및 전력 동기화
+    async updatePvpRoomTactic(roomId, isHost, squadData, formationName) {
+        if (!this.isFirebase || !this.firestore) return;
+        try {
+            const docRef = this.firestore.collection('fc_star_rooms').doc(roomId);
+            const cleanSquad = cleanUndefined(squadData.squad || {});
+            const cleanDeck = cleanUndefined(squadData.playerDeck || {});
+            
+            const updateKey = isHost ? "host" : "guest";
+            
+            await docRef.update({
+                [`${updateKey}.ovr`]: squadData.ovr || 70,
+                [`${updateKey}.formation`]: formationName || "4-4-2",
+                [`${updateKey}.squad`]: cleanSquad,
+                [`${updateKey}.playerDeck`]: cleanDeck,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            console.log(`[PvP] 포메이션 전술 동기화 완료 (${isHost ? 'Host' : 'Guest'}): ${formationName}`);
+        } catch (error) {
+            console.error("PvP 포메이션 동기화 실패:", error);
+        }
+    },
+
+    // 게스트 준비 완료 상태 토글
+    async setPvpGuestReady(roomId, isReady) {
+        if (!this.isFirebase || !this.firestore) return;
+        try {
+            await this.firestore.collection('fc_star_rooms').doc(roomId).update({
+                guestReady: isReady,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            console.log(`[PvP] 게스트 준비 완료 상태 변경: ${isReady}`);
+        } catch (error) {
+            console.error("PvP 게스트 준비 완료 변경 실패:", error);
+        }
+    },
+
+    // 대결 경기 시작 (playing 상태로 전환)
+    async startPvpMatch(roomId) {
+        if (!this.isFirebase || !this.firestore) return;
+        try {
+            await this.firestore.collection('fc_star_rooms').doc(roomId).update({
+                status: "playing",
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            console.log(`[PvP] 경기 개시 상태 동기화 완료: ${roomId}`);
+        } catch (error) {
+            console.error("PvP 경기 개시 동기화 실패:", error);
+        }
+    },
+
+    // 게스트 재대결 신청 상태 업데이트
+    async requestPvpRematch(roomId, isReady) {
+        if (!this.isFirebase || !this.firestore) return;
+        try {
+            await this.firestore.collection('fc_star_rooms').doc(roomId).update({
+                guestRematchReady: isReady,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            console.log(`[PvP] 게스트 재대결 준비 변경: ${isReady}`);
+        } catch (error) {
+            console.error("PvP 게스트 재대결 준비 변경 실패:", error);
+        }
+    },
+
+    // 호스트 재대결 시작 (ready 상태로 복원하여 대기실 재입장 처리)
+    async startPvpRematch(roomId, newGameCount) {
+        if (!this.isFirebase || !this.firestore) return;
+        try {
+            await this.firestore.collection('fc_star_rooms').doc(roomId).update({
+                status: "ready",
+                guestReady: false,
+                guestRematchReady: false,
+                gameCount: newGameCount,
+                matchState: {
+                    minute: 0,
+                    hostScore: 0,
+                    guestScore: 0,
+                    currentEvent: {
+                        type: "system",
+                        min: 0,
+                        text: `재대결(${newGameCount}번째 대결)을 위해 대기실로 복귀했습니다. 포메이션을 선택하고 다시 준비해주세요!`,
+                        side: "neutral"
+                    },
+                    eventsLog: []
+                },
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            console.log(`[PvP] 재대결 대기실 복귀 완료 (라운드: ${newGameCount})`);
+        } catch (error) {
+            console.error("PvP 재대결 대기실 복귀 실패:", error);
+        }
+    },
+
+    // 경기 실시간 중계 정보 업데이트
+    async updatePvpMatchState(roomId, matchState) {
+        if (!this.isFirebase || !this.firestore) return;
+        try {
+            const cleanState = cleanUndefined(matchState);
+            await this.firestore.collection('fc_star_rooms').doc(roomId).update({
+                matchState: cleanState,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        } catch (error) {
+            console.error("PvP 매치 상황 동기화 실패:", error);
+        }
+    },
+
+    // 방 파괴 또는 방 탈퇴 (나가기 처리)
+    async leavePvpRoom(roomId, userId) {
+        if (!this.isFirebase || !this.firestore) return;
+        try {
+            const docRef = this.firestore.collection('fc_star_rooms').doc(roomId);
+            const doc = await docRef.get();
+            if (!doc.exists) return;
+            
+            const roomData = doc.data();
+            
+            if (roomData.host && roomData.host.id === userId) {
+                await docRef.delete();
+                console.log(`[PvP] 🔴 호스트 퇴장으로 방 삭제 완료: ${roomId}`);
+            } else if (roomData.guest && roomData.guest.id === userId) {
+                await docRef.update({
+                    status: "waiting",
+                    guest: null,
+                    guestReady: false,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                console.log(`[PvP] 🔴 게스트 퇴장으로 대기실 환원 완료: ${roomId}`);
+            }
+        } catch (error) {
+            console.error("PvP 방 나가기 처리 실패:", error);
         }
     }
 };

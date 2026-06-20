@@ -135,7 +135,7 @@ function syncJeonbukOvr() {
 }
 
 // 2a. 플레이어의 포메이션 전술 완성 보너스 및 비례 공격/득점 확률 계산
-function getPlayerFormationTacticBonuses() {
+function getPlayerFormationTacticBonuses(formation = currentFormation, squad = squadFormation, deck = playerDeck) {
     let formationAttackBoost = 0;
     let formationScoreBoost = 0;
     let formationTacticDetailsHtml = "";
@@ -143,51 +143,51 @@ function getPlayerFormationTacticBonuses() {
     let hasKeyPlayer = false;
     let hasTeamTactic = false;
 
-    if (typeof currentFormation !== 'undefined' && currentFormation !== '4-4-2') {
-        if (currentFormation === '4-3-3') {
-            const cmCardId = squadFormation['CM'];
-            hasKeyPlayer = cmCardId && getAwakenedCard(cmCardId).stats && getAwakenedCard(cmCardId).stats.pas >= 80;
-            const avgPas = getTeamAverageStat('pas');
+    if (typeof formation !== 'undefined' && formation !== '4-4-2') {
+        if (formation === '4-3-3') {
+            const cmCardId = squad['CM'];
+            hasKeyPlayer = cmCardId && getAwakenedCard(cmCardId, deck).stats && getAwakenedCard(cmCardId, deck).stats.pas >= 80;
+            const avgPas = getTeamAverageStat('pas', squad, deck);
             hasTeamTactic = avgPas >= 70;
 
             if (hasKeyPlayer && hasTeamTactic) {
-                const cmPas = getAwakenedCard(cmCardId).stats.pas;
+                const cmPas = getAwakenedCard(cmCardId, deck).stats.pas;
                 formationAttackBoost = (cmPas - 80) * 0.005;
-                formationTacticDetailsHtml = `⚽ <strong>[4-3-3 빌드업 완성]</strong> 핵심 CM(${getAwakenedCard(cmCardId).name})의 패스 능력치(${cmPas}) 비례 공격권 획득 확률 <span style="color:#ffd700; font-weight:800;">+${(formationAttackBoost * 100).toFixed(1)}%</span> 부스트 탑재!`;
+                formationTacticDetailsHtml = `⚽ <strong>[4-3-3 빌드업 완성]</strong> 핵심 CM(${getAwakenedCard(cmCardId, deck).name})의 패스 능력치(${cmPas}) 비례 공격권 획득 확률 <span style="color:#ffd700; font-weight:800;">+${(formationAttackBoost * 100).toFixed(1)}%</span> 부스트 탑재!`;
             }
-        } else if (currentFormation === '3-4-3') {
-            const cmCardId = squadFormation['CM'];
-            hasKeyPlayer = cmCardId && getAwakenedCard(cmCardId).stats && getAwakenedCard(cmCardId).stats.dri >= 80;
-            const avgPac = getTeamAverageStat('pac');
+        } else if (formation === '3-4-3') {
+            const cmCardId = squad['CM'];
+            hasKeyPlayer = cmCardId && getAwakenedCard(cmCardId, deck).stats && getAwakenedCard(cmCardId, deck).stats.dri >= 80;
+            const avgPac = getTeamAverageStat('pac', squad, deck);
             hasTeamTactic = avgPac >= 70;
 
             if (hasKeyPlayer && hasTeamTactic) {
-                const cmDri = getAwakenedCard(cmCardId).stats.dri;
+                const cmDri = getAwakenedCard(cmCardId, deck).stats.dri;
                 formationAttackBoost = (cmDri - 80) * 0.005;
-                formationTacticDetailsHtml = `🌀 <strong>[3-4-3 스위칭 완성]</strong> 핵심 CM(${getAwakenedCard(cmCardId).name})의 드리블 능력치(${cmDri}) 비례 공격권 획득 확률 <span style="color:#00ff87; font-weight:800;">+${(formationAttackBoost * 100).toFixed(1)}%</span> 부스트 탑재!`;
+                formationTacticDetailsHtml = `🌀 <strong>[3-4-3 스위칭 완성]</strong> 핵심 CM(${getAwakenedCard(cmCardId, deck).name})의 드리블 능력치(${cmDri}) 비례 공격권 획득 확률 <span style="color:#00ff87; font-weight:800;">+${(formationAttackBoost * 100).toFixed(1)}%</span> 부스트 탑재!`;
             }
-        } else if (currentFormation === '5-4-1') {
-            const lwCardId = squadFormation['LW'];
-            const rwCardId = squadFormation['RW'];
+        } else if (formation === '5-4-1') {
+            const lwCardId = squad['LW'];
+            const rwCardId = squad['RW'];
             let lwPac = 0;
             let rwPac = 0;
 
             if (lwCardId) {
-                const card = getAwakenedCard(lwCardId);
+                const card = getAwakenedCard(lwCardId, deck);
                 if (card && card.stats && card.stats.pac >= 80) {
                     hasKeyPlayer = true;
                     lwPac = card.stats.pac;
                 }
             }
             if (rwCardId) {
-                const card = getAwakenedCard(rwCardId);
+                const card = getAwakenedCard(rwCardId, deck);
                 if (card && card.stats && card.stats.pac >= 80) {
                     hasKeyPlayer = true;
                     rwPac = card.stats.pac;
                 }
             }
 
-            const avgDef = getTeamAverageStat('def');
+            const avgDef = getTeamAverageStat('def', squad, deck);
             hasTeamTactic = avgDef >= 60;
 
             if (hasKeyPlayer && hasTeamTactic) {
@@ -195,16 +195,16 @@ function getPlayerFormationTacticBonuses() {
                 formationScoreBoost = (bestPac - 80) * 0.005;
                 formationTacticDetailsHtml = `⚡ <strong>[5-4-1 역습 완성]</strong> 에이스 윙어 최고속도(${bestPac}) 비례 득점 성공 확률 <span style="color:#ff3e6c; font-weight:800;">+${(formationScoreBoost * 100).toFixed(1)}%</span> 부스트 탑재!`;
             }
-        } else if (currentFormation === '4-2-3-1') {
-            const cmCardId = squadFormation['CM'];
-            hasKeyPlayer = cmCardId && getAwakenedCard(cmCardId).stats && getAwakenedCard(cmCardId).stats.dri >= 80;
-            const avgDri = getTeamAverageStat('dri');
+        } else if (formation === '4-2-3-1') {
+            const cmCardId = squad['CM'];
+            hasKeyPlayer = cmCardId && getAwakenedCard(cmCardId, deck).stats && getAwakenedCard(cmCardId, deck).stats.dri >= 80;
+            const avgDri = getTeamAverageStat('dri', squad, deck);
             hasTeamTactic = avgDri >= 70;
 
             if (hasKeyPlayer && hasTeamTactic) {
-                const cmDri = getAwakenedCard(cmCardId).stats.dri;
+                const cmDri = getAwakenedCard(cmCardId, deck).stats.dri;
                 formationAttackBoost = (cmDri - 80) * 0.005;
-                formationTacticDetailsHtml = `⚽ <strong>[4-2-3-1 점유율 완성]</strong> 핵심 AM(${getAwakenedCard(cmCardId).name})의 드리블 능력치(${cmDri}) 비례 공격권 획득 확률 <span style="color:#00d2fc; font-weight:800;">+${(formationAttackBoost * 100).toFixed(1)}%</span> 부스트 탑재!`;
+                formationTacticDetailsHtml = `⚽ <strong>[4-2-3-1 점유율 완성]</strong> 핵심 AM(${getAwakenedCard(cmCardId, deck).name})의 드리블 능력치(${cmDri}) 비례 공격권 획득 확률 <span style="color:#00d2fc; font-weight:800;">+${(formationAttackBoost * 100).toFixed(1)}%</span> 부스트 탑재!`;
             }
         }
 
@@ -223,31 +223,31 @@ function getPlayerFormationTacticBonuses() {
 }
 
 // 2b. 플레이어의 세부전술 및 전술 적합도 보너스 계산
-function getPlayerDetailedTacticBonuses() {
+function getPlayerDetailedTacticBonuses(formation = currentFormation, squad = squadFormation, deck = playerDeck) {
     let detailedTacticBonus = 0;
     let suitabilityBonus = 0;
     let detailedTacticLabel = "";
     let suitabilityLabel = "";
 
-    if (typeof currentFormation !== 'undefined') {
-        if (currentFormation === '4-3-3') {
-            const stCardId = squadFormation['ST'];
-            const isDetailedActive = stCardId && getAwakenedCard(stCardId).stats && getAwakenedCard(stCardId).stats.phy >= 80;
+    if (typeof formation !== 'undefined') {
+        if (formation === '4-3-3') {
+            const stCardId = squad['ST'];
+            const isDetailedActive = stCardId && getAwakenedCard(stCardId, deck).stats && getAwakenedCard(stCardId, deck).stats.phy >= 80;
             if (isDetailedActive) {
                 detailedTacticBonus = 0.05;
                 detailedTacticLabel = ` [세부전술: 타겟맨 활성 (+5.0%)]`;
             }
-            const avgPas = getTeamAverageStat('pas');
+            const avgPas = getTeamAverageStat('pas', squad, deck);
             suitabilityBonus = Math.max(0, (avgPas - 70) * 0.005);
             if (suitabilityBonus > 0) {
                 suitabilityLabel = ` [전술적합(PAS): +${(suitabilityBonus * 100).toFixed(1)}%]`;
             }
-        } else if (currentFormation === '3-4-3') {
+        } else if (formation === '3-4-3') {
             let fastAttackersCount = 0;
             const attackers = ["LW", "ST", "RW"];
             attackers.forEach(pos => {
-                const cardId = squadFormation[pos];
-                if (cardId && getAwakenedCard(cardId).stats && getAwakenedCard(cardId).stats.pac >= 90) {
+                const cardId = squad[pos];
+                if (cardId && getAwakenedCard(cardId, deck).stats && getAwakenedCard(cardId, deck).stats.pac >= 90) {
                     fastAttackersCount++;
                 }
             });
@@ -256,18 +256,18 @@ function getPlayerDetailedTacticBonuses() {
                 detailedTacticBonus = 0.05;
                 detailedTacticLabel = ` [세부전술: 전방압박 활성 (+5.0%)]`;
             }
-            const avgPac = getTeamAverageStat('pac');
+            const avgPac = getTeamAverageStat('pac', squad, deck);
             suitabilityBonus = Math.max(0, (avgPac - 70) * 0.005);
             if (suitabilityBonus > 0) {
                 suitabilityLabel = ` [전술적합(PAC): +${(suitabilityBonus * 100).toFixed(1)}%]`;
             }
-        } else if (currentFormation === '5-4-1') {
+        } else if (formation === '5-4-1') {
             let passDefendersCount = 0;
             const defenders = ["LB", "LCB", "CM", "RCB", "RB"];
             defenders.forEach(pos => {
-                const cardId = squadFormation[pos];
+                const cardId = squad[pos];
                 if (cardId && CARDS_DATABASE[cardId]) {
-                    const card = getAwakenedCard(cardId);
+                    const card = getAwakenedCard(cardId, deck);
                     const isRealDefender = ['CB', 'LB', 'RB'].includes(card.position);
                     if (isRealDefender && card.stats && card.stats.pas >= 80) {
                         passDefendersCount++;
@@ -279,17 +279,17 @@ function getPlayerDetailedTacticBonuses() {
                 detailedTacticBonus = 0.05;
                 detailedTacticLabel = ` [세부전술: 다이렉트 패스 활성 (+5.0%)]`;
             }
-            const avgDef = getTeamAverageStat('def');
+            const avgDef = getTeamAverageStat('def', squad, deck);
             suitabilityBonus = Math.max(0, (avgDef - 60) * 0.005);
             if (suitabilityBonus > 0) {
                 suitabilityLabel = ` [전술적합(DEF): +${(suitabilityBonus * 100).toFixed(1)}%]`;
             }
-        } else if (currentFormation === '4-2-3-1') {
+        } else if (formation === '4-2-3-1') {
             let passMidfieldersCount = 0;
             const midfielders = ["LCM", "CM", "RCM"];
             midfielders.forEach(pos => {
-                const cardId = squadFormation[pos];
-                if (cardId && getAwakenedCard(cardId).stats && getAwakenedCard(cardId).stats.pas >= 83) {
+                const cardId = squad[pos];
+                if (cardId && getAwakenedCard(cardId, deck).stats && getAwakenedCard(cardId, deck).stats.pas >= 83) {
                     passMidfieldersCount++;
                 }
             });
@@ -298,7 +298,7 @@ function getPlayerDetailedTacticBonuses() {
                 detailedTacticBonus = 0.05;
                 detailedTacticLabel = ` [세부전술: 티키타카 활성 (+5.0%)]`;
             }
-            const avgDri = getTeamAverageStat('dri');
+            const avgDri = getTeamAverageStat('dri', squad, deck);
             suitabilityBonus = Math.max(0, (avgDri - 70) * 0.005);
             if (suitabilityBonus > 0) {
                 suitabilityLabel = ` [전술적합(DRI): +${(suitabilityBonus * 100).toFixed(1)}%]`;
@@ -478,7 +478,7 @@ function calculateFinalMatchOvrs(venueType, isPlayerHome, opponentBaseOvr, isFri
 }
 
 // 3. 포메이션 세부 전술 연동 매치 코멘터리 생성 (리그 & 친선경기 시뮬레이터 공용)
-function getDetailedTacticCommentary(option, formation, isTacticActive, activePlayers) {
+function getDetailedTacticCommentary(option, formation, isTacticActive, activePlayers, squad = squadFormation, deck = playerDeck) {
     lastTacticGoalData = null; // Reset for each new commentary evaluation
     const { ST, LW, RW, CM } = activePlayers;
     
@@ -518,7 +518,7 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
                 eventFail = `아아! 피지컬로 수비를 힘으로 제압했으나, 골문을 아슬아슬하게 비껴 나가는 헤더 슛에 관중들이 머리를 감싸 쥡니다.`;
                 lastTacticGoalData = {
                     option: option,
-                    scorerId: squadFormation["ST"] || null,
+                    scorerId: squad["ST"] || null,
                     scorerName: ST,
                     assisterId: null,
                     assisterName: null
@@ -531,9 +531,9 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
                 eventFail = `아! 헤더 경합에는 성공했지만 골키퍼가 엄청난 반사신경으로 쳐내며 득점으로 연결되진 못합니다.`;
                 lastTacticGoalData = {
                     option: option,
-                    scorerId: squadFormation["ST"] || null,
+                    scorerId: squad["ST"] || null,
                     scorerName: ST,
-                    assisterId: squadFormation[wingerPos] || null,
+                    assisterId: squad[wingerPos] || null,
                     assisterName: activeWinger
                 };
             }
@@ -544,7 +544,7 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
                 eventFail = `아! 너무 온 힘을 다해 압박 스피드를 올렸던 탓일까요, 슈팅 순간 밸런스가 무너지며 골대 위로 솟구칩니다.`;
                 lastTacticGoalData = {
                     option: option,
-                    scorerId: squadFormation["ST"] || null,
+                    scorerId: squad["ST"] || null,
                     scorerName: ST,
                     assisterId: null,
                     assisterName: null
@@ -557,7 +557,7 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
                 eventFail = `상대 골키퍼가 각도를 좁히며 몸으로 가까스로 블로킹! 질식할 듯한 속도전이었으나 아쉽게 무산됩니다.`;
                 lastTacticGoalData = {
                     option: option,
-                    scorerId: squadFormation[wingerPos] || null,
+                    scorerId: squad[wingerPos] || null,
                     scorerName: activeWinger,
                     assisterId: null,
                     assisterName: null
@@ -570,9 +570,9 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
             
             const defPositions = ["LB", "LCB", "CM", "RCB", "RB"];
             defPositions.forEach(pos => {
-                const cardId = squadFormation[pos];
+                const cardId = squad[pos];
                 if (cardId && CARDS_DATABASE[cardId]) {
-                    const card = getAwakenedCard(cardId);
+                    const card = getAwakenedCard(cardId, deck);
                     const isRealDefender = ['CB', 'LB', 'RB'].includes(card.position);
                     if (isRealDefender && card.stats && card.stats.pas >= 80) {
                         if (card.stats.pas > maxPas) {
@@ -585,7 +585,7 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
             });
             
             const defenderLabel = passDefenderName || "수비수";
-
+ 
             if (option === 0 || option === 2) {
                 const activeWinger = option === 0 ? LW : RW;
                 const wingerPos = option === 0 ? "LW" : "RW";
@@ -594,7 +594,7 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
                 eventFail = `골포스트 강타! 수비진을 붕괴시킨 대단한 롱 패스와 슛이었으나 골대를 때리고 나오며 탄성을 자아냅니다.`;
                 lastTacticGoalData = {
                     option: option,
-                    scorerId: squadFormation[wingerPos] || null,
+                    scorerId: squad[wingerPos] || null,
                     scorerName: activeWinger,
                     assisterId: passDefenderId,
                     assisterName: passDefenderName
@@ -605,7 +605,7 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
                 eventFail = `아아! 패스가 살짝 길어 골키퍼가 먼저 슬라이딩하며 잡아내어 역습 찬스가 아쉽게 소멸됩니다.`;
                 lastTacticGoalData = {
                     option: option,
-                    scorerId: squadFormation["ST"] || null,
+                    scorerId: squad["ST"] || null,
                     scorerName: ST,
                     assisterId: passDefenderId,
                     assisterName: passDefenderName
@@ -620,9 +620,9 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
                 if (option === 1) {
                     lastTacticGoalData = {
                         option: option,
-                        scorerId: squadFormation["ST"] || null,
+                        scorerId: squad["ST"] || null,
                         scorerName: ST,
-                        assisterId: squadFormation["CM"] || null,
+                        assisterId: squad["CM"] || null,
                         assisterName: CM
                     };
                 } else if (option === 5) {
@@ -641,9 +641,9 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
                     }
                     lastTacticGoalData = {
                         option: option,
-                        scorerId: squadFormation[scorerPos] || null,
+                        scorerId: squad[scorerPos] || null,
                         scorerName: scorerName,
-                        assisterId: squadFormation["CM"] || null,
+                        assisterId: squad["CM"] || null,
                         assisterName: CM
                     };
                 }
@@ -964,7 +964,7 @@ function simulatePenaltyShootoutEngine(data) {
 let lastTacticGoalData = null;
 
 // 7. 공격 옵션별 동적 득점자/도움자 판정 함수
-function determineScorerAndAssister(selectedOption) {
+function determineScorerAndAssister(selectedOption, squad = squadFormation) {
     if (lastTacticGoalData && lastTacticGoalData.option === selectedOption) {
         const data = {
             scorerId: lastTacticGoalData.scorerId,
@@ -976,12 +976,12 @@ function determineScorerAndAssister(selectedOption) {
         return data;
     }
     lastTacticGoalData = null; // Clear if it doesn't match
-    const activeST = (typeof squadFormation !== 'undefined' && squadFormation["ST"] && CARDS_DATABASE[squadFormation["ST"]]) ? CARDS_DATABASE[squadFormation["ST"]].name : "무명 스트라이커";
-    const activeLW = (typeof squadFormation !== 'undefined' && squadFormation["LW"] && CARDS_DATABASE[squadFormation["LW"]]) ? CARDS_DATABASE[squadFormation["LW"]].name : "무명 윙어";
-    const activeRW = (typeof squadFormation !== 'undefined' && squadFormation["RW"] && CARDS_DATABASE[squadFormation["RW"]]) ? CARDS_DATABASE[squadFormation["RW"]].name : "무명 윙백";
-    const activeCM = (typeof squadFormation !== 'undefined' && squadFormation["CM"] && CARDS_DATABASE[squadFormation["CM"]]) ? CARDS_DATABASE[squadFormation["CM"]].name : "무명 미드필더";
-    const activeLCM = (typeof squadFormation !== 'undefined' && squadFormation["LCM"] && CARDS_DATABASE[squadFormation["LCM"]]) ? CARDS_DATABASE[squadFormation["LCM"]].name : "무명 미드필더";
-    const activeRCM = (typeof squadFormation !== 'undefined' && squadFormation["RCM"] && CARDS_DATABASE[squadFormation["RCM"]]) ? CARDS_DATABASE[squadFormation["RCM"]].name : "무명 미드필더";
+    const activeST = (typeof squad !== 'undefined' && squad["ST"] && CARDS_DATABASE[squad["ST"]]) ? CARDS_DATABASE[squad["ST"]].name : "무명 스트라이커";
+    const activeLW = (typeof squad !== 'undefined' && squad["LW"] && CARDS_DATABASE[squad["LW"]]) ? CARDS_DATABASE[squad["LW"]].name : "무명 윙어";
+    const activeRW = (typeof squad !== 'undefined' && squad["RW"] && CARDS_DATABASE[squad["RW"]]) ? CARDS_DATABASE[squad["RW"]].name : "무명 윙백";
+    const activeCM = (typeof squad !== 'undefined' && squad["CM"] && CARDS_DATABASE[squad["CM"]]) ? CARDS_DATABASE[squad["CM"]].name : "무명 미드필더";
+    const activeLCM = (typeof squad !== 'undefined' && squad["LCM"] && CARDS_DATABASE[squad["LCM"]]) ? CARDS_DATABASE[squad["LCM"]].name : "무명 미드필더";
+    const activeRCM = (typeof squad !== 'undefined' && squad["RCM"] && CARDS_DATABASE[squad["RCM"]]) ? CARDS_DATABASE[squad["RCM"]].name : "무명 미드필더";
 
     let scorerId = null;
     let scorerName = "무명 선수";
@@ -989,61 +989,61 @@ function determineScorerAndAssister(selectedOption) {
     let assisterName = null;
 
     if (selectedOption === 0) { // LW 돌파
-        scorerId = squadFormation["LW"];
+        scorerId = squad["LW"];
         scorerName = activeLW;
         const rand = Math.random();
         if (rand < 0.4) {
-            assisterId = squadFormation["ST"];
+            assisterId = squad["ST"];
             assisterName = activeST;
         } else if (rand < 0.6) {
-            assisterId = squadFormation["CM"];
+            assisterId = squad["CM"];
             assisterName = activeCM;
         } else if (rand < 0.8) {
-            assisterId = squadFormation["RW"];
+            assisterId = squad["RW"];
             assisterName = activeRW;
         }
     } else if (selectedOption === 1) { // ST 돌파
-        scorerId = squadFormation["ST"];
+        scorerId = squad["ST"];
         scorerName = activeST;
         const rand = Math.random();
         if (rand < 0.3) {
-            assisterId = squadFormation["LW"];
+            assisterId = squad["LW"];
             assisterName = activeLW;
         } else if (rand < 0.6) {
-            assisterId = squadFormation["RW"];
+            assisterId = squad["RW"];
             assisterName = activeRW;
         } else if (rand < 0.8) {
-            assisterId = squadFormation["CM"];
+            assisterId = squad["CM"];
             assisterName = activeCM;
         }
     } else if (selectedOption === 2) { // RW 돌파
-        scorerId = squadFormation["RW"];
+        scorerId = squad["RW"];
         scorerName = activeRW;
         const rand = Math.random();
         if (rand < 0.4) {
-            assisterId = squadFormation["ST"];
+            assisterId = squad["ST"];
             assisterName = activeST;
         } else if (rand < 0.6) {
-            assisterId = squadFormation["CM"];
+            assisterId = squad["CM"];
             assisterName = activeCM;
         } else if (rand < 0.8) {
-            assisterId = squadFormation["LW"];
+            assisterId = squad["LW"];
             assisterName = activeLW;
         }
     } else if (selectedOption === 5) { // AM/CM 돌파 (4-2-3-1 연출)
         // AM(CM)이 스루패스 도움을 주고, 전방의 ST, LW, RW가 득점함
         const rand = Math.random();
         if (rand < 0.6) {
-            scorerId = squadFormation["ST"];
+            scorerId = squad["ST"];
             scorerName = activeST;
         } else if (rand < 0.8) {
-            scorerId = squadFormation["LW"];
+            scorerId = squad["LW"];
             scorerName = activeLW;
         } else {
-            scorerId = squadFormation["RW"];
+            scorerId = squad["RW"];
             scorerName = activeRW;
         }
-        assisterId = squadFormation["CM"];
+        assisterId = squad["CM"];
         assisterName = activeCM;
     }
 

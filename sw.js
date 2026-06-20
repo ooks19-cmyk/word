@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fc-star-v189';
+const CACHE_NAME = 'fc-star-v190';
 const ASSETS = [
   './index.html',
   './style.css',
@@ -9,6 +9,7 @@ const ASSETS = [
   './css/quiz.css',
   './css/match.css',
   './css/friend.css',
+  './css/realtime.css',
   './js/state.js',
   './js/utils.js',
   './js/card.js',
@@ -23,6 +24,7 @@ const ASSETS = [
   './js/update_data.js',
   './js/auth.js',
   './js/friend.js',
+  './js/realtime.js',
   './js/achievements.js',
   './js/coach_advisor.js',
   './app.js',

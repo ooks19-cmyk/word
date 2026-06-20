@@ -1,11 +1,11 @@
 // js/card.js - 카드 렌더링 모듈
 
 // 각성 수치가 반영된 동적 선수 데이터 반환 함수
-function getAwakenedCard(cardId) {
+function getAwakenedCard(cardId, deck = playerDeck) {
     const baseCard = CARDS_DATABASE[cardId];
     if (!baseCard) return null;
     
-    const deckItem = playerDeck[cardId];
+    const deckItem = deck[cardId];
     const awk = (deckItem && typeof deckItem.awakening === 'number') ? deckItem.awakening : 0;
     if (awk === 0) {
         baseCard.awakening = 0;

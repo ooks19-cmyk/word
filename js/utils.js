@@ -150,14 +150,14 @@ function createSparkParticles(isExplosion = false, themeGlow = '#ffd700') {
 }
 
 // 팀 전체 능력치의 평균값을 계산하는 헬퍼 함수
-function getTeamAverageStat(statName) {
+function getTeamAverageStat(statName, squad = squadFormation, deck = playerDeck) {
     let totalStat = 0;
     const TACTICAL_POSITIONS = ["GK", "LB", "LCB", "RCB", "RB", "LCM", "CM", "RCM", "LW", "ST", "RW"];
     
     TACTICAL_POSITIONS.forEach(pos => {
-        const cardId = squadFormation[pos];
+        const cardId = squad[pos];
         if (cardId && CARDS_DATABASE[cardId]) {
-            const card = getAwakenedCard(cardId);
+            const card = getAwakenedCard(cardId, deck);
             if (card && card.stats && card.stats[statName] !== undefined) {
                 totalStat += card.stats[statName];
             } else {
