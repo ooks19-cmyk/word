@@ -479,6 +479,7 @@ function calculateFinalMatchOvrs(venueType, isPlayerHome, opponentBaseOvr, isFri
 
 // 3. 포메이션 세부 전술 연동 매치 코멘터리 생성 (리그 & 친선경기 시뮬레이터 공용)
 function getDetailedTacticCommentary(option, formation, isTacticActive, activePlayers) {
+    lastTacticGoalData = null; // Reset for each new commentary evaluation
     const { ST, LW, RW, CM } = activePlayers;
     
     let eventDesc = "";
@@ -515,39 +516,137 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
                 eventDesc = `압도적인 하드웨어를 가진 최전방의 ${ST}(이/가) 공중볼 경합에서 상대 센터백과의 강한 몸싸움을 거뜬히 이겨내고, 완벽한 포스트 플레이 후 터닝 발리 슛!`;
                 eventGoal = `골!!! ${ST}의 파괴적인 피지컬이 진가를 발휘합니다! 수비를 등진 상태에서 우직하게 버틴 후 골대 구석을 강타하는 묵직한 쐐기골 작렬! ⚽`;
                 eventFail = `아아! 피지컬로 수비를 힘으로 제압했으나, 골문을 아슬아슬하게 비껴 나가는 헤더 슛에 관중들이 머리를 감싸 쥡니다.`;
+                lastTacticGoalData = {
+                    option: option,
+                    scorerId: squadFormation["ST"] || null,
+                    scorerName: ST,
+                    assisterId: null,
+                    assisterName: null
+                };
             } else if (option === 0 || option === 2) {
                 const activeWinger = option === 0 ? LW : RW;
+                const wingerPos = option === 0 ? "LW" : "RW";
                 eventDesc = `측면에서 ${activeWinger}(이/가) 문전을 향해 높고 날카로운 크로스 장전! 박스 중앙에서 거구의 ${ST}(이/가) 압도적인 타점으로 솟구쳐 오릅니다!`;
                 eventGoal = `골!!! ${ST}의 완벽한 고공 폭격! 상대 골키퍼가 꼼짝도 못 하는 괴물 같은 헤더 슈팅으로 골망을 시원하게 흔듭니다! ⚽`;
                 eventFail = `아! 헤더 경합에는 성공했지만 골키퍼가 엄청난 반사신경으로 쳐내며 득점으로 연결되진 못합니다.`;
+                lastTacticGoalData = {
+                    option: option,
+                    scorerId: squadFormation["ST"] || null,
+                    scorerName: ST,
+                    assisterId: squadFormation[wingerPos] || null,
+                    assisterName: activeWinger
+                };
             }
         } else if (formation === '3-4-3') {
             if (option === 1) {
                 eventDesc = `쾌속 공격진 ${LW}와 ${RW}의 미친 듯한 스프린트 압박! 당황해 횡패스 실수를 범한 상대 수비진의 공을 ${ST}(이/가) 번개처럼 가로채 단독 1대1 찬스를 잡습니다!`;
                 eventGoal = `골!!! 전술적인 전방 압박의 완벽한 결실! ${ST}(이/가) 뛰쳐나온 키퍼의 옆을 가볍게 지나쳐 골망 흔들기에 성공합니다! ⚽`;
                 eventFail = `아! 너무 온 힘을 다해 압박 스피드를 올렸던 탓일까요, 슈팅 순간 밸런스가 무너지며 골대 위로 솟구칩니다.`;
+                lastTacticGoalData = {
+                    option: option,
+                    scorerId: squadFormation["ST"] || null,
+                    scorerName: ST,
+                    assisterId: null,
+                    assisterName: null
+                };
             } else if (option === 0 || option === 2) {
                 const activeWinger = option === 0 ? LW : RW;
+                const wingerPos = option === 0 ? "LW" : "RW";
                 eventDesc = `최전방 압박으로 탈취한 공이 단숨에 빈 공간으로 연결됩니다! 시속 90 이상의 무시무시한 주력으로 질주하는 ${activeWinger}의 총알 같은 침투 슛!`;
                 eventGoal = `골!!! 수비수가 따라잡을 엄두조차 내지 못한 역대급 속도전! ${activeWinger}의 번개 같은 니어포스트 슈팅이 꽂힙니다! ⚽`;
                 eventFail = `상대 골키퍼가 각도를 좁히며 몸으로 가까스로 블로킹! 질식할 듯한 속도전이었으나 아쉽게 무산됩니다.`;
+                lastTacticGoalData = {
+                    option: option,
+                    scorerId: squadFormation[wingerPos] || null,
+                    scorerName: activeWinger,
+                    assisterId: null,
+                    assisterName: null
+                };
             }
         } else if (formation === '5-4-1') {
+            let passDefenderId = null;
+            let passDefenderName = null;
+            let maxPas = -1;
+            
+            const defPositions = ["LB", "LCB", "CM", "RCB", "RB"];
+            defPositions.forEach(pos => {
+                const cardId = squadFormation[pos];
+                if (cardId && CARDS_DATABASE[cardId]) {
+                    const card = getAwakenedCard(cardId);
+                    const isRealDefender = ['CB', 'LB', 'RB'].includes(card.position);
+                    if (isRealDefender && card.stats && card.stats.pas >= 80) {
+                        if (card.stats.pas > maxPas) {
+                            maxPas = card.stats.pas;
+                            passDefenderId = cardId;
+                            passDefenderName = card.name;
+                        }
+                    }
+                }
+            });
+            
+            const defenderLabel = passDefenderName || "수비수";
+
             if (option === 0 || option === 2) {
                 const activeWinger = option === 0 ? LW : RW;
-                eventDesc = `수비 라인 깊숙한 곳에서 패스 장인 수비수가 배후 공간을 완전히 열어젖히는 낮고 정교한 다이렉트 롱 패스를 뿌립니다! 수비 라인을 무력화하며 수신한 ${activeWinger}의 슛!`;
+                const wingerPos = option === 0 ? "LW" : "RW";
+                eventDesc = `수비 라인 깊숙한 곳에서 패스 장인 수비수 ${defenderLabel}가 배후 공간을 완전히 열어젖히는 낮고 정교한 다이렉트 롱 패스를 뿌립니다! 수비 라인을 무력화하며 수신한 ${activeWinger}의 슛!`;
                 eventGoal = `골!!! 한 번의 패스로 경기장 전체를 종으로 갈랐습니다! ${activeWinger}의 절묘한 논스톱 발리 슛이 구석에 꽂히며 원더골이 완성됩니다! ⚽`;
                 eventFail = `골포스트 강타! 수비진을 붕괴시킨 대단한 롱 패스와 슛이었으나 골대를 때리고 나오며 탄성을 자아냅니다.`;
+                lastTacticGoalData = {
+                    option: option,
+                    scorerId: squadFormation[wingerPos] || null,
+                    scorerName: activeWinger,
+                    assisterId: passDefenderId,
+                    assisterName: passDefenderName
+                };
             } else if (option === 1) {
-                eventDesc = `상대 공격을 커트하자마자 수비진에서 최전방의 ${ST}를 겨냥해 거리를 다이렉트로 관통하는 레이저 패스 배송! 하프라인을 넘는 카운터 시작!`;
+                eventDesc = `상대 공격을 커트하자마자 수비진의 ${defenderLabel}에서 최전방의 ${ST}를 겨냥해 거리를 다이렉트로 관통하는 레이저 패스 배송! 하프라인을 넘는 카운터 시작!`;
                 eventGoal = `골!!! 패스 한 번에 완전 오프사이드 트랩이 해체되었습니다! ${ST}(이/가) 침착하게 골망 흔들기에 성공하며 역습의 마침표를 찍습니다! ⚽`;
                 eventFail = `아아! 패스가 살짝 길어 골키퍼가 먼저 슬라이딩하며 잡아내어 역습 찬스가 아쉽게 소멸됩니다.`;
+                lastTacticGoalData = {
+                    option: option,
+                    scorerId: squadFormation["ST"] || null,
+                    scorerName: ST,
+                    assisterId: passDefenderId,
+                    assisterName: passDefenderName
+                };
             }
         } else if (formation === '4-2-3-1') {
             if (option === 5 || option === 1) {
                 eventDesc = `평균 패스 83 이상의 미드필더 삼총사가 좁은 공간에서 환상적인 삼각 패스와 극상의 원터치 연계로 상대를 유인한 후, 플레이메이커 ${CM}의 가랑이를 꿰뚫는 스루패스!`;
                 eventGoal = `골!!! 패스 마술사들의 완벽한 그라운드 지배! 촘촘히 엮어 짜낸 조직적인 패스 콤비네이션이 기어코 완벽한 작품 골을 빚어냅니다! ⚽`;
                 eventFail = `앗! 완벽한 패스워크의 끝에 마지막 슈팅이 상대 수비수의 필사적인 슬라이딩 태클에 굴절되며 아웃됩니다.`;
+                
+                if (option === 1) {
+                    lastTacticGoalData = {
+                        option: option,
+                        scorerId: squadFormation["ST"] || null,
+                        scorerName: ST,
+                        assisterId: squadFormation["CM"] || null,
+                        assisterName: CM
+                    };
+                } else if (option === 5) {
+                    const rand = Math.random();
+                    let scorerPos = "ST";
+                    let scorerName = ST;
+                    if (rand < 0.6) {
+                        scorerPos = "ST";
+                        scorerName = ST;
+                    } else if (rand < 0.8) {
+                        scorerPos = "LW";
+                        scorerName = LW;
+                    } else {
+                        scorerPos = "RW";
+                        scorerName = RW;
+                    }
+                    lastTacticGoalData = {
+                        option: option,
+                        scorerId: squadFormation[scorerPos] || null,
+                        scorerName: scorerName,
+                        assisterId: squadFormation["CM"] || null,
+                        assisterName: CM
+                    };
+                }
             }
         }
     }
@@ -862,8 +961,21 @@ function simulatePenaltyShootoutEngine(data) {
     };
 }
 
+let lastTacticGoalData = null;
+
 // 7. 공격 옵션별 동적 득점자/도움자 판정 함수
 function determineScorerAndAssister(selectedOption) {
+    if (lastTacticGoalData && lastTacticGoalData.option === selectedOption) {
+        const data = {
+            scorerId: lastTacticGoalData.scorerId,
+            scorerName: lastTacticGoalData.scorerName,
+            assisterId: lastTacticGoalData.assisterId,
+            assisterName: lastTacticGoalData.assisterName
+        };
+        lastTacticGoalData = null;
+        return data;
+    }
+    lastTacticGoalData = null; // Clear if it doesn't match
     const activeST = (typeof squadFormation !== 'undefined' && squadFormation["ST"] && CARDS_DATABASE[squadFormation["ST"]]) ? CARDS_DATABASE[squadFormation["ST"]].name : "무명 스트라이커";
     const activeLW = (typeof squadFormation !== 'undefined' && squadFormation["LW"] && CARDS_DATABASE[squadFormation["LW"]]) ? CARDS_DATABASE[squadFormation["LW"]].name : "무명 윙어";
     const activeRW = (typeof squadFormation !== 'undefined' && squadFormation["RW"] && CARDS_DATABASE[squadFormation["RW"]]) ? CARDS_DATABASE[squadFormation["RW"]].name : "무명 윙백";
