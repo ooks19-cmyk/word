@@ -613,22 +613,11 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
             }
         } else if (formation === '4-2-3-1') {
             if (option === 5 || option === 1) {
-                eventDesc = `평균 패스 83 이상의 미드필더 삼총사가 좁은 공간에서 환상적인 삼각 패스와 극상의 원터치 연계로 상대를 유인한 후, 플레이메이커 ${CM}의 가랑이를 꿰뚫는 스루패스!`;
-                eventGoal = `골!!! 패스 마술사들의 완벽한 그라운드 지배! 촘촘히 엮어 짜낸 조직적인 패스 콤비네이션이 기어코 완벽한 작품 골을 빚어냅니다! ⚽`;
-                eventFail = `앗! 완벽한 패스워크의 끝에 마지막 슈팅이 상대 수비수의 필사적인 슬라이딩 태클에 굴절되며 아웃됩니다.`;
+                let scorerName = ST;
+                let scorerPos = "ST";
                 
-                if (option === 1) {
-                    lastTacticGoalData = {
-                        option: option,
-                        scorerId: squad["ST"] || null,
-                        scorerName: ST,
-                        assisterId: squad["CM"] || null,
-                        assisterName: CM
-                    };
-                } else if (option === 5) {
+                if (option === 5) {
                     const rand = Math.random();
-                    let scorerPos = "ST";
-                    let scorerName = ST;
                     if (rand < 0.6) {
                         scorerPos = "ST";
                         scorerName = ST;
@@ -639,14 +628,19 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
                         scorerPos = "RW";
                         scorerName = RW;
                     }
-                    lastTacticGoalData = {
-                        option: option,
-                        scorerId: squad[scorerPos] || null,
-                        scorerName: scorerName,
-                        assisterId: squad["CM"] || null,
-                        assisterName: CM
-                    };
                 }
+                
+                eventDesc = `평균 패스 83 이상의 미드필더 삼총사가 좁은 공간에서 환상적인 삼각 패스와 극상의 원터치 연계로 상대를 유인한 후, 플레이메이커 ${CM}의 가랑이를 꿰뚫는 스루패스!`;
+                eventGoal = `골!!! 패스 마술사들의 완벽한 그라운드 지배! 촘촘히 엮어 짜낸 조직적인 패스 콤비네이션의 끝에 <strong>${scorerName}</strong>가 침착하게 밀어 넣으며 기어코 완벽한 작품 골을 빚어냅니다! ⚽`;
+                eventFail = `앗! 완벽한 패스워크의 끝에 마지막 슈팅이 상대 수비수의 필사적인 슬라이딩 태클에 굴절되며 아웃됩니다.`;
+                
+                lastTacticGoalData = {
+                    option: option,
+                    scorerId: squad[scorerPos] || null,
+                    scorerName: scorerName,
+                    assisterId: squad["CM"] || null,
+                    assisterName: CM
+                };
             }
         }
     }

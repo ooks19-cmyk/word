@@ -923,7 +923,15 @@ function startPvpMatchSimulation(roomId, roomData) {
                     if (!text) return "";
                     return text
                         .replace(/전북 현대|전북|나의 구단/g, `<strong>${attackerName}</strong>`)
-                        .replace(/상대팀|상대/g, `<strong>${defenderName}</strong>`);
+                        .replace(/상대팀|상대/g, `<strong>${defenderName}</strong>`)
+                        .replace(/전주성/g, `경기장`);
+                };
+                const cleanTextForDef = (text) => {
+                    if (!text) return "";
+                    return text
+                        .replace(/전북 현대|전북|나의 구단/g, `<strong>${defenderName}</strong>`)
+                        .replace(/상대팀|상대/g, `<strong>${attackerName}</strong>`)
+                        .replace(/전주성/g, `경기장`);
                 };
                 
                 addPvpCommentary(currentExtraMin, `⚡ [${attackerName}] [찬스 - 연장] ${cleanText(commData.eventDesc)}`, 'attack');
@@ -937,7 +945,7 @@ function startPvpMatchSimulation(roomId, roomData) {
                     const isGkSaveText = Math.random() < 0.5;
                     if (isGkSaveText) {
                         const saveText = getMatchEventCommentary('GK_SAVE', { activeGk: defGkName });
-                        addPvpCommentary(currentExtraMin, cleanText(saveText), 'normal');
+                        addPvpCommentary(currentExtraMin, cleanTextForDef(saveText), 'normal');
                     } else {
                         addPvpCommentary(currentExtraMin, cleanText(commData.eventFail), 'normal');
                     }
@@ -1042,7 +1050,15 @@ function startPvpMatchSimulation(roomId, roomData) {
                 if (!text) return "";
                 return text
                     .replace(/전북 현대|전북|나의 구단/g, `<strong>${attackerName}</strong>`)
-                    .replace(/상대팀|상대/g, `<strong>${defenderName}</strong>`);
+                    .replace(/상대팀|상대/g, `<strong>${defenderName}</strong>`)
+                    .replace(/전주성/g, `경기장`);
+            };
+            const cleanTextForDef = (text) => {
+                if (!text) return "";
+                return text
+                    .replace(/전북 현대|전북|나의 구단/g, `<strong>${defenderName}</strong>`)
+                    .replace(/상대팀|상대/g, `<strong>${attackerName}</strong>`)
+                    .replace(/전주성/g, `경기장`);
             };
             
             addPvpCommentary(currentMin, `⚡ [${attackerName}] [찬스] ${cleanText(commData.eventDesc)}`, 'attack');
@@ -1056,7 +1072,7 @@ function startPvpMatchSimulation(roomId, roomData) {
                 const isGkSaveText = Math.random() < 0.5;
                 if (isGkSaveText) {
                     const saveText = getMatchEventCommentary('GK_SAVE', { activeGk: defGkName });
-                    addPvpCommentary(currentMin, cleanText(saveText), 'normal');
+                    addPvpCommentary(currentMin, cleanTextForDef(saveText), 'normal');
                 } else {
                     addPvpCommentary(currentMin, cleanText(commData.eventFail), 'normal');
                 }

@@ -374,7 +374,7 @@ const CARDS_DATABASE = {
         club: "JEONBUK",
         image: "player/김태환.png",
         rarity: "normal",
-        description: "전북 현대의 든든한 캡틴이자,",
+        description: "전북 현대의 우측 측면을 책임지는 베테랑 풀백 김태환입니다. '치타'라는 별명에 걸맞은 폭발적인 스피드와 투지 넘치는 대인 수비, 그리고 저돌적인 오버래핑으로 팀의 측면에 단단함과 활력을 불어넣는 든든한 수비수입니다.",
         theme: {
             primary: "#005a3c",
             secondary: "#ff3366",
@@ -442,13 +442,13 @@ const CARDS_DATABASE = {
     "kang_sang_yoon": {
         id: "kang_sang_yoon",
         name: "강상윤",
-        rating: 76,
+        rating: 81,
         position: "CM",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "JEONBUK",
         image: "player/강상윤.png",
-        rarity: "normal",
+        rarity: "special",
         description: "넘치는 에너지와 적극적인 활동량을 바탕으로 넓은 중원을 누비는 유망주 미드필더입니다. 뛰어난 기동력과 지치지 않는 체력으로 공수 양면에서 헌신적인 엔진 역할을 수행합니다.",
         theme: {
             primary: "#005a3c",
@@ -456,12 +456,12 @@ const CARDS_DATABASE = {
             glow: "#00d2ff"
         },
         stats: {
-            pac: 75,
-            sho: 68,
-            pas: 76,
-            dri: 75,
-            def: 65,
-            phy: 68
+            pac: 80,
+            sho: 73,
+            pas: 83,
+            dri: 85,
+            def: 75,
+            phy: 73
         }
     },
     "kim_tae_hyeon": {
@@ -510,33 +510,33 @@ const CARDS_DATABASE = {
             sho: 60,
             pas: 75,
             dri: 72,
-            def: 75,
+            def: 80,
             phy: 73
         }
     },
     "cho_wi_je": {
         id: "cho_wi_je",
         name: "조위제",
-        rating: 77,
+        rating: 83,
         position: "CB",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "JEONBUK",
         image: "player/조위제.png",
-        rarity: "normal",
+        rarity: "special",
         description: "압도적인 하드웨어와 빠른 복귀 속도를 지닌 차세대 유망주 대형 센터백입니다. 적극적이고 타이트한 대인 마크와 과감한 공중 경합으로 수비 라인에 피지컬을 더해 줍니다.",
         theme: {
             primary: "#005a3c",
             secondary: "#ffffff",
-            glow: "#e2e8f0"
+            glow: "#00ff87"
         },
         stats: {
-            pac: 80,
-            sho: 38,
-            pas: 58,
-            dri: 59,
-            def: 80,
-            phy: 75
+            pac: 83,
+            sho: 50,
+            pas: 79,
+            dri: 75,
+            def: 83,
+            phy: 79
         }
     },
     "choi_woo_jin": {
@@ -1462,6 +1462,56 @@ const CARDS_DATABASE = {
             dri: 77,
             def: 82,
             phy: 79
+        }
+    },
+    "cristiano_ronaldo": {
+        id: "cristiano_ronaldo",
+        name: "크리스티아누 호날두",
+        rating: 90,
+        position: "LW",
+        nation: "Portugal",
+        nationFlag: "https://flagcdn.com/w40/pt.png",
+        club: "AL NASSR",
+        image: "player2/호날두.png",
+        rarity: "legend",
+        description: "축구 역사상 가장 위대한 득점 기계이자 철저한 자기관리의 상징인 크리스티아누 호날두입니다. 압도적인 피지컬, 폭발적인 점프력을 활용한 높은 타점의 헤더, 그리고 양발과 머리를 가리지 않는 무결점 골 결정력으로 축구 역사에 수많은 대기록을 수립한 전설적인 윙어입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 90,
+            sho: 89,
+            pas: 82,
+            dri: 88,
+            def: 35,
+            phy: 78
+        }
+    },
+    "byeon_jun_su": {
+        id: "byeon_jun_su",
+        name: "변준수",
+        rating: 84,
+        position: "CB",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "KOREA",
+        image: "player2/변준수.png",
+        rarity: "special",
+        description: "대한민국 축구 국가대표팀의 미래를 짊어질 차세대 대형 센터백 변준수입니다. 압도적인 피지컬을 활용한 제공권 장악력, 안정적인 대인 방어 능력, 그리고 빌드업의 시발점이 되는 정교한 패스 능력을 갖춘 스페셜 중앙 수비수입니다.",
+        theme: {
+            primary: "#da1a32",
+            secondary: "#1d2b58",
+            glow: "#ff2a55"
+        },
+        stats: {
+            pac: 78,
+            sho: 45,
+            pas: 72,
+            dri: 70,
+            def: 85,
+            phy: 84
         }
     }
 };
