@@ -74,14 +74,14 @@ function initCup() {
 
 function resetCupStateData() {
     const curYear = (typeof leagueYear !== 'undefined') ? leagueYear : 2026;
-    const playerOvr = (typeof getPlayerPureOvr === 'function') ? getPlayerPureOvr() : 70;
+    const top20Ovr = (typeof getPlayerTop20Ovr === 'function') ? getPlayerTop20Ovr() : 70;
     
-    // K2 팀의 OVR을 플레이어 OVR - (0~5) 범위로 동적 설정, K1 팀은 리그 상대팀 OVR 적용
+    // K2 팀의 OVR을 플레이어 상위 20개 평균 OVR - (2~10) 범위로 동적 설정, K1 팀은 리그 상대팀 OVR 적용
     const initializedTeams = CUP_TEAMS_PRESET.map(team => {
         let rating = team.rating;
         if (["suwon_samsung", "daegu_fc", "busan_ipark", "seoul_e_land"].includes(team.id)) {
-            const minus = Math.floor(Math.random() * 6);
-            rating = Math.max(50, playerOvr - minus);
+            const offset = Math.floor(Math.random() * 9) - 10; // -10 ~ -2 범위 랜덤
+            rating = Math.max(50, top20Ovr + offset);
         } else {
             // K1 팀인 경우 리그의 상대팀 OVR 가져오기
             if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {
@@ -91,7 +91,6 @@ function resetCupStateData() {
                 }
             }
         }
-        rating = Math.min(rating, 92); // 92 캡 적용
         return { ...team, rating: rating };
     });
 
@@ -284,11 +283,9 @@ function updatePlayerTeamOvr() {
             if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {
                 const leagueTeam = leagueTeams.find(t => t.id === team.id);
                 if (leagueTeam && leagueTeam.rating !== undefined) {
-                    team.rating = Math.min(leagueTeam.rating, 92);
+                    team.rating = leagueTeam.rating;
                 }
             }
-        } else {
-            team.rating = Math.min(team.rating, 92);
         }
     });
     
@@ -302,11 +299,9 @@ function updatePlayerTeamOvr() {
                     if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {
                         const leagueTeam = leagueTeams.find(t => t.id === match.team1.id);
                         if (leagueTeam && leagueTeam.rating !== undefined) {
-                            match.team1.rating = Math.min(leagueTeam.rating, 92);
+                            match.team1.rating = leagueTeam.rating;
                         }
                     }
-                } else {
-                    match.team1.rating = Math.min(match.team1.rating, 92);
                 }
             }
             if (match.team2) {
@@ -316,11 +311,9 @@ function updatePlayerTeamOvr() {
                     if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {
                         const leagueTeam = leagueTeams.find(t => t.id === match.team2.id);
                         if (leagueTeam && leagueTeam.rating !== undefined) {
-                            match.team2.rating = Math.min(leagueTeam.rating, 92);
+                            match.team2.rating = leagueTeam.rating;
                         }
                     }
-                } else {
-                    match.team2.rating = Math.min(match.team2.rating, 92);
                 }
             }
         });

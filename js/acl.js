@@ -45,6 +45,7 @@ function initAcl() {
 function resetAclStateData() {
     const curYear = (typeof leagueYear !== 'undefined') ? leagueYear : 2026;
     const playerOvr = (typeof getPlayerPureOvr === 'function') ? getPlayerPureOvr() : 70;
+    const top20Ovr = (typeof getPlayerTop20Ovr === 'function') ? getPlayerTop20Ovr() : 70;
 
     // 1. K리그 구단 중 우리팀(전북)을 제외한 상위 2개 팀 선발
     let kLeagueQualifiers = [];
@@ -87,19 +88,22 @@ function resetAclStateData() {
     // 해외 13개 팀 추가 (OVR을 플레이어 OVR 기준 보정)
     const westTeamIds = ["al_hilal", "al_nassr", "al_ahli", "al_itihad", "al_ain", "al_sadd", "persepolis", "pakhtakor"];
     const chosenBossWestTeamId = westTeamIds[Math.floor(Math.random() * westTeamIds.length)];
+    const strongAclTeams = ["vissel_kobe", "yokohama_marinos", "kawasaki_frontale", "al_hilal", "al_nassr", "al_ahli", "al_itihad", "al_ain", "al_sadd"];
 
     presetTeams.forEach(team => {
         let adjustedRating;
         if (team.id === chosenBossWestTeamId) {
-            // 서부리그 보스팀 1팀은 우리팀 OVR 대비 +3
-            adjustedRating = playerOvr + 3;
+            // 서부리그 보스팀 1팀은 우리팀 상위 20개 평균 OVR + 1
+            adjustedRating = Math.max(55, top20Ovr + 1);
+        } else if (strongAclTeams.includes(team.id)) {
+            // 강팀: -2 ~ 0 범위
+            const offset = Math.floor(Math.random() * 3) - 2; // -2, -1, 0
+            adjustedRating = Math.max(55, top20Ovr + offset);
         } else {
-            // 나머지 모든 해외 구단(서부 7팀 + 동부 해외 5팀)은 OVR -2 ~ +1 범위 (난수)
-            const randDiff = Math.floor(Math.random() * 4) - 2; // -2, -1, 0, 1 중 하나
-            adjustedRating = Math.max(55, playerOvr + randDiff);
+            // 약팀: -10 ~ -2 범위
+            const offset = Math.floor(Math.random() * 9) - 10; // -10 ~ -2
+            adjustedRating = Math.max(55, top20Ovr + offset);
         }
-        adjustedRating = Math.min(adjustedRating, 92); // 92 캡 적용
-        
         initializedTeams.push({
             id: team.id,
             name: team.name,
@@ -341,11 +345,9 @@ function updateAclPlayerTeamOvr() {
             if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {
                 const leagueTeam = leagueTeams.find(t => t.id === team.id);
                 if (leagueTeam && leagueTeam.rating !== undefined) {
-                    team.rating = Math.min(leagueTeam.rating, 92);
+                    team.rating = leagueTeam.rating;
                 }
             }
-        } else {
-            team.rating = Math.min(team.rating, 92);
         }
     });
     
@@ -359,11 +361,9 @@ function updateAclPlayerTeamOvr() {
                     if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {
                         const leagueTeam = leagueTeams.find(t => t.id === match.team1.id);
                         if (leagueTeam && leagueTeam.rating !== undefined) {
-                            match.team1.rating = Math.min(leagueTeam.rating, 92);
+                            match.team1.rating = leagueTeam.rating;
                         }
                     }
-                } else {
-                    match.team1.rating = Math.min(match.team1.rating, 92);
                 }
             }
             if (match.team2) {
@@ -373,11 +373,9 @@ function updateAclPlayerTeamOvr() {
                     if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {
                         const leagueTeam = leagueTeams.find(t => t.id === match.team2.id);
                         if (leagueTeam && leagueTeam.rating !== undefined) {
-                            match.team2.rating = Math.min(leagueTeam.rating, 92);
+                            match.team2.rating = leagueTeam.rating;
                         }
                     }
-                } else {
-                    match.team2.rating = Math.min(match.team2.rating, 92);
                 }
             }
         });

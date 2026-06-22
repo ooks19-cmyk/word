@@ -24,6 +24,29 @@ function getPlayerPureOvr() {
     return Math.round(totalOvr / 11);
 }
 
+// 1-2. 플레이어 덱 상위 카드의 평균 OVR 계산 (최대 92 제한)
+// ※ 함수명은 getPlayerTop20Ovr로 유지하되, 실제 기준은 상위 11개 카드 평균을 사용합니다.
+function getPlayerTop20Ovr() {
+    if (typeof playerDeck === 'undefined' || !playerDeck) return 70;
+    const keys = Object.keys(playerDeck);
+    if (keys.length === 0) return 70;
+    
+    const cardRatings = keys.map(key => {
+        const baseCard = CARDS_DATABASE[key];
+        if (!baseCard) return 70;
+        const deckItem = playerDeck[key];
+        const awk = (deckItem && typeof deckItem.awakening === 'number') ? deckItem.awakening : 0;
+        return baseCard.rating + awk;
+    });
+    
+    cardRatings.sort((a, b) => b - a);
+    const top20 = cardRatings.slice(0, 11); // 실제 기준: 상위 11개 (함수명은 하위 호환성을 위해 유지)
+    const sum = top20.reduce((acc, rating) => acc + rating, 0);
+    const avg = Math.round(sum / top20.length);
+    return Math.min(avg, 92);
+}
+
+
 // 2. 스쿼드 포메이션 전술/세부전술 보너스를 취합하여 전북 현대 최종 OVR 동기화 및 현황판 UI 업데이트
 function syncJeonbukOvr() {
     let avgOvr = getPlayerPureOvr();
@@ -481,8 +504,8 @@ function calculateFinalMatchOvrs(venueType, isPlayerHome, opponentBaseOvr, isFri
         }
     }
     
-    // 최종 매치 상대팀 OVR 최대 92 제한
-    opponentOvr = Math.min(opponentOvr, 92);
+    // 최종 매치 상대팀 OVR 최대 92 제한 제거 (top20ovr 자체에 최대 92 캡 적용)
+    // opponentOvr = Math.min(opponentOvr, 92);
     
     return { playerOvr, opponentOvr };
 }

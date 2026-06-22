@@ -380,19 +380,20 @@ function resetLeagueSeasonState() {
     // 2번째 시즌 이후 상대 팀 OVR 다이내믹 스케일링 적용 (leagueYear > 2026)
     if (typeof leagueYear !== 'undefined' && leagueYear > 2026) {
         const pureOvr = getPlayerPureOvr();
+        const top20Ovr = getPlayerTop20Ovr();
         const strongTeams = ['ulsan', 'seoul', 'pohang', 'gimcheon'];
         
         leagueTeams.forEach(team => {
             if (team.id === 'jeonbuk') {
                 team.rating = pureOvr;
             } else if (strongTeams.includes(team.id)) {
-                // 강팀 4팀: 플레이어 순수 OVR + 0 ~ +2 범위 랜덤 (최대 92 제한)
-                const offset = Math.floor(Math.random() * 3); // 0, 1, 2
-                team.rating = Math.min(pureOvr + offset, 92);
+                // 강팀 4팀: 플레이어 덱 상위 20개 평균 OVR - 2 ~ 0 범위 랜덤
+                const offset = Math.floor(Math.random() * 3) - 2; // -2, -1, 0
+                team.rating = top20Ovr + offset;
             } else {
-                // 약팀 8팀: 플레이어 순수 OVR 0 ~ -5 범위 랜덤 (최대 92 제한)
-                const offset = -Math.floor(Math.random() * 6); // 0, -1, -2, -3, -4, -5
-                team.rating = Math.min(pureOvr + offset, 92);
+                // 약팀 8팀: 플레이어 덱 상위 20개 평균 OVR - 10 ~ -2 범위 랜덤
+                const offset = Math.floor(Math.random() * 9) - 10; // -10 ~ -2
+                team.rating = top20Ovr + offset;
             }
         });
     }
