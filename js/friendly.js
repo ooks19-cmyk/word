@@ -1051,7 +1051,7 @@ function startFriendlyMatchSimulation() {
                             }
                         }
 
-                        const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponent.rating, formationScoreBoost, suitabilityBonus);
+                        const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, oppOvr, formationScoreBoost, suitabilityBonus);
                         const isGoal = Math.random() < scoreProb;
 
                         const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm };
@@ -1198,7 +1198,7 @@ function startFriendlyMatchSimulation() {
                         }
                     }
 
-                    const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponent.rating, formationScoreBoost, suitabilityBonus);
+                    const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, oppOvr, formationScoreBoost, suitabilityBonus);
                     const isGoal = Math.random() < scoreProb;
 
                     const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm };

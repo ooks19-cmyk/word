@@ -1214,7 +1214,7 @@ function calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentRating, 
 function calculateOpponentScoreProb(activeDiff, opponentOvr, playerGkStat) {
     const playerDef = getTeamAverageStat('def');
     const playerDefBonus = Math.max(0, (playerDef - 70) * 0.01);
-    const gkBonus = (playerGkStat + 5 - opponentOvr) * 0.01;
+    const gkBonus = Math.max(0, (playerGkStat + 5 - opponentOvr) * 0.01);
     const calculated = 0.40 - (activeDiff * 0.026) - playerDefBonus - gkBonus;
     const prob = Math.min(0.50, Math.max(0.10, calculated));
     

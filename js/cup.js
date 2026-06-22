@@ -272,7 +272,9 @@ function initCupTab() {
 
 // 4. 플레이어 팀 및 K1 상대팀 OVR 최신 동기화
 function updatePlayerTeamOvr() {
-    const playerOvr = (typeof getPlayerPureOvr === 'function') ? getPlayerPureOvr() : 70;
+    const pureOvr = (typeof getPlayerPureOvr === 'function') ? getPlayerPureOvr() : 70;
+    const formBonus = (typeof getPlayerFormationTacticBonuses === 'function') ? getPlayerFormationTacticBonuses().formationBonus : 0;
+    const playerOvr = pureOvr + formBonus; // 포메이션 전술 완성 보너스 포함
     
     // 1. cupState.teams 동기화
     cupState.teams.forEach(team => {
@@ -796,7 +798,7 @@ function startCupMatchSimulation() {
     const commentaryData = {
         playerOvr: playerOvr,
         opponentName: opponent.name,
-        opponentOvr: opponent.rating,
+        opponentOvr: opponentOvr,
         isPlayerHome: isHome,
         playerScoreVal: 0,
         opponentScoreVal: 0,
@@ -893,7 +895,7 @@ function startCupMatchSimulation() {
                             if (cmCardId && CARDS_DATABASE[cmCardId]) chancePlayerStat = getAwakenedCard(cmCardId).stats.dri || 75;
                         }
                         
-                        const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponent.rating, formationScoreBoost, suitabilityBonus);
+                        const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentOvr, formationScoreBoost, suitabilityBonus);
                         const isGoal = Math.random() < scoreProb;
                         
                         const activePlayers = { ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName };
@@ -1063,7 +1065,7 @@ function startCupMatchSimulation() {
                         if (cmCardId && CARDS_DATABASE[cmCardId]) chancePlayerStat = getAwakenedCard(cmCardId).stats.dri || 75;
                     }
                     
-                    const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponent.rating, formationScoreBoost, suitabilityBonus);
+                    const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentOvr, formationScoreBoost, suitabilityBonus);
                     const isGoal = Math.random() < scoreProb;
                     
                     const activePlayers = { ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName };

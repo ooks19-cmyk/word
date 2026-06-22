@@ -549,7 +549,7 @@ function updateMatchPreviewBoard() {
     
     if (fixture.isHome) {
         document.getElementById('homeTeamName').innerText = jeonbuk.name;
-        document.getElementById('homeTeamOvr').innerText = jeonbuk.rating;
+        document.getElementById('homeTeamOvr').innerText = jeonbuk.rating + 2;
         document.getElementById('awayTeamName').innerText = opponent.name;
         document.getElementById('awayTeamOvr').innerHTML = oppOvrDisplayHtml;
         
@@ -569,7 +569,7 @@ function updateMatchPreviewBoard() {
         document.getElementById('matchVenueDisplay').innerText = "홈 경기 (전주성) - HOME ADVANTAGE +2 OVR";
     } else {
         document.getElementById('homeTeamName').innerText = opponent.name;
-        document.getElementById('homeTeamOvr').innerHTML = oppOvrDisplayHtml;
+        document.getElementById('homeTeamOvr').innerHTML = opponent.rating + mood.modifier + 2;
         document.getElementById('awayTeamName').innerText = jeonbuk.name;
         document.getElementById('awayTeamOvr').innerText = jeonbuk.rating;
         
@@ -820,7 +820,7 @@ function startLeagueAutoSimulation() {
                         }
                     }
                     
-                    const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponent.rating, formationScoreBoost, suitabilityBonus);
+                    const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentOvr, formationScoreBoost, suitabilityBonus);
                     const isGoal = Math.random() < scoreProb;
                     if (isGoal) {
                         playerScoreVal++;
@@ -1000,8 +1000,6 @@ function startMatchSimulation() {
     const formationTacticDetailsHtml = formTactic.formationTacticDetailsHtml;
 
     const isPlayerHome = fixture.isHome;
-    const playerOvrBase = jeonbuk.rating;
-    const opponentOvrBase = opponent.rating;
     
     // 1. Home-Away Advantage configuration (+2 OVR)
     const finalOvrs = calculateFinalMatchOvrs('league', isPlayerHome, opponent.rating, false);
@@ -1069,9 +1067,9 @@ function startMatchSimulation() {
 
     // 공통 코멘터리 데이터 정의
     const commentaryData = {
-        playerOvr: playerOvrBase,
+        playerOvr: playerOvr,
         opponentName: opponent.name,
-        opponentOvr: opponentOvrBase,
+        opponentOvr: opponentOvr,
         isPlayerHome: isPlayerHome,
         playerScoreVal: playerScoreVal,
         opponentScoreVal: opponentScoreVal,
@@ -1179,7 +1177,7 @@ function startMatchSimulation() {
                             }
                         }
                         
-                        const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponent.rating, formationScoreBoost, suitabilityBonus);
+                        const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentOvr, formationScoreBoost, suitabilityBonus);
                         const isGoal = Math.random() < scoreProb;
                         const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm };
                         const isTacticActive = detailedTacticBonus > 0;
@@ -1428,7 +1426,7 @@ function startMatchSimulation() {
                         }
                     }
                     
-                    const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponent.rating, formationScoreBoost, suitabilityBonus);
+                    const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentOvr, formationScoreBoost, suitabilityBonus);
                     const isGoal = Math.random() < scoreProb;
                     const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm };
                     const isTacticActive = detailedTacticBonus > 0;

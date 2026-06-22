@@ -44,7 +44,9 @@ function initAcl() {
 
 function resetAclStateData() {
     const curYear = (typeof leagueYear !== 'undefined') ? leagueYear : 2026;
-    const playerOvr = (typeof getPlayerPureOvr === 'function') ? getPlayerPureOvr() : 70;
+    const pureOvr = (typeof getPlayerPureOvr === 'function') ? getPlayerPureOvr() : 70;
+    const formBonus = (typeof getPlayerFormationTacticBonuses === 'function') ? getPlayerFormationTacticBonuses().formationBonus : 0;
+    const playerOvr = pureOvr + formBonus; // 포메이션 전술 완성 보너스 포함
     const top20Ovr = (typeof getPlayerTop20Ovr === 'function') ? getPlayerTop20Ovr() : 70;
 
     // 1. K리그 구단 중 우리팀(전북)을 제외한 상위 2개 팀 선발
@@ -334,7 +336,9 @@ function initAclTab() {
 
 // 4. 플레이어 팀 및 상대팀 OVR 동적 동기화
 function updateAclPlayerTeamOvr() {
-    const playerOvr = (typeof getPlayerPureOvr === 'function') ? getPlayerPureOvr() : 70;
+    const pureOvr = (typeof getPlayerPureOvr === 'function') ? getPlayerPureOvr() : 70;
+    const formBonus = (typeof getPlayerFormationTacticBonuses === 'function') ? getPlayerFormationTacticBonuses().formationBonus : 0;
+    const playerOvr = pureOvr + formBonus; // 포메이션 전술 완성 보너스 포함
     
     // 1. aclState.teams 동기화 (전북)
     aclState.teams.forEach(team => {
@@ -855,7 +859,7 @@ function startAclMatchSimulation() {
     const commentaryData = {
         playerOvr: playerOvr,
         opponentName: opponent.name,
-        opponentOvr: opponent.rating,
+        opponentOvr: opponentOvr,
         isPlayerHome: isHome,
         playerScoreVal: 0,
         opponentScoreVal: 0,
@@ -957,7 +961,7 @@ function startAclMatchSimulation() {
                             }
                         }
                         
-                        const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponent.rating, formationScoreBoost, suitabilityBonus);
+                        const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentOvr, formationScoreBoost, suitabilityBonus);
                         const isGoal = Math.random() < scoreProb;
                         
                         const commDataLocal = { ...commentaryData, ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName };
@@ -1118,7 +1122,7 @@ function startAclMatchSimulation() {
                         }
                     }
                     
-                    const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponent.rating, formationScoreBoost, suitabilityBonus);
+                    const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentOvr, formationScoreBoost, suitabilityBonus);
                     const isGoal = Math.random() < scoreProb;
                     
                     const commDataLocal = { ...commentaryData, ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName };
