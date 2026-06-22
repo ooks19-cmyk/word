@@ -133,6 +133,7 @@ function saveUserProgress() {
         consecutiveLeagueTitles: consecutiveLeagueTitles,
         currentWinStreak: currentWinStreak,
         maxWinStreak: maxWinStreak,
+        wingerStyles: typeof wingerStyles !== 'undefined' ? wingerStyles : { LW: 'dribble', RW: 'sprint' },
         
         // 친선경기 ID별 실시간 클라우드 전적 연동 필드
         friendlyMatchesHistory: typeof friendlyMatchesHistory !== 'undefined' ? friendlyMatchesHistory : { w: 0, d: 0, l: 0, pts: 0 },
@@ -157,6 +158,8 @@ function syncUserDataOnLogin(userData) {
         playerDeck = userData.playerDeck || {};
         currentFormation = userData.currentFormation || '4-4-2';
         isHardMode = userData.isHardMode || false;
+        wingerStyles = userData.wingerStyles || { LW: 'dribble', RW: 'sprint' };
+        localStorage.setItem('fc_star_winger_styles', JSON.stringify(wingerStyles));
         
         squadFormations = userData.squadFormations || {
             '4-4-2': {},
@@ -331,6 +334,7 @@ function syncUserDataOnLogin(userData) {
         localStorage.setItem('fc_star_consecutive_titles', consecutiveLeagueTitles.toString());
         localStorage.setItem('fc_star_current_win_streak', currentWinStreak.toString());
         localStorage.setItem('fc_star_max_win_streak', maxWinStreak.toString());
+        localStorage.setItem('fc_star_winger_styles', JSON.stringify(wingerStyles));
         
         // 개발자 모드 UI 연동 복원
         updateDevModeUI();
@@ -655,6 +659,7 @@ function handleLogout() {
         localStorage.removeItem('fc_star_pvp_d');
         localStorage.removeItem('fc_star_pvp_l');
         localStorage.removeItem('fc_star_pvp_opp_stats');
+        localStorage.removeItem('fc_star_winger_styles');
         
         showToast("성공적으로 로그아웃되었습니다! 로컬 모드로 리로딩합니다...");
         

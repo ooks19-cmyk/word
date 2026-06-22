@@ -1,4 +1,14 @@
-// js/match_algorithm.js - K리그1 & 친선전 공통 매치 알고리즘 및 OVR/전술 연산 엔진
+// 0. 윙어 플레이스타일에 따른 찬스 스탯 계산
+function getWingerChanceStat(position, card, styles = null) {
+    const activeStyles = styles || (typeof wingerStyles !== 'undefined' ? wingerStyles : { LW: 'dribble', RW: 'sprint' });
+    const style = activeStyles[position] || (position === 'LW' ? 'dribble' : 'sprint');
+    
+    if (style === 'dribble') {
+        return Math.round(((card.stats.dri || 75) + (card.stats.sho || 75)) / 2);
+    } else {
+        return Math.round(((card.stats.pac || 75) + (card.stats.sho || 75)) / 2);
+    }
+}
 
 // 1. 활성화된 베이스 스쿼드의 순수 평균 OVR 계산
 function getPlayerPureOvr() {
@@ -478,32 +488,72 @@ function calculateFinalMatchOvrs(venueType, isPlayerHome, opponentBaseOvr, isFri
 }
 
 // 3. 포메이션 세부 전술 연동 매치 코멘터리 생성 (리그 & 친선경기 시뮬레이터 공용)
-function getDetailedTacticCommentary(option, formation, isTacticActive, activePlayers, squad = squadFormation, deck = playerDeck) {
+function getDetailedTacticCommentary(option, formation, isTacticActive, activePlayers, squad = squadFormation, deck = playerDeck, customWingerStyles = null) {
     lastTacticGoalData = null; // Reset for each new commentary evaluation
     const { ST, LW, RW, CM } = activePlayers;
+    
+    const activeWingerStyles = customWingerStyles || (typeof wingerStyles !== 'undefined' ? wingerStyles : { LW: 'dribble', RW: 'sprint' });
+    const lwStyle = activeWingerStyles.LW || 'dribble';
+    const rwStyle = activeWingerStyles.RW || 'sprint';
     
     let eventDesc = "";
     let eventGoal = "";
     let eventFail = "";
     
-    const lwGoals = [
-        `골!!! ${LW}의 환상적인 감아차기 슛이 골문 오른쪽 구석에 정확히 꽂힙니다! 전북 득점!! 🎉`,
-        `골!!! 수비수 2명을 환상적인 스피드로 허문 ${LW}! 키퍼 가랑이 사이를 꿰뚫는 절묘한 슈팅으로 골망을 흔듭니다! ⚽`
-    ];
-    const selectedLwGoal = lwGoals[Math.floor(Math.random() * lwGoals.length)];
+    // 윙어 스타일별 코멘터리 구성
+    // 1) 드리블 돌파 스타일 (개인기 중심)
+    const getDribbleTexts = (wingerName) => {
+        const lwGoals = [
+            `골!!! ${wingerName}의 환상적인 감아차기 슛이 골문 오른쪽 구석에 정확히 꽂힙니다! 전북 득점!! 🎉`,
+            `골!!! 수비수 2명을 환상적인 드리블 돌파로 흔들어 놓은 ${wingerName}! 키퍼 가랑이 사이를 꿰뚫는 절묘한 슈팅으로 골망을 흔듭니다! ⚽`
+        ];
+        const selectedGoal = lwGoals[Math.floor(Math.random() * lwGoals.length)];
+        return {
+            desc: `${wingerName} 선수가 현란한 드리블 돌파로 측면을 흔듭니다! 수비수를 완벽히 제치고 박스 안에서 강력하게 슛!`,
+            goal: selectedGoal,
+            fail: `아아! 마지막 순간 상대 수비수의 육탄 방어에 가로막히며 코너킥으로 연결됩니다.`
+        };
+    };
+    
+    // 2) 치고 달리기 스타일 (스프린트 및 킬패스 침투 중심)
+    const getSprintTexts = (wingerName) => {
+        return {
+            desc: `${CM} 선수의 창의적인 킬패스가 배후 공간을 무력화시킵니다! 배후 공간을 향해 엄청난 속도로 치고 달리는 ${wingerName}! 슛!`,
+            goal: `골!!! ${wingerName}가 몸을 날리는 멋진 발리 슛으로 골을 선사합니다! 멋진 팀워크 플레이! 🥳`,
+            fail: `키퍼의 슈퍼세이브! 상대 수문장이 온몸으로 막아내며 아쉬운 득점 찬스가 무산됩니다.`
+        };
+    };
     
     if (option === 0) {
-        eventDesc = `${LW} 선수가 폭발적인 속도로 왼쪽 측면을 흔듭니다! 수비수를 제치고 강력하게 슛!`;
-        eventGoal = selectedLwGoal;
-        eventFail = `아아! 마지막 순간 상대 수비수의 육탄 방어에 가로막히며 코너킥으로 연결됩니다.`;
+        // LW 찬스
+        if (lwStyle === 'dribble') {
+            const texts = getDribbleTexts(LW);
+            eventDesc = texts.desc;
+            eventGoal = texts.goal;
+            eventFail = texts.fail;
+        } else {
+            const texts = getSprintTexts(LW);
+            eventDesc = texts.desc;
+            eventGoal = texts.goal;
+            eventFail = texts.fail;
+        }
     } else if (option === 1) {
         eventDesc = `전방에서 강한 압박으로 공을 탈취한 ${ST}! 일대일 단독 찬스에 직면하여 슛 시도!`;
         eventGoal = `골!!! ${ST}가 침착하게 골키퍼 키를 넘기는 칩슛으로 골망을 흔듭니다! 그림 같은 선제골! ⚽`;
         eventFail = `앗! 슛이 너무 강했습니다. 크로스바를 살짝 빗나가며 아쉬움을 삼킵니다.`;
     } else if (option === 2) {
-        eventDesc = `${CM} 선수의 창의적인 킬패스가 배후 공간을 무력화시킵니다! 뛰어 들어가는 ${RW}! 슛!`;
-        eventGoal = `골!!! ${RW}가 몸을 날리는 멋진 발리 슛으로 골을 선사합니다! 멋진 팀워크 플레이! 🥳`;
-        eventFail = `키퍼의 슈퍼세이브! 상대 수문장이 온몸으로 막아내며 아쉬운 득점 찬스가 무산됩니다.`;
+        // RW 찬스
+        if (rwStyle === 'dribble') {
+            const texts = getDribbleTexts(RW);
+            eventDesc = texts.desc;
+            eventGoal = texts.goal;
+            eventFail = texts.fail;
+        } else {
+            const texts = getSprintTexts(RW);
+            eventDesc = texts.desc;
+            eventGoal = texts.goal;
+            eventFail = texts.fail;
+        }
     } else if (option === 5) {
         eventDesc = `[4-2-3-1 점유 지배] 플레이메이커 ${CM}(AM)가 화려한 탈압박과 시그니처 드리블로 상대 수비진 3명을 요리조리 벗겨내고 문전 앞 에이스에게 스루패스!`;
         eventGoal = `골!!! 에이스 ${CM}의 지휘 아래 그라운드를 완전히 지배하며 뽑아낸 아름다운 조직력의 승리골입니다! ⚽`;

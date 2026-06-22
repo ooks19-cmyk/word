@@ -888,13 +888,13 @@ function startCupMatchSimulation() {
                         
                         if (selectedOption === 0) {
                             const lwCardId = squadFormation['LW'];
-                            if (lwCardId && CARDS_DATABASE[lwCardId]) chancePlayerStat = Math.round(((getAwakenedCard(lwCardId).stats.dri || 75) + (getAwakenedCard(lwCardId).stats.sho || 75)) / 2);
+                            if (lwCardId && CARDS_DATABASE[lwCardId]) chancePlayerStat = getWingerChanceStat('LW', getAwakenedCard(lwCardId));
                         } else if (selectedOption === 1) {
                             const stCardId = squadFormation['ST'];
                             if (stCardId && CARDS_DATABASE[stCardId]) chancePlayerStat = getAwakenedCard(stCardId).stats.sho || 75;
                         } else if (selectedOption === 2) {
                             const rwCardId = squadFormation['RW'];
-                            if (rwCardId && CARDS_DATABASE[rwCardId]) chancePlayerStat = Math.round(((getAwakenedCard(rwCardId).stats.pac || 75) + (getAwakenedCard(rwCardId).stats.sho || 75)) / 2);
+                            if (rwCardId && CARDS_DATABASE[rwCardId]) chancePlayerStat = getWingerChanceStat('RW', getAwakenedCard(rwCardId));
                         } else if (selectedOption === 5) {
                             const cmCardId = squadFormation['CM'];
                             if (cmCardId && CARDS_DATABASE[cmCardId]) chancePlayerStat = getAwakenedCard(cmCardId).stats.dri || 75;
@@ -905,7 +905,7 @@ function startCupMatchSimulation() {
                         
                         const activePlayers = { ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName };
                         const isTacticActive = detailedTacticBonus > 0;
-                        const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers);
+                        const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers, squadFormation, playerDeck, wingerStyles);
                         
                         addCommentary(currentMin, eventDesc, 'attack');
                         
@@ -1058,13 +1058,13 @@ function startCupMatchSimulation() {
                     
                     if (selectedOption === 0) {
                         const lwCardId = squadFormation['LW'];
-                        if (lwCardId && CARDS_DATABASE[lwCardId]) chancePlayerStat = Math.round(((getAwakenedCard(lwCardId).stats.dri || 75) + (getAwakenedCard(lwCardId).stats.sho || 75)) / 2);
+                        if (lwCardId && CARDS_DATABASE[lwCardId]) chancePlayerStat = getWingerChanceStat('LW', getAwakenedCard(lwCardId));
                     } else if (selectedOption === 1) {
                         const stCardId = squadFormation['ST'];
                         if (stCardId && CARDS_DATABASE[stCardId]) chancePlayerStat = getAwakenedCard(stCardId).stats.sho || 75;
                     } else if (selectedOption === 2) {
                         const rwCardId = squadFormation['RW'];
-                        if (rwCardId && CARDS_DATABASE[rwCardId]) chancePlayerStat = Math.round(((getAwakenedCard(rwCardId).stats.pac || 75) + (getAwakenedCard(rwCardId).stats.sho || 75)) / 2);
+                        if (rwCardId && CARDS_DATABASE[rwCardId]) chancePlayerStat = getWingerChanceStat('RW', getAwakenedCard(rwCardId));
                     } else if (selectedOption === 5) {
                         const cmCardId = squadFormation['CM'];
                         if (cmCardId && CARDS_DATABASE[cmCardId]) chancePlayerStat = getAwakenedCard(cmCardId).stats.dri || 75;
@@ -1075,7 +1075,7 @@ function startCupMatchSimulation() {
                     
                     const activePlayers = { ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName };
                     const isTacticActive = detailedTacticBonus > 0;
-                    const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers);
+                    const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers, squadFormation, playerDeck, wingerStyles);
                     
                     addCommentary(currentMin, eventDesc, 'attack');
                     

@@ -206,6 +206,16 @@ function renderSquadFormation() {
             else if (pos === 'LCM' || pos === 'RCM') displayPos = 'DM';
         }
         
+        let wingerStyleBadge = '';
+        if (pos === 'LW' || pos === 'RW') {
+            const style = wingerStyles[pos] || (pos === 'LW' ? 'dribble' : 'sprint');
+            if (style === 'dribble') {
+                wingerStyleBadge = `<span class="winger-style-mini-badge dribble" title="드리블 돌파" style="font-size: 0.62rem; font-weight: 800; background: rgba(0, 255, 135, 0.25); color: #00ff87; border: 1px solid rgba(0, 255, 135, 0.4); padding: 1px 4px; border-radius: 4px; margin-left: 3px; vertical-align: middle;">🌀</span>`;
+            } else {
+                wingerStyleBadge = `<span class="winger-style-mini-badge sprint" title="치고 달리기" style="font-size: 0.62rem; font-weight: 800; background: rgba(255, 62, 108, 0.25); color: #ff3e6c; border: 1px solid rgba(255, 62, 108, 0.4); padding: 1px 4px; border-radius: 4px; margin-left: 3px; vertical-align: middle;">⚡</span>`;
+            }
+        }
+
         if (cardData) {
             // Placed player card structure
             totalOvr += cardData.rating;
@@ -217,7 +227,7 @@ function renderSquadFormation() {
                 <div class="mini-player-card active-placed${captainClass}">
                     ${captainBadge}
                     <div class="mini-card-ovr-badge">${cardData.rating}${starIndicator}</div>
-                    <div class="mini-card-position-badge">${displayPos}</div>
+                    <div class="mini-card-position-badge">${displayPos}${wingerStyleBadge}</div>
                     <div class="mini-card-portrait">
                         <img src="${cardData.image}" alt="${cardData.name}" onerror="this.src='https://placehold.co/80x80/005a3c/ffd700?text=${encodeURIComponent(cardData.name)}'">
                     </div>
@@ -230,7 +240,7 @@ function renderSquadFormation() {
             slotEl.innerHTML = `
                 <div class="mini-player-card anonymous">
                     <div class="mini-card-ovr-badge">70</div>
-                    <div class="mini-card-position-badge">${displayPos}</div>
+                    <div class="mini-card-position-badge">${displayPos}${wingerStyleBadge}</div>
                     <div class="mini-card-portrait">
                         <i class="fa-solid fa-user-ninja"></i>
                     </div>
@@ -386,6 +396,42 @@ function openCardSelector(position) {
         const bannerContainer = document.createElement('div');
         bannerContainer.innerHTML = bannerHtml;
         content.appendChild(bannerContainer);
+    }
+    
+    // LW 또는 RW인 경우 플레이스타일 선택 토글 위젯 추가
+    if (position === 'LW' || position === 'RW') {
+        const styleContainer = document.createElement('div');
+        styleContainer.className = 'winger-style-toggle-container';
+        styleContainer.style.cssText = `
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        `;
+        
+        const style = wingerStyles[position] || (position === 'LW' ? 'dribble' : 'sprint');
+        const isChecked = style === 'sprint';
+        
+        styleContainer.innerHTML = `
+            <span style="font-size: 0.8rem; color: #fff; font-weight: 700;">
+                <i class="fa-solid fa-arrows-left-right" style="color: #ffd700; margin-right: 4px;"></i>
+                윙어 플레이스타일 설정
+            </span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span id="wingerStyleLabel-${position}" style="font-size: 0.75rem; font-weight: 800; color: ${isChecked ? '#ff3e6c' : '#00ff87'};">
+                    ${isChecked ? '치고 달리기 ⚡' : '드리블 돌파 🌀'}
+                </span>
+                <label class="dev-switch" style="position: relative; display: inline-block; width: 34px; height: 20px; cursor: pointer; margin-left: 2px;">
+                    <input type="checkbox" id="wingerStyleToggle-${position}" ${isChecked ? 'checked' : ''} onchange="toggleWingerStyle('${position}', this.checked)" style="opacity: 0; width: 0; height: 0;">
+                    <span class="dev-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); transition: .3s; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2);"></span>
+                </label>
+            </div>
+        `;
+        content.appendChild(styleContainer);
     }
     
     // If a player is already assigned, show the Release button first
@@ -1168,6 +1214,31 @@ function changeSquadCaptain(cardId) {
     }
     
     // Firebase 백업 동기화
+    if (typeof saveUserProgress === 'function') {
+        saveUserProgress();
+    }
+}
+
+// 윙어 플레이스타일 토글 핸들러
+function toggleWingerStyle(position, isChecked) {
+    wingerStyles[position] = isChecked ? 'sprint' : 'dribble';
+    try {
+        localStorage.setItem('fc_star_winger_styles', JSON.stringify(wingerStyles));
+    } catch (e) {
+        console.warn("Saving winger styles failed", e);
+    }
+    
+    // UI 갱신
+    const labelEl = document.getElementById(`wingerStyleLabel-${position}`);
+    if (labelEl) {
+        labelEl.innerText = isChecked ? '치고 달리기 ⚡' : '드리블 돌파 🌀';
+        labelEl.style.color = isChecked ? '#ff3e6c' : '#00ff87';
+    }
+    
+    // 피치 위 스타일 뱃지 갱신을 위해 포메이션 전원 재렌더링
+    renderSquadFormation();
+    
+    // 클라우드 백업 자동 트리거
     if (typeof saveUserProgress === 'function') {
         saveUserProgress();
     }

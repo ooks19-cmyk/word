@@ -112,7 +112,8 @@ async function handleCreatePvpRoom() {
     const squadData = {
         ovr: myOvr,
         squad: squadFormation,
-        playerDeck: playerDeck
+        playerDeck: playerDeck,
+        wingerStyles: wingerStyles
     };
 
     showToast("방을 개설하는 중...");
@@ -158,7 +159,8 @@ async function handleJoinPvpRoom() {
     const squadData = {
         ovr: myOvr,
         squad: squadFormation,
-        playerDeck: playerDeck
+        playerDeck: playerDeck,
+        wingerStyles: wingerStyles
     };
 
     showToast("대결 방에 입장하는 중...");
@@ -204,7 +206,8 @@ async function changePvpFormation(isHost, formationName) {
     const squadData = {
         ovr: myOvr,
         squad: squadFormation,
-        playerDeck: playerDeck
+        playerDeck: playerDeck,
+        wingerStyles: wingerStyles
     };
     
     // 2. Firestore 방 정보에 즉시 동기화 전송
@@ -683,11 +686,20 @@ function startPvpMatchSimulation(roomId, roomData) {
     if (compVal > 0) hostTacticBonus = 0.05;
     else if (compVal < 0) hostTacticBonus = -0.05;
 
+    // 상대가 5-4-1일 때의 찬스 확률 2.5% 보너스 적용
+    let host541Bonus = 0;
+    if (guestInfo.formation === '5-4-1') {
+        host541Bonus += 0.025; // 상대가 5-4-1이므로 호스트 찬스 2.5% 상승
+    }
+    if (hostInfo.formation === '5-4-1') {
+        host541Bonus -= 0.025; // 호스트가 5-4-1이므로 상대(게스트) 찬스 2.5% 상승 (호스트 기준 -2.5%)
+    }
+
     // OVR 격차
     const ovrDiff = hostInfo.ovr - guestInfo.ovr;
     
-    // 호스트 기준 찬스 획득 확률 계산 (기본 50% + OVR 격차당 1% + 상성 가중치 5%)
-    const hostAttackProb = Math.min(0.80, Math.max(0.20, 0.50 + (ovrDiff * 0.01) + hostTacticBonus));
+    // 호스트 기준 찬스 획득 확률 계산 (기본 50% + OVR 격차당 1% + 상성 가중치 5% + 상대 5-4-1 보너스 2.5%)
+    const hostAttackProb = Math.min(0.80, Math.max(0.20, 0.50 + (ovrDiff * 0.01) + hostTacticBonus + host541Bonus));
     
     // 대칭형 매치 기초 정보 로깅
     addPvpCommentary('SYSTEM', `🏟️ <strong>1대1 실시간 대결 시작!</strong><br>[Host] ${hostInfo.id.toUpperCase()} (OVR ${hostInfo.ovr}) vs [Guest] ${guestInfo.id.toUpperCase()} (OVR ${guestInfo.ovr})`, 'system');
@@ -917,7 +929,7 @@ function startPvpMatchSimulation(roomId, roomData) {
                 }
                 
                 const isTacticActive = attDetailedTactic.detailedTacticBonus > 0;
-                const commData = getDetailedTacticCommentary(option, attackerInfo.formation, isTacticActive, activePlayers, attackerInfo.squad, attackerInfo.playerDeck);
+                const commData = getDetailedTacticCommentary(option, attackerInfo.formation, isTacticActive, activePlayers, attackerInfo.squad, attackerInfo.playerDeck, attackerInfo.wingerStyles);
                 
                 const cleanText = (text) => {
                     if (!text) return "";
@@ -1044,7 +1056,7 @@ function startPvpMatchSimulation(roomId, roomData) {
             }
             
             const isTacticActive = attDetailedTactic.detailedTacticBonus > 0;
-            const commData = getDetailedTacticCommentary(option, attackerInfo.formation, isTacticActive, activePlayers, attackerInfo.squad, attackerInfo.playerDeck);
+            const commData = getDetailedTacticCommentary(option, attackerInfo.formation, isTacticActive, activePlayers, attackerInfo.squad, attackerInfo.playerDeck, attackerInfo.wingerStyles);
             
             const cleanText = (text) => {
                 if (!text) return "";

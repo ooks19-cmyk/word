@@ -797,7 +797,7 @@ function startLeagueAutoSimulation() {
                         const lwCardId = squadFormation['LW'];
                         if (lwCardId && CARDS_DATABASE[lwCardId]) {
                             const card = getAwakenedCard(lwCardId);
-                            chancePlayerStat = Math.round(((card.stats.dri || 75) + (card.stats.sho || 75)) / 2);
+                            chancePlayerStat = getWingerChanceStat('LW', card);
                         }
                     } else if (selectedOption === 1) {
                         const stCardId = squadFormation['ST'];
@@ -809,7 +809,7 @@ function startLeagueAutoSimulation() {
                         const rwCardId = squadFormation['RW'];
                         if (rwCardId && CARDS_DATABASE[rwCardId]) {
                             const card = getAwakenedCard(rwCardId);
-                            chancePlayerStat = Math.round(((card.stats.pac || 75) + (card.stats.sho || 75)) / 2);
+                            chancePlayerStat = getWingerChanceStat('RW', card);
                         }
                     } else if (selectedOption === 5) {
                         const cmCardId = squadFormation['CM'];
@@ -1156,7 +1156,7 @@ function startMatchSimulation() {
                             const lwCardId = squadFormation['LW'];
                             if (lwCardId && CARDS_DATABASE[lwCardId]) {
                                 const card = getAwakenedCard(lwCardId);
-                                chancePlayerStat = Math.round(((card.stats.dri || 75) + (card.stats.sho || 75)) / 2);
+                                chancePlayerStat = getWingerChanceStat('LW', card);
                             }
                         } else if (selectedOption === 1) {
                             const stCardId = squadFormation['ST'];
@@ -1168,7 +1168,7 @@ function startMatchSimulation() {
                             const rwCardId = squadFormation['RW'];
                             if (rwCardId && CARDS_DATABASE[rwCardId]) {
                                 const card = getAwakenedCard(rwCardId);
-                                chancePlayerStat = Math.round(((card.stats.pac || 75) + (card.stats.sho || 75)) / 2);
+                                chancePlayerStat = getWingerChanceStat('RW', card);
                             }
                         } else if (selectedOption === 5) { // 4-2-3-1 점유율 연출 (CM 드리블 비례)
                             const cmCardId = squadFormation['CM'];
@@ -1182,7 +1182,7 @@ function startMatchSimulation() {
                         const isGoal = Math.random() < scoreProb;
                         const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm };
                         const isTacticActive = detailedTacticBonus > 0;
-                        const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers);
+                        const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers, squadFormation, playerDeck, wingerStyles);
                         
                         addCommentary(currentMin, eventDesc, 'attack');
                         if (isGoal) {
@@ -1405,7 +1405,7 @@ function startMatchSimulation() {
                         const lwCardId = squadFormation['LW'];
                         if (lwCardId && CARDS_DATABASE[lwCardId]) {
                             const card = getAwakenedCard(lwCardId);
-                            chancePlayerStat = Math.round(((card.stats.dri || 75) + (card.stats.sho || 75)) / 2);
+                            chancePlayerStat = getWingerChanceStat('LW', card);
                         }
                     } else if (selectedOption === 1) {
                         const stCardId = squadFormation['ST'];
@@ -1417,7 +1417,7 @@ function startMatchSimulation() {
                         const rwCardId = squadFormation['RW'];
                         if (rwCardId && CARDS_DATABASE[rwCardId]) {
                             const card = getAwakenedCard(rwCardId);
-                            chancePlayerStat = Math.round(((card.stats.pac || 75) + (card.stats.sho || 75)) / 2);
+                            chancePlayerStat = getWingerChanceStat('RW', card);
                         }
                     } else if (selectedOption === 5) { // 4-2-3-1 점유율 연출 (CM 드리블 비례)
                         const cmCardId = squadFormation['CM'];
@@ -1431,7 +1431,7 @@ function startMatchSimulation() {
                     const isGoal = Math.random() < scoreProb;
                     const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm };
                     const isTacticActive = detailedTacticBonus > 0;
-                    const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers);
+                    const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers, squadFormation, playerDeck, wingerStyles);
                     
                     addCommentary(currentMin, eventDesc, 'attack');
                     

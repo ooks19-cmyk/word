@@ -937,7 +937,7 @@ function startAclMatchSimulation() {
                             const lwCardId = squadFormation['LW'];
                             if (lwCardId && CARDS_DATABASE[lwCardId]) {
                                 const card = getAwakenedCard(lwCardId);
-                                chancePlayerStat = Math.round(((card.stats.dri || 75) + (card.stats.sho || 75)) / 2);
+                                chancePlayerStat = getWingerChanceStat('LW', card);
                             }
                         } else if (option === 1) {
                             const stCardId = squadFormation['ST'];
@@ -949,7 +949,7 @@ function startAclMatchSimulation() {
                             const rwCardId = squadFormation['RW'];
                             if (rwCardId && CARDS_DATABASE[rwCardId]) {
                                 const card = getAwakenedCard(rwCardId);
-                                chancePlayerStat = Math.round(((card.stats.pac || 75) + (card.stats.sho || 75)) / 2);
+                                chancePlayerStat = getWingerChanceStat('RW', card);
                             }
                         } else if (option === 5) {
                             const cmCardId = squadFormation['CM'];
@@ -963,7 +963,7 @@ function startAclMatchSimulation() {
                         const isGoal = Math.random() < scoreProb;
                         
                         const commDataLocal = { ...commentaryData, ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName };
-                        const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(option, currentFormation, isDetailedActive, commDataLocal);
+                        const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(option, currentFormation, isDetailedActive, commDataLocal, squadFormation, playerDeck, wingerStyles);
                         
                         addCommentary(currentMin, eventDesc, 'normal');
                         
@@ -1098,7 +1098,7 @@ function startAclMatchSimulation() {
                         const lwCardId = squadFormation['LW'];
                         if (lwCardId && CARDS_DATABASE[lwCardId]) {
                             const card = getAwakenedCard(lwCardId);
-                            chancePlayerStat = Math.round(((card.stats.dri || 75) + (card.stats.sho || 75)) / 2);
+                            chancePlayerStat = getWingerChanceStat('LW', card);
                         }
                     } else if (option === 1) {
                         const stCardId = squadFormation['ST'];
@@ -1110,7 +1110,7 @@ function startAclMatchSimulation() {
                         const rwCardId = squadFormation['RW'];
                         if (rwCardId && CARDS_DATABASE[rwCardId]) {
                             const card = getAwakenedCard(rwCardId);
-                            chancePlayerStat = Math.round(((card.stats.pac || 75) + (card.stats.sho || 75)) / 2);
+                            chancePlayerStat = getWingerChanceStat('RW', card);
                         }
                     } else if (option === 5) {
                         const cmCardId = squadFormation['CM'];
@@ -1124,7 +1124,7 @@ function startAclMatchSimulation() {
                     const isGoal = Math.random() < scoreProb;
                     
                     const commDataLocal = { ...commentaryData, ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName };
-                    const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(option, currentFormation, isDetailedActive, commDataLocal);
+                    const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(option, currentFormation, isDetailedActive, commDataLocal, squadFormation, playerDeck, wingerStyles);
                     
                     addCommentary(currentMin, eventDesc, 'normal');
                     

@@ -226,4 +226,16 @@ try {
     }
 } catch (e) {}
 
+// 7. WINGER PLAYSTYLE CONFIGURATION STATE
+let wingerStyles = { LW: 'dribble', RW: 'sprint' };
+try {
+    const savedWingerStyles = localStorage.getItem('fc_star_winger_styles');
+    if (savedWingerStyles) {
+        wingerStyles = JSON.parse(savedWingerStyles);
+    }
+} catch (e) {
+    wingerStyles = { LW: 'dribble', RW: 'sprint' };
+}
+
+
 

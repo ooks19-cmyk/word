@@ -1029,7 +1029,7 @@ function startFriendlyMatchSimulation() {
                             const lwCardId = squadFormation['LW'];
                             if (lwCardId && CARDS_DATABASE[lwCardId]) {
                                 const card = getAwakenedCard(lwCardId);
-                                chancePlayerStat = Math.round(((card.stats.dri || 75) + (card.stats.sho || 75)) / 2);
+                                chancePlayerStat = getWingerChanceStat('LW', card);
                             }
                         } else if (selectedOption === 1) {
                             const stCardId = squadFormation['ST'];
@@ -1041,7 +1041,7 @@ function startFriendlyMatchSimulation() {
                             const rwCardId = squadFormation['RW'];
                             if (rwCardId && CARDS_DATABASE[rwCardId]) {
                                 const card = getAwakenedCard(rwCardId);
-                                chancePlayerStat = Math.round(((card.stats.pac || 75) + (card.stats.sho || 75)) / 2);
+                                chancePlayerStat = getWingerChanceStat('RW', card);
                             }
                         } else if (selectedOption === 5) {
                             const cmCardId = squadFormation['CM'];
@@ -1055,7 +1055,7 @@ function startFriendlyMatchSimulation() {
                         const isGoal = Math.random() < scoreProb;
 
                         const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm };
-                        const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isDetailedActive, activePlayers);
+                        const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isDetailedActive, activePlayers, squadFormation, playerDeck, wingerStyles);
 
                         addCommentary(currentMin, eventDesc, 'attack');
                         if (isGoal) {
@@ -1176,7 +1176,7 @@ function startFriendlyMatchSimulation() {
                         const lwCardId = squadFormation['LW'];
                         if (lwCardId && CARDS_DATABASE[lwCardId]) {
                             const card = getAwakenedCard(lwCardId);
-                            chancePlayerStat = Math.round(((card.stats.dri || 75) + (card.stats.sho || 75)) / 2);
+                            chancePlayerStat = getWingerChanceStat('LW', card);
                         }
                     } else if (selectedOption === 1) {
                         const stCardId = squadFormation['ST'];
@@ -1188,7 +1188,7 @@ function startFriendlyMatchSimulation() {
                         const rwCardId = squadFormation['RW'];
                         if (rwCardId && CARDS_DATABASE[rwCardId]) {
                             const card = getAwakenedCard(rwCardId);
-                            chancePlayerStat = Math.round(((card.stats.pac || 75) + (card.stats.sho || 75)) / 2);
+                            chancePlayerStat = getWingerChanceStat('RW', card);
                         }
                     } else if (selectedOption === 5) {
                         const cmCardId = squadFormation['CM'];
@@ -1202,7 +1202,7 @@ function startFriendlyMatchSimulation() {
                     const isGoal = Math.random() < scoreProb;
 
                     const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm };
-                    const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isDetailedActive, activePlayers);
+                    const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isDetailedActive, activePlayers, squadFormation, playerDeck, wingerStyles);
 
                     addCommentary(currentMin, eventDesc, 'attack');
                     if (isGoal) {
