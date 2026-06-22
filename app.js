@@ -265,37 +265,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
                 } catch (err) {
-                    if (err.message === "network_error") {
-                        console.warn("⚠️ 네트워크 에러로 인해 로컬 오프라인 데이터로 로그인 세션을 복원합니다.");
-                        currentUser = savedUser;
-                        
-                        // 로컬 캐시 데이터로 오프라인 상태 로드
-                        if (typeof loadFriendlyMatchesState === 'function') {
-                            loadFriendlyMatchesState();
-                        }
-                        
-                        // UI 복원 및 렌더링 호출
-                        if (typeof updateAuthBadgeUI === 'function') updateAuthBadgeUI();
-                        if (typeof updateDevModeUI === 'function') updateDevModeUI();
-                        
-                        renderUserPoints();
-                        updateTotalCardCount();
-                        renderDeck();
-                        renderSquadFormation();
-                        if (typeof syncJeonbukOvr === 'function') syncJeonbukOvr();
-                        if (typeof updateMatchPreviewBoard === 'function') updateMatchPreviewBoard();
-                        if (typeof renderLeagueTable === 'function') renderLeagueTable();
-                        if (typeof renderLeagueStats === 'function') renderLeagueStats();
-                        if (typeof renderCareerStats === 'function') renderCareerStats();
-                        
-                        if (typeof showToast === 'function') {
-                            showToast("⚠️ 오프라인 모드로 로그인 세션을 복원했습니다.");
-                        }
-                    } else {
-                        console.error("세션 복원 중 알 수 없는 예외 발생:", err);
-                        localStorage.removeItem('fc_star_current_user');
-                        openAuthModal(true);
-                    }
+                    console.warn("⚠️ 세션 복원 실패 (네트워크 연결 끊김 또는 세션 만료):", err);
+                    localStorage.removeItem('fc_star_current_user');
+                    currentUser = null;
+                    isCloudDataSynced = false;
+                    openAuthModal(true);
                 }
             }, 100);
         } else {

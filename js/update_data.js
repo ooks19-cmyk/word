@@ -2,12 +2,24 @@
 
 const UPDATE_LOGS = [
     {
-        version: "v1.9.0",
-        date: "2026.06.18",
+        version: "v1.9.1",
+        date: "2026.06.22",
         latest: true,
         borderColor: "#ff3e6c",
         titleColor: "#ff3e6c",
         badgeText: "LATEST",
+        items: [
+            "<strong>클라우드 동기화 안정성 강화 (데이터 덮어쓰기 방지)</strong>: 다른 기기에서 로그인 시, 클라우드의 최신 데이터를 완벽히 동기화하기 전에 로컬 캐시가 서버의 최신 데이터를 덮어쓰는 결함을 <code>isCloudDataSynced</code> 세이프가드 플래그를 도입하여 원천 해결하였습니다.",
+            "<strong>오프라인 상태 게임 차단 및 세션 해제</strong>: 자동 세션 복원(자동 로그인) 시도 중 인터넷 불안정으로 인해 <code>network_error</code>가 감지되면 즉각 오프라인 상태 진입을 제한하고, 로컬 세션을 안전하게 정리한 후 로그인 화면으로 즉시 전환하여 데이터의 오염 가능성을 100% 방지했습니다."
+        ]
+    },
+    {
+        version: "v1.9.0",
+        date: "2026.06.18",
+        latest: false,
+        borderColor: "#ffd700",
+        titleColor: "#ffd700",
+        badgeText: "",
         items: [
             "<strong>상대팀 최대 OVR 92 제한 (밸런스 패치)</strong>: 게임 내 모든 매치 모드(K리그1, 코리아컵, AFC 챔피언스리그, 친선전)에서 상대팀(또는 AI 봇, 타 유저)의 전력 OVR이 최대 92를 초과하지 못하도록 한계값 캡(Cap)을 적용했습니다. 이를 통해 전력 격차로 인한 급격한 난이도 상승을 방지하고 게임 밸런스를 균형 있게 조절하였습니다.",
             "<strong>양현준 스페셜 카드 신규 출시</strong>: 대한민국 국가대표팀의 차세대 윙어인 <strong>양현준</strong>(OVR 85, RW) 카드가 스페셜 등급으로 새롭게 추가되었습니다. 소속 클럽은 CELTIC으로 연동되었으며, 이미지 포맷은 <strong>webp</strong> 파일로 안전하게 결합되었습니다. 또한 사용자 요청에 맞춰 <strong>슈팅(SHO) 능력치를 82</strong>로 상향 보정하여 출시했습니다.",

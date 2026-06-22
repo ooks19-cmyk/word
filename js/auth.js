@@ -94,6 +94,10 @@ function updateDevModeUI() {
 
 function saveUserProgress() {
     if (!currentUser) return;
+    if (!isCloudDataSynced) {
+        console.warn("⚠️ [Save Blocked] 클라우드 데이터가 아직 동기화되지 않았으므로 업로드를 차단합니다.");
+        return;
+    }
     
     const myId = currentUser;
     const progressData = {
@@ -354,6 +358,9 @@ function syncUserDataOnLogin(userData) {
         
         // Refresh Auth Badge
         updateAuthBadgeUI();
+        
+        // 동기화 완료 상태 마크
+        isCloudDataSynced = true;
     } catch (e) {
         console.error("데이터 동기화 실패:", e);
         alert("계정 데이터 동기화 도중 에러가 발생했습니다: " + e.message);
@@ -631,6 +638,7 @@ function handleLogout() {
     const confirmLogout = confirm("정말 로그아웃 하시겠습니까?\n로그아웃 시 비회원 로컬 모드로 전환됩니다.");
     if (confirmLogout) {
         currentUser = null;
+        isCloudDataSynced = false;
         localStorage.removeItem('fc_star_current_user');
         
         // Clean active local states to avoid leakage, then reload

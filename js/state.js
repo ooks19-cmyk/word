@@ -81,6 +81,7 @@ let currentUser = null;
 let authMode = 'login'; // 'login' or 'register'
 let isAuthSubmitting = false;
 let lastSyncedUpdatedAt = "";
+let isCloudDataSynced = false;
 try {
     const savedSyncedTime = localStorage.getItem('fc_star_last_synced_updated_at');
     if (savedSyncedTime) lastSyncedUpdatedAt = savedSyncedTime;
