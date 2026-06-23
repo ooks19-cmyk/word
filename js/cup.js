@@ -886,7 +886,7 @@ function startCupMatchSimulation() {
                             if (lwCardId && CARDS_DATABASE[lwCardId]) chancePlayerStat = getWingerChanceStat('LW', getAwakenedCard(lwCardId));
                         } else if (selectedOption === 1) {
                             const stCardId = squadFormation['ST'];
-                            if (stCardId && CARDS_DATABASE[stCardId]) chancePlayerStat = getAwakenedCard(stCardId).stats.sho || 75;
+                            if (stCardId && CARDS_DATABASE[stCardId]) chancePlayerStat = getStrikerChanceStat('ST', getAwakenedCard(stCardId), strikerStyles);
                         } else if (selectedOption === 2) {
                             const rwCardId = squadFormation['RW'];
                             if (rwCardId && CARDS_DATABASE[rwCardId]) chancePlayerStat = getWingerChanceStat('RW', getAwakenedCard(rwCardId));
@@ -900,7 +900,7 @@ function startCupMatchSimulation() {
                         
                         const activePlayers = { ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName };
                         const isTacticActive = detailedTacticBonus > 0;
-                        const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers, squadFormation, playerDeck, wingerStyles);
+                        const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers, squadFormation, playerDeck, wingerStyles, strikerStyles);
                         
                         addCommentary(currentMin, eventDesc, 'attack');
                         
@@ -1056,7 +1056,7 @@ function startCupMatchSimulation() {
                         if (lwCardId && CARDS_DATABASE[lwCardId]) chancePlayerStat = getWingerChanceStat('LW', getAwakenedCard(lwCardId));
                     } else if (selectedOption === 1) {
                         const stCardId = squadFormation['ST'];
-                        if (stCardId && CARDS_DATABASE[stCardId]) chancePlayerStat = getAwakenedCard(stCardId).stats.sho || 75;
+                        if (stCardId && CARDS_DATABASE[stCardId]) chancePlayerStat = getStrikerChanceStat('ST', getAwakenedCard(stCardId), strikerStyles);
                     } else if (selectedOption === 2) {
                         const rwCardId = squadFormation['RW'];
                         if (rwCardId && CARDS_DATABASE[rwCardId]) chancePlayerStat = getWingerChanceStat('RW', getAwakenedCard(rwCardId));
@@ -1070,7 +1070,7 @@ function startCupMatchSimulation() {
                     
                     const activePlayers = { ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName };
                     const isTacticActive = detailedTacticBonus > 0;
-                    const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers, squadFormation, playerDeck, wingerStyles);
+                    const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers, squadFormation, playerDeck, wingerStyles, strikerStyles);
                     
                     addCommentary(currentMin, eventDesc, 'attack');
                     

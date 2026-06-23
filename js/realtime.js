@@ -113,7 +113,8 @@ async function handleCreatePvpRoom() {
         ovr: myOvr,
         squad: squadFormation,
         playerDeck: playerDeck,
-        wingerStyles: wingerStyles
+        wingerStyles: wingerStyles,
+        strikerStyles: strikerStyles
     };
 
     showToast("방을 개설하는 중...");
@@ -160,7 +161,8 @@ async function handleJoinPvpRoom() {
         ovr: myOvr,
         squad: squadFormation,
         playerDeck: playerDeck,
-        wingerStyles: wingerStyles
+        wingerStyles: wingerStyles,
+        strikerStyles: strikerStyles
     };
 
     showToast("대결 방에 입장하는 중...");
@@ -207,7 +209,8 @@ async function changePvpFormation(isHost, formationName) {
         ovr: myOvr,
         squad: squadFormation,
         playerDeck: playerDeck,
-        wingerStyles: wingerStyles
+        wingerStyles: wingerStyles,
+        strikerStyles: strikerStyles
     };
     
     // 2. Firestore 방 정보에 즉시 동기화 전송
@@ -892,7 +895,7 @@ function startPvpMatchSimulation(roomId, roomData) {
                 let attStSho = 75;
                 if (attStId && CARDS_DATABASE[attStId]) {
                     const card = getAwakenedCard(attStId, attackerInfo.playerDeck);
-                    attStSho = card.stats.sho || 75;
+                    attStSho = getStrikerChanceStat('ST', card, attackerInfo.strikerStyles);
                 }
                 const defGkId = defenderInfo.squad["GK"];
                 let defGkDef = 70;
@@ -929,7 +932,7 @@ function startPvpMatchSimulation(roomId, roomData) {
                 }
                 
                 const isTacticActive = attDetailedTactic.detailedTacticBonus > 0;
-                const commData = getDetailedTacticCommentary(option, attackerInfo.formation, isTacticActive, activePlayers, attackerInfo.squad, attackerInfo.playerDeck, attackerInfo.wingerStyles);
+                const commData = getDetailedTacticCommentary(option, attackerInfo.formation, isTacticActive, activePlayers, attackerInfo.squad, attackerInfo.playerDeck, attackerInfo.wingerStyles, attackerInfo.strikerStyles);
                 
                 const cleanText = (text) => {
                     if (!text) return "";
@@ -1019,7 +1022,7 @@ function startPvpMatchSimulation(roomId, roomData) {
             let attStSho = 75;
             if (attStId && CARDS_DATABASE[attStId]) {
                 const card = getAwakenedCard(attStId, attackerInfo.playerDeck);
-                attStSho = card.stats.sho || 75;
+                attStSho = getStrikerChanceStat('ST', card, attackerInfo.strikerStyles);
             }
             const defGkId = defenderInfo.squad["GK"];
             let defGkDef = 70;
@@ -1056,7 +1059,7 @@ function startPvpMatchSimulation(roomId, roomData) {
             }
             
             const isTacticActive = attDetailedTactic.detailedTacticBonus > 0;
-            const commData = getDetailedTacticCommentary(option, attackerInfo.formation, isTacticActive, activePlayers, attackerInfo.squad, attackerInfo.playerDeck, attackerInfo.wingerStyles);
+            const commData = getDetailedTacticCommentary(option, attackerInfo.formation, isTacticActive, activePlayers, attackerInfo.squad, attackerInfo.playerDeck, attackerInfo.wingerStyles, attackerInfo.strikerStyles);
             
             const cleanText = (text) => {
                 if (!text) return "";

@@ -1543,7 +1543,7 @@ const CARDS_DATABASE = {
         id: "wataru_endo",
         name: "엔도 와타루",
         rating: 85,
-        position: "CM",
+        position: "CB",
         nation: "Japan",
         nationFlag: "https://flagcdn.com/w40/jp.png",
         club: "LIVERPOOL",

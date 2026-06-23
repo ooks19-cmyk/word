@@ -1035,7 +1035,7 @@ function startFriendlyMatchSimulation() {
                             const stCardId = squadFormation['ST'];
                             if (stCardId && CARDS_DATABASE[stCardId]) {
                                 const card = getAwakenedCard(stCardId);
-                                chancePlayerStat = card.stats.sho || 75;
+                                chancePlayerStat = getStrikerChanceStat('ST', card, strikerStyles);
                             }
                         } else if (selectedOption === 2) {
                             const rwCardId = squadFormation['RW'];
@@ -1055,7 +1055,7 @@ function startFriendlyMatchSimulation() {
                         const isGoal = Math.random() < scoreProb;
 
                         const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm };
-                        const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isDetailedActive, activePlayers, squadFormation, playerDeck, wingerStyles);
+                        const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isDetailedActive, activePlayers, squadFormation, playerDeck, wingerStyles, strikerStyles);
 
                         addCommentary(currentMin, eventDesc, 'attack');
                         if (isGoal) {
@@ -1182,7 +1182,7 @@ function startFriendlyMatchSimulation() {
                         const stCardId = squadFormation['ST'];
                         if (stCardId && CARDS_DATABASE[stCardId]) {
                             const card = getAwakenedCard(stCardId);
-                            chancePlayerStat = card.stats.sho || 75;
+                            chancePlayerStat = getStrikerChanceStat('ST', card, strikerStyles);
                         }
                     } else if (selectedOption === 2) {
                         const rwCardId = squadFormation['RW'];
@@ -1202,7 +1202,7 @@ function startFriendlyMatchSimulation() {
                     const isGoal = Math.random() < scoreProb;
 
                     const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm };
-                    const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isDetailedActive, activePlayers, squadFormation, playerDeck, wingerStyles);
+                    const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isDetailedActive, activePlayers, squadFormation, playerDeck, wingerStyles, strikerStyles);
 
                     addCommentary(currentMin, eventDesc, 'attack');
                     if (isGoal) {

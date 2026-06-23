@@ -217,24 +217,7 @@ const dbService = {
         if (this.isFirebase) {
             try {
                 const docRef = this.firestore.collection('fc_star_users').doc(normalizedId);
-                // Force server fetch to check actual latest remote updatedAt timestamp.
-                const doc = await docRef.get({ source: 'server' });
-                if (doc.exists) {
-                    const remoteData = doc.data();
-                    const remoteUpdatedAt = remoteData.updatedAt;
-                    const localSyncedTime = progressData.lastSyncedUpdatedAt;
-                    
-                    const remoteTime = safeGetTime(remoteUpdatedAt);
-                    const localTime = safeGetTime(localSyncedTime);
-                    
-                    if (remoteTime > 0 && remoteTime > localTime) {
-                        console.warn("⚠️ 클라우드 데이터가 더 최신입니다. 로컬 덮어쓰기를 취소합니다.");
-                        if (typeof showToast === 'function') {
-                            showToast("⚠️ 다른 기기에서 저장된 최신 데이터가 발견되어 덮어쓰기가 방지되었습니다. 페이지를 새로고침하세요.");
-                        }
-                        return;
-                    }
-                }
+
                 
                 const newTimestamp = new Date().toISOString();
                 await docRef.update({
@@ -533,7 +516,9 @@ const dbService = {
                     ovr: squadData.ovr || 70,
                     formation: formationName || "4-4-2",
                     squad: cleanSquad,
-                    playerDeck: cleanDeck
+                    playerDeck: cleanDeck,
+                    wingerStyles: cleanUndefined(squadData.wingerStyles || null),
+                    strikerStyles: cleanUndefined(squadData.strikerStyles || null)
                 },
                 guest: null,
                 matchState: {
@@ -589,7 +574,9 @@ const dbService = {
                 ovr: squadData.ovr || 70,
                 formation: formationName || "4-4-2",
                 squad: cleanSquad,
-                playerDeck: cleanDeck
+                playerDeck: cleanDeck,
+                wingerStyles: cleanUndefined(squadData.wingerStyles || null),
+                strikerStyles: cleanUndefined(squadData.strikerStyles || null)
             };
             
             await docRef.update({
@@ -623,6 +610,8 @@ const dbService = {
                 [`${updateKey}.formation`]: formationName || "4-4-2",
                 [`${updateKey}.squad`]: cleanSquad,
                 [`${updateKey}.playerDeck`]: cleanDeck,
+                [`${updateKey}.wingerStyles`]: cleanUndefined(squadData.wingerStyles || null),
+                [`${updateKey}.strikerStyles`]: cleanUndefined(squadData.strikerStyles || null),
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
             console.log(`[PvP] 포메이션 전술 동기화 완료 (${isHost ? 'Host' : 'Guest'}): ${formationName}`);

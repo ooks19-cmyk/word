@@ -945,7 +945,7 @@ function startAclMatchSimulation() {
                             const stCardId = squadFormation['ST'];
                             if (stCardId && CARDS_DATABASE[stCardId]) {
                                 const card = getAwakenedCard(stCardId);
-                                chancePlayerStat = card.stats.sho || 75;
+                                chancePlayerStat = getStrikerChanceStat('ST', card, strikerStyles);
                             }
                         } else if (option === 2) {
                             const rwCardId = squadFormation['RW'];
@@ -965,7 +965,7 @@ function startAclMatchSimulation() {
                         const isGoal = Math.random() < scoreProb;
                         
                         const commDataLocal = { ...commentaryData, ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName };
-                        const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(option, currentFormation, isDetailedActive, commDataLocal, squadFormation, playerDeck, wingerStyles);
+                        const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(option, currentFormation, isDetailedActive, commDataLocal, squadFormation, playerDeck, wingerStyles, strikerStyles);
                         
                         addCommentary(currentMin, eventDesc, 'normal');
                         
@@ -1106,7 +1106,7 @@ function startAclMatchSimulation() {
                         const stCardId = squadFormation['ST'];
                         if (stCardId && CARDS_DATABASE[stCardId]) {
                             const card = getAwakenedCard(stCardId);
-                            chancePlayerStat = card.stats.sho || 75;
+                            chancePlayerStat = getStrikerChanceStat('ST', card, strikerStyles);
                         }
                     } else if (option === 2) {
                         const rwCardId = squadFormation['RW'];
@@ -1126,7 +1126,7 @@ function startAclMatchSimulation() {
                     const isGoal = Math.random() < scoreProb;
                     
                     const commDataLocal = { ...commentaryData, ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName };
-                    const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(option, currentFormation, isDetailedActive, commDataLocal, squadFormation, playerDeck, wingerStyles);
+                    const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(option, currentFormation, isDetailedActive, commDataLocal, squadFormation, playerDeck, wingerStyles, strikerStyles);
                     
                     addCommentary(currentMin, eventDesc, 'normal');
                     

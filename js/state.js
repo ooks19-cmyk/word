@@ -237,5 +237,16 @@ try {
     wingerStyles = { LW: 'dribble', RW: 'sprint' };
 }
 
+// 8. STRIKER PLAYSTYLE CONFIGURATION STATE
+let strikerStyles = { ST: 'targetman' };
+try {
+    const savedStrikerStyles = localStorage.getItem('fc_star_striker_styles');
+    if (savedStrikerStyles) {
+        strikerStyles = JSON.parse(savedStrikerStyles);
+    }
+} catch (e) {
+    strikerStyles = { ST: 'targetman' };
+}
+
 
 

@@ -10,6 +10,18 @@ function getWingerChanceStat(position, card, styles = null) {
     }
 }
 
+// 0-2. 스트라이커 플레이스타일에 따른 찬스 스탯 계산
+function getStrikerChanceStat(position, card, styles = null) {
+    const activeStyles = styles || (typeof strikerStyles !== 'undefined' ? strikerStyles : { ST: 'targetman' });
+    const style = activeStyles[position] || 'targetman';
+    
+    if (style === 'targetman') {
+        return Math.round(((card.stats.sho || 75) + (card.stats.phy || 75)) / 2);
+    } else {
+        return Math.round(((card.stats.sho || 75) + (card.stats.pac || 75)) / 2);
+    }
+}
+
 // 1. 활성화된 베이스 스쿼드의 순수 평균 OVR 계산
 function getPlayerPureOvr() {
     let totalOvr = 0;
@@ -511,13 +523,16 @@ function calculateFinalMatchOvrs(venueType, isPlayerHome, opponentBaseOvr, isFri
 }
 
 // 3. 포메이션 세부 전술 연동 매치 코멘터리 생성 (리그 & 친선경기 시뮬레이터 공용)
-function getDetailedTacticCommentary(option, formation, isTacticActive, activePlayers, squad = squadFormation, deck = playerDeck, customWingerStyles = null) {
+function getDetailedTacticCommentary(option, formation, isTacticActive, activePlayers, squad = squadFormation, deck = playerDeck, customWingerStyles = null, customStrikerStyles = null) {
     lastTacticGoalData = null; // Reset for each new commentary evaluation
     const { ST, LW, RW, CM } = activePlayers;
     
     const activeWingerStyles = customWingerStyles || (typeof wingerStyles !== 'undefined' ? wingerStyles : { LW: 'dribble', RW: 'sprint' });
     const lwStyle = activeWingerStyles.LW || 'dribble';
     const rwStyle = activeWingerStyles.RW || 'sprint';
+    
+    const activeStrikerStyles = customStrikerStyles || (typeof strikerStyles !== 'undefined' ? strikerStyles : { ST: 'targetman' });
+    const stStyle = activeStrikerStyles.ST || 'targetman';
     
     let eventDesc = "";
     let eventGoal = "";
@@ -561,9 +576,15 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
             eventFail = texts.fail;
         }
     } else if (option === 1) {
-        eventDesc = `전방에서 강한 압박으로 공을 탈취한 ${ST}! 일대일 단독 찬스에 직면하여 슛 시도!`;
-        eventGoal = `골!!! ${ST}가 침착하게 골키퍼 키를 넘기는 칩슛으로 골망을 흔듭니다! 그림 같은 선제골! ⚽`;
-        eventFail = `앗! 슛이 너무 강했습니다. 크로스바를 살짝 빗나가며 아쉬움을 삼킵니다.`;
+        if (stStyle === 'targetman') {
+            eventDesc = `최전방에서 버텨주며 상대 수비수와 피지컬 경합을 이겨낸 ${ST}! 가슴 트래핑 후 강력한 터닝 슛 시도!`;
+            eventGoal = `골!!! ${ST}가 압도적인 피지컬로 상대 센터백을 등지고 돌아선 뒤, 골대 구석을 뚫어내는 호쾌한 슈팅으로 골망을 가릅니다! ⚽`;
+            eventFail = `아아! 피지컬 싸움 끝에 슛까지 연결했으나 골키퍼의 손을 스치며 아쉽게 골대 옆으로 지나갑니다.`;
+        } else {
+            eventDesc = `상대 수비 라인의 오프사이드 트랩을 절묘하게 무너뜨리며 배후 공간으로 빠르게 침투해 들어가는 ${ST}! 완벽한 1대1 찬스를 잡습니다!`;
+            eventGoal = `골!!! 엄청난 스프린트로 수비벽을 허문 ${ST}가 골키퍼 키를 침착하게 넘기는 정교한 칩슛으로 골망을 흔듭니다! ⚽`;
+            eventFail = `앗! 슛이 너무 강했습니다. 크로스바를 살짝 빗나가며 아쉬움을 삼킵니다.`;
+        }
     } else if (option === 2) {
         // RW 찬스
         if (rwStyle === 'dribble') {

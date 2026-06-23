@@ -804,7 +804,7 @@ function startLeagueAutoSimulation() {
                         const stCardId = squadFormation['ST'];
                         if (stCardId && CARDS_DATABASE[stCardId]) {
                             const card = getAwakenedCard(stCardId);
-                            chancePlayerStat = card.stats.sho || 75;
+                            chancePlayerStat = getStrikerChanceStat('ST', card, strikerStyles);
                         }
                     } else if (selectedOption === 2) {
                         const rwCardId = squadFormation['RW'];
@@ -1160,8 +1160,8 @@ function startMatchSimulation() {
                         } else if (selectedOption === 1) {
                             const stCardId = squadFormation['ST'];
                             if (stCardId && CARDS_DATABASE[stCardId]) {
-                                const card = getAwakenedCard(stCardId);
-                                chancePlayerStat = card.stats.sho || 75;
+                                 const card = getAwakenedCard(stCardId);
+                                 chancePlayerStat = getStrikerChanceStat('ST', card, strikerStyles);
                             }
                         } else if (selectedOption === 2) {
                             const rwCardId = squadFormation['RW'];
@@ -1181,7 +1181,7 @@ function startMatchSimulation() {
                         const isGoal = Math.random() < scoreProb;
                         const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm };
                         const isTacticActive = detailedTacticBonus > 0;
-                        const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers, squadFormation, playerDeck, wingerStyles);
+                        const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers, squadFormation, playerDeck, wingerStyles, strikerStyles);
                         
                         addCommentary(currentMin, eventDesc, 'attack');
                         if (isGoal) {
@@ -1410,7 +1410,7 @@ function startMatchSimulation() {
                         const stCardId = squadFormation['ST'];
                         if (stCardId && CARDS_DATABASE[stCardId]) {
                             const card = getAwakenedCard(stCardId);
-                            chancePlayerStat = card.stats.sho || 75;
+                            chancePlayerStat = getStrikerChanceStat('ST', card, strikerStyles);
                         }
                     } else if (selectedOption === 2) {
                         const rwCardId = squadFormation['RW'];
@@ -1430,7 +1430,7 @@ function startMatchSimulation() {
                     const isGoal = Math.random() < scoreProb;
                     const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm };
                     const isTacticActive = detailedTacticBonus > 0;
-                    const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers, squadFormation, playerDeck, wingerStyles);
+                    const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers, squadFormation, playerDeck, wingerStyles, strikerStyles);
                     
                     addCommentary(currentMin, eventDesc, 'attack');
                     

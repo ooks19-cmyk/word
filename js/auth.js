@@ -134,6 +134,7 @@ function saveUserProgress() {
         currentWinStreak: currentWinStreak,
         maxWinStreak: maxWinStreak,
         wingerStyles: typeof wingerStyles !== 'undefined' ? wingerStyles : { LW: 'dribble', RW: 'sprint' },
+        strikerStyles: typeof strikerStyles !== 'undefined' ? strikerStyles : { ST: 'targetman' },
         
         // 친선경기 ID별 실시간 클라우드 전적 연동 필드
         friendlyMatchesHistory: typeof friendlyMatchesHistory !== 'undefined' ? friendlyMatchesHistory : { w: 0, d: 0, l: 0, pts: 0 },
@@ -160,6 +161,8 @@ function syncUserDataOnLogin(userData) {
         isHardMode = userData.isHardMode || false;
         wingerStyles = userData.wingerStyles || { LW: 'dribble', RW: 'sprint' };
         localStorage.setItem('fc_star_winger_styles', JSON.stringify(wingerStyles));
+        strikerStyles = userData.strikerStyles || { ST: 'targetman' };
+        localStorage.setItem('fc_star_striker_styles', JSON.stringify(strikerStyles));
         
         squadFormations = userData.squadFormations || {
             '4-4-2': {},
@@ -335,6 +338,7 @@ function syncUserDataOnLogin(userData) {
         localStorage.setItem('fc_star_current_win_streak', currentWinStreak.toString());
         localStorage.setItem('fc_star_max_win_streak', maxWinStreak.toString());
         localStorage.setItem('fc_star_winger_styles', JSON.stringify(wingerStyles));
+        localStorage.setItem('fc_star_striker_styles', JSON.stringify(strikerStyles));
         
         // 개발자 모드 UI 연동 복원
         updateDevModeUI();
