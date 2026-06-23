@@ -2,12 +2,26 @@
 
 const UPDATE_LOGS = [
     {
-        version: "v1.9.1",
-        date: "2026.06.22",
+        version: "v2.0.0",
+        date: "2026.06.23",
         latest: true,
         borderColor: "#ff3e6c",
         titleColor: "#ff3e6c",
         badgeText: "LATEST",
+        items: [
+            "<strong>신규 선수 카드 대거 추가 (호날두, 변준수, 홀란드, 미토마, 엔도 와타루)</strong>: 게임 다양성과 라인업 강화를 위해 5명의 핵심 선수 카드를 새롭게 추가했습니다.<br>• <strong>에를링 홀란드</strong> (OVR 91, ST, 월드클래스)<br>• <strong>크리스티아누 호날두</strong> (OVR 90, LW, 레전드)<br>• <strong>미토마 카오루</strong> (OVR 85, LW, 스페셜)<br>• <strong>엔도 와타루</strong> (OVR 85, CM, 스페셜)<br>• <strong>변준수</strong> (OVR 84, CB, 스페셜)",
+            "<strong>선수 카드 정보 수정 및 밸런스 조정</strong>: 기존 등록된 선수들의 정보를 보정했습니다.<br>• <strong>김태환</strong>: 카드 설명 잘림 버그 수정.<br>• <strong>강상윤</strong>: 오버롤 81 상향 및 스페셜 등급 변경, 스탯 조정.<br>• <strong>조위제</strong>: 오버롤 83 상향 및 스페셜 등급 변경, 스탯 대폭 상향.<br>• <strong>맹성웅</strong>: 수비(DEF) 스탯 80으로 상향.",
+            "<strong>매치 엔진 텍스트-기록지 통계 동기화 오류 해결</strong>: 4-3-3(타겟맨), 5-4-1(역습), 4-2-3-1(점유율) 등의 포메이션에서 중계 로그와 경기 종료 후 기록(득점자, 도움자)이 불일치하던 고질적인 엔진 매핑 오류를 실시간 추적 변수를 통해 완벽히 해결했습니다.",
+            "<strong>엑셀 호환성 강화를 위한 CSV 인코딩 개선</strong>: 윈도우용 엑셀에서 <code>선수데이터.csv</code> 파일 오픈 시 한글이 깨지는 현상을 해결하기 위해 첫머리에 BOM(Byte Order Mark) 식별 바이트를 적용해 UTF-8 with BOM 형식으로 재저장했습니다."
+        ]
+    },
+    {
+        version: "v1.9.1",
+        date: "2026.06.22",
+        latest: false,
+        borderColor: "#ffd700",
+        titleColor: "#ffd700",
+        badgeText: "",
         items: [
             "<strong>클라우드 동기화 안정성 강화 (데이터 덮어쓰기 방지)</strong>: 다른 기기에서 로그인 시, 클라우드의 최신 데이터를 완벽히 동기화하기 전에 로컬 캐시가 서버의 최신 데이터를 덮어쓰는 결함을 <code>isCloudDataSynced</code> 세이프가드 플래그를 도입하여 원천 해결하였습니다.",
             "<strong>오프라인 상태 게임 차단 및 세션 해제</strong>: 자동 세션 복원(자동 로그인) 시도 중 인터넷 불안정으로 인해 <code>network_error</code>가 감지되면 즉각 오프라인 상태 진입을 제한하고, 로컬 세션을 안전하게 정리한 후 로그인 화면으로 즉시 전환하여 데이터의 오염 가능성을 100% 방지했습니다."

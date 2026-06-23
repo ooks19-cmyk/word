@@ -1513,6 +1513,81 @@ const CARDS_DATABASE = {
             def: 85,
             phy: 84
         }
+    },
+    "kaoru_mitoma": {
+        id: "kaoru_mitoma",
+        name: "미토마",
+        rating: 85,
+        position: "LW",
+        nation: "Japan",
+        nationFlag: "https://flagcdn.com/w40/jp.png",
+        club: "BRIGHTON",
+        image: "player2/미토마.png",
+        rarity: "special",
+        description: "독보적인 아웃프런트 킥과 정밀한 드리블 돌파로 잉글랜드 프리미어리그를 매료시킨 일본의 윙어 미토마입니다. 상대를 얼어붙게 만드는 타이밍을 뺏는 특유의 잔발 드리블과 날카로운 크로스로 브라이튼의 측면 공격을 지휘하는 스페셜 윙어입니다.",
+        theme: {
+            primary: "#0057b8",
+            secondary: "#ffffff",
+            glow: "#00d2ff"
+        },
+        stats: {
+            pac: 88,
+            sho: 78,
+            pas: 80,
+            dri: 90,
+            def: 42,
+            phy: 68
+        }
+    },
+    "wataru_endo": {
+        id: "wataru_endo",
+        name: "엔도 와타루",
+        rating: 85,
+        position: "CM",
+        nation: "Japan",
+        nationFlag: "https://flagcdn.com/w40/jp.png",
+        club: "LIVERPOOL",
+        image: "player2/엔도와타루.png",
+        rarity: "special",
+        description: "명가 리버풀 FC의 든든한 중원 방패이자 뛰어난 수비 지능을 보유한 일본의 미드필더 엔도 와타루입니다. 왕성한 활동량, 안정적인 세컨볼 획득 능력, 그리고 포백 보호 능력을 바탕으로 공수 밸런스를 조율하는 스페셜 미드필더입니다.",
+        theme: {
+            primary: "#c8102e",
+            secondary: "#ffffff",
+            glow: "#ff3e6c"
+        },
+        stats: {
+            pac: 73,
+            sho: 68,
+            pas: 80,
+            dri: 76,
+            def: 86,
+            phy: 84
+        }
+    },
+    "erling_haaland": {
+        id: "erling_haaland",
+        name: "홀란드",
+        rating: 91,
+        position: "ST",
+        nation: "Norway",
+        nationFlag: "https://flagcdn.com/w40/no.png",
+        club: "MANCHESTER CITY",
+        image: "player2/홀란드.webp",
+        rarity: "worldclass",
+        description: "압도적인 폭발력과 가공할 만한 피지컬로 골문을 폭격하는 세계 최고의 스트라이커 홀란드입니다. 가공할 만한 스피드와 가공할 만한 슈팅 능력, 그리고 상대 수비진을 힘으로 짓누르는 압도적인 제공권으로 무수한 득점 기록을 갈아치우는 월드클래스 해결사입니다.",
+        theme: {
+            primary: "#112233",
+            secondary: "#6cabdd",
+            glow: "#00f2fe"
+        },
+        stats: {
+            pac: 92,
+            sho: 93,
+            pas: 72,
+            dri: 82,
+            def: 40,
+            phy: 90
+        }
     }
 };
 
