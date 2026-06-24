@@ -113,8 +113,8 @@ async function handleCreatePvpRoom() {
         ovr: myOvr,
         squad: squadFormation,
         playerDeck: playerDeck,
-        wingerStyles: wingerStyles,
-        strikerStyles: strikerStyles
+        wingerStyles: wingerStyles[currentFormation] || { LW: 'dribble', RW: 'sprint' },
+        strikerStyles: strikerStyles[currentFormation] || { ST: 'targetman' }
     };
 
     showToast("방을 개설하는 중...");
@@ -161,8 +161,8 @@ async function handleJoinPvpRoom() {
         ovr: myOvr,
         squad: squadFormation,
         playerDeck: playerDeck,
-        wingerStyles: wingerStyles,
-        strikerStyles: strikerStyles
+        wingerStyles: wingerStyles[currentFormation] || { LW: 'dribble', RW: 'sprint' },
+        strikerStyles: strikerStyles[currentFormation] || { ST: 'targetman' }
     };
 
     showToast("대결 방에 입장하는 중...");
@@ -209,8 +209,8 @@ async function changePvpFormation(isHost, formationName) {
         ovr: myOvr,
         squad: squadFormation,
         playerDeck: playerDeck,
-        wingerStyles: wingerStyles,
-        strikerStyles: strikerStyles
+        wingerStyles: wingerStyles[formationName] || { LW: 'dribble', RW: 'sprint' },
+        strikerStyles: strikerStyles[formationName] || { ST: 'targetman' }
     };
     
     // 2. Firestore 방 정보에 즉시 동기화 전송

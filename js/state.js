@@ -227,25 +227,60 @@ try {
 } catch (e) {}
 
 // 7. WINGER PLAYSTYLE CONFIGURATION STATE
-let wingerStyles = { LW: 'dribble', RW: 'sprint' };
+let wingerStyles = {
+    '4-4-2': { LW: 'dribble', RW: 'sprint' },
+    '4-3-3': { LW: 'dribble', RW: 'sprint' },
+    '3-4-3': { LW: 'dribble', RW: 'sprint' },
+    '5-4-1': { LW: 'dribble', RW: 'sprint' },
+    '4-2-3-1': { LW: 'dribble', RW: 'sprint' }
+};
 try {
     const savedWingerStyles = localStorage.getItem('fc_star_winger_styles');
     if (savedWingerStyles) {
-        wingerStyles = JSON.parse(savedWingerStyles);
+        const parsed = JSON.parse(savedWingerStyles);
+        // 마이그레이션 검사: 기존 플랫 객체인지 중첩 객체인지 판별
+        if (parsed.LW || parsed.RW) {
+            console.log("Migrating flat wingerStyles to nested format...");
+            Object.keys(wingerStyles).forEach(f => {
+                wingerStyles[f] = { 
+                    LW: parsed.LW || 'dribble', 
+                    RW: parsed.RW || 'sprint' 
+                };
+            });
+        } else {
+            wingerStyles = parsed;
+        }
     }
 } catch (e) {
-    wingerStyles = { LW: 'dribble', RW: 'sprint' };
+    console.warn("Winger styles parsing failed, fallback used", e);
 }
 
 // 8. STRIKER PLAYSTYLE CONFIGURATION STATE
-let strikerStyles = { ST: 'targetman' };
+let strikerStyles = {
+    '4-4-2': { ST: 'targetman' },
+    '4-3-3': { ST: 'targetman' },
+    '3-4-3': { ST: 'targetman' },
+    '5-4-1': { ST: 'targetman' },
+    '4-2-3-1': { ST: 'targetman' }
+};
 try {
     const savedStrikerStyles = localStorage.getItem('fc_star_striker_styles');
     if (savedStrikerStyles) {
-        strikerStyles = JSON.parse(savedStrikerStyles);
+        const parsed = JSON.parse(savedStrikerStyles);
+        // 마이그레이션 검사: 기존 플랫 객체인지 중첩 객체인지 판별
+        if (parsed.ST) {
+            console.log("Migrating flat strikerStyles to nested format...");
+            Object.keys(strikerStyles).forEach(f => {
+                strikerStyles[f] = { 
+                    ST: parsed.ST || 'targetman' 
+                };
+            });
+        } else {
+            strikerStyles = parsed;
+        }
     }
 } catch (e) {
-    strikerStyles = { ST: 'targetman' };
+    console.warn("Striker styles parsing failed, fallback used", e);
 }
 
 

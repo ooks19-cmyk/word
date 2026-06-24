@@ -208,14 +208,16 @@ function renderSquadFormation() {
         
         let wingerStyleBadge = '';
         if (pos === 'LW' || pos === 'RW') {
-            const style = wingerStyles[pos] || (pos === 'LW' ? 'dribble' : 'sprint');
+            const activeWingerStyles = wingerStyles[currentFormation] || {};
+            const style = activeWingerStyles[pos] || (pos === 'LW' ? 'dribble' : 'sprint');
             if (style === 'dribble') {
                 wingerStyleBadge = `<span class="winger-style-mini-badge dribble" title="드리블 돌파" style="font-size: 0.62rem; font-weight: 800; background: rgba(0, 255, 135, 0.25); color: #00ff87; border: 1px solid rgba(0, 255, 135, 0.4); padding: 1px 4px; border-radius: 4px; margin-left: 3px; vertical-align: middle;">🌀</span>`;
             } else {
                 wingerStyleBadge = `<span class="winger-style-mini-badge sprint" title="치고 달리기" style="font-size: 0.62rem; font-weight: 800; background: rgba(255, 62, 108, 0.25); color: #ff3e6c; border: 1px solid rgba(255, 62, 108, 0.4); padding: 1px 4px; border-radius: 4px; margin-left: 3px; vertical-align: middle;">⚡</span>`;
             }
         } else if (pos === 'ST') {
-            const style = strikerStyles[pos] || 'targetman';
+            const activeStrikerStyles = strikerStyles[currentFormation] || {};
+            const style = activeStrikerStyles[pos] || 'targetman';
             if (style === 'targetman') {
                 wingerStyleBadge = `<span class="striker-style-mini-badge targetman" title="타겟맨" style="font-size: 0.62rem; font-weight: 800; background: rgba(0, 255, 135, 0.25); color: #00ff87; border: 1px solid rgba(0, 255, 135, 0.4); padding: 1px 4px; border-radius: 4px; margin-left: 3px; vertical-align: middle;">🌀</span>`;
             } else {
@@ -420,7 +422,8 @@ function openCardSelector(position) {
             justify-content: space-between;
         `;
         
-        const style = wingerStyles[position] || (position === 'LW' ? 'dribble' : 'sprint');
+        const activeWingerStyles = wingerStyles[currentFormation] || {};
+        const style = activeWingerStyles[position] || (position === 'LW' ? 'dribble' : 'sprint');
         const isChecked = style === 'sprint';
         
         styleContainer.innerHTML = `
@@ -453,7 +456,8 @@ function openCardSelector(position) {
             justify-content: space-between;
         `;
         
-        const style = strikerStyles[position] || 'targetman';
+        const activeStrikerStyles = strikerStyles[currentFormation] || {};
+        const style = activeStrikerStyles[position] || 'targetman';
         const isChecked = style === 'linebreaker';
         
         styleContainer.innerHTML = `
@@ -1261,7 +1265,10 @@ function changeSquadCaptain(cardId) {
 
 // 윙어 플레이스타일 토글 핸들러
 function toggleWingerStyle(position, isChecked) {
-    wingerStyles[position] = isChecked ? 'sprint' : 'dribble';
+    if (!wingerStyles[currentFormation]) {
+        wingerStyles[currentFormation] = { LW: 'dribble', RW: 'sprint' };
+    }
+    wingerStyles[currentFormation][position] = isChecked ? 'sprint' : 'dribble';
     try {
         localStorage.setItem('fc_star_winger_styles', JSON.stringify(wingerStyles));
     } catch (e) {
@@ -1286,7 +1293,10 @@ function toggleWingerStyle(position, isChecked) {
 
 // 스트라이커 플레이스타일 토글 핸들러
 function toggleStrikerStyle(position, isChecked) {
-    strikerStyles[position] = isChecked ? 'linebreaker' : 'targetman';
+    if (!strikerStyles[currentFormation]) {
+        strikerStyles[currentFormation] = { ST: 'targetman' };
+    }
+    strikerStyles[currentFormation][position] = isChecked ? 'linebreaker' : 'targetman';
     try {
         localStorage.setItem('fc_star_striker_styles', JSON.stringify(strikerStyles));
     } catch (e) {

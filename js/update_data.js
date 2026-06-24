@@ -2,12 +2,26 @@
 
 const UPDATE_LOGS = [
     {
-        version: "v2.0.0",
-        date: "2026.06.23",
+        version: "v2.1.0",
+        date: "2026.06.24",
         latest: true,
         borderColor: "#ff3e6c",
         titleColor: "#ff3e6c",
         badgeText: "LATEST",
+        items: [
+            "<strong>엔도 와타루 포지션 CB 변경</strong>: 엔도 와타루 선수의 포지션을 CM에서 CB로 전격 변경하여 수비진 구성 및 하이그레이드 전술 조합의 유연성을 강화했습니다.",
+            "<strong>스트라이커(ST) 플레이스타일 신설</strong>: 기존 윙어에만 적용되던 플레이스타일 기능이 스트라이커(ST)에게도 확장 적용되었습니다.<br>• <strong>타겟맨</strong>: 슈팅 및 피지컬 스탯 가중치 기반 기회 제공<br>• <strong>라인브레이커</strong>: 슈팅 및 스피드 스탯 가중치 기반 기회 제공<br>• 포지션 특성에 최적화된 기스 유무 확률 공식이 매치 엔진에 완벽 결합되었습니다.",
+            "<strong>포메이션별 전술 플레이스타일 독립 보존</strong>: 포메이션을 전환할 때 플레이스타일 설정값이 덮어쓰여 초기화되는 현상을 해결했습니다. 3-4-3, 4-5-1 등 각 포메이션마다 설정해둔 고유의 스트라이커 및 윙어 플레이스타일이 독립 구조로 완벽 분리 저장/복원됩니다.",
+            "<strong>로컬 우선 & 1분 제한 클라우드 최적화 동기화</strong>: 잦은 스쿼드 편집과 전술 변경 과정에서의 데이터 무리 사용 방지를 위해 로컬(localStorage) 우선 기법을 도입했습니다. 동기화 서버 전송은 1분(60초) 쿨다운 제한을 둠으로써 데이터 사용량을 대폭 절감하고, 수정 타임스탬프 대조를 통해 동기화 간 덮어쓰기 충돌 현상을 원천 방지했습니다."
+        ]
+    },
+    {
+        version: "v2.0.0",
+        date: "2026.06.23",
+        latest: false,
+        borderColor: "#ffd700",
+        titleColor: "#ffd700",
+        badgeText: "",
         items: [
             "<strong>신규 선수 카드 대거 추가 (호날두, 변준수, 홀란드, 미토마, 엔도 와타루)</strong>: 게임 다양성과 라인업 강화를 위해 5명의 핵심 선수 카드를 새롭게 추가했습니다.<br>• <strong>에를링 홀란드</strong> (OVR 91, ST, 월드클래스)<br>• <strong>크리스티아누 호날두</strong> (OVR 90, LW, 레전드)<br>• <strong>미토마 카오루</strong> (OVR 85, LW, 스페셜)<br>• <strong>엔도 와타루</strong> (OVR 85, CM, 스페셜)<br>• <strong>변준수</strong> (OVR 84, CB, 스페셜)",
             "<strong>선수 카드 정보 수정 및 밸런스 조정</strong>: 기존 등록된 선수들의 정보를 보정했습니다.<br>• <strong>김태환</strong>: 카드 설명 잘림 버그 수정.<br>• <strong>강상윤</strong>: 오버롤 81 상향 및 스페셜 등급 변경, 스탯 조정.<br>• <strong>조위제</strong>: 오버롤 83 상향 및 스페셜 등급 변경, 스탯 대폭 상향.<br>• <strong>맹성웅</strong>: 수비(DEF) 스탯 80으로 상향.",

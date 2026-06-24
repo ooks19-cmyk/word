@@ -1,6 +1,16 @@
 // 0. 윙어 플레이스타일에 따른 찬스 스탯 계산
 function getWingerChanceStat(position, card, styles = null) {
-    const activeStyles = styles || (typeof wingerStyles !== 'undefined' ? wingerStyles : { LW: 'dribble', RW: 'sprint' });
+    let activeStyles = styles;
+    if (!activeStyles && typeof wingerStyles !== 'undefined') {
+        activeStyles = wingerStyles[currentFormation] || wingerStyles;
+    }
+    if (!activeStyles) activeStyles = { LW: 'dribble', RW: 'sprint' };
+    
+    // 이중 중첩 방지 방어 코드
+    if (activeStyles[currentFormation]) {
+        activeStyles = activeStyles[currentFormation];
+    }
+    
     const style = activeStyles[position] || (position === 'LW' ? 'dribble' : 'sprint');
     
     if (style === 'dribble') {
@@ -12,7 +22,17 @@ function getWingerChanceStat(position, card, styles = null) {
 
 // 0-2. 스트라이커 플레이스타일에 따른 찬스 스탯 계산
 function getStrikerChanceStat(position, card, styles = null) {
-    const activeStyles = styles || (typeof strikerStyles !== 'undefined' ? strikerStyles : { ST: 'targetman' });
+    let activeStyles = styles;
+    if (!activeStyles && typeof strikerStyles !== 'undefined') {
+        activeStyles = strikerStyles[currentFormation] || strikerStyles;
+    }
+    if (!activeStyles) activeStyles = { ST: 'targetman' };
+    
+    // 이중 중첩 방지 방어 코드
+    if (activeStyles[currentFormation]) {
+        activeStyles = activeStyles[currentFormation];
+    }
+    
     const style = activeStyles[position] || 'targetman';
     
     if (style === 'targetman') {
@@ -527,11 +547,23 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
     lastTacticGoalData = null; // Reset for each new commentary evaluation
     const { ST, LW, RW, CM } = activePlayers;
     
-    const activeWingerStyles = customWingerStyles || (typeof wingerStyles !== 'undefined' ? wingerStyles : { LW: 'dribble', RW: 'sprint' });
+    let activeWingerStyles = customWingerStyles;
+    if (!activeWingerStyles && typeof wingerStyles !== 'undefined') {
+        activeWingerStyles = wingerStyles[formation] || wingerStyles;
+    }
+    if (!activeWingerStyles) activeWingerStyles = { LW: 'dribble', RW: 'sprint' };
+    if (activeWingerStyles[formation]) activeWingerStyles = activeWingerStyles[formation];
+    
     const lwStyle = activeWingerStyles.LW || 'dribble';
     const rwStyle = activeWingerStyles.RW || 'sprint';
     
-    const activeStrikerStyles = customStrikerStyles || (typeof strikerStyles !== 'undefined' ? strikerStyles : { ST: 'targetman' });
+    let activeStrikerStyles = customStrikerStyles;
+    if (!activeStrikerStyles && typeof strikerStyles !== 'undefined') {
+        activeStrikerStyles = strikerStyles[formation] || strikerStyles;
+    }
+    if (!activeStrikerStyles) activeStrikerStyles = { ST: 'targetman' };
+    if (activeStrikerStyles[formation]) activeStrikerStyles = activeStrikerStyles[formation];
+    
     const stStyle = activeStrikerStyles.ST || 'targetman';
     
     let eventDesc = "";
