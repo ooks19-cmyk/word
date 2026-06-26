@@ -205,7 +205,7 @@ const QUIZ_WORDS_BY_DATE = {
         { word: "look like", meaning: "~처럼 생기다" },
         { word: "pineapple", meaning: "파인애플" }
     ],
-    "260626": [
+    "260627": [
         { word: "afterschool", meaning: "방과 후" },
         { word: "again", meaning: "다시" },
         { word: "ask", meaning: "묻다" },
@@ -542,7 +542,7 @@ const QUIZ_WORDS = [
     { word: "warm", meaning: "따뜻한, 데운, 따스하게 하다" },
     { word: "watch", meaning: "주의 깊게 보다, 지켜보다, 손목시계" },
     { word: "work", meaning: "효과가 있다, 방법 등이 먹히다, 일하다" },
-    
+
     /* === [260602 추가분] === */
     { word: "awake", meaning: "깨어 있는" },
     { word: "camp", meaning: "캠프" },
@@ -710,7 +710,7 @@ const QUIZ_WORDS = [
     { word: "huge", meaning: "거대한" },
     { word: "look like", meaning: "~처럼 생기다" },
     { word: "pineapple", meaning: "파인애플" },
-    
+
     /* === [260626 추가분] === */
     { word: "afterschool", meaning: "방과 후" },
     { word: "again", meaning: "다시" },
@@ -734,7 +734,7 @@ const QUIZ_WORDS = [
     { word: "study", meaning: "공부하다" },
     { word: "take", meaning: "꺼내다" },
     { word: "then", meaning: "그 다음에" },
-    
+
     /* === [260630 추가분] === */
     { word: "a lot of", meaning: "많은" },
     { word: "at", meaning: "(특정 시각) ~에" },
@@ -758,7 +758,7 @@ const QUIZ_WORDS = [
     { word: "take", meaning: "(시간이) 걸리다" },
     { word: "tell", meaning: "말하다" },
     { word: "too", meaning: "~도 역시" },
-    
+
     /* === [260704 추가분] === */
     { word: "agree", meaning: "~하기로 (합의)하다" },
     { word: "annoyed", meaning: "짜증이 난" },
@@ -782,7 +782,7 @@ const QUIZ_WORDS = [
     { word: "there", meaning: "거기에" },
     { word: "wait", meaning: "기다리다" },
     { word: "yet", meaning: "아직" },
-    
+
     /* === [260707 추가분] === */
     { word: "awake", meaning: "깨어 있는" },
     { word: "call", meaning: "(새·동물의) 울음소리" },
@@ -806,7 +806,7 @@ const QUIZ_WORDS = [
     { word: "stay away", meaning: "접근하지 않다, 가까이 가지 않다" },
     { word: "wake-up call", meaning: "모닝콜" },
     { word: "worry", meaning: "걱정하다" },
-    
+
     /* === [260711 추가분] === */
     { word: "colorful", meaning: "화려한" },
     { word: "cry", meaning: "울다" },
@@ -830,7 +830,7 @@ const QUIZ_WORDS = [
     { word: "show", meaning: "(뮤지컬, 연극 등의) 쇼" },
     { word: "studio", meaning: "(춤, 음악 등의) 연습실" },
     { word: "trip", meaning: "발이 걸리다" },
-    
+
     /* === [260714 추가분] === */
     { word: "arrive", meaning: "(때·행사일 등이) 되다, 도래하다" },
     { word: "ask", meaning: "묻다, 요청하다" },
@@ -854,7 +854,7 @@ const QUIZ_WORDS = [
     { word: "stop", meaning: "멈추다" },
     { word: "worry", meaning: "걱정하다" },
     { word: "yourself", meaning: "너 자신" },
-    
+
     /* === [260718 추가분] === */
     { word: "about", meaning: "~에 대해서" },
     { word: "around", meaning: "~ 주위를" },
@@ -878,7 +878,7 @@ const QUIZ_WORDS = [
     { word: "watch", meaning: "보다, 지켜보다" },
     { word: "way", meaning: "방식, 방법" },
     { word: "whisper", meaning: "속삭이다" },
-    
+
     /* === [260721 추가분] === */
     { word: "back and forth", meaning: "앞뒤로" },
     { word: "best", meaning: "최고의" },
