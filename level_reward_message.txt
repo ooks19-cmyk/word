@@ -1,0 +1,5 @@
+﻿
+index.html:1037:                <p id="levelRewardMessage" style="color: var(--text-muted); font-size: 0.92rem; line-he
+ight: 1.6; word-break: keep-all; text-align: center; margin: 0;"></p>
+
+

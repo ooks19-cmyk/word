@@ -1,0 +1,75 @@
+리그 및 컵 초기화
+resetLeagueSeason() 및 
+resetCupSeason() 
+
+아챔초기화
+localStorage.removeItem('fc_star_acl_state');
+initAcl();
+if (typeof initAclTab === 'function') {
+    initAclTab();
+}
+
+강제 시즌 종료
+
+checkSeasonChampion();
+
+
+// 1. 연도 및 기록 초기화
+leagueYear = 2026;
+localStorage.setItem('fc_star_league_year', '2026');
+hallOfFame = [];
+localStorage.removeItem('fc_star_hall_of_fame');
+careerStats = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+localStorage.removeItem('fc_star_career_stats');
+
+// 2. 현재 리그 진행 상태 초기화
+resetLeagueSeason();
+
+// 3. UI 갱신
+if (typeof renderHallOfFame === 'function') renderHallOfFame();
+if (typeof renderCareerStats === 'function') renderCareerStats();
+
+
+2. 33라운드로 즉시 건너뛰는 코드
+현재 연도와 팀들의 승점 등은 그대로 유지한 채, 진행 라운드만 33라운드(최종전)로 설정하여 바로 최종 라운드 경기를 진행하고 시즌을 끝마칠 수 있게 만드는 코드입니다.
+
+javascript
+
+
+// 1. 라운드 변경 및 저장
+leagueRound = 33;
+localStorage.setItem('fc_star_league_round', '33');
+// 2. 프리뷰 보드 및 순위표 UI 동기화
+updateMatchPreviewBoard();
+renderLeagueTable();
+showToast("33라운드로 이동했습니다!");
+
+
+친선경기 리셋 코드
+
+
+(function() {
+    const myId = (typeof currentUser === 'string' && currentUser) ? currentUser : "ooks";
+    
+    // 1. 전역 상태 횟수 및 대결 인덱스 초기화
+    friendlyMatchesToday = 0;
+    friendlyCurrentOpponentIndex = 0;
+    
+    // 2. 로컬 스토리지 데이터 0으로 갱신
+    localStorage.setItem(`fc_star_friendly_matches_today_${myId}`, '0');
+    localStorage.setItem(`fc_star_friendly_current_index_${myId}`, '0');
+    
+    // 3. UI 및 경기 프리뷰 즉시 갱신
+    if (typeof updateFriendlyMatchPreview === 'function') updateFriendlyMatchPreview();
+    if (typeof renderFriendlyTable === 'function') renderFriendlyTable();
+    
+    // 4. 리셋 상태 클라우드 Firestore에 동기화 백업
+    if (typeof saveUserProgress === 'function') saveUserProgress();
+    
+    // 5. 알림 출력
+    if (typeof showToast === 'function') {
+        showToast("🔓 친선경기 잔여 횟수 및 대결 순서가 리셋되었습니다! (3/3)");
+    } else {
+        console.log("🟢 친선경기 리셋 완료! (잔여 횟수: 3/3)");
+    }
+})();

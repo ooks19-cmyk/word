@@ -1,0 +1,3478 @@
+{
+  "squadNumbers": {
+    "13": {
+      "cardId": null,
+      "number": 13
+    },
+    "83": {
+      "number": 83,
+      "cardId": null
+    },
+    "85": {
+      "number": 85,
+      "cardId": null
+    },
+    "58": {
+      "number": 58,
+      "cardId": null
+    },
+    "31": {
+      "number": 31,
+      "cardId": null
+    },
+    "44": {
+      "number": 44,
+      "cardId": null
+    },
+    "82": {
+      "number": 82,
+      "cardId": null
+    },
+    "74": {
+      "number": 74,
+      "cardId": null
+    },
+    "12": {
+      "cardId": null,
+      "number": 12
+    },
+    "49": {
+      "number": 49,
+      "cardId": null
+    },
+    "61": {
+      "number": 61,
+      "cardId": null
+    },
+    "81": {
+      "number": 81,
+      "cardId": null
+    },
+    "51": {
+      "number": 51,
+      "cardId": null
+    },
+    "10": {
+      "cardId": "lee_kang_in",
+      "number": 10
+    },
+    "15": {
+      "cardId": null,
+      "number": 15
+    },
+    "48": {
+      "number": 48,
+      "cardId": null
+    },
+    "46": {
+      "number": 46,
+      "cardId": null
+    },
+    "16": {
+      "cardId": null,
+      "number": 16
+    },
+    "84": {
+      "number": 84,
+      "cardId": null
+    },
+    "62": {
+      "number": 62,
+      "cardId": null
+    },
+    "33": {
+      "number": 33,
+      "cardId": null
+    },
+    "53": {
+      "number": 53,
+      "cardId": null
+    },
+    "72": {
+      "number": 72,
+      "cardId": null
+    },
+    "20": {
+      "cardId": null,
+      "number": 20
+    },
+    "28": {
+      "cardId": null,
+      "number": 28
+    },
+    "78": {
+      "number": 78,
+      "cardId": null
+    },
+    "68": {
+      "number": 68,
+      "cardId": null
+    },
+    "29": {
+      "cardId": null,
+      "number": 29
+    },
+    "52": {
+      "number": 52,
+      "cardId": null
+    },
+    "89": {
+      "number": 89,
+      "cardId": null
+    },
+    "43": {
+      "number": 43,
+      "cardId": null
+    },
+    "55": {
+      "number": 55,
+      "cardId": null
+    },
+    "23": {
+      "cardId": null,
+      "number": 23
+    },
+    "11": {
+      "cardId": null,
+      "number": 11
+    },
+    "66": {
+      "number": 66,
+      "cardId": null
+    },
+    "80": {
+      "number": 80,
+      "cardId": null
+    },
+    "9": {
+      "cardId": null,
+      "number": 9
+    },
+    "90": {
+      "number": 90,
+      "cardId": null
+    },
+    "57": {
+      "number": 57,
+      "cardId": null
+    },
+    "75": {
+      "number": 75,
+      "cardId": null
+    },
+    "60": {
+      "number": 60,
+      "cardId": null
+    },
+    "54": {
+      "number": 54,
+      "cardId": null
+    },
+    "25": {
+      "cardId": null,
+      "number": 25
+    },
+    "27": {
+      "cardId": null,
+      "number": 27
+    },
+    "1": {
+      "cardId": null,
+      "number": 1
+    },
+    "22": {
+      "cardId": null,
+      "number": 22
+    },
+    "69": {
+      "number": 69,
+      "cardId": null
+    },
+    "35": {
+      "number": 35,
+      "cardId": null
+    },
+    "14": {
+      "cardId": null,
+      "number": 14
+    },
+    "4": {
+      "cardId": null,
+      "number": 4
+    },
+    "36": {
+      "number": 36,
+      "cardId": null
+    },
+    "70": {
+      "number": 70,
+      "cardId": null
+    },
+    "67": {
+      "number": 67,
+      "cardId": null
+    },
+    "59": {
+      "number": 59,
+      "cardId": null
+    },
+    "17": {
+      "cardId": null,
+      "number": 17
+    },
+    "87": {
+      "number": 87,
+      "cardId": null
+    },
+    "76": {
+      "number": 76,
+      "cardId": null
+    },
+    "26": {
+      "cardId": null,
+      "number": 26
+    },
+    "7": {
+      "cardId": "son_heung_min",
+      "number": 7
+    },
+    "38": {
+      "number": 38,
+      "cardId": null
+    },
+    "63": {
+      "number": 63,
+      "cardId": null
+    },
+    "41": {
+      "number": 41,
+      "cardId": null
+    },
+    "40": {
+      "number": 40,
+      "cardId": null
+    },
+    "37": {
+      "number": 37,
+      "cardId": null
+    },
+    "65": {
+      "number": 65,
+      "cardId": null
+    },
+    "47": {
+      "number": 47,
+      "cardId": null
+    },
+    "21": {
+      "cardId": null,
+      "number": 21
+    },
+    "88": {
+      "number": 88,
+      "cardId": null
+    },
+    "79": {
+      "number": 79,
+      "cardId": null
+    },
+    "39": {
+      "number": 39,
+      "cardId": null
+    },
+    "24": {
+      "cardId": null,
+      "number": 24
+    },
+    "50": {
+      "number": 50,
+      "cardId": null
+    },
+    "42": {
+      "number": 42,
+      "cardId": null
+    },
+    "5": {
+      "cardId": null,
+      "number": 5
+    },
+    "2": {
+      "cardId": null,
+      "number": 2
+    },
+    "86": {
+      "number": 86,
+      "cardId": null
+    },
+    "77": {
+      "number": 77,
+      "cardId": null
+    },
+    "71": {
+      "number": 71,
+      "cardId": null
+    },
+    "73": {
+      "number": 73,
+      "cardId": null
+    },
+    "8": {
+      "cardId": null,
+      "number": 8
+    },
+    "18": {
+      "cardId": null,
+      "number": 18
+    },
+    "34": {
+      "number": 34,
+      "cardId": null
+    },
+    "3": {
+      "cardId": null,
+      "number": 3
+    },
+    "45": {
+      "number": 45,
+      "cardId": null
+    },
+    "32": {
+      "number": 32,
+      "cardId": null
+    },
+    "6": {
+      "cardId": null,
+      "number": 6
+    },
+    "56": {
+      "number": 56,
+      "cardId": null
+    },
+    "64": {
+      "number": 64,
+      "cardId": null
+    },
+    "30": {
+      "cardId": null,
+      "number": 30
+    },
+    "19": {
+      "cardId": null,
+      "number": 19
+    }
+  },
+  "squadCaptain": "lee_gi_hyeok",
+  "id": "ooks",
+  "maxWinStreak": 4,
+  "leagueRound": 30,
+  "friendlyCurrentOpponentIndex": 2,
+  "friendlyMatchesHistory": {
+    "d": 1,
+    "l": 2,
+    "w": 10,
+    "pts": 31
+  },
+  "lastSyncedUpdatedAt": "2026-06-22T05:17:26.801Z",
+  "playerDeck": {
+    "lee_dong_jun": {
+      "quantity": 1,
+      "awakening": 5,
+      "card": {
+        "description": "K리그에서 가장 폭발적인 순간 가속도를 자랑하는 스피드 스타 윙어입니다. 수비 뒷공간을 완전히 허무는 순간적인 배후 침투와 과감한 일대일 돌파가 전매특허입니다.",
+        "stats": {
+          "dri": 80,
+          "sho": 77,
+          "def": 35,
+          "pas": 70,
+          "pac": 89,
+          "phy": 60
+        },
+        "image": "player/이동준.png",
+        "nation": "South Korea",
+        "club": "JEONBUK",
+        "position": "RW",
+        "rarity": "normal",
+        "id": "lee_dong_jun",
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "이동준",
+        "theme": {
+          "glow": "#ff3366",
+          "primary": "#005a3c",
+          "secondary": "#ffffff"
+        },
+        "rating": 78
+      }
+    },
+    "jeon_byung_kwan": {
+      "quantity": 1,
+      "awakening": 5,
+      "card": {
+        "theme": {
+          "glow": "#00d2ff",
+          "primary": "#005a3c",
+          "secondary": "#ffffff"
+        },
+        "rating": 83,
+        "rarity": "normal",
+        "id": "jeon_byung_kwan",
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "전병관",
+        "description": "빠른 순간 가속도와 날카로운 드리블로 측면 돌파를 즐기는 전북 현대의 영건 전병관입니다. 왕성한 활동량과 과감한 슈팅으로 매번 상대 골문을 위협하는 에너지 넘치는 공격수입니다.",
+        "stats": {
+          "phy": 70,
+          "pac": 86,
+          "pas": 76,
+          "def": 43,
+          "sho": 80,
+          "dri": 83
+        },
+        "image": "player/전병관.webp",
+        "nation": "South Korea",
+        "club": "JEONBUK",
+        "position": "LW"
+      }
+    },
+    "hwang_in_beom": {
+      "quantity": 1,
+      "awakening": 4,
+      "card": {
+        "club": "KOREA",
+        "position": "CM",
+        "stats": {
+          "dri": 89,
+          "def": 75,
+          "sho": 78,
+          "pas": 90,
+          "phy": 79,
+          "pac": 80
+        },
+        "image": "player/황인범.webp",
+        "nation": "South Korea",
+        "description": "대한민국 축구 국가대표팀의 든든한 사령탑이자 중원의 마에스트로 황인범입니다. 지치지 않는 왕성한 활동량과 컴퓨터 같은 전진 패스, 그리고 넓은 시야와 지능적인 빌드업으로 대표팀 공수의 핵심 조율사 역할을 수행합니다.",
+        "theme": {
+          "glow": "#ff2a55",
+          "primary": "#da1a32",
+          "secondary": "#1d2b58"
+        },
+        "rating": 86,
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "황인범",
+        "rarity": "special",
+        "id": "hwang_in_beom"
+      }
+    },
+    "cesinha": {
+      "quantity": 1,
+      "awakening": 5,
+      "card": {
+        "theme": {
+          "secondary": "#1e3a8a",
+          "glow": "#00d2fc",
+          "primary": "#00d2fc"
+        },
+        "rating": 85,
+        "nationFlag": "https://flagcdn.com/w40/br.png",
+        "name": "세징야",
+        "rarity": "special",
+        "id": "cesinha",
+        "stats": {
+          "def": 42,
+          "sho": 86,
+          "dri": 86,
+          "phy": 75,
+          "pac": 83,
+          "pas": 85
+        },
+        "image": "player/세징야.webp",
+        "nation": "Brazil",
+        "description": "대구 FC의 살아있는 전설이자 K리그 최고의 공격형 미드필더 세징야입니다. 압도적인 테크닉과 강력한 중거리 슛, 그리고 예리한 플레이메이킹 능력을 겸비했습니다.",
+        "club": "DAEGU FC",
+        "position": "CAM"
+      }
+    },
+    "lee_dong_gook": {
+      "quantity": 1,
+      "awakening": 5,
+      "card": {
+        "theme": {
+          "glow": "#ffd700",
+          "primary": "#005a3c",
+          "secondary": "#ffd700"
+        },
+        "rating": 82,
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "이동국",
+        "rarity": "normal",
+        "id": "lee_dong_gook",
+        "club": "JEONBUK",
+        "position": "ST",
+        "stats": {
+          "dri": 76,
+          "sho": 84,
+          "def": 38,
+          "pas": 72,
+          "pac": 78,
+          "phy": 81
+        },
+        "image": "player/이동국.png",
+        "nation": "South Korea",
+        "description": "전북 현대의 불멸의 영웅이자 K리그 역대 최고의 스트라이커,"
+      }
+    },
+    "cho_wi_je": {
+      "card": {
+        "club": "JEONBUK",
+        "position": "CB",
+        "description": "압도적인 하드웨어와 빠른 복귀 속도를 지닌 차세대 유망주 대형 센터백입니다. 적극적이고 타이트한 대인 마크와 과감한 공중 경합으로 수비 라인에 피지컬을 더해 줍니다.",
+        "stats": {
+          "phy": 79,
+          "pac": 83,
+          "pas": 79,
+          "def": 83,
+          "sho": 50,
+          "dri": 75
+        },
+        "image": "player/조위제.png",
+        "nation": "South Korea",
+        "theme": {
+          "glow": "#00ff87",
+          "primary": "#005a3c",
+          "secondary": "#ffffff"
+        },
+        "rating": 83,
+        "rarity": "special",
+        "id": "cho_wi_je",
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "조위제"
+      },
+      "quantity": 1,
+      "awakening": 5
+    },
+    "choi_woo_jin": {
+      "awakening": 5,
+      "quantity": 1,
+      "card": {
+        "theme": {
+          "secondary": "#ffffff",
+          "glow": "#00ff87",
+          "primary": "#005a3c"
+        },
+        "rating": 74,
+        "rarity": "normal",
+        "id": "choi_woo_jin",
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "최우진",
+        "club": "JEONBUK",
+        "position": "LB",
+        "description": "뛰어난 순간 돌파력과 날카로운 크로스 능력을 지닌 다이내믹한 좌측 풀백입니다. 공간을 파고드는 폭발적인 오버래핑 훈련이 매우 뛰어나며 공수 모두 기여도가 높은 유망주입니다.",
+        "stats": {
+          "dri": 73,
+          "sho": 62,
+          "def": 70,
+          "pas": 71,
+          "pac": 80,
+          "phy": 66
+        },
+        "image": "player/최우진.png",
+        "nation": "South Korea"
+      }
+    },
+    "choi_chol_soon": {
+      "card": {
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "최철순",
+        "rarity": "normal",
+        "id": "choi_chol_soon",
+        "theme": {
+          "secondary": "#ffd700",
+          "glow": "#ffd700",
+          "primary": "#005a3c"
+        },
+        "rating": 80,
+        "club": "JEONBUK",
+        "position": "CB",
+        "stats": {
+          "pac": 78,
+          "phy": 82,
+          "pas": 68,
+          "sho": 55,
+          "def": 82,
+          "dri": 70
+        },
+        "image": "player/최철순.png",
+        "nation": "South Korea",
+        "description": "전북 현대 왕조의 굳건한 기둥이자 팬들의 무한한 사랑을 받는"
+      },
+      "awakening": 5,
+      "quantity": 1
+    },
+    "hong_jeong_ho": {
+      "quantity": 1,
+      "awakening": 5,
+      "card": {
+        "theme": {
+          "glow": "#00ff87",
+          "primary": "#005a3c",
+          "secondary": "#ffd700"
+        },
+        "rating": 82,
+        "rarity": "normal",
+        "id": "hong_jeong_ho",
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "홍정호",
+        "description": "전북 현대의 든든한 베테랑 중앙 수비수이자 전설적인 리더 홍정호입니다. 탁월한 수비 리딩 능력과 강력한 대인 마크, 침착한 빌드업으로 최후방의 철벽 방어막을 지휘합니다.",
+        "stats": {
+          "pas": 76,
+          "pac": 74,
+          "phy": 81,
+          "dri": 72,
+          "sho": 58,
+          "def": 83
+        },
+        "image": "player/홍정호.webp",
+        "nation": "South Korea",
+        "club": "JEONBUK",
+        "position": "CB"
+      }
+    },
+    "lingard": {
+      "card": {
+        "stats": {
+          "dri": 86,
+          "sho": 82,
+          "def": 55,
+          "pas": 84,
+          "pac": 83,
+          "phy": 70
+        },
+        "image": "player/린가드.png",
+        "nation": "England",
+        "description": "잉글랜드 국가대표와 맨체스터 유나이티드 출신의 월드스타로, FC 서울의 측면 공격 핵심 윙어입니다. 뛰어난 오프더볼 움직임과 창의적인 연계 플레이, 그리고 저돌적인 측면 돌파로 공격진에 활력을 불어넣습니다.",
+        "club": "FC SEOUL",
+        "position": "LW",
+        "nationFlag": "https://flagcdn.com/w40/gb-eng.png",
+        "name": "린가드",
+        "rarity": "special",
+        "id": "lingard",
+        "theme": {
+          "secondary": "#000000",
+          "glow": "#ffd700",
+          "primary": "#e50012"
+        },
+        "rating": 86
+      },
+      "quantity": 1,
+      "awakening": 2
+    },
+    "kang_sang_yoon": {
+      "quantity": 1,
+      "awakening": 5,
+      "card": {
+        "theme": {
+          "glow": "#00d2ff",
+          "primary": "#005a3c",
+          "secondary": "#ffffff"
+        },
+        "rating": 81,
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "강상윤",
+        "rarity": "special",
+        "id": "kang_sang_yoon",
+        "stats": {
+          "pas": 83,
+          "pac": 80,
+          "phy": 73,
+          "dri": 85,
+          "sho": 73,
+          "def": 75
+        },
+        "image": "player/강상윤.png",
+        "nation": "South Korea",
+        "description": "넘치는 에너지와 적극적인 활동량을 바탕으로 넓은 중원을 누비는 유망주 미드필더입니다. 뛰어난 기동력과 지치지 않는 체력으로 공수 양면에서 헌신적인 엔진 역할을 수행합니다.",
+        "club": "JEONBUK",
+        "position": "CM"
+      }
+    },
+    "gamboa": {
+      "awakening": 5,
+      "quantity": 1,
+      "card": {
+        "club": "JEONBUK",
+        "position": "CM",
+        "stats": {
+          "dri": 74,
+          "sho": 65,
+          "def": 78,
+          "pas": 75,
+          "pac": 72,
+          "phy": 80
+        },
+        "image": "player/감보아.png",
+        "nation": "Portugal",
+        "description": "포르투갈 출신의 탄탄한 기본기와 노련한 경기 조율 능력을 가진 중앙 미드필더입니다. 중원에서 침착한 볼 소유와 안정적인 전진 패스로 전체적인 공수 밸런스를 차분히 조절해 줍니다.",
+        "theme": {
+          "glow": "#a855f7",
+          "primary": "#005a3c",
+          "secondary": "#a855f7"
+        },
+        "rating": 78,
+        "nationFlag": "https://flagcdn.com/w40/pt.png",
+        "name": "감보아",
+        "rarity": "normal",
+        "id": "gamboa"
+      }
+    },
+    "lee_su_bin": {
+      "quantity": 1,
+      "awakening": 5,
+      "card": {
+        "club": "JEONBUK",
+        "position": "CM",
+        "stats": {
+          "phy": 78,
+          "pac": 80,
+          "pas": 83,
+          "def": 80,
+          "sho": 70,
+          "dri": 80
+        },
+        "image": "player/이수빈.png",
+        "nation": "South Korea",
+        "description": "부드러운 볼 제어 능력과 넓은 시야, 그리고 안정적인 패스 공급으로 팀의 빌드업을 조율하는 전북 현대의 미드필더 이수빈입니다. 적극적인 공수 조율과 조용한 헌신으로 중원에 안정감을 불어넣습니다.",
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "이수빈",
+        "rarity": "normal",
+        "id": "lee_su_bin",
+        "theme": {
+          "secondary": "#ffffff",
+          "glow": "#00ff87",
+          "primary": "#005a3c"
+        },
+        "rating": 82
+      }
+    },
+    "motta": {
+      "card": {
+        "club": "JEONBUK",
+        "position": "ST",
+        "stats": {
+          "phy": 80,
+          "pac": 75,
+          "pas": 64,
+          "def": 35,
+          "sho": 80,
+          "dri": 73
+        },
+        "image": "player/모따.png",
+        "nation": "Brazil",
+        "description": "유연한 발재간과 탁월한 공간 침투력을 보유한 브라질 테크니션 포워드입니다. 감각적인 연계 플레이와 빠른 반박자 빠른 슈팅 타이밍으로 상대의 골문을 흔드는 크랙입니다.",
+        "nationFlag": "https://flagcdn.com/w40/br.png",
+        "name": "모따",
+        "rarity": "normal",
+        "id": "motta",
+        "theme": {
+          "secondary": "#fec913",
+          "glow": "#ff9f00",
+          "primary": "#005a3c"
+        },
+        "rating": 79
+      },
+      "awakening": 5,
+      "quantity": 1
+    },
+    "lee_seung_woo_kr": {
+      "card": {
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "이승우",
+        "rarity": "special",
+        "id": "lee_seung_woo_kr",
+        "theme": {
+          "glow": "#ff2a55",
+          "primary": "#da1a32",
+          "secondary": "#1d2b58"
+        },
+        "rating": 86,
+        "club": "KOREA",
+        "position": "LW",
+        "stats": {
+          "def": 40,
+          "sho": 84,
+          "dri": 88,
+          "phy": 68,
+          "pac": 90,
+          "pas": 83
+        },
+        "image": "player/이승우_kr.png",
+        "nation": "South Korea",
+        "description": "가슴에 찬란한 태극 마크를 품고 대한민국의 붉은 함성을 이끄는 특급 국가대표 윙어 이승우입니다. 특유의 기동력과 지칠 줄 모르는 과감한 돌파력, 그리고 그라운드 위에서 번뜩이는 천재적인 플레이로 조국의 승리를 이끄는 스페셜 공격수입니다."
+      },
+      "awakening": 1,
+      "quantity": 1
+    },
+    "oh_hyeon_gyu": {
+      "card": {
+        "stats": {
+          "pas": 70,
+          "pac": 84,
+          "phy": 85,
+          "dri": 77,
+          "sho": 85,
+          "def": 37
+        },
+        "image": "player/오현규.png",
+        "nation": "South Korea",
+        "description": "강인한 피지컬과 폭발적인 슈팅력, 그리고 끈질긴 전방 압박 능력을 겸비한 대한민국 국가대표 공격수 오현규입니다. 문전에서의 침착함과 적극적인 돌파로 언제든 득점을 터뜨릴 수 있는 해결사입니다.",
+        "club": "KOREA",
+        "position": "ST",
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "오현규",
+        "rarity": "special",
+        "id": "oh_hyeon_gyu",
+        "theme": {
+          "glow": "#ff2a55",
+          "primary": "#da1a32",
+          "secondary": "#1d2b58"
+        },
+        "rating": 83
+      },
+      "quantity": 1,
+      "awakening": 5
+    },
+    "hwang_hee_chan": {
+      "quantity": 1,
+      "awakening": 5,
+      "card": {
+        "theme": {
+          "glow": "#ff2a55",
+          "primary": "#da1a32",
+          "secondary": "#1d2b58"
+        },
+        "rating": 84,
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "황희찬",
+        "rarity": "special",
+        "id": "hwang_hee_chan",
+        "stats": {
+          "pas": 72,
+          "pac": 88,
+          "phy": 79,
+          "dri": 82,
+          "sho": 85,
+          "def": 38
+        },
+        "image": "player/황희찬.png",
+        "nation": "South Korea",
+        "description": "우직한 돌파와 강인한 피지컬로 상대를 압도하며 '코리안 가이'라는 별명으로 프리미어리그를 폭격하는 국가대표 윙어 황희찬입니다. 폭발적인 가속도와 저돌적인 문전 침투로 득점을 노립니다.",
+        "club": "KOREA",
+        "position": "LW"
+      }
+    },
+    "kim_min_jae": {
+      "card": {
+        "theme": {
+          "secondary": "#ffffff",
+          "glow": "#ffd700",
+          "primary": "#dc052d"
+        },
+        "rating": 87,
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "김민재",
+        "rarity": "legend",
+        "id": "kim_min_jae",
+        "stats": {
+          "sho": 57,
+          "def": 88,
+          "dri": 72,
+          "pac": 85,
+          "phy": 87,
+          "pas": 80
+        },
+        "image": "player/김민재.webp",
+        "nation": "South Korea",
+        "description": "압도적인 피지컬과 빠른 주력, 탁월한 대인 마크 능력으로 유럽 무대를 정복한 대한민국의 월드클래스 센터백 '괴물' 김민재입니다. 이탈리아 세리에 A 최우수 수비수 수상에 이어 독일 명문 바이에른 뮌헨에서 최강의 철벽 수비를 지휘하는 불멸의 전설입니다.",
+        "club": "BAYERN MUNICH",
+        "position": "CB"
+      },
+      "quantity": 1,
+      "awakening": 5
+    },
+    "park_ji_sung": {
+      "awakening": 5,
+      "quantity": 1,
+      "card": {
+        "theme": {
+          "glow": "#ffd700",
+          "primary": "#da291c",
+          "secondary": "#fbe122"
+        },
+        "rating": 88,
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "박지성",
+        "rarity": "legend",
+        "id": "park_ji_sung",
+        "stats": {
+          "pac": 87,
+          "phy": 88,
+          "pas": 85,
+          "sho": 80,
+          "def": 82,
+          "dri": 85
+        },
+        "image": "player/박지성.png",
+        "nation": "South Korea",
+        "description": "대한민국 축구 역사상 가장 위대한 전설적인 멀티 미드필더이자 맨체스터 유나이티드에서 활약했던 영원한 캡틴입니다.",
+        "club": "MANCHESTER UTD",
+        "position": "CM"
+      }
+    },
+    "park_ji_soo": {
+      "card": {
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "박지수",
+        "rarity": "normal",
+        "id": "park_ji_soo",
+        "theme": {
+          "glow": "#00ff87",
+          "primary": "#005a3c",
+          "secondary": "#ffffff"
+        },
+        "rating": 81,
+        "club": "JEONBUK",
+        "position": "CB",
+        "stats": {
+          "pas": 68,
+          "pac": 75,
+          "phy": 83,
+          "dri": 67,
+          "sho": 48,
+          "def": 82
+        },
+        "image": "player/박지수.webp",
+        "nation": "South Korea",
+        "description": "대한민국 축구 국가대표팀 출신의 피지컬이 압도적인 철벽 센터백입니다. 빠른 발을 활용한 커버 플레이와 탁월한 대인 방어 능력, 그리고 제공권 장악으로 팀의 최후방을 든든하게 지켜줍니다."
+      },
+      "awakening": 5,
+      "quantity": 1
+    },
+    "lee_yeong_jae": {
+      "card": {
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "이영재",
+        "rarity": "normal",
+        "id": "lee_yeong_jae",
+        "theme": {
+          "glow": "#00ff87",
+          "primary": "#005a3c",
+          "secondary": "#ffd700"
+        },
+        "rating": 79,
+        "stats": {
+          "dri": 79,
+          "def": 60,
+          "sho": 76,
+          "pas": 81,
+          "phy": 68,
+          "pac": 73
+        },
+        "image": "player/이영재.png",
+        "nation": "South Korea",
+        "description": "마법 같은 왼발 킥력을 지닌 K리그 정상급 플레이메이커 미드필더입니다. 날카로운 세트피스 전담 키커이자, 한 번에 수비를 뚫어버리는 허를 찌르는 전진 패스가 매우 돋보입니다.",
+        "club": "JEONBUK",
+        "position": "CM"
+      },
+      "awakening": 5,
+      "quantity": 1
+    },
+    "song_bum_keun": {
+      "card": {
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "송범근",
+        "rarity": "normal",
+        "id": "song_bum_keun",
+        "theme": {
+          "glow": "#00d2ff",
+          "primary": "#005a3c",
+          "secondary": "#ffffff"
+        },
+        "rating": 82,
+        "stats": {
+          "dri": 82,
+          "def": 82,
+          "sho": 79,
+          "pas": 75,
+          "phy": 81,
+          "pac": 80
+        },
+        "image": "player/송범근.png",
+        "nation": "South Korea",
+        "description": "뛰어난 반사신경과 안정적인 공중볼 처리 능력을 갖춘 전북 현대의 주전 골키퍼입니다. 위기 상황마다 보여주는 눈부신 슈퍼 세이브와 침착한 경기 운영으로 최후방 수비라인의 든든한 버팀목입니다.",
+        "club": "JEONBUK",
+        "position": "GK"
+      },
+      "awakening": 5,
+      "quantity": 1
+    },
+    "lee_seung_woo": {
+      "card": {
+        "rarity": "normal",
+        "id": "lee_seung_woo",
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "이승우",
+        "theme": {
+          "secondary": "#ffd700",
+          "glow": "#00ff87",
+          "primary": "#005a3c"
+        },
+        "rating": 82,
+        "description": "번뜩이는 천재성과 예측 불가능한 플레이 스타일을 지닌 대한민국 최고의 크랙형 공격수입니다. 뛰어난 테크닉, 폭발적인 드리블 스피드, 그리고 독보적인 스타성으로 경기장 분위기를 한순간에 뒤바꿔 놓는 해결사입니다.",
+        "stats": {
+          "pas": 78,
+          "pac": 87,
+          "phy": 62,
+          "dri": 85,
+          "sho": 80,
+          "def": 38
+        },
+        "image": "player/이승우.png",
+        "nation": "South Korea",
+        "club": "JEONBUK",
+        "position": "LW"
+      },
+      "quantity": 1,
+      "awakening": 5
+    },
+    "lee_gi_hyeok": {
+      "card": {
+        "club": "GANGWON",
+        "position": "CB",
+        "stats": {
+          "dri": 78,
+          "sho": 65,
+          "def": 82,
+          "pas": 85,
+          "pac": 78,
+          "phy": 80
+        },
+        "image": "player/이기혁.png",
+        "nation": "South Korea",
+        "description": "중앙 수비수와 측면 수비수, 미드필더까지 소화할 수 있는 다재다능한 멀티 플레이어 이기혁입니다. 안정적인 수비 능력과 뛰어난 패스 능력을 바탕으로 후방 빌드업에서 핵심적인 역할을 수행합니다.",
+        "theme": {
+          "secondary": "#ffffff",
+          "glow": "#ff9933",
+          "primary": "#e65c00"
+        },
+        "rating": 83,
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "이기혁",
+        "rarity": "special",
+        "id": "lee_gi_hyeok"
+      },
+      "quantity": 1,
+      "awakening": 4
+    },
+    "kim_tae_hyeon": {
+      "card": {
+        "rarity": "normal",
+        "id": "kim_tae_hyeon",
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "김태현",
+        "theme": {
+          "secondary": "#ffffff",
+          "glow": "#00d2ff",
+          "primary": "#005a3c"
+        },
+        "rating": 76,
+        "description": "공수 밸런스가 뛰어나고 탄탄한 수비력을 가진 안정감 넘치는 우측 풀백입니다. 다부진 체격 조건을 앞세운 적극적인 수비 가담과 오버래핑 기동성으로 측면에 단단함을 보탭니다.",
+        "stats": {
+          "pas": 70,
+          "phy": 75,
+          "pac": 77,
+          "dri": 71,
+          "def": 74,
+          "sho": 58
+        },
+        "image": "player/김태현.png",
+        "nation": "South Korea",
+        "club": "JEONBUK",
+        "position": "RB"
+      },
+      "awakening": 5,
+      "quantity": 1
+    },
+    "jo_hyeon_woo": {
+      "card": {
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "조현우",
+        "rarity": "legend",
+        "id": "jo_hyeon_woo",
+        "theme": {
+          "secondary": "#fec913",
+          "glow": "#ffd700",
+          "primary": "#002d62"
+        },
+        "rating": 85,
+        "club": "ULSAN HD",
+        "position": "GK",
+        "stats": {
+          "def": 85,
+          "sho": 83,
+          "dri": 85,
+          "phy": 82,
+          "pac": 85,
+          "pas": 75
+        },
+        "image": "player/조현우.webp",
+        "nation": "South Korea",
+        "description": "대한민국의 독보적인 넘버원 거미손 골키퍼입니다. 2018 러시아 월드컵 독일전의 신화를 쓴 주역으로, 믿기지 않는 동물적인 반사신경과 눈부신 공중볼 커버, 그리고 1대1 상황에서의 탁월한 선방 능력으로 골문을 완벽히 통제합니다."
+      },
+      "awakening": 5,
+      "quantity": 1
+    },
+    "kim_young_bin": {
+      "quantity": 1,
+      "awakening": 5,
+      "card": {
+        "stats": {
+          "pas": 62,
+          "pac": 68,
+          "phy": 78,
+          "dri": 60,
+          "sho": 40,
+          "def": 79
+        },
+        "image": "player/김영빈.png",
+        "nation": "South Korea",
+        "description": "강력한 대인 방어 능력과 뛰어난 제공권 경합 능력을 자랑하는 중앙 수비수입니다. 안정적인 수비 위치 선정과 탁월한 투지로 전북 현대 최후방 수비진의 중심을 굳건하게 책임집니다.",
+        "club": "JEONBUK",
+        "position": "CB",
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "김영빈",
+        "rarity": "normal",
+        "id": "kim_young_bin",
+        "theme": {
+          "secondary": "#ffffff",
+          "glow": "#e2e8f0",
+          "primary": "#005a3c"
+        },
+        "rating": 77
+      }
+    },
+    "kim_tae_hwan": {
+      "card": {
+        "rarity": "normal",
+        "id": "kim_tae_hwan",
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "김태환",
+        "theme": {
+          "secondary": "#ff3366",
+          "glow": "#ff3366",
+          "primary": "#005a3c"
+        },
+        "rating": 78,
+        "description": "전북 현대의 우측 측면을 책임지는 베테랑 풀백 김태환입니다. '치타'라는 별명에 걸맞은 폭발적인 스피드와 투지 넘치는 대인 수비, 그리고 저돌적인 오버래핑으로 팀의 측면에 단단함과 활력을 불어넣는 든든한 수비수입니다.",
+        "stats": {
+          "dri": 72,
+          "sho": 60,
+          "def": 76,
+          "pas": 73,
+          "pac": 85,
+          "phy": 79
+        },
+        "image": "player/김태환.png",
+        "nation": "South Korea",
+        "club": "JEONBUK",
+        "position": "RB"
+      },
+      "quantity": 1,
+      "awakening": 5
+    },
+    "maeng_seong_ung": {
+      "card": {
+        "description": "침착한 포지셔닝과 깔끔한 대인 태클로 상대 공격을 차단하는 든든한 홀딩 미드필더입니다. 수비 지능이 매우 우수하여 팀 포백 라인을 앞선에서 보호하는 든든한 1차 저지선입니다.",
+        "stats": {
+          "phy": 73,
+          "pac": 70,
+          "pas": 75,
+          "def": 80,
+          "sho": 60,
+          "dri": 72
+        },
+        "image": "player/맹성웅.png",
+        "nation": "South Korea",
+        "club": "JEONBUK",
+        "position": "CM",
+        "rarity": "normal",
+        "id": "maeng_seong_ung",
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "맹성웅",
+        "theme": {
+          "secondary": "#ffffff",
+          "glow": "#00d2ff",
+          "primary": "#005a3c"
+        },
+        "rating": 76
+      },
+      "quantity": 1,
+      "awakening": 5
+    },
+    "lee_jae_sung": {
+      "card": {
+        "theme": {
+          "glow": "#ff2a55",
+          "primary": "#da1a32",
+          "secondary": "#ffffff"
+        },
+        "rating": 85,
+        "rarity": "special",
+        "id": "lee_jae_sung",
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "이재성",
+        "club": "KOREA",
+        "position": "CM",
+        "description": "독보적인 활동량과 영리한 축구 지능을 겸비한 국가대표 미드필더입니다. 영리한 오프더볼 움직임과 날카로운 패싱력, 전방 압박 능력을 바탕으로 공수 양면에서 중원의 핵심 활력소 역할을 수행합니다.",
+        "stats": {
+          "dri": 84,
+          "def": 72,
+          "sho": 78,
+          "pas": 86,
+          "phy": 76,
+          "pac": 82
+        },
+        "image": "player/이재성.png",
+        "nation": "South Korea"
+      },
+      "awakening": 5,
+      "quantity": 1
+    },
+    "son_heung_min": {
+      "awakening": 5,
+      "quantity": 1,
+      "card": {
+        "club": "LA FC",
+        "position": "LW",
+        "description": "대한민국 축구 역사상 최고의 전설적인 공격수입니다. 탁월한 리더십과 훌륭한 인품, 그리고 그라운드 위에서 끝까지 최선을 다하는 헌신적인 태도로 동료 선수들과 온 국민의 열렬한 사랑과 성원을 받는 이 시대 최고의 축구 선수이자 아이콘입니다.",
+        "stats": {
+          "def": 42,
+          "sho": 89,
+          "dri": 87,
+          "phy": 72,
+          "pac": 91,
+          "pas": 84
+        },
+        "image": "player/손흥민.png",
+        "nation": "South Korea",
+        "theme": {
+          "secondary": "#c39e5c",
+          "glow": "#ffd700",
+          "primary": "#000000"
+        },
+        "rating": 89,
+        "rarity": "legend",
+        "id": "son_heung_min",
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "손흥민"
+      }
+    },
+    "lee_dong_gook_99": {
+      "card": {
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "이동국99",
+        "rarity": "special",
+        "id": "lee_dong_gook_99",
+        "theme": {
+          "secondary": "#000000",
+          "glow": "#ff2a55",
+          "primary": "#e60012"
+        },
+        "rating": 86,
+        "club": "POHANG",
+        "position": "ST",
+        "stats": {
+          "dri": 72,
+          "def": 35,
+          "sho": 88,
+          "pas": 81,
+          "phy": 83,
+          "pac": 87
+        },
+        "image": "player/이동국99.png",
+        "nation": "South Korea",
+        "description": "1999년 K리그를 뒤흔든 '라이온 킹' 이동국의 파릇파릇한 젊은 시절 카드입니다. 리그 신인왕과 득점왕을 노리던 폭발적인 피지컬과 예리한 돌파력, 그리고 전매특허인 강력한 발리슛을 구사한 특급 공격수입니다."
+      },
+      "awakening": 3,
+      "quantity": 1
+    },
+    "jeon_jin_woo": {
+      "card": {
+        "theme": {
+          "secondary": "#ffffff",
+          "glow": "#00d2ff",
+          "primary": "#005a3c"
+        },
+        "rating": 80,
+        "rarity": "normal",
+        "id": "jeon_jin_woo",
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "전진우",
+        "description": "폭발적인 가속도와 유려한 개인 드리블 기술을 장착한 전북 현대의 다재다능한 공격수입니다. 상대 측면을 허물고 안쪽으로 꺾어 들어오는 과감한 침투와 위협적인 연계 플레이에 강점이 있습니다.",
+        "stats": {
+          "pas": 72,
+          "pac": 86,
+          "phy": 62,
+          "dri": 81,
+          "sho": 80,
+          "def": 38
+        },
+        "image": "player/전진우.webp",
+        "nation": "South Korea",
+        "club": "JEONBUK",
+        "position": "LW"
+      },
+      "awakening": 5,
+      "quantity": 1
+    },
+    "lee_kang_in": {
+      "quantity": 1,
+      "awakening": 5,
+      "card": {
+        "stats": {
+          "pas": 89,
+          "pac": 83,
+          "phy": 68,
+          "dri": 89,
+          "sho": 82,
+          "def": 45
+        },
+        "image": "player/이강인.png",
+        "nation": "South Korea",
+        "description": "세계 최고의 명문 구단 중 하나인 파리 생제르맹(PSG)에서 활약 중인 대한민국의 대표 미드필더입니다. 압도적인 탈압박과 전매특허인 왼발 정밀 크로스, 그리고 그라운드를 종횡무진하는 마술 같은 시야로 경기를 주도하는 월드클래스 천재 크랙입니다.",
+        "club": "PARIS SG",
+        "position": "RW",
+        "theme": {
+          "glow": "#ffd700",
+          "primary": "#0052b4",
+          "secondary": "#e30613"
+        },
+        "rating": 86,
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "이강인",
+        "rarity": "legend",
+        "id": "lee_kang_in"
+      }
+    },
+    "lee_dong_gyeong": {
+      "awakening": 5,
+      "quantity": 1,
+      "card": {
+        "club": "KOREA",
+        "position": "CM",
+        "stats": {
+          "sho": 86,
+          "def": 49,
+          "dri": 85,
+          "pac": 83,
+          "phy": 73,
+          "pas": 87
+        },
+        "image": "player/이동경.png",
+        "nation": "South Korea",
+        "description": "왼발의 마술사라 불리며 창의적인 패스와 전매특허인 강력하고 정교한 중거리 슈팅을 장착한 특급 공격형 미드필더 이동경입니다. 순간적인 배후 침투와 위협적인 플레이메이킹으로 경기의 흐름을 단숨에 바꾸어 놓습니다.",
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "이동경",
+        "rarity": "special",
+        "id": "lee_dong_gyeong",
+        "theme": {
+          "secondary": "#ffffff",
+          "glow": "#ff2a55",
+          "primary": "#da1a32"
+        },
+        "rating": 86
+      }
+    },
+    "kim_seung_sub": {
+      "quantity": 1,
+      "awakening": 5,
+      "card": {
+        "rarity": "normal",
+        "id": "kim_seung_sub",
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "김승섭",
+        "theme": {
+          "secondary": "#ffffff",
+          "glow": "#00d2ff",
+          "primary": "#005a3c"
+        },
+        "rating": 84,
+        "club": "JEONBUK",
+        "position": "LW",
+        "description": "빠른 스피드와 지치지 않는 체력으로 측면을 돌파하는 헌신적인 윙어입니다. 넓은 활동 영역을 바탕으로 한 날카로운 컷백과 활발한 수비 가담으로 전술적 다양성을 늘려줍니다.",
+        "stats": {
+          "pas": 77,
+          "pac": 86,
+          "phy": 70,
+          "dri": 84,
+          "sho": 84,
+          "def": 55
+        },
+        "image": "player/김승섭.png",
+        "nation": "South Korea"
+      }
+    },
+    "kim_jin_gyu": {
+      "card": {
+        "theme": {
+          "secondary": "#ffffff",
+          "glow": "#00d2ff",
+          "primary": "#005a3c"
+        },
+        "rating": 79,
+        "rarity": "normal",
+        "id": "kim_jin_gyu",
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "김진규",
+        "description": "넓은 시야와 날카로운 패스로 빌드업의 중심을 잡는 플레이메이커입니다. 영리한 위치 선정과 지능적인 압박 타이밍으로 전북 현대 중원의 연결고리 역할을 확실하게 수행합니다.",
+        "stats": {
+          "pas": 80,
+          "pac": 74,
+          "phy": 72,
+          "dri": 78,
+          "sho": 72,
+          "def": 68
+        },
+        "image": "player/김진규.png",
+        "nation": "South Korea",
+        "club": "JEONBUK",
+        "position": "CM"
+      },
+      "awakening": 5,
+      "quantity": 1
+    },
+    "oberdan": {
+      "awakening": 5,
+      "quantity": 1,
+      "card": {
+        "description": "엄청난 활동량과 강력한 수비력을 겸비한 전북 현대의 핵심 수비형 미드필더입니다. 중원 전체를 커버하는 넓은 수비 범위와 지치지 않는 체력으로 팀의 엔진 역할을 수행합니다.",
+        "stats": {
+          "dri": 80,
+          "sho": 70,
+          "def": 81,
+          "pas": 78,
+          "pac": 78,
+          "phy": 82
+        },
+        "image": "player/오베르단.png",
+        "nation": "Brazil",
+        "club": "JEONBUK",
+        "position": "CM",
+        "theme": {
+          "glow": "#00ff87",
+          "primary": "#005a3c",
+          "secondary": "#ffd700"
+        },
+        "rating": 81,
+        "rarity": "normal",
+        "id": "oberdan",
+        "nationFlag": "https://flagcdn.com/w40/br.png",
+        "name": "오베르단"
+      }
+    },
+    "compagno": {
+      "card": {
+        "theme": {
+          "glow": "#ffd700",
+          "primary": "#005a3c",
+          "secondary": "#008c45"
+        },
+        "rating": 79,
+        "rarity": "normal",
+        "id": "compagno",
+        "nationFlag": "https://flagcdn.com/w40/it.png",
+        "name": "콤파뇨",
+        "club": "JEONBUK",
+        "position": "ST",
+        "description": "탁월한 피지컬과 높은 타점의 헤더를 자랑하는 전북 현대의 정통 타겟맨 스트라이커입니다. 박스 안에서의 압도적인 집중력과 찬스를 놓치지 않는 뛰어난 골 결정력으로 수비진에게 공포를 줍니다.",
+        "stats": {
+          "def": 38,
+          "sho": 80,
+          "dri": 72,
+          "phy": 82,
+          "pac": 72,
+          "pas": 65
+        },
+        "image": "player/콤파뇨.png",
+        "nation": "Italy"
+      },
+      "awakening": 5,
+      "quantity": 1
+    },
+    "mugosa": {
+      "card": {
+        "description": "인천 유나이티드의 상징이자 K리그 최고의 스트라이커 무고사입니다. 탁월한 골 결정력과 높은 문전 집중력으로 어떠한 위치에서도 득점을 만들어내는 해결사입니다.",
+        "stats": {
+          "sho": 87,
+          "def": 36,
+          "dri": 79,
+          "pac": 78,
+          "phy": 81,
+          "pas": 71
+        },
+        "image": "player/무고사.png",
+        "nation": "Montenegro",
+        "club": "INCHEON UTD",
+        "position": "ST",
+        "theme": {
+          "glow": "#0055ff",
+          "primary": "#0020c2",
+          "secondary": "#000000"
+        },
+        "rating": 83,
+        "rarity": "normal",
+        "id": "mugosa",
+        "nationFlag": "https://flagcdn.com/w40/me.png",
+        "name": "무고사"
+      },
+      "awakening": 5,
+      "quantity": 1
+    },
+    "cho_gue_sung": {
+      "awakening": 5,
+      "quantity": 1,
+      "card": {
+        "rarity": "special",
+        "id": "cho_gue_sung",
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "조규성",
+        "theme": {
+          "glow": "#ff2a55",
+          "primary": "#000000",
+          "secondary": "#da1a32"
+        },
+        "rating": 87,
+        "description": "조각 같은 비주얼과 압도적인 피지컬로 그라운드를 누비는 대한민국 국가대표 스트라이커 조규성입니다. 공중볼 타점 경합과 강력한 슈팅력, 헌신적인 전방 압박으로 매 경기 상대 골문을 직접 위협하는 해결사입니다.",
+        "stats": {
+          "dri": 79,
+          "def": 45,
+          "sho": 89,
+          "pas": 75,
+          "phy": 89,
+          "pac": 83
+        },
+        "image": "player/조규성.png",
+        "nation": "South Korea",
+        "club": "KOREA",
+        "position": "ST"
+      }
+    },
+    "ki_sung_yueng": {
+      "card": {
+        "theme": {
+          "secondary": "#000000",
+          "glow": "#ffd700",
+          "primary": "#e60012"
+        },
+        "rating": 87,
+        "rarity": "legend",
+        "id": "ki_sung_yueng",
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "기성용",
+        "club": "KOREA",
+        "position": "CM",
+        "description": "대한민국 축구 역사상 최고의 딥라잉 플레이메이커이자 대표팀의 중원을 지휘했던 영원한 코어 미드필더 기성용입니다. 넓은 시야와 컴퓨터 같은 대지를 가르는 롱패스, 자로 잰 듯한 프리킥 킥력과 탁월한 키핑 능력으로 경기 조율의 마법을 부리는 전설적인 미드필더입니다.",
+        "stats": {
+          "pas": 92,
+          "phy": 82,
+          "pac": 74,
+          "dri": 84,
+          "def": 76,
+          "sho": 81
+        },
+        "image": "player/기성용.png",
+        "nation": "South Korea"
+      },
+      "awakening": 4,
+      "quantity": 1
+    },
+    "jens_castrop": {
+      "quantity": 1,
+      "awakening": 5,
+      "card": {
+        "rarity": "special",
+        "id": "jens_castrop",
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "옌스",
+        "theme": {
+          "secondary": "#1d2b58",
+          "glow": "#ff2a55",
+          "primary": "#da1a32"
+        },
+        "rating": 85,
+        "club": "KOREA",
+        "position": "CM",
+        "description": "독일 무대에서 다져진 피지컬과 왕성한 활동량으로 대한민국 국가대표팀의 측면과 중원에 에너지를 불어넣는 신성 옌스 카스트로프입니다. 높은 전술적 이해도와 공수 양면에서의 헌신적인 플레이가 돋보입니다.",
+        "stats": {
+          "dri": 82,
+          "def": 79,
+          "sho": 75,
+          "pas": 81,
+          "phy": 83,
+          "pac": 84
+        },
+        "image": "player/옌스.webp",
+        "nation": "South Korea"
+      }
+    },
+    "tiago": {
+      "card": {
+        "stats": {
+          "dri": 74,
+          "def": 40,
+          "sho": 79,
+          "pas": 63,
+          "phy": 83,
+          "pac": 76
+        },
+        "image": "player/티아고.png",
+        "nation": "Brazil",
+        "description": "브라질 출신의 파워풀하고 돌파력이 뛰어난 전북 현대의 대형 공격수입니다. 탄탄한 피지컬을 활용한 포스트 플레이와 강력한 전방 압박, 묵직한 슈팅으로 매번 득점 기회를 노립니다.",
+        "club": "JEONBUK",
+        "position": "ST",
+        "nationFlag": "https://flagcdn.com/w40/br.png",
+        "name": "티아고",
+        "rarity": "normal",
+        "id": "tiago",
+        "theme": {
+          "glow": "#ffd700",
+          "primary": "#005a3c",
+          "secondary": "#fec913"
+        },
+        "rating": 79
+      },
+      "awakening": 5,
+      "quantity": 1
+    },
+    "park_jin_seob": {
+      "awakening": 5,
+      "quantity": 1,
+      "card": {
+        "club": "JEONBUK",
+        "position": "CB",
+        "stats": {
+          "phy": 82,
+          "pac": 76,
+          "pas": 74,
+          "def": 81,
+          "sho": 65,
+          "dri": 73
+        },
+        "image": "player/박진섭.webp",
+        "nation": "South Korea",
+        "description": "전북 현대의 핵심 수비형 미드필더이자 멀티 수비수 박진섭입니다. 지능적인 수비 위치 선정과 뛰어난 공중볼 장악력으로 빌드업의 핵심 역할을 수행하며 팀의 든든한 버팀목이 되어 줍니다.",
+        "theme": {
+          "glow": "#00ff87",
+          "primary": "#005a3c",
+          "secondary": "#ffffff"
+        },
+        "rating": 81,
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "박진섭",
+        "rarity": "normal",
+        "id": "park_jin_seob"
+      }
+    },
+    "song_min_kyu": {
+      "quantity": 1,
+      "awakening": 5,
+      "card": {
+        "theme": {
+          "secondary": "#ffffff",
+          "glow": "#00ff87",
+          "primary": "#005a3c"
+        },
+        "rating": 83,
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "송민규",
+        "rarity": "normal",
+        "id": "song_min_kyu",
+        "stats": {
+          "def": 45,
+          "sho": 82,
+          "dri": 85,
+          "phy": 77,
+          "pac": 81,
+          "pas": 78
+        },
+        "image": "player/송민규.png",
+        "nation": "South Korea",
+        "description": "뛰어난 볼 키핑 능력과 측면에서의 저돌적인 온더볼 플레이로 찬스를 창출하는 전북 현대의 핵심 공격수입니다. 탄탄한 피지컬을 바탕으로 등지는 플레이와 지능적인 연계에 강점이 있습니다.",
+        "club": "JEONBUK",
+        "position": "LW"
+      }
+    },
+    "lee_ju_hyeon": {
+      "card": {
+        "description": "안정적인 방어 위치 선정과 놀라운 반사 신경을 보유한 유망주 수문장입니다. 공중볼 낙하지점 판단이 예리하며 골문 구석으로 날아오는 까다로운 슈팅도 과감히 잘 캐칭합니다.",
+        "stats": {
+          "def": 77,
+          "sho": 68,
+          "dri": 77,
+          "phy": 68,
+          "pac": 70,
+          "pas": 65
+        },
+        "image": "player/이주현.png",
+        "nation": "South Korea",
+        "club": "JEONBUK",
+        "position": "GK",
+        "theme": {
+          "secondary": "#ffffff",
+          "glow": "#94a3b8",
+          "primary": "#005a3c"
+        },
+        "rating": 77,
+        "rarity": "normal",
+        "id": "lee_ju_hyeon",
+        "nationFlag": "https://flagcdn.com/w40/kr.png",
+        "name": "이주현"
+      },
+      "awakening": 5,
+      "quantity": 1
+    }
+  },
+  "quizLastDate": "2026. 6. 12.",
+  "matchTodayCount": 10,
+  "leagueYear": 2029,
+  "careerStatsHard": {
+    "ga": 0,
+    "gf": 0,
+    "d": 0,
+    "playerGoals": {},
+    "l": 0,
+    "w": 0
+  },
+  "friendlyMatchesToday": 2,
+  "friendlySeasonStartDate": "2026-06-06T03:05:00.828Z",
+  "squadFormations": {
+    "3-4-3": {
+      "LCB": "choi_woo_jin",
+      "ST": "mugosa",
+      "LCM": "park_ji_soo",
+      "GK": "song_bum_keun",
+      "RB": "oberdan",
+      "RCM": "jens_castrop",
+      "LB": "kang_sang_yoon",
+      "RCB": "choi_chol_soon",
+      "RW": "son_heung_min",
+      "CM": "park_ji_sung",
+      "LW": "ahn_jung_hwan"
+    },
+    "4-4-2": {},
+    "4-2-3-1": {
+      "RCM": "oberdan",
+      "LB": "kim_young_bin",
+      "RCB": "park_jin_seob",
+      "RB": "choi_chol_soon",
+      "LW": "song_min_kyu",
+      "RW": "son_heung_min",
+      "CM": "ahn_jung_hwan",
+      "LCM": "park_ji_sung",
+      "LCB": "park_ji_soo",
+      "ST": "cho_gue_sung",
+      "GK": "song_bum_keun"
+    },
+    "4-3-3": {
+      "LW": "ahn_jung_hwan",
+      "RW": "son_heung_min"
+    },
+    "5-4-1": {
+      "LW": "ahn_jung_hwan",
+      "RW": "son_heung_min",
+      "CM": "park_ji_soo",
+      "RCM": "jens_castrop",
+      "LB": "lee_gi_hyeok",
+      "RCB": "kim_min_jae",
+      "RB": "seol_young_woo",
+      "GK": "song_bum_keun",
+      "LCM": "park_ji_sung",
+      "LCB": "choi_chol_soon"
+    }
+  },
+  "userPoints": 6,
+  "quizQueue": [
+    {
+      "word": "banana",
+      "meaning": "바나나"
+    },
+    {
+      "meaning": "체리",
+      "word": "cherry"
+    },
+    {
+      "word": "orange",
+      "meaning": "오렌지"
+    },
+    {
+      "meaning": "사과",
+      "word": "apple"
+    },
+    {
+      "word": "grape",
+      "meaning": "포도"
+    }
+  ],
+  "pvpOpponentStats": {
+    "xt": {
+      "d": 0,
+      "l": 1,
+      "w": 0
+    },
+    "tomy0304": {
+      "d": 0,
+      "l": 1,
+      "w": 3
+    }
+  },
+  "userAchievements": {
+    "collector": {
+      "rewarded": false,
+      "unlocked": false
+    },
+    "treble": {
+      "unlocked": false,
+      "rewarded": false
+    },
+    "streak10": {
+      "unlocked": false,
+      "rewarded": false
+    },
+    "invincible": {
+      "unlocked": false,
+      "rewarded": false
+    },
+    "hardworldclass": {
+      "unlocked": false,
+      "rewarded": false
+    },
+    "streak20": {
+      "rewarded": false,
+      "unlocked": false
+    },
+    "worldclass": {
+      "unlocked": false,
+      "rewarded": false
+    },
+    "double": {
+      "unlocked": false,
+      "rewarded": false
+    },
+    "streak30": {
+      "unlocked": false,
+      "rewarded": false
+    },
+    "threepeat": {
+      "unlocked": false,
+      "rewarded": false
+    },
+    "fivepeat": {
+      "rewarded": false,
+      "unlocked": false
+    }
+  },
+  "password": "1206",
+  "currentWinStreak": 4,
+  "aclState": {
+    "stats": {
+      "assisters": [
+        {
+          "assists": 2,
+          "teamId": "al_ahli",
+          "name": "토니",
+          "teamName": "알 아흘리"
+        },
+        {
+          "teamName": "알 이티하드",
+          "name": "캉테",
+          "teamId": "al_itihad",
+          "assists": 2
+        },
+        {
+          "teamName": "전북 현대",
+          "name": "손흥민",
+          "teamId": "jeonbuk",
+          "assists": 1
+        },
+        {
+          "teamName": "전북 현대",
+          "name": "이재성",
+          "teamId": "jeonbuk",
+          "assists": 1
+        },
+        {
+          "teamName": "FC 서울",
+          "name": "안데르손",
+          "teamId": "seoul",
+          "assists": 1
+        },
+        {
+          "name": "울산 HD 에이스",
+          "teamName": "울산 HD",
+          "assists": 1,
+          "teamId": "ulsan"
+        },
+        {
+          "teamName": "가와사키 프론탈레",
+          "name": "이에나가",
+          "teamId": "kawasaki_frontale",
+          "assists": 1
+        },
+        {
+          "name": "소비르호자예브",
+          "teamName": "파흐타코르",
+          "assists": 1,
+          "teamId": "pakhtakor"
+        },
+        {
+          "teamId": "al_itihad",
+          "assists": 1,
+          "teamName": "알 이티하드",
+          "name": "알 이티하드 에이스"
+        },
+        {
+          "teamName": "알 나스르",
+          "name": "알 나스르 에이스",
+          "teamId": "al_nassr",
+          "assists": 1
+        },
+        {
+          "name": "이강인",
+          "teamName": "전북 현대",
+          "assists": 1,
+          "teamId": "jeonbuk"
+        },
+        {
+          "teamName": "가와사키 프론탈레",
+          "name": "가와사키 프론탈레 에이스",
+          "teamId": "kawasaki_frontale",
+          "assists": 1
+        },
+        {
+          "assists": 1,
+          "teamId": "seoul",
+          "name": "송민규",
+          "teamName": "FC 서울"
+        },
+        {
+          "name": "디아비",
+          "teamName": "알 이티하드",
+          "assists": 1,
+          "teamId": "al_itihad"
+        },
+        {
+          "assists": 1,
+          "teamId": "al_ahli",
+          "name": "마레즈",
+          "teamName": "알 아흘리"
+        }
+      ],
+      "scorers": [
+        {
+          "goals": 3,
+          "teamId": "jeonbuk",
+          "teamName": "전북 현대",
+          "name": "김승섭"
+        },
+        {
+          "teamName": "가와사키 프론탈레",
+          "name": "와키자카",
+          "goals": 2,
+          "teamId": "kawasaki_frontale"
+        },
+        {
+          "goals": 2,
+          "teamId": "al_itihad",
+          "teamName": "알 이티하드",
+          "name": "캉테"
+        },
+        {
+          "goals": 1,
+          "teamId": "jeonbuk",
+          "name": "손흥민",
+          "teamName": "전북 현대"
+        },
+        {
+          "goals": 1,
+          "teamId": "seoul",
+          "teamName": "FC 서울",
+          "name": "송민규"
+        },
+        {
+          "name": "이동경",
+          "teamName": "울산 HD",
+          "teamId": "ulsan",
+          "goals": 1
+        },
+        {
+          "name": "체란",
+          "teamName": "파흐타코르",
+          "teamId": "pakhtakor",
+          "goals": 1
+        },
+        {
+          "teamName": "알 나스르",
+          "name": "마네",
+          "goals": 1,
+          "teamId": "al_nassr"
+        },
+        {
+          "teamId": "al_ahli",
+          "goals": 1,
+          "name": "피르미누",
+          "teamName": "알 아흘리"
+        },
+        {
+          "name": "안데르손",
+          "teamName": "FC 서울",
+          "goals": 1,
+          "teamId": "seoul"
+        },
+        {
+          "name": "벤제마",
+          "teamName": "알 이티하드",
+          "teamId": "al_itihad",
+          "goals": 1
+        },
+        {
+          "teamName": "알 아흘리",
+          "name": "마레즈",
+          "goals": 1,
+          "teamId": "al_ahli"
+        },
+        {
+          "name": "토니",
+          "teamName": "알 아흘리",
+          "goals": 1,
+          "teamId": "al_ahli"
+        },
+        {
+          "teamId": "al_itihad",
+          "goals": 1,
+          "name": "디아비",
+          "teamName": "알 이티하드"
+        }
+      ]
+    },
+    "round": 1,
+    "teams": [
+      {
+        "color": "#005a3c",
+        "name": "전북 현대",
+        "rating": 89,
+        "id": "jeonbuk"
+      },
+      {
+        "color": "#2563eb",
+        "name": "울산 HD",
+        "rating": 89,
+        "id": "ulsan"
+      },
+      {
+        "color": "#2563eb",
+        "rating": 88,
+        "name": "FC 서울",
+        "id": "seoul"
+      },
+      {
+        "color": "#800020",
+        "rating": 87,
+        "name": "비셀 고베",
+        "id": "vissel_kobe"
+      },
+      {
+        "id": "yokohama_marinos",
+        "name": "요코하마 마리노스",
+        "rating": 85,
+        "color": "#2563eb"
+      },
+      {
+        "id": "kawasaki_frontale",
+        "rating": 85,
+        "name": "가와사키 프론탈레",
+        "color": "#38bdf8"
+      },
+      {
+        "color": "#dc2626",
+        "name": "상하이 포트",
+        "rating": 87,
+        "id": "shanghai_port"
+      },
+      {
+        "color": "#1e3a8a",
+        "name": "FC 부리람",
+        "rating": 87,
+        "id": "buriram_united"
+      },
+      {
+        "color": "#004baf",
+        "name": "알 힐랄",
+        "rating": 85,
+        "id": "al_hilal"
+      },
+      {
+        "color": "#fbbf24",
+        "name": "알 나스르",
+        "rating": 85,
+        "id": "al_nassr"
+      },
+      {
+        "id": "al_ahli",
+        "rating": 88,
+        "name": "알 아흘리",
+        "color": "#10b981"
+      },
+      {
+        "color": "#f59e0b",
+        "id": "al_itihad",
+        "name": "알 이티하드",
+        "rating": 88
+      },
+      {
+        "color": "#7c3aed",
+        "rating": 86,
+        "name": "알 아인",
+        "id": "al_ain"
+      },
+      {
+        "color": "#f3f4f6",
+        "id": "al_sadd",
+        "name": "알 사드",
+        "rating": 87
+      },
+      {
+        "id": "persepolis",
+        "rating": 90,
+        "name": "페르세폴리스",
+        "color": "#ef4444"
+      },
+      {
+        "id": "pakhtakor",
+        "rating": 87,
+        "name": "파흐타코르",
+        "color": "#ea580c"
+      }
+    ],
+    "year": 2029,
+    "bracket": {
+      "2": [
+        {
+          "status": "completed",
+          "winner": "team1",
+          "score1": 1,
+          "team2": {
+            "color": "#10b981",
+            "name": "알 아흘리",
+            "rating": 88,
+            "id": "al_ahli"
+          },
+          "id": "2_0",
+          "score2": 0,
+          "team1": {
+            "id": "al_itihad",
+            "name": "알 이티하드",
+            "rating": 88,
+            "color": "#f59e0b"
+          }
+        }
+      ],
+      "winner": {
+        "id": "al_itihad",
+        "name": "알 이티하드",
+        "rating": 88,
+        "color": "#f59e0b"
+      },
+      "8": [
+        {
+          "winner": "team1",
+          "status": "completed",
+          "score2": 1,
+          "team1": {
+            "color": "#2563eb",
+            "id": "seoul",
+            "name": "FC 서울",
+            "rating": 88
+          },
+          "id": "8_0",
+          "team2": {
+            "color": "#2563eb",
+            "rating": 89,
+            "name": "울산 HD",
+            "id": "ulsan"
+          },
+          "score1": 2
+        },
+        {
+          "score1": 1,
+          "score2": 1,
+          "pkScore1": 5,
+          "winner": "team1",
+          "team2": {
+            "id": "jeonbuk",
+            "name": "전북 현대",
+            "rating": 89,
+            "color": "#005a3c"
+          },
+          "id": "8_1",
+          "team1": {
+            "id": "kawasaki_frontale",
+            "name": "가와사키 프론탈레",
+            "rating": 85,
+            "color": "#38bdf8"
+          },
+          "pkScore2": 4,
+          "status": "completed"
+        },
+        {
+          "score2": 2,
+          "team1": {
+            "name": "파흐타코르",
+            "rating": 87,
+            "id": "pakhtakor",
+            "color": "#ea580c"
+          },
+          "id": "8_2",
+          "score1": 0,
+          "team2": {
+            "id": "al_itihad",
+            "name": "알 이티하드",
+            "rating": 88,
+            "color": "#f59e0b"
+          },
+          "winner": "team2",
+          "status": "completed"
+        },
+        {
+          "id": "8_3",
+          "score2": 2,
+          "team1": {
+            "color": "#fbbf24",
+            "name": "알 나스르",
+            "rating": 85,
+            "id": "al_nassr"
+          },
+          "team2": {
+            "id": "al_ahli",
+            "rating": 88,
+            "name": "알 아흘리",
+            "color": "#10b981"
+          },
+          "score1": 1,
+          "status": "completed",
+          "winner": "team2"
+        }
+      ],
+      "16": [
+        {
+          "id": "16_0",
+          "team1": {
+            "color": "#2563eb",
+            "id": "seoul",
+            "rating": 88,
+            "name": "FC 서울"
+          },
+          "score2": 2,
+          "team2": {
+            "color": "#dc2626",
+            "id": "shanghai_port",
+            "rating": 87,
+            "name": "상하이 포트"
+          },
+          "score1": 3,
+          "status": "completed",
+          "winner": "team1"
+        },
+        {
+          "status": "completed",
+          "winner": "team1",
+          "team2": {
+            "id": "yokohama_marinos",
+            "name": "요코하마 마리노스",
+            "rating": 85,
+            "color": "#2563eb"
+          },
+          "score1": 2,
+          "id": "16_1",
+          "score2": 1,
+          "team1": {
+            "name": "울산 HD",
+            "rating": 89,
+            "id": "ulsan",
+            "color": "#2563eb"
+          }
+        },
+        {
+          "status": "completed",
+          "winner": "team2",
+          "id": "16_2",
+          "team1": {
+            "id": "vissel_kobe",
+            "name": "비셀 고베",
+            "rating": 87,
+            "color": "#800020"
+          },
+          "score2": 1,
+          "team2": {
+            "color": "#38bdf8",
+            "name": "가와사키 프론탈레",
+            "rating": 85,
+            "id": "kawasaki_frontale"
+          },
+          "score1": 0
+        },
+        {
+          "status": "completed",
+          "winner": "team1",
+          "id": "16_3",
+          "score2": 0,
+          "team1": {
+            "color": "#005a3c",
+            "name": "전북 현대",
+            "rating": 89,
+            "id": "jeonbuk"
+          },
+          "score1": 3,
+          "team2": {
+            "name": "FC 부리람",
+            "rating": 87,
+            "id": "buriram_united",
+            "color": "#1e3a8a"
+          }
+        },
+        {
+          "team2": {
+            "id": "al_sadd",
+            "rating": 87,
+            "name": "알 사드",
+            "color": "#f3f4f6"
+          },
+          "score1": 2,
+          "score2": 1,
+          "team1": {
+            "name": "파흐타코르",
+            "rating": 87,
+            "id": "pakhtakor",
+            "color": "#ea580c"
+          },
+          "id": "16_4",
+          "winner": "team1",
+          "status": "completed"
+        },
+        {
+          "id": "16_5",
+          "score2": 1,
+          "team1": {
+            "color": "#ef4444",
+            "id": "persepolis",
+            "rating": 90,
+            "name": "페르세폴리스"
+          },
+          "team2": {
+            "name": "알 이티하드",
+            "rating": 88,
+            "id": "al_itihad",
+            "color": "#f59e0b"
+          },
+          "score1": 0,
+          "status": "completed",
+          "winner": "team2"
+        },
+        {
+          "status": "completed",
+          "winner": "team1",
+          "id": "16_6",
+          "team1": {
+            "name": "알 나스르",
+            "rating": 85,
+            "id": "al_nassr",
+            "color": "#fbbf24"
+          },
+          "score2": 2,
+          "team2": {
+            "id": "al_hilal",
+            "rating": 85,
+            "name": "알 힐랄",
+            "color": "#004baf"
+          },
+          "score1": 3
+        },
+        {
+          "id": "16_7",
+          "score2": 1,
+          "team1": {
+            "id": "al_ahli",
+            "name": "알 아흘리",
+            "rating": 88,
+            "color": "#10b981"
+          },
+          "team2": {
+            "id": "al_ain",
+            "rating": 86,
+            "name": "알 아인",
+            "color": "#7c3aed"
+          },
+          "score1": 2,
+          "status": "completed",
+          "winner": "team1"
+        }
+      ],
+      "4": [
+        {
+          "score1": 0,
+          "team2": {
+            "name": "알 이티하드",
+            "rating": 88,
+            "id": "al_itihad",
+            "color": "#f59e0b"
+          },
+          "score2": 2,
+          "team1": {
+            "id": "seoul",
+            "rating": 88,
+            "name": "FC 서울",
+            "color": "#2563eb"
+          },
+          "id": "4_0",
+          "winner": "team2",
+          "status": "completed"
+        },
+        {
+          "score1": 0,
+          "team2": {
+            "color": "#10b981",
+            "name": "알 아흘리",
+            "rating": 88,
+            "id": "al_ahli"
+          },
+          "team1": {
+            "id": "kawasaki_frontale",
+            "name": "가와사키 프론탈레",
+            "rating": 85,
+            "color": "#38bdf8"
+          },
+          "score2": 2,
+          "id": "4_1",
+          "winner": "team2",
+          "status": "completed"
+        }
+      ]
+    },
+    "isFinished": true
+  },
+  "quizOffset": 0,
+  "squadFormation": {
+    "LCM": "park_ji_sung",
+    "LCB": "choi_chol_soon",
+    "GK": "song_bum_keun",
+    "RCB": "kim_min_jae",
+    "RCM": "jens_castrop",
+    "LB": "lee_gi_hyeok",
+    "RB": "seol_young_woo",
+    "LW": "ahn_jung_hwan",
+    "CM": "park_ji_soo",
+    "RW": "son_heung_min"
+  },
+  "userLevel": 145,
+  "hallOfFame": [
+    {
+      "jeonbukRank": 1,
+      "topAssister": {
+        "assists": 12,
+        "name": "박지성"
+      },
+      "champion": "전북 현대",
+      "topScorer": {
+        "goals": 23,
+        "name": "콤파뇨"
+      },
+      "jeonbukRecord": {
+        "l": 3,
+        "w": 26,
+        "pts": 82,
+        "d": 4
+      },
+      "year": 2026
+    },
+    {
+      "cupRecord": "우승 🏆",
+      "jeonbukRecord": {
+        "d": 8,
+        "l": 6,
+        "w": 19,
+        "pts": 65
+      },
+      "year": 2027,
+      "champion": "전북 현대",
+      "topScorer": {
+        "name": "손흥민",
+        "goals": 14
+      },
+      "jeonbukRank": 1,
+      "topAssister": {
+        "assists": 8,
+        "name": "손흥민"
+      }
+    },
+    {
+      "year": 2028,
+      "cupRecord": "우승 🏆",
+      "jeonbukRecord": {
+        "d": 8,
+        "l": 1,
+        "pts": 80,
+        "w": 24
+      },
+      "aclRecord": "우승 🏆",
+      "topScorer": {
+        "goals": 20,
+        "name": "이강인"
+      },
+      "champion": "전북 현대",
+      "topAssister": {
+        "assists": 13,
+        "name": "이강인"
+      },
+      "jeonbukRank": 1
+    }
+  ],
+  "careerStats": {
+    "playerGoals": {
+      "lee_seung_woo": {
+        "name": "이승우",
+        "goals": 5
+      },
+      "lee_kang_in": {
+        "goals": 44,
+        "name": "이강인"
+      },
+      "jeon_jin_woo": {
+        "name": "전진우",
+        "goals": 27
+      },
+      "compagno": {
+        "goals": 23,
+        "name": "콤파뇨"
+      },
+      "lee_dong_gook": {
+        "goals": 13,
+        "name": "이동국"
+      },
+      "kim_seung_sub": {
+        "goals": 8,
+        "name": "김승섭"
+      },
+      "lee_seung_woo_kr": {
+        "goals": 14,
+        "name": "이승우"
+      },
+      "cho_gue_sung": {
+        "name": "조규성",
+        "goals": 1
+      },
+      "son_heung_min": {
+        "name": "손흥민",
+        "goals": 45
+      }
+    },
+    "d": 20,
+    "w": 69,
+    "l": 10,
+    "ga": 28,
+    "gf": 164
+  },
+  "isHardMode": false,
+  "updatedAt": "2026-06-22T05:32:21.231Z",
+  "leaguePlayerStats": {
+    "gimcheon_player_2": {
+      "teamName": "김천 상무",
+      "assists": 2,
+      "id": "gimcheon_player_2",
+      "name": "이건희",
+      "teamId": "gimcheon",
+      "goals": 4
+    },
+    "incheon_player_2": {
+      "assists": 1,
+      "teamName": "인천 유나이티드",
+      "teamId": "incheon",
+      "goals": 7,
+      "id": "incheon_player_2",
+      "name": "제르소"
+    },
+    "bucheon_player_2": {
+      "teamName": "부천 FC",
+      "assists": 5,
+      "id": "bucheon_player_2",
+      "name": "갈레고",
+      "teamId": "bucheon_fc",
+      "goals": 6
+    },
+    "ulsan_player_2": {
+      "teamName": "울산 HD",
+      "assists": 2,
+      "name": "말컹",
+      "id": "ulsan_player_2",
+      "goals": 4,
+      "teamId": "ulsan"
+    },
+    "anyang_player_1": {
+      "teamName": "FC 안양",
+      "assists": 3,
+      "name": "아일톤",
+      "id": "anyang_player_1",
+      "goals": 5,
+      "teamId": "anyang"
+    },
+    "seoul_player_1": {
+      "name": "송민규",
+      "id": "seoul_player_1",
+      "goals": 9,
+      "teamId": "seoul",
+      "teamName": "FC 서울",
+      "assists": 0
+    },
+    "jeju_player_1": {
+      "name": "남태희",
+      "id": "jeju_player_1",
+      "goals": 5,
+      "teamId": "jeju",
+      "teamName": "제주 유나이티드",
+      "assists": 3
+    },
+    "incheon_player_1": {
+      "name": "무고사",
+      "id": "incheon_player_1",
+      "goals": 3,
+      "teamId": "incheon",
+      "teamName": "인천 유나이티드",
+      "assists": 5
+    },
+    "gwangju_player_1": {
+      "teamName": "광주 FC",
+      "assists": 3,
+      "id": "gwangju_player_1",
+      "name": "프리드욘슨",
+      "teamId": "gwangju",
+      "goals": 6
+    },
+    "cesinha": {
+      "teamName": "전북 현대",
+      "assists": 7,
+      "id": "cesinha",
+      "name": "세징야",
+      "teamId": "jeonbuk",
+      "goals": 0
+    },
+    "seoul_player_2": {
+      "assists": 3,
+      "teamName": "FC 서울",
+      "goals": 8,
+      "teamId": "seoul",
+      "name": "안데르손",
+      "id": "seoul_player_2"
+    },
+    "cho_gue_sung": {
+      "teamName": "전북 현대",
+      "assists": 2,
+      "id": "cho_gue_sung",
+      "name": "조규성",
+      "teamId": "jeonbuk",
+      "goals": 0
+    },
+    "ulsan_player_1": {
+      "goals": 8,
+      "teamId": "ulsan",
+      "name": "이동경",
+      "id": "ulsan_player_1",
+      "assists": 3,
+      "teamName": "울산 HD"
+    },
+    "ki_sung_yueng": {
+      "assists": 1,
+      "teamName": "전북 현대",
+      "teamId": "jeonbuk",
+      "goals": 0,
+      "id": "ki_sung_yueng",
+      "name": "기성용"
+    },
+    "daejeon_player_1": {
+      "teamName": "대전 하나",
+      "assists": 0,
+      "name": "주민규",
+      "id": "daejeon_player_1",
+      "goals": 8,
+      "teamId": "daejeon"
+    },
+    "pohang_player_1": {
+      "teamName": "포항 스틸러스",
+      "assists": 4,
+      "id": "pohang_player_1",
+      "name": "이호재",
+      "teamId": "pohang",
+      "goals": 3
+    },
+    "kim_seung_sub": {
+      "teamId": "jeonbuk",
+      "goals": 14,
+      "id": "kim_seung_sub",
+      "name": "김승섭",
+      "assists": 10,
+      "teamName": "전북 현대"
+    },
+    "bucheon_player_1": {
+      "assists": 6,
+      "teamName": "부천 FC",
+      "teamId": "bucheon_fc",
+      "goals": 6,
+      "id": "bucheon_player_1",
+      "name": "윤빛가람"
+    },
+    "anyang_player_2": {
+      "teamName": "FC 안양",
+      "assists": 6,
+      "id": "anyang_player_2",
+      "name": "토마스",
+      "teamId": "anyang",
+      "goals": 2
+    },
+    "lee_dong_gyeong": {
+      "id": "lee_dong_gyeong",
+      "name": "이동경",
+      "teamId": "jeonbuk",
+      "goals": 0,
+      "teamName": "전북 현대",
+      "assists": 2
+    },
+    "lee_kang_in": {
+      "id": "lee_kang_in",
+      "name": "이강인",
+      "teamId": "jeonbuk",
+      "goals": 16,
+      "teamName": "전북 현대",
+      "assists": 10
+    },
+    "daejeon_player_2": {
+      "assists": 7,
+      "teamName": "대전 하나",
+      "goals": 3,
+      "teamId": "daejeon",
+      "name": "마사",
+      "id": "daejeon_player_2"
+    },
+    "son_heung_min": {
+      "teamName": "전북 현대",
+      "assists": 13,
+      "name": "손흥민",
+      "id": "son_heung_min",
+      "goals": 22,
+      "teamId": "jeonbuk"
+    },
+    "gangwon_player_1": {
+      "assists": 3,
+      "teamName": "강원 FC",
+      "goals": 7,
+      "teamId": "gangwon",
+      "name": "모재현",
+      "id": "gangwon_player_1"
+    },
+    "gwangju_player_2": {
+      "assists": 6,
+      "teamName": "광주 FC",
+      "goals": 4,
+      "teamId": "gwangju",
+      "name": "신창무",
+      "id": "gwangju_player_2"
+    },
+    "gimcheon_player_1": {
+      "id": "gimcheon_player_1",
+      "name": "고재현",
+      "teamId": "gimcheon",
+      "goals": 6,
+      "teamName": "김천 상무",
+      "assists": 1
+    }
+  },
+  "pvpStats": {
+    "d": 0,
+    "l": 2,
+    "w": 3
+  },
+  "friendlyMatchLastDate": "2026. 6. 12.",
+  "quizCurrentIndex": 0,
+  "leagueTeams": [
+    {
+      "p": 29,
+      "name": "전북 현대",
+      "id": "jeonbuk",
+      "ga": 14,
+      "gf": 52,
+      "d": 8,
+      "rating": 89,
+      "w": 18,
+      "pts": 62,
+      "gd": 38,
+      "l": 3
+    },
+    {
+      "l": 11,
+      "gd": 3,
+      "pts": 44,
+      "w": 13,
+      "rating": 89,
+      "d": 5,
+      "gf": 36,
+      "ga": 33,
+      "id": "ulsan",
+      "name": "울산 HD",
+      "p": 29
+    },
+    {
+      "d": 6,
+      "rating": 88,
+      "l": 6,
+      "w": 17,
+      "pts": 57,
+      "gd": 14,
+      "name": "FC 서울",
+      "ga": 32,
+      "id": "seoul",
+      "gf": 46,
+      "p": 29
+    },
+    {
+      "p": 29,
+      "gf": 35,
+      "id": "pohang",
+      "ga": 40,
+      "name": "포항 스틸러스",
+      "pts": 37,
+      "gd": -5,
+      "w": 9,
+      "l": 10,
+      "rating": 88,
+      "d": 10
+    },
+    {
+      "p": 29,
+      "l": 18,
+      "pts": 13,
+      "gd": -31,
+      "w": 1,
+      "rating": 83,
+      "d": 10,
+      "gf": 26,
+      "ga": 57,
+      "id": "gangwon",
+      "name": "강원 FC"
+    },
+    {
+      "p": 29,
+      "ga": 43,
+      "id": "gwangju",
+      "name": "광주 FC",
+      "gf": 30,
+      "rating": 83,
+      "d": 12,
+      "l": 12,
+      "gd": -13,
+      "pts": 27,
+      "w": 5
+    },
+    {
+      "p": 29,
+      "d": 9,
+      "rating": 88,
+      "w": 13,
+      "pts": 48,
+      "gd": 7,
+      "l": 7,
+      "id": "gimcheon",
+      "ga": 32,
+      "name": "김천 상무",
+      "gf": 39
+    },
+    {
+      "d": 7,
+      "rating": 85,
+      "w": 12,
+      "gd": -6,
+      "pts": 43,
+      "l": 10,
+      "name": "부천 FC",
+      "id": "bucheon_fc",
+      "ga": 43,
+      "gf": 37,
+      "p": 29
+    },
+    {
+      "p": 29,
+      "gf": 31,
+      "name": "제주 유나이티드",
+      "id": "jeju",
+      "ga": 36,
+      "w": 6,
+      "gd": -5,
+      "pts": 28,
+      "l": 13,
+      "d": 10,
+      "rating": 87
+    },
+    {
+      "p": 29,
+      "name": "대전 하나",
+      "ga": 42,
+      "id": "daejeon",
+      "gf": 42,
+      "d": 10,
+      "rating": 87,
+      "l": 10,
+      "w": 9,
+      "gd": 0,
+      "pts": 37
+    },
+    {
+      "gf": 45,
+      "name": "FC 안양",
+      "id": "anyang",
+      "ga": 36,
+      "w": 13,
+      "pts": 47,
+      "gd": 9,
+      "l": 8,
+      "d": 8,
+      "rating": 87,
+      "p": 29
+    },
+    {
+      "l": 12,
+      "w": 4,
+      "gd": -11,
+      "pts": 25,
+      "d": 13,
+      "rating": 84,
+      "gf": 31,
+      "ga": 42,
+      "id": "incheon",
+      "name": "인천 유나이티드",
+      "p": 29
+    }
+  ],
+  "consecutiveLeagueTitles": 0,
+  "quizSolvedCount": 0,
+  "lastLoginDate": "2026. 6. 22.",
+  "cupState": {
+    "teams": [
+      {
+        "name": "전북 현대",
+        "rating": 89,
+        "id": "jeonbuk"
+      },
+      {
+        "id": "ulsan",
+        "rating": 89,
+        "name": "울산 HD"
+      },
+      {
+        "id": "seoul",
+        "rating": 88,
+        "name": "FC 서울"
+      },
+      {
+        "id": "pohang",
+        "rating": 88,
+        "name": "포항 스틸러스"
+      },
+      {
+        "id": "gangwon",
+        "rating": 83,
+        "name": "강원 FC"
+      },
+      {
+        "id": "gwangju",
+        "rating": 83,
+        "name": "광주 FC"
+      },
+      {
+        "rating": 88,
+        "name": "김천 상무",
+        "id": "gimcheon"
+      },
+      {
+        "name": "부천 FC",
+        "rating": 85,
+        "id": "bucheon_fc"
+      },
+      {
+        "id": "jeju",
+        "name": "제주 유나이티드",
+        "rating": 87
+      },
+      {
+        "id": "daejeon",
+        "name": "대전 하나",
+        "rating": 87
+      },
+      {
+        "rating": 87,
+        "name": "FC 안양",
+        "id": "anyang"
+      },
+      {
+        "id": "incheon",
+        "rating": 84,
+        "name": "인천 유나이티드"
+      },
+      {
+        "name": "수원삼성",
+        "rating": 85,
+        "id": "suwon_samsung"
+      },
+      {
+        "name": "대구FC",
+        "rating": 82,
+        "id": "daegu_fc"
+      },
+      {
+        "id": "busan_ipark",
+        "rating": 86,
+        "name": "부산"
+      },
+      {
+        "rating": 85,
+        "name": "서울E",
+        "id": "seoul_e_land"
+      }
+    ],
+    "round": 1,
+    "stats": {
+      "scorers": [
+        {
+          "teamId": "seoul_e_land",
+          "goals": 3,
+          "teamName": "서울E",
+          "name": "박재용"
+        },
+        {
+          "teamName": "전북 현대",
+          "name": "김승섭",
+          "teamId": "jeonbuk",
+          "goals": 2
+        },
+        {
+          "name": "이동경",
+          "teamName": "울산 HD",
+          "teamId": "ulsan",
+          "goals": 2
+        },
+        {
+          "goals": 2,
+          "teamId": "jeonbuk",
+          "name": "손흥민",
+          "teamName": "전북 현대"
+        },
+        {
+          "name": "에울레르",
+          "teamName": "서울E",
+          "teamId": "seoul_e_land",
+          "goals": 2
+        },
+        {
+          "teamName": "FC 서울",
+          "name": "송민규",
+          "goals": 1,
+          "teamId": "seoul"
+        },
+        {
+          "teamId": "gangwon",
+          "goals": 1,
+          "teamName": "강원 FC",
+          "name": "모재현"
+        },
+        {
+          "goals": 1,
+          "teamId": "daegu_fc",
+          "name": "에드가",
+          "teamName": "대구FC"
+        },
+        {
+          "teamId": "suwon_samsung",
+          "goals": 1,
+          "teamName": "수원삼성",
+          "name": "일류첸코"
+        },
+        {
+          "goals": 1,
+          "teamId": "busan_ipark",
+          "name": "크리스찬",
+          "teamName": "부산"
+        },
+        {
+          "teamId": "busan_ipark",
+          "goals": 1,
+          "teamName": "부산",
+          "name": "가브리엘"
+        },
+        {
+          "teamId": "daegu_fc",
+          "goals": 1,
+          "name": "세징야",
+          "teamName": "대구FC"
+        },
+        {
+          "goals": 1,
+          "teamId": "jeonbuk",
+          "name": "이강인",
+          "teamName": "전북 현대"
+        }
+      ],
+      "assisters": [
+        {
+          "name": "황인범",
+          "teamName": "전북 현대",
+          "assists": 3,
+          "teamId": "jeonbuk"
+        },
+        {
+          "assists": 2,
+          "teamId": "ulsan",
+          "name": "말컹",
+          "teamName": "울산 HD"
+        },
+        {
+          "teamName": "서울E",
+          "name": "서울E 에이스",
+          "teamId": "seoul_e_land",
+          "assists": 2
+        },
+        {
+          "teamName": "서울E",
+          "name": "에울레르",
+          "teamId": "seoul_e_land",
+          "assists": 2
+        },
+        {
+          "teamId": "jeonbuk",
+          "assists": 1,
+          "teamName": "전북 현대",
+          "name": "이강인"
+        },
+        {
+          "teamId": "gangwon",
+          "assists": 1,
+          "teamName": "강원 FC",
+          "name": "강원 FC 에이스"
+        },
+        {
+          "assists": 1,
+          "teamId": "daegu_fc",
+          "name": "세징야",
+          "teamName": "대구FC"
+        },
+        {
+          "teamName": "부산",
+          "name": "가브리엘",
+          "teamId": "busan_ipark",
+          "assists": 1
+        },
+        {
+          "assists": 1,
+          "teamId": "busan_ipark",
+          "name": "크리스찬",
+          "teamName": "부산"
+        },
+        {
+          "name": "대구FC 에이스",
+          "teamName": "대구FC",
+          "assists": 1,
+          "teamId": "daegu_fc"
+        },
+        {
+          "teamName": "전북 현대",
+          "name": "손흥민",
+          "teamId": "jeonbuk",
+          "assists": 1
+        }
+      ]
+    },
+    "isFinished": true,
+    "bracket": {
+      "16": [
+        {
+          "id": "16_0",
+          "team1": {
+            "id": "seoul_e_land",
+            "rating": 85,
+            "name": "서울E"
+          },
+          "score2": 2,
+          "team2": {
+            "id": "bucheon_fc",
+            "rating": 85,
+            "name": "부천 FC"
+          },
+          "score1": 3,
+          "status": "completed",
+          "winner": "team1"
+        },
+        {
+          "status": "completed",
+          "winner": "team1",
+          "id": "16_1",
+          "team1": {
+            "id": "seoul",
+            "rating": 88,
+            "name": "FC 서울"
+          },
+          "score2": 2,
+          "team2": {
+            "id": "pohang",
+            "rating": 88,
+            "name": "포항 스틸러스"
+          },
+          "score1": 3
+        },
+        {
+          "team2": {
+            "rating": 83,
+            "name": "강원 FC",
+            "id": "gangwon"
+          },
+          "score1": 1,
+          "team1": {
+            "name": "제주 유나이티드",
+            "rating": 87,
+            "id": "jeju"
+          },
+          "score2": 2,
+          "id": "16_2",
+          "winner": "team2",
+          "status": "completed"
+        },
+        {
+          "status": "completed",
+          "winner": "team1",
+          "score1": 2,
+          "team2": {
+            "id": "incheon",
+            "name": "인천 유나이티드",
+            "rating": 84
+          },
+          "id": "16_3",
+          "score2": 1,
+          "team1": {
+            "rating": 89,
+            "name": "울산 HD",
+            "id": "ulsan"
+          }
+        },
+        {
+          "score1": 2,
+          "team2": {
+            "id": "gwangju",
+            "rating": 83,
+            "name": "광주 FC"
+          },
+          "score2": 0,
+          "team1": {
+            "id": "daegu_fc",
+            "rating": 82,
+            "name": "대구FC"
+          },
+          "id": "16_4",
+          "winner": "team1",
+          "status": "completed"
+        },
+        {
+          "status": "completed",
+          "winner": "team2",
+          "id": "16_5",
+          "score2": 2,
+          "team1": {
+            "name": "대전 하나",
+            "rating": 87,
+            "id": "daejeon"
+          },
+          "team2": {
+            "rating": 85,
+            "name": "수원삼성",
+            "id": "suwon_samsung"
+          },
+          "score1": 0
+        },
+        {
+          "team2": {
+            "rating": 87,
+            "name": "FC 안양",
+            "id": "anyang"
+          },
+          "score1": 1,
+          "score2": 0,
+          "team1": {
+            "id": "busan_ipark",
+            "rating": 86,
+            "name": "부산"
+          },
+          "id": "16_6",
+          "winner": "team1",
+          "status": "completed"
+        },
+        {
+          "status": "completed",
+          "winner": "team2",
+          "id": "16_7",
+          "score2": 1,
+          "team1": {
+            "id": "gimcheon",
+            "name": "김천 상무",
+            "rating": 88
+          },
+          "score1": 0,
+          "team2": {
+            "name": "전북 현대",
+            "rating": 89,
+            "id": "jeonbuk"
+          }
+        }
+      ],
+      "4": [
+        {
+          "status": "completed",
+          "winner": "team1",
+          "team2": {
+            "id": "ulsan",
+            "rating": 89,
+            "name": "울산 HD"
+          },
+          "score1": 1,
+          "id": "4_0",
+          "team1": {
+            "id": "seoul_e_land",
+            "name": "서울E",
+            "rating": 85
+          },
+          "score2": 0
+        },
+        {
+          "status": "completed",
+          "winner": "team2",
+          "id": "4_1",
+          "score2": 1,
+          "team1": {
+            "name": "대구FC",
+            "rating": 82,
+            "id": "daegu_fc"
+          },
+          "team2": {
+            "id": "jeonbuk",
+            "name": "전북 현대",
+            "rating": 89
+          },
+          "score1": 0
+        }
+      ],
+      "2": [
+        {
+          "team1": {
+            "id": "seoul_e_land",
+            "rating": 85,
+            "name": "서울E"
+          },
+          "score2": 1,
+          "id": "2_0",
+          "score1": 2,
+          "team2": {
+            "name": "전북 현대",
+            "rating": 89,
+            "id": "jeonbuk"
+          },
+          "winner": "team1",
+          "status": "completed"
+        }
+      ],
+      "winner": {
+        "rating": 85,
+        "name": "서울E",
+        "id": "seoul_e_land"
+      },
+      "8": [
+        {
+          "winner": "team1",
+          "status": "completed",
+          "score1": 2,
+          "team2": {
+            "rating": 88,
+            "name": "FC 서울",
+            "id": "seoul"
+          },
+          "score2": 1,
+          "team1": {
+            "name": "서울E",
+            "rating": 85,
+            "id": "seoul_e_land"
+          },
+          "id": "8_0"
+        },
+        {
+          "score1": 1,
+          "team2": {
+            "id": "ulsan",
+            "name": "울산 HD",
+            "rating": 89
+          },
+          "score2": 2,
+          "team1": {
+            "name": "강원 FC",
+            "rating": 83,
+            "id": "gangwon"
+          },
+          "id": "8_1",
+          "winner": "team2",
+          "status": "completed"
+        },
+        {
+          "winner": "team1",
+          "status": "completed",
+          "score2": 0,
+          "team1": {
+            "rating": 82,
+            "name": "대구FC",
+            "id": "daegu_fc"
+          },
+          "id": "8_2",
+          "score1": 2,
+          "team2": {
+            "id": "suwon_samsung",
+            "rating": 85,
+            "name": "수원삼성"
+          }
+        },
+        {
+          "team2": {
+            "name": "전북 현대",
+            "rating": 89,
+            "id": "jeonbuk"
+          },
+          "score1": 1,
+          "score2": 2,
+          "team1": {
+            "id": "busan_ipark",
+            "name": "부산",
+            "rating": 86
+          },
+          "id": "8_3",
+          "winner": "team2",
+          "status": "completed"
+        }
+      ]
+    },
+    "year": 2029
+  },
+  "matchLastDate": "2026. 6. 12.",
+  "currentFormation": "5-4-1"
+}

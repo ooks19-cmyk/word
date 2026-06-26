@@ -1,0 +1,64 @@
+﻿ID,이름,팀ID,팀명
+ulsan_player_1,이동경,ulsan,울산 HD
+ulsan_player_2,말컹,ulsan,울산 HD
+seoul_player_1,송민규,seoul,FC 서울
+seoul_player_2,안데르손,seoul,FC 서울
+pohang_player_1,이호재,pohang,포항 스틸러스
+gangwon_player_1,모재현,gangwon,강원 FC
+gwangju_player_1,프리드욘슨,gwangju,광주 FC
+gwangju_player_2,신창무,gwangju,광주 FC
+gimcheon_player_1,고재현,gimcheon,김천 상무
+gimcheon_player_2,이건희,gimcheon,김천 상무
+bucheon_player_1,윤빛가람,bucheon_fc,부천 FC
+bucheon_player_2,갈레고,bucheon_fc,부천 FC
+jeju_player_1,남태희,jeju,제주 유나이티드
+daejeon_player_1,주민규,daejeon,대전 하나
+daejeon_player_2,마사,daejeon,대전 하나
+anyang_player_1,아일톤,anyang,FC 안양
+anyang_player_2,토마스,anyang,FC 안양
+incheon_player_1,무고사,incheon,인천 유나이티드
+incheon_player_2,제르소,incheon,인천 유나이티드
+suwon_player_1,일류첸코,suwon_samsung,수원삼성
+suwon_player_2,파올리뉴,suwon_samsung,수원삼성
+daegu_player_1,세징야,daegu_fc,대구FC
+daegu_player_2,에드가,daegu_fc,대구FC
+busan_player_default_1,가브리엘,busan_ipark,부산
+busan_player_default_2,크리스찬,busan_ipark,부산
+seoule_player_default_1,박재용,seoul_e_land,서울E
+seoule_player_default_2,에울레르,seoul_e_land,서울E
+virtual_la_fc_player_1,손흥민,virtual_la_fc,LA FC
+virtual_la_fc_player_2,부앙가,virtual_la_fc,LA FC
+virtual_psg_player_1,이강인,virtual_psg,PSG
+virtual_arsenal_player_1,사카,virtual_아스날,아스날
+virtual_real_madrid_player_1,음바페,virtual_레알마드리드,레알마드리드
+virtual_tokyo_fc_player_1,마츠키,virtual_토쿄fc,토쿄FC
+vissel_kobe_player_1,오사코,vissel_kobe,비셀 고베
+vissel_kobe_player_2,무토,vissel_kobe,비셀 고베
+yokohama_marinos_player_1,에우베르,yokohama_marinos,요코하마 마리노스
+yokohama_marinos_player_2,로페즈,yokohama_marinos,요코하마 마리노스
+kawasaki_frontale_player_1,이에나가,kawasaki_frontale,가와사키 프론탈레
+kawasaki_frontale_player_2,와키자카,kawasaki_frontale,가와사키 프론탈레
+shanghai_port_player_1,오스카,shanghai_port,상하이 포트
+shanghai_port_player_2,바르가스,shanghai_port,상하이 포트
+buriram_united_player_1,차이뎃,buriram_united,FC 부리람
+buriram_united_player_2,두가우,buriram_united,FC 부리람
+al_hilal_player_1,미트로비치,al_hilal,알 힐랄
+al_hilal_player_2,말콤,al_hilal,알 힐랄
+al_hilal_player_3,네베스,al_hilal,알 힐랄
+al_nassr_player_1,호날두,al_nassr,알 나스르
+al_nassr_player_2,마네,al_nassr,알 나스르
+al_nassr_player_3,브로조비치,al_nassr,알 나스르
+al_ahli_player_1,토니,al_ahli,알 아흘리
+al_ahli_player_2,피르미누,al_ahli,알 아흘리
+al_ahli_player_3,마레즈,al_ahli,알 아흘리
+al_itihad_player_1,벤제마,al_itihad,알 이티하드
+al_itihad_player_2,캉테,al_itihad,알 이티하드
+al_itihad_player_3,디아비,al_itihad,알 이티하드
+al_ain_player_1,라히미,al_ain,알 아인
+al_ain_player_2,카쿠,al_ain,알 아인
+al_sadd_player_1,아피프,al_sadd,알 사드
+al_sadd_player_2,무히카,al_sadd,알 사드
+persepolis_player_1,알리푸르,persepolis,페르세폴리스
+persepolis_player_2,아미리,persepolis,페르세폴리스
+pakhtakor_player_1,체란,pakhtakor,파흐타코르
+pakhtakor_player_2,소비르호자예브,pakhtakor,파흐타코르
