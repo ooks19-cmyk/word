@@ -2,12 +2,25 @@
 
 const UPDATE_LOGS = [
     {
-        version: "v2.1.0",
-        date: "2026.06.24",
+        version: "v2.2.0",
+        date: "2026.06.27",
         latest: true,
         borderColor: "#ff3e6c",
         titleColor: "#ff3e6c",
         badgeText: "LATEST",
+        items: [
+            "<strong>신규 해외파 및 국가대표 선수 카드 추가 (미나미노, 이토 준야, 조유민)</strong>: 스쿼드 스펙트럼 확장을 위해 3명의 핵심 선수 카드를 공식 추가했습니다.<br>• <strong>미나미노</strong> (OVR 85, CM, 스페셜 - AS 모나코)<br>• <strong>이토 준야</strong> (OVR 85, RW, 스페셜 - 스타드 랭스)<br>• <strong>조유민</strong> (OVR 83, CB, 스페셜 - 국가대표팀)",
+            "<strong>선수 능력치 대폭 조정 및 등급 밸런스 패치</strong>: 유저 피드백에 맞추어 카드 성능을 현실화했습니다.<br>• <strong>미나미노</strong>: 속도(83), 패스(88), 드리블(89) 능력치 추가 상향.<br>• <strong>김승규</strong>: 오버롤 87 상향 및 슈팅(84), 수비(89), 피지컬(85) 스탯 상향.<br>• <strong>콤파뇨</strong>: 오버롤 85 상향, 희귀도 스페셜(special) 등급 변경 및 세부 스탯(PAC 77, SHO 88, PAS 71, DRI 77, DEF 42, PHY 90) 전면 상향.<br>• <strong>이동경</strong>: 수비(DEF) 스탯 70으로 대폭 상향.",
+            "<strong>선수 포지션 데이터 오류 보정</strong>: <code>선수데이터.csv</code> 파일 내 엔도 와타루 선수의 포지션이 CB로 오기되어 있던 문제를 CM으로 동기화 정정했습니다."
+        ]
+    },
+    {
+        version: "v2.1.0",
+        date: "2026.06.24",
+        latest: false,
+        borderColor: "#ffd700",
+        titleColor: "#ffd700",
+        badgeText: "",
         items: [
             "<strong>엔도 와타루 포지션 CB 변경</strong>: 엔도 와타루 선수의 포지션을 CM에서 CB로 전격 변경하여 수비진 구성 및 하이그레이드 전술 조합의 유연성을 강화했습니다.",
             "<strong>스트라이커(ST) 플레이스타일 신설</strong>: 기존 윙어에만 적용되던 플레이스타일 기능이 스트라이커(ST)에게도 확장 적용되었습니다.<br>• <strong>타겟맨</strong>: 슈팅 및 피지컬 스탯 가중치 기반 기회 제공<br>• <strong>라인브레이커</strong>: 슈팅 및 스피드 스탯 가중치 기반 기회 제공<br>• 포지션 특성에 최적화된 기스 유무 확률 공식이 매치 엔진에 완벽 결합되었습니다.",
