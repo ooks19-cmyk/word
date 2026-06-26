@@ -192,13 +192,13 @@ const CARDS_DATABASE = {
     "compagno": {
         id: "compagno",
         name: "콤파뇨",
-        rating: 79,
+        rating: 85,
         position: "ST",
         nation: "Italy",
         nationFlag: "https://flagcdn.com/w40/it.png",
         club: "JEONBUK",
         image: "player/콤파뇨.png",
-        rarity: "normal",
+        rarity: "special",
         description: "탁월한 피지컬과 높은 타점의 헤더를 자랑하는 전북 현대의 정통 타겟맨 스트라이커입니다. 박스 안에서의 압도적인 집중력과 찬스를 놓치지 않는 뛰어난 골 결정력으로 수비진에게 공포를 줍니다.",
         theme: {
             primary: "#005a3c",
@@ -206,12 +206,12 @@ const CARDS_DATABASE = {
             glow: "#ffd700"
         },
         stats: {
-            pac: 72,
-            sho: 80,
-            pas: 65,
-            dri: 72,
-            def: 38,
-            phy: 82
+            pac: 77,
+            sho: 88,
+            pas: 71,
+            dri: 77,
+            def: 42,
+            phy: 90
         }
     },
     "tiago": {
@@ -935,7 +935,7 @@ const CARDS_DATABASE = {
             sho: 86,
             pas: 87,
             dri: 85,
-            def: 49,
+            def: 70,
             phy: 73
         }
     },
@@ -1217,7 +1217,7 @@ const CARDS_DATABASE = {
     "kim_seung_gyu": {
         id: "kim_seung_gyu",
         name: "김승규",
-        rating: 84,
+        rating: 87,
         position: "GK",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
@@ -1232,11 +1232,11 @@ const CARDS_DATABASE = {
         },
         stats: {
             pac: 83,
-            sho: 81,
+            sho: 84,
             pas: 80,
             dri: 84,
-            def: 86,
-            phy: 82
+            def: 89,
+            phy: 85
         }
     },
     "lee_han_beom": {
@@ -1587,6 +1587,81 @@ const CARDS_DATABASE = {
             dri: 82,
             def: 40,
             phy: 90
+        }
+    },
+    "takumi_minamino": {
+        id: "takumi_minamino",
+        name: "미나미노",
+        rating: 85,
+        position: "CM",
+        nation: "Japan",
+        nationFlag: "https://flagcdn.com/w40/jp.png",
+        club: "MONACO",
+        image: "player2/미나미노.png",
+        rarity: "special",
+        description: "뛰어난 공간 침투와 연계 플레이, 그리고 날카로운 결정력을 갖춘 AS 모나코 소속의 일본 대표팀 공격형 미드필더 미나미노입니다. 공수 양면에서 높은 전술적 이해도를 발휘하며 기회를 창출하는 스페셜 미드필더입니다.",
+        theme: {
+            primary: "#e20613",
+            secondary: "#ffffff",
+            glow: "#ff3e6c"
+        },
+        stats: {
+            pac: 83,
+            sho: 83,
+            pas: 88,
+            dri: 89,
+            def: 45,
+            phy: 72
+        }
+    },
+    "junya_ito": {
+        id: "junya_ito",
+        name: "이토 준야",
+        rating: 85,
+        position: "RW",
+        nation: "Japan",
+        nationFlag: "https://flagcdn.com/w40/jp.png",
+        club: "REIMS",
+        image: "player2/이토준야.png",
+        rarity: "special",
+        description: "폭발적인 주력과 상대 측면을 완전히 허무는 크로스 능력을 자랑하는 스타드 랭스 소속의 일본 대표팀 윙어 이토 준야입니다. 빠른 역습의 핵심 자원이자 저돌적인 드리블 돌파가 장점인 스페셜 윙어입니다.",
+        theme: {
+            primary: "#c8102e",
+            secondary: "#ffffff",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 91,
+            sho: 78,
+            pas: 83,
+            dri: 85,
+            def: 40,
+            phy: 70
+        }
+    },
+    "cho_yu_min": {
+        id: "cho_yu_min",
+        name: "조유민",
+        rating: 83,
+        position: "CB",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "KOREA",
+        image: "player2/조유민.png",
+        rarity: "special",
+        description: "강인한 제공권 장악력과 뛰어난 수비 리딩 능력을 바탕으로 대표팀 수비의 한 축을 담당하는 센터백 조유민입니다. 파이팅 넘치는 대인 마크와 세트피스 상황에서의 득점력까지 겸비한 스페셜 수비수입니다.",
+        theme: {
+            primary: "#da1a32",
+            secondary: "#1d2b58",
+            glow: "#ff2a55"
+        },
+        stats: {
+            pac: 78,
+            sho: 48,
+            pas: 70,
+            dri: 68,
+            def: 84,
+            phy: 82
         }
     }
 };
