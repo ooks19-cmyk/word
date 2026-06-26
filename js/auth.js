@@ -189,7 +189,18 @@ function saveUserProgress() {
         const progressData = {
             userPoints: userPoints,
             userLevel: userLevel,
-            playerDeck: playerDeck,
+            playerDeck: (() => {
+                const minimalDeck = {};
+                Object.keys(playerDeck).forEach(key => {
+                    if (playerDeck[key]) {
+                        minimalDeck[key] = {
+                            quantity: playerDeck[key].quantity || 1,
+                            awakening: playerDeck[key].awakening || 0
+                        };
+                    }
+                });
+                return minimalDeck;
+            })(),
             squadFormation: squadFormation,
             squadFormations: squadFormations,
             currentFormation: currentFormation,

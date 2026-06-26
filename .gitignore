@@ -15,3 +15,7 @@ Desktop.ini
 
 # Temporary files
 *.log
+
+# Backups and private data
+fc_star_users_backup.json
+
