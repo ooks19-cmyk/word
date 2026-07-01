@@ -1846,6 +1846,31 @@
         </div>
     </div>
 
+    <!-- SYNC CONFLICT MODAL -->
+    <div class="drawer-overlay" id="syncConflictModal" style="display: none; z-index: 10000;">
+        <div class="selector-drawer auth-modal-drawer" style="max-width: 440px; text-align: center; padding: 2rem 1.5rem; height: auto !important; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); border-radius: 24px;" onclick="event.stopPropagation()">
+            <div class="drawer-header" style="justify-content: center; border-bottom: none; padding-bottom: 0;">
+                <h3 style="font-size: 1.35rem; font-weight: 800; color: #ff4a4a; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-triangle-exclamation"></i> 데이터 충돌 감지
+                </h3>
+            </div>
+            <div class="drawer-content" style="display: flex; flex-direction: column; gap: 1.2rem; padding: 1.5rem 0.5rem 0.5rem 0.5rem;">
+                <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; word-break: keep-all; text-align: center; margin: 0;">
+                    다른 기기 또는 브라우저 탭에서 새로운 저장 데이터가 감지되었습니다.<br>
+                    <strong>로컬 데이터로 덮어쓰시겠습니까?</strong> 아니면 <strong>클라우드의 최신 데이터를 불러오시겠습니까?</strong>
+                </p>
+                <div style="font-size: 0.82rem; color: #ffb700; font-weight: 700; background: rgba(255, 74, 74, 0.05); padding: 0.8rem; border-radius: 12px; border: 1px solid rgba(255, 74, 74, 0.2); text-align: left; display: flex; flex-direction: column; gap: 4px; line-height: 1.4;">
+                    <div>⚠️ <strong>로컬 데이터 덮어쓰기</strong> 선택 시: 다른 기기의 데이터가 영구 유실될 수 있습니다.</div>
+                    <div>ℹ️ <strong>클라우드 데이터 불러오기</strong> 선택 시: 현재 기기의 저장되지 않은 데이터가 손실됩니다.</div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 1rem;">
+                    <button class="btn-open-pack" id="btnSyncLoadCloud" style="flex: 1; padding: 0.8rem; background: var(--gold-gradient); color: #000; font-weight: bold; border-radius: 12px;">클라우드 불러오기</button>
+                    <button class="btn-open-pack" id="btnSyncOverwriteCloud" style="flex: 1; padding: 0.8rem; background: rgba(255, 74, 74, 0.2); color: #ff4a4a; border: 1px solid rgba(255, 74, 74, 0.3); border-radius: 12px;">로컬로 덮어쓰기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="js/update_data.js?v=2.2"></script>
     <script src="js/friend.js?v=1.1"></script>
     <script src="js/auth.js?v=2.1"></script>

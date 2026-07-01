@@ -166,6 +166,10 @@ function saveAllToLocalStorage() {
 
 function saveUserProgress() {
     if (!currentUser) return;
+    if (typeof window.isSyncingData !== 'undefined' && window.isSyncingData) {
+        console.log("⏳ [Save Blocked] 동기화 진행 중이므로 클라우드 저장을 건너뜁니다.");
+        return;
+    }
     
     // 1. 데이터 유실 방지를 위해 즉각 로컬 저장은 항상 보장
     saveAllToLocalStorage();
@@ -239,7 +243,7 @@ function saveUserProgress() {
             friendlyMatchesToday: typeof friendlyMatchesToday !== 'undefined' ? friendlyMatchesToday : 0,
             friendlyMatchLastDate: typeof friendlyMatchLastDate !== 'undefined' ? friendlyMatchLastDate : "",
             friendlySeasonStartDate: localStorage.getItem(`fc_star_friendly_season_start_date_${myId}`) || new Date().toISOString(),
-            lastSyncedUpdatedAt: lastSyncedUpdatedAt,
+            lastSyncedUpdatedAt: window.lastSyncedUpdatedAt,
             
             // 동기화 조율용 최종 수정 타임스탬프
             localLastUpdated: parseInt(localStorage.getItem('fc_star_local_last_updated') || '0') || Date.now()
@@ -251,7 +255,12 @@ function saveUserProgress() {
                 console.log("☁️ [Cloud Save] 업로드 완료");
             })
             .catch(err => {
-                console.error("☁️ [Cloud Save] 업로드 실패:", err);
+                if (err.message === "version_conflict" && err.serverData) {
+                    console.warn("⚠️ [Cloud Save] 데이터 버전 충돌 감지! 사용자 입력을 대기합니다.");
+                    showSyncConflictModal(progressData, err.serverData);
+                } else {
+                    console.error("☁️ [Cloud Save] 업로드 실패:", err);
+                }
             });
     };
     
@@ -263,6 +272,52 @@ function saveUserProgress() {
         const delay = CLOUD_SAVE_INTERVAL - timeSinceLastUpload;
         console.log(`⏳ [Cloud Save Deferred] ${Math.round(delay / 1000)}초 후 업로드 예정...`);
         cloudSaveTimeoutId = setTimeout(uploadProgress, delay);
+    }
+}
+
+// 데이터 동기화 충돌 방지 및 처리 조율 모달 표시
+function showSyncConflictModal(progressData, serverData) {
+    const modal = document.getElementById('syncConflictModal');
+    if (!modal) return;
+    if (modal.style.display === 'flex') return; // 이미 모달이 표시 중이면 무시
+    
+    modal.style.display = 'flex';
+    modal.classList.add('active');
+    
+    const btnLoad = document.getElementById('btnSyncLoadCloud');
+    const btnOverwrite = document.getElementById('btnSyncOverwriteCloud');
+    
+    if (btnLoad) {
+        btnLoad.onclick = () => {
+            modal.style.display = 'none';
+            modal.classList.remove('active');
+            
+            // 1. 서버 데이터 반영 및 로컬스토리지 갱신 (forceLoad = true)
+            syncUserDataOnLogin(serverData, true);
+            
+            // 2. 화면 반영을 위해 안전하게 새로고침
+            showToast("클라우드 데이터를 성공적으로 동기화하여 불러옵니다...");
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        };
+    }
+    
+    if (btnOverwrite) {
+        btnOverwrite.onclick = () => {
+            modal.style.display = 'none';
+            modal.classList.remove('active');
+            
+            // 강제 업로드: 내 동기화 기준시각을 서버 수정시각으로 맞춰서 검증 패스 유도
+            window.lastSyncedUpdatedAt = serverData.updatedAt || "";
+            try {
+                localStorage.setItem('fc_star_last_synced_updated_at', window.lastSyncedUpdatedAt);
+            } catch (e) {}
+            
+            showToast("로컬 데이터로 강제 업데이트를 진행합니다...");
+            // 즉시 저장을 실행하여 강제 업로드
+            saveUserProgress();
+        };
     }
 }
 
@@ -291,15 +346,16 @@ function refreshAllScreens() {
     updateAuthBadgeUI();
 }
 
-function syncUserDataOnLogin(userData) {
+function syncUserDataOnLogin(userData, forceLoad = false) {
     if (!userData) return;
     
+    window.isSyncingData = true;
     try {
         // 로컬스토리지 타임스탬프와 클라우드 타임스탬프 비교
         const localLastUpdated = parseInt(localStorage.getItem('fc_star_local_last_updated') || '0') || 0;
         const cloudLastUpdated = userData.localLastUpdated || 0;
         
-        if (localLastUpdated > cloudLastUpdated) {
+        if (!forceLoad && localLastUpdated > cloudLastUpdated) {
             console.log("⚠️ [Sync Info] 로컬 장치에 업로드되지 않은 최신 게임 진행 내역이 있습니다. 클라우드 데이터로 덮어쓰지 않고 로컬 데이터를 유지하며, 백업을 대기합니다.");
             isCloudDataSynced = true;
             refreshAllScreens();
@@ -313,7 +369,7 @@ function syncUserDataOnLogin(userData) {
         }
 
         // Restore progress
-        lastSyncedUpdatedAt = userData.updatedAt || "";
+        window.lastSyncedUpdatedAt = userData.updatedAt || "";
         userPoints = userData.userPoints || 0;
         userLevel = userData.userLevel || 1;
         playerDeck = userData.playerDeck || {};
@@ -521,7 +577,8 @@ function syncUserDataOnLogin(userData) {
         localStorage.setItem('fc_star_career_stats_hard', JSON.stringify(careerStatsHard));
         localStorage.setItem('fc_star_squad_numbers', JSON.stringify(squadNumbers));
         localStorage.setItem('fc_star_is_hard_mode', isHardMode.toString());
-        localStorage.setItem('fc_star_last_synced_updated_at', lastSyncedUpdatedAt);
+        localStorage.setItem('fc_star_last_synced_updated_at', window.lastSyncedUpdatedAt);
+        localStorage.setItem('fc_star_local_last_updated', (userData.localLastUpdated || Date.now()).toString());
         localStorage.setItem('fc_star_user_achievements', JSON.stringify(userAchievements));
         localStorage.setItem('fc_star_consecutive_titles', consecutiveLeagueTitles.toString());
         localStorage.setItem('fc_star_current_win_streak', currentWinStreak.toString());
@@ -537,6 +594,8 @@ function syncUserDataOnLogin(userData) {
     } catch (e) {
         console.error("데이터 동기화 실패:", e);
         alert("계정 데이터 동기화 도중 에러가 발생했습니다: " + e.message);
+    } finally {
+        window.isSyncingData = false;
     }
 }
 

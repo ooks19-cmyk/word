@@ -2,12 +2,23 @@
 
 const UPDATE_LOGS = [
     {
-        version: "v2.2.0",
-        date: "2026.06.27",
+        version: "v2.2.1",
+        date: "2026.07.01",
         latest: true,
         borderColor: "#ff3e6c",
         titleColor: "#ff3e6c",
         badgeText: "LATEST",
+        items: [
+            "<strong>클라우드 데이터 동기화 최적화 및 충돌 해결 시스템 구축 (버그 수정)</strong>: 여러 기기나 브라우저 탭에서 동시 접속하거나 복원 작업 중 로컬 캐시가 클라우드 최신 데이터를 무단으로 덮어쓰던 문제를 방지하기 위해 낙관적 락(Optimistic Locking) 검증 기능을 도입하고 충돌 해결 모달을 구축했습니다.<br>• 저장 전 서버의 수정 시각(<code>updatedAt</code>)과 클라이언트의 최종 동기화 시각(<code>lastSyncedUpdatedAt</code>)을 비교하여 충돌 감지 시 사용자에게 <strong>서버 데이터 불러오기(추천)</strong> 또는 <strong>로컬 데이터 강제 덮어쓰기</strong>를 선택할 수 있는 팝업 모달을 제공합니다.<br>• 동기화 시 로컬 스토리지의 최종 수정 시각(<code>fc_star_local_last_updated</code>)도 서버 기준 시각으로 완벽히 일치화시켜 불필요한 충돌의 무한 루프 발생을 차단했습니다.<br>• 데이터 로드 및 렌더링 시 발생하는 수석코치 조언, 컵 대회, 아챔 등의 초기화 단계에서 유발되는 불필요한 자동 백그라운드 저장을 <code>window.isSyncingData</code> 플래그를 통해 원천 방지했습니다."
+        ]
+    },
+    {
+        version: "v2.2.0",
+        date: "2026.06.27",
+        latest: false,
+        borderColor: "#ffd700",
+        titleColor: "#ffd700",
+        badgeText: "",
         items: [
             "<strong>신규 해외파 및 국가대표 선수 카드 추가 (미나미노, 이토 준야, 조유민)</strong>: 스쿼드 스펙트럼 확장을 위해 3명의 핵심 선수 카드를 공식 추가했습니다.<br>• <strong>미나미노</strong> (OVR 85, CM, 스페셜 - AS 모나코)<br>• <strong>이토 준야</strong> (OVR 85, RW, 스페셜 - 스타드 랭스)<br>• <strong>조유민</strong> (OVR 83, CB, 스페셜 - 국가대표팀)",
             "<strong>선수 능력치 대폭 조정 및 등급 밸런스 패치</strong>: 유저 피드백에 맞추어 카드 성능을 현실화했습니다.<br>• <strong>미나미노</strong>: 속도(83), 패스(88), 드리블(89) 능력치 추가 상향.<br>• <strong>김승규</strong>: 오버롤 87 상향 및 슈팅(84), 수비(89), 피지컬(85) 스탯 상향.<br>• <strong>콤파뇨</strong>: 오버롤 85 상향, 희귀도 스페셜(special) 등급 변경 및 세부 스탯(PAC 77, SHO 88, PAS 71, DRI 77, DEF 42, PHY 90) 전면 상향.<br>• <strong>이동경</strong>: 수비(DEF) 스탯 70으로 대폭 상향.",

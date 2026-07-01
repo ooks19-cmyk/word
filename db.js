@@ -217,7 +217,21 @@ const dbService = {
         if (this.isFirebase) {
             try {
                 const docRef = this.firestore.collection('fc_star_users').doc(normalizedId);
-
+                
+                // 낙관적 락 버전 검증: 서버의 최신 updatedAt과 클라이언트의 lastSyncedUpdatedAt 비교
+                const doc = await docRef.get({ source: 'server' });
+                if (doc.exists) {
+                    const serverData = doc.data();
+                    if (serverData && serverData.updatedAt) {
+                        const clientSyncTime = progressData.lastSyncedUpdatedAt || "";
+                        if (!clientSyncTime || serverData.updatedAt !== clientSyncTime) {
+                            console.warn("⚠️ [Sync Mismatch] Server updatedAt:", serverData.updatedAt, "Client lastSynced:", clientSyncTime);
+                            const err = new Error("version_conflict");
+                            err.serverData = serverData;
+                            throw err;
+                        }
+                    }
+                }
                 
                 const newTimestamp = new Date().toISOString();
                 await docRef.update({
@@ -225,8 +239,8 @@ const dbService = {
                     updatedAt: newTimestamp
                 });
                 
-                if (typeof lastSyncedUpdatedAt !== 'undefined') {
-                    lastSyncedUpdatedAt = newTimestamp;
+                if (typeof window.lastSyncedUpdatedAt !== 'undefined') {
+                    window.lastSyncedUpdatedAt = newTimestamp;
                     try {
                         localStorage.setItem('fc_star_last_synced_updated_at', newTimestamp);
                     } catch(e) {}
@@ -235,6 +249,7 @@ const dbService = {
                 console.log("☁️ Firestore 실시간 클라우드 백업 완료!");
             } catch (error) {
                 console.error("Firestore 백업 저장 실패 (원격 배경):", error);
+                throw error;
             }
         } else {
             // 로컬 모의 클라우드 데이터 업데이트
