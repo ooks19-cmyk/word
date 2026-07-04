@@ -80,13 +80,13 @@ try {
 let currentUser = null;
 let authMode = 'login'; // 'login' or 'register'
 let isAuthSubmitting = false;
-let lastSyncedUpdatedAt = "";
+window.lastSyncedUpdatedAt = "";
 let isCloudDataSynced = false;
 try {
     const savedSyncedTime = localStorage.getItem('fc_star_last_synced_updated_at');
-    if (savedSyncedTime) lastSyncedUpdatedAt = savedSyncedTime;
+    if (savedSyncedTime) window.lastSyncedUpdatedAt = savedSyncedTime;
 } catch (e) {
-    lastSyncedUpdatedAt = "";
+    window.lastSyncedUpdatedAt = "";
 }
 
 // DEVELOPER MODE & MULTI-YEAR LEAGUE STATE VARIABLES

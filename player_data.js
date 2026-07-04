@@ -1663,6 +1663,56 @@ const CARDS_DATABASE = {
             def: 84,
             phy: 82
         }
+    },
+    "neymar": {
+        id: "neymar",
+        name: "네이마르",
+        rating: 89,
+        position: "LW",
+        nation: "Brazil",
+        nationFlag: "https://flagcdn.com/w40/br.png",
+        club: "AL HILAL",
+        image: "player2/네이마르.png",
+        rarity: "legend",
+        description: "화려한 드리블과 창의적인 플레이로 전 세계 축구팬들을 사로잡는 브라질의 리빙 레전드 공격수 네이마르입니다. 폭발적인 볼 컨트롤, 민첩한 페인트 동작, 그리고 날카로운 킥 능력으로 경기의 판도를 뒤흔드는 월드클래스 크랙입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 87,
+            sho: 84,
+            pas: 86,
+            dri: 92,
+            def: 37,
+            phy: 61
+        }
+    },
+    "luka_modric": {
+        id: "luka_modric",
+        name: "루카 모드리치",
+        rating: 89,
+        position: "CM",
+        nation: "Croatia",
+        nationFlag: "https://flagcdn.com/w40/hr.png",
+        club: "REAL MADRID",
+        image: "player2/모드리치.png",
+        rarity: "legend",
+        description: "지치지 않는 체력과 환상적인 아웃프런트 패스, 완벽한 경기 조율로 발롱도르를 수상한 크로아티아의 중원 사령탑 루카 모드리치입니다. 뛰어난 축구 지능과 탈압박 능력으로 팀의 공수 밸런스를 조율하는 전설적인 미드필더입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 73,
+            sho: 76,
+            pas: 90,
+            dri: 88,
+            def: 72,
+            phy: 66
+        }
     }
 };
 

@@ -146,9 +146,9 @@ function renderDeck() {
             
             wrapper.appendChild(cardEl);
             
-            // 어려움 모드 특전: ★5 각성 완료된 카드에만 ★6 강화(10 FP) 버튼 노출
+            // ★5 각성 완료된 카드에 ★6 강화(10 FP) 버튼 노출 (일반/어려움 모드 공통 적용)
             const deckCardObj = playerDeck[key];
-            if (typeof isHardMode !== 'undefined' && isHardMode && deckCardObj && deckCardObj.awakening === 5) {
+            if (deckCardObj && deckCardObj.awakening === 5) {
                 const upgradeBtn = document.createElement('button');
                 upgradeBtn.className = 'btn-quick-upgrade-six';
                 upgradeBtn.style.marginTop = '0.8rem';
