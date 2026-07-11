@@ -2,12 +2,24 @@
 
 const UPDATE_LOGS = [
     {
-        version: "v2.2.1",
-        date: "2026.07.01",
+        version: "v2.3.0",
+        date: "2026.07.12",
         latest: true,
         borderColor: "#ff3e6c",
         titleColor: "#ff3e6c",
         badgeText: "LATEST",
+        items: [
+            "<strong>신규 스페셜 카드 2종 전격 출시 (구자철, 나상호)</strong>: 국가대표팀 라인업 보강을 위해 스페셜 등급의 두 스타 선수를 새롭게 추가했습니다.<br>• <strong>구자철</strong> (OVR 88, CM, 스페셜)<br>• <strong>나상호</strong> (OVR 88, LW, 스페셜)",
+            "<strong>데이터베이스 싱크 보정 및 CSV 복구</strong>: <code>player_data.js</code>에만 등록되고 <code>선수데이터.csv</code>에 누락되어 있던 일부 선수들(네이마르, 루카 모드리치)의 데이터를 완벽히 복구하고, 신규 선수들과 함께 동기화 연동을 완료했습니다."
+        ]
+    },
+    {
+        version: "v2.2.1",
+        date: "2026.07.01",
+        latest: false,
+        borderColor: "#ffd700",
+        titleColor: "#ffd700",
+        badgeText: "",
         items: [
             "<strong>클라우드 데이터 동기화 최적화 및 충돌 해결 시스템 구축 (버그 수정)</strong>: 여러 기기나 브라우저 탭에서 동시 접속하거나 복원 작업 중 로컬 캐시가 클라우드 최신 데이터를 무단으로 덮어쓰던 문제를 방지하기 위해 낙관적 락(Optimistic Locking) 검증 기능을 도입하고 충돌 해결 모달을 구축했습니다.<br>• 저장 전 서버의 수정 시각(<code>updatedAt</code>)과 클라이언트의 최종 동기화 시각(<code>lastSyncedUpdatedAt</code>)을 비교하여 충돌 감지 시 사용자에게 <strong>서버 데이터 불러오기(추천)</strong> 또는 <strong>로컬 데이터 강제 덮어쓰기</strong>를 선택할 수 있는 팝업 모달을 제공합니다.<br>• 동기화 시 로컬 스토리지의 최종 수정 시각(<code>fc_star_local_last_updated</code>)도 서버 기준 시각으로 완벽히 일치화시켜 불필요한 충돌의 무한 루프 발생을 차단했습니다.<br>• 데이터 로드 및 렌더링 시 발생하는 수석코치 조언, 컵 대회, 아챔 등의 초기화 단계에서 유발되는 불필요한 자동 백그라운드 저장을 <code>window.isSyncingData</code> 플래그를 통해 원천 방지했습니다."
         ]
