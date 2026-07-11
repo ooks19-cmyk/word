@@ -1713,6 +1713,56 @@ const CARDS_DATABASE = {
             def: 72,
             phy: 66
         }
+    },
+    "koo_ja_cheol": {
+        id: "koo_ja_cheol",
+        name: "구자철",
+        rating: 88,
+        position: "CM",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "KOREA",
+        image: "player2/구자철.png",
+        rarity: "special",
+        description: "대한민국 중원의 지휘자이자 멀티 플레이어의 정석인 구자철입니다. 뛰어난 축구 지능, 날카로운 패싱력, 그리고 헌신적인 활동량으로 대표팀의 전성기를 이끌었던 전설적인 미드필더입니다.",
+        theme: {
+            primary: "#da1a32",
+            secondary: "#1d2b58",
+            glow: "#ff2a55"
+        },
+        stats: {
+            pac: 80,
+            sho: 85,
+            pas: 89,
+            dri: 86,
+            def: 78,
+            phy: 84
+        }
+    },
+    "na_sang_ho": {
+        id: "na_sang_ho",
+        name: "나상호",
+        rating: 88,
+        position: "LW",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "KOREA",
+        image: "player2/나상호.png",
+        rarity: "special",
+        description: "왕성한 활동량과 폭발적인 스피드를 무기로 전방 압박과 돌파를 이끄는 국가대표 윙어 나상호입니다. 지치지 않는 기동력과 날카로운 컷인 슛으로 상대 측면을 흔드는 해결사입니다.",
+        theme: {
+            primary: "#da1a32",
+            secondary: "#1d2b58",
+            glow: "#ff2a55"
+        },
+        stats: {
+            pac: 91,
+            sho: 86,
+            pas: 83,
+            dri: 88,
+            def: 48,
+            phy: 78
+        }
     }
 };
 
