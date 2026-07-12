@@ -2,12 +2,26 @@
 
 const UPDATE_LOGS = [
     {
-        version: "v2.3.0",
+        version: "v2.4.0",
         date: "2026.07.12",
         latest: true,
         borderColor: "#ff3e6c",
         titleColor: "#ff3e6c",
         badgeText: "LATEST",
+        items: [
+            "<strong>3단계 컨디션 시스템(Condition System) 도입</strong>: 날짜 연동형 컨디션이 도입되어 매일 접속 시 선수별 컨디션(상승 ↗️, 보통 ➡️, 하락 ↘️)이 무작위 갱신되며 매치 엔진 스탯(OVR +2, -2)에 반영됩니다.<br>• 포메이션 피치 보드와 교체 드로어에서 OVR이 기호와 색상으로 구분된 변동폭 형태(예: 88+2 또는 88-2)로 투명하게 표시됩니다.<br>• FUT 카드 전면 좌측 상단에도 등급 배지 아래에 컨디션 상태 아이콘이 실시간 적용됩니다.",
+            "<strong>일반 모드 ★6 강화 제한 해제</strong>: 어려움 모드에서만 가능하던 최고 등급 ★6 각성(10 FP 소모) 강화를 일반 모드에서도 지원하도록 각성 제한을 완전히 통제 해제했습니다.",
+            "<strong>전설 등급 신규 스타 카드 2종 전격 추가</strong>: 글로벌 최고 스타 선수 2명을 전설 등급 카드로 새롭게 영입했습니다.<br>• <strong>네이마르</strong> (OVR 89, LW, 전설 - 알 힐랄)<br>• <strong>루카 모드리치</strong> (OVR 89, CM, 전설 - 레알 마드리드)",
+            "<strong>Firestore 데이터 및 통신 동기화 용량 최적화</strong>: 클라우드 서버 저장/복원 시 덱 내 불필요한 메타데이터 필드를 완전히 분리 배제하여 모바일 패킷 통신 및 서버 부하를 약 41% 가량 혁신적으로 축소시켰습니다."
+        ]
+    },
+    {
+        version: "v2.3.0",
+        date: "2026.07.12",
+        latest: false,
+        borderColor: "#ffd700",
+        titleColor: "#ffd700",
+        badgeText: "",
         items: [
             "<strong>신규 스페셜 카드 2종 전격 출시 (구자철, 나상호)</strong>: 국가대표팀 라인업 보강을 위해 스페셜 등급의 두 스타 선수를 새롭게 추가했습니다.<br>• <strong>구자철</strong> (OVR 88, CM, 스페셜)<br>• <strong>나상호</strong> (OVR 88, LW, 스페셜)",
             "<strong>데이터베이스 싱크 보정 및 CSV 복구</strong>: <code>player_data.js</code>에만 등록되고 <code>선수데이터.csv</code>에 누락되어 있던 일부 선수들(네이마르, 루카 모드리치)의 데이터를 완벽히 복구하고, 신규 선수들과 함께 동기화 연동을 완료했습니다."

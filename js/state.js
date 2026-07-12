@@ -283,5 +283,54 @@ try {
     console.warn("Striker styles parsing failed, fallback used", e);
 }
 
+// 9. DAILY CONDITION SYSTEM
+function updateDeckConditions() {
+    if (typeof playerDeck !== 'object' || !playerDeck) return;
+    const todayStr = new Date().toLocaleDateString('ko-KR');
+    let modified = false;
+    
+    Object.keys(playerDeck).forEach(key => {
+        const item = playerDeck[key];
+        if (!item) return;
+        
+        // conditionDate가 오늘 날짜와 다르면 컨디션 갱신
+        if (item.conditionDate !== todayStr) {
+            const rand = Math.random();
+            let cond = 0;
+            if (rand < 0.25) {
+                cond = 2; // 상승 ↗️
+            } else if (rand < 0.50) {
+                cond = -2; // 하락 ↘️
+            } else {
+                cond = 0; // 보통 ➡️
+            }
+            item.condition = cond;
+            item.conditionDate = todayStr;
+            modified = true;
+        }
+    });
+    
+    if (modified) {
+        try {
+            // 로컬스토리지에 저장
+            localStorage.setItem('fc_star_player_deck', JSON.stringify(playerDeck));
+            localStorage.setItem('fc_star_local_last_updated', Date.now().toString());
+        } catch (e) {}
+        
+        // 클라우드 저장 (만약 auth.js 로드 후 시점이라면 즉시 저장)
+        if (typeof saveUserProgress === 'function') {
+            saveUserProgress();
+        }
+    }
+}
+
+// 초기 실행
+try {
+    updateDeckConditions();
+} catch (e) {
+    console.warn("컨디션 업데이트 실패:", e);
+}
+
+
 
 

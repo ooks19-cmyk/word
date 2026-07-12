@@ -199,7 +199,9 @@ function saveUserProgress() {
                     if (playerDeck[key]) {
                         minimalDeck[key] = {
                             quantity: playerDeck[key].quantity || 1,
-                            awakening: playerDeck[key].awakening || 0
+                            awakening: playerDeck[key].awakening || 0,
+                            condition: typeof playerDeck[key].condition === 'number' ? playerDeck[key].condition : 0,
+                            conditionDate: playerDeck[key].conditionDate || ""
                         };
                     }
                 });
@@ -591,6 +593,13 @@ function syncUserDataOnLogin(userData, forceLoad = false) {
         
         // 동기화 완료 상태 마크
         isCloudDataSynced = true;
+        
+        // 데이터 동기화 완료 후 오늘 기준 컨디션 업데이트 적용
+        try {
+            updateDeckConditions();
+        } catch (e) {
+            console.warn("동기화 완료 후 컨디션 업데이트 실패:", e);
+        }
     } catch (e) {
         console.error("데이터 동기화 실패:", e);
         alert("계정 데이터 동기화 도중 에러가 발생했습니다: " + e.message);

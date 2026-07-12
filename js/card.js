@@ -7,20 +7,26 @@ function getAwakenedCard(cardId, deck = playerDeck) {
     
     const deckItem = deck[cardId];
     const awk = (deckItem && typeof deckItem.awakening === 'number') ? deckItem.awakening : 0;
-    if (awk === 0) {
+    const cond = (deckItem && typeof deckItem.condition === 'number') ? deckItem.condition : 0;
+    
+    if (awk === 0 && cond === 0) {
         baseCard.awakening = 0;
+        baseCard.condition = 0;
         return baseCard;
     }
     
     // 능력치 훼손 방지를 위한 깊은 복사
     const awakenedCard = JSON.parse(JSON.stringify(baseCard));
-    awakenedCard.rating += awk;
+    const totalBoost = awk + cond;
+    
+    awakenedCard.rating += totalBoost;
     if (awakenedCard.stats) {
         Object.keys(awakenedCard.stats).forEach(k => {
-            awakenedCard.stats[k] += awk;
+            awakenedCard.stats[k] += totalBoost;
         });
     }
     awakenedCard.awakening = awk;
+    awakenedCard.condition = cond;
     return awakenedCard;
 }
 
@@ -100,10 +106,53 @@ function generateCardHTML(cardData) {
         </div>
     `;
 
+    let condBadgeHTML = '';
+    if (typeof cardData.condition === 'number') {
+        const cond = cardData.condition;
+        let arrow = '➡️';
+        let color = '#ffd700';
+        let bg = 'rgba(255, 255, 255, 0.05)';
+        let border = 'rgba(255, 255, 255, 0.15)';
+        let title = '보통';
+        if (cond === 2) {
+            arrow = '↗️';
+            color = '#00ff87';
+            bg = 'rgba(0, 255, 135, 0.15)';
+            border = 'rgba(0, 255, 135, 0.4)';
+            title = '최상 (OVR +2)';
+        } else if (cond === -2) {
+            arrow = '↘️';
+            color = '#ff3e6c';
+            bg = 'rgba(255, 62, 108, 0.15)';
+            border = 'rgba(255, 62, 108, 0.4)';
+            title = '저조 (OVR -2)';
+        }
+        
+        condBadgeHTML = `
+            <div class="card-condition-badge" style="
+                position: absolute;
+                top: 2.3rem;
+                left: 1.2rem;
+                background: ${bg};
+                color: ${color};
+                font-size: 0.65rem;
+                font-weight: 900;
+                padding: 2px 6px;
+                border-radius: 6px;
+                z-index: 10;
+                border: 1px solid ${border};
+                backdrop-filter: blur(5px);
+            " title="컨디션: ${title}">
+                ${arrow}
+            </div>
+        `;
+    }
+
     return `
         <div class="card-shine"></div>
         ${awkBadgeHTML}
         ${rarityBadgeHTML}
+        ${condBadgeHTML}
         <div class="card-header-stats">
             <div class="card-rating">${cardData.rating}</div>
             <div class="card-position">${cardData.position}</div>

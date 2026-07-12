@@ -175,7 +175,9 @@ function collectCard() {
         playerDeck[id] = {
             card: activePulledCard,
             quantity: 1,
-            awakening: 0
+            awakening: 0,
+            condition: 0,
+            conditionDate: new Date().toLocaleDateString('ko-KR')
         };
         message = `축하합니다! K리그 스타 ${activePulledCard.name} 선수를 새로운 구단원으로 영입했습니다!`;
     }

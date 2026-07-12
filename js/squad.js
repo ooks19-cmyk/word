@@ -229,18 +229,40 @@ function renderSquadFormation() {
             // Placed player card structure
             totalOvr += cardData.rating;
             const starIndicator = cardData.awakening > 0 ? `<span style="font-size: 0.55rem; color: #ffd700; margin-left: 1px; vertical-align: middle;">★</span>` : '';
+            
+            let conditionArrow = '';
+            if (typeof cardData.condition === 'number') {
+                const cond = cardData.condition;
+                if (cond === 2) {
+                    conditionArrow = `<span style="font-size: 0.72rem; color: #00ff87; margin-left: 2px; vertical-align: middle;" title="컨디션 최상 (OVR +2)">↗️</span>`;
+                } else if (cond === -2) {
+                    conditionArrow = `<span style="font-size: 0.72rem; color: #ff3e6c; margin-left: 2px; vertical-align: middle;" title="컨디션 저조 (OVR -2)">↘️</span>`;
+                } else {
+                    conditionArrow = `<span style="font-size: 0.72rem; color: #ffd700; margin-left: 2px; vertical-align: middle;" title="컨디션 보통 (OVR +0)">➡️</span>`;
+                }
+            }
+            
+            const baseWithAwk = cardData.rating - (cardData.condition || 0);
+            const condVal = cardData.condition || 0;
+            let ovrDisplay = `${baseWithAwk}`;
+            if (condVal > 0) {
+                ovrDisplay += `<span style="font-size: 0.62rem; color: #00ff87; font-weight: 800; margin-left: 1px; vertical-align: super;">+${condVal}</span>`;
+            } else if (condVal < 0) {
+                ovrDisplay += `<span style="font-size: 0.62rem; color: #ff3e6c; font-weight: 800; margin-left: 1px; vertical-align: super;">${condVal}</span>`;
+            }
+
             const isCaptain = (cardId === squadCaptain);
             const captainClass = isCaptain ? ' captain-active' : '';
             const captainBadge = isCaptain ? '<div class="mini-card-captain-badge">👑</div>' : '';
             slotEl.innerHTML = `
                 <div class="mini-player-card active-placed${captainClass}">
                     ${captainBadge}
-                    <div class="mini-card-ovr-badge">${cardData.rating}${starIndicator}</div>
+                    <div class="mini-card-ovr-badge">${ovrDisplay}${starIndicator}</div>
                     <div class="mini-card-position-badge">${displayPos}${wingerStyleBadge}</div>
                     <div class="mini-card-portrait">
                         <img src="${cardData.image}" alt="${cardData.name}" onerror="this.src='https://placehold.co/80x80/005a3c/ffd700?text=${encodeURIComponent(cardData.name)}'">
                     </div>
-                    <div class="mini-card-name">${cardData.name}</div>
+                    <div class="mini-card-name">${cardData.name}${conditionArrow}</div>
                 </div>
             `;
         } else {
@@ -564,6 +586,27 @@ function openCardSelector(position) {
             }
         }
         
+        let conditionArrow = '';
+        if (typeof card.condition === 'number') {
+            const cond = card.condition;
+            if (cond === 2) {
+                conditionArrow = `<span style="font-size: 0.8rem; color: #00ff87; margin-left: 4px;" title="컨디션 최상 (OVR +2)">↗️</span>`;
+            } else if (cond === -2) {
+                conditionArrow = `<span style="font-size: 0.8rem; color: #ff3e6c; margin-left: 4px;" title="컨디션 저조 (OVR -2)">↘️</span>`;
+            } else {
+                conditionArrow = `<span style="font-size: 0.8rem; color: #ffd700; margin-left: 4px;" title="컨디션 보통 (OVR +0)">➡️</span>`;
+            }
+        }
+        
+        const baseWithAwk = card.rating - (card.condition || 0);
+        const condVal = card.condition || 0;
+        let ovrDisplay = `${baseWithAwk}`;
+        if (condVal > 0) {
+            ovrDisplay += `<span style="color: #00ff87; font-weight: 800;">+${condVal}</span>`;
+        } else if (condVal < 0) {
+            ovrDisplay += `<span style="color: #ff3e6c; font-weight: 800;">${condVal}</span>`;
+        }
+        
         const awkLabel = card.awakening > 0 ? `<span style="color: #ffd700; font-weight: 800; font-size: 0.8rem; margin-left: 5px;">★ ${card.awakening}</span>` : '';
         const statusText = availableCount > 0 ? `<span style="color: #00ff87; font-weight: 600;">기용 가능</span>` : `<span style="color: var(--text-muted);">다른 자리에 배치됨</span>`;
         
@@ -574,7 +617,7 @@ function openCardSelector(position) {
                     <img src="${card.image}" alt="${card.name}" onerror="this.src='https://placehold.co/48x48/005a3c/ffd700?text=${encodeURIComponent(card.name)}'">
                 </div>
                 <div class="drawer-card-details">
-                    <h4 style="margin: 0 0 4px 0; display: flex; align-items: center; flex-wrap: wrap; gap: 4px;">${card.name} (OVR ${card.rating})${awkLabel}${recTagHtml}</h4>
+                    <h4 style="margin: 0 0 4px 0; display: flex; align-items: center; flex-wrap: wrap; gap: 4px;">${card.name} (OVR ${ovrDisplay})${conditionArrow}${awkLabel}${recTagHtml}</h4>
                     <p style="margin: 0 0 6px 0; font-size: 0.78rem;">${card.position} | 상태: ${statusText}</p>
                     <div class="drawer-card-stats" style="display: flex; gap: 4px; flex-wrap: wrap;">
                         <span style="font-size: 0.62rem; font-weight: 700; background: rgba(255, 62, 108, 0.15); border: 1px solid rgba(255, 62, 108, 0.3); padding: 1px 4px; border-radius: 4px; color: #ff3e6c;">속도 ${stats.pac}</span>
