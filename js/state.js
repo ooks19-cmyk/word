@@ -284,29 +284,53 @@ try {
 }
 
 // 9. DAILY CONDITION SYSTEM
+function isTomy0304() {
+    try {
+        const savedUser = localStorage.getItem('fc_star_current_user');
+        if (savedUser && savedUser.toLowerCase() === 'tomy0304') {
+            return true;
+        }
+        if (typeof currentUser === 'string' && currentUser.toLowerCase() === 'tomy0304') {
+            return true;
+        }
+    } catch (e) {}
+    return false;
+}
+
 function updateDeckConditions() {
     if (typeof playerDeck !== 'object' || !playerDeck) return;
     const todayStr = new Date().toLocaleDateString('ko-KR');
     let modified = false;
     
+    const isTomy = isTomy0304();
+    
     Object.keys(playerDeck).forEach(key => {
         const item = playerDeck[key];
         if (!item) return;
         
-        // conditionDate가 오늘 날짜와 다르면 컨디션 갱신
-        if (item.conditionDate !== todayStr) {
-            const rand = Math.random();
-            let cond = 0;
-            if (rand < 0.25) {
-                cond = 2; // 상승 ↗️
-            } else if (rand < 0.50) {
-                cond = -2; // 하락 ↘️
-            } else {
-                cond = 0; // 보통 ➡️
+        if (isTomy) {
+            // tomy0304는 컨디션 무조건 0(보통) 고정
+            if (item.condition !== 0 || item.conditionDate !== todayStr) {
+                item.condition = 0;
+                item.conditionDate = todayStr;
+                modified = true;
             }
-            item.condition = cond;
-            item.conditionDate = todayStr;
-            modified = true;
+        } else {
+            // conditionDate가 오늘 날짜와 다르면 컨디션 갱신
+            if (item.conditionDate !== todayStr) {
+                const rand = Math.random();
+                let cond = 0;
+                if (rand < 0.25) {
+                    cond = 2; // 상승 ↗️
+                } else if (rand < 0.50) {
+                    cond = -2; // 하락 ↘️
+                } else {
+                    cond = 0; // 보통 ➡️
+                }
+                item.condition = cond;
+                item.conditionDate = todayStr;
+                modified = true;
+            }
         }
     });
     

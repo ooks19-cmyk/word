@@ -231,7 +231,8 @@ function renderSquadFormation() {
             const starIndicator = cardData.awakening > 0 ? `<span style="font-size: 0.55rem; color: #ffd700; margin-left: 1px; vertical-align: middle;">★</span>` : '';
             
             let conditionArrow = '';
-            if (typeof cardData.condition === 'number') {
+            const isTomy = (typeof isTomy0304 === 'function' && isTomy0304());
+            if (!isTomy && typeof cardData.condition === 'number') {
                 const cond = cardData.condition;
                 if (cond === 2) {
                     conditionArrow = `<span style="font-size: 0.72rem; color: #00ff87; margin-left: 2px; vertical-align: middle;" title="컨디션 최상 (OVR +2)">↗️</span>`;
@@ -242,8 +243,8 @@ function renderSquadFormation() {
                 }
             }
             
-            const baseWithAwk = cardData.rating - (cardData.condition || 0);
-            const condVal = cardData.condition || 0;
+            const baseWithAwk = cardData.rating - (isTomy ? 0 : (cardData.condition || 0));
+            const condVal = isTomy ? 0 : (cardData.condition || 0);
             let ovrDisplay = `${baseWithAwk}`;
             if (condVal > 0) {
                 ovrDisplay += `<span style="font-size: 0.62rem; color: #00ff87; font-weight: 800; margin-left: 1px; vertical-align: super;">+${condVal}</span>`;
@@ -587,7 +588,8 @@ function openCardSelector(position) {
         }
         
         let conditionArrow = '';
-        if (typeof card.condition === 'number') {
+        const isTomy = (typeof isTomy0304 === 'function' && isTomy0304());
+        if (!isTomy && typeof card.condition === 'number') {
             const cond = card.condition;
             if (cond === 2) {
                 conditionArrow = `<span style="font-size: 0.8rem; color: #00ff87; margin-left: 4px;" title="컨디션 최상 (OVR +2)">↗️</span>`;
@@ -598,8 +600,8 @@ function openCardSelector(position) {
             }
         }
         
-        const baseWithAwk = card.rating - (card.condition || 0);
-        const condVal = card.condition || 0;
+        const baseWithAwk = card.rating - (isTomy ? 0 : (card.condition || 0));
+        const condVal = isTomy ? 0 : (card.condition || 0);
         let ovrDisplay = `${baseWithAwk}`;
         if (condVal > 0) {
             ovrDisplay += `<span style="color: #00ff87; font-weight: 800;">+${condVal}</span>`;

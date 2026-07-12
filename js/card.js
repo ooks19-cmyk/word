@@ -7,7 +7,10 @@ function getAwakenedCard(cardId, deck = playerDeck) {
     
     const deckItem = deck[cardId];
     const awk = (deckItem && typeof deckItem.awakening === 'number') ? deckItem.awakening : 0;
-    const cond = (deckItem && typeof deckItem.condition === 'number') ? deckItem.condition : 0;
+    
+    // tomy0304 계정은 무조건 컨디션 0 고정
+    const isTomy = (typeof isTomy0304 === 'function' && isTomy0304());
+    const cond = (isTomy) ? 0 : ((deckItem && typeof deckItem.condition === 'number') ? deckItem.condition : 0);
     
     if (awk === 0 && cond === 0) {
         baseCard.awakening = 0;
@@ -107,7 +110,8 @@ function generateCardHTML(cardData) {
     `;
 
     let condBadgeHTML = '';
-    if (typeof cardData.condition === 'number') {
+    const isTomy = (typeof isTomy0304 === 'function' && isTomy0304());
+    if (!isTomy && typeof cardData.condition === 'number') {
         const cond = cardData.condition;
         let arrow = '➡️';
         let color = '#ffd700';
