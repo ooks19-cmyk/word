@@ -95,6 +95,8 @@ function updateDevModeUI() {
 let cloudSaveTimeoutId = null;
 let lastCloudUploadTime = 0;
 const CLOUD_SAVE_INTERVAL = 60000; // 1 minute (60,000 ms)
+let lastUploadedPoints = null;
+let lastUploadedDeckJson = null;
 
 // 전체 로컬 세이브 저장 수행
 function saveAllToLocalStorage() {
@@ -159,6 +161,9 @@ function saveAllToLocalStorage() {
         }
         
         localStorage.setItem('fc_star_local_last_updated', Date.now().toString());
+        if (currentUser) {
+            localStorage.setItem('fc_star_local_data_owner', currentUser);
+        }
     } catch (e) {
         console.warn("⚠️ 로컬 세이브 저장 중 에러 발생:", e);
     }
@@ -254,6 +259,8 @@ function saveUserProgress() {
         dbService.saveProgress(currentUser, progressData)
             .then(() => {
                 lastCloudUploadTime = Date.now();
+                lastUploadedPoints = userPoints;
+                lastUploadedDeckJson = JSON.stringify(playerDeck);
                 console.log("☁️ [Cloud Save] 업로드 완료");
             })
             .catch(err => {
@@ -266,11 +273,16 @@ function saveUserProgress() {
             });
     };
     
-    if (timeSinceLastUpload >= CLOUD_SAVE_INTERVAL) {
-        // 마지막 업로드로부터 1분 이상이 지난 경우 즉각 업로드
+    const hasPointsOrCardsChanged = 
+        (lastUploadedPoints === null || userPoints !== lastUploadedPoints) ||
+        (lastUploadedDeckJson === null || JSON.stringify(playerDeck) !== lastUploadedDeckJson);
+        
+    if (hasPointsOrCardsChanged || timeSinceLastUpload >= CLOUD_SAVE_INTERVAL) {
+        if (hasPointsOrCardsChanged) {
+            console.log("☁️ [Cloud Save] 포인트 또는 카드 변경 감지 -> 대기 시간 없이 즉시 동기화 백업을 실행합니다.");
+        }
         uploadProgress();
     } else {
-        // 1분 미만인 경우 남은 대기 시간 후에 실행되도록 예약
         const delay = CLOUD_SAVE_INTERVAL - timeSinceLastUpload;
         console.log(`⏳ [Cloud Save Deferred] ${Math.round(delay / 1000)}초 후 업로드 예정...`);
         cloudSaveTimeoutId = setTimeout(uploadProgress, delay);
@@ -375,6 +387,8 @@ function syncUserDataOnLogin(userData, forceLoad = false) {
         userPoints = userData.userPoints || 0;
         userLevel = userData.userLevel || 1;
         playerDeck = userData.playerDeck || {};
+        lastUploadedPoints = userPoints;
+        lastUploadedDeckJson = JSON.stringify(playerDeck);
         currentFormation = userData.currentFormation || '4-4-2';
         isHardMode = userData.isHardMode || false;
         const parsedWingers = userData.wingerStyles || { LW: 'dribble', RW: 'sprint' };
@@ -581,6 +595,9 @@ function syncUserDataOnLogin(userData, forceLoad = false) {
         localStorage.setItem('fc_star_is_hard_mode', isHardMode.toString());
         localStorage.setItem('fc_star_last_synced_updated_at', window.lastSyncedUpdatedAt);
         localStorage.setItem('fc_star_local_last_updated', (userData.localLastUpdated || Date.now()).toString());
+        if (myId) {
+            localStorage.setItem('fc_star_local_data_owner', myId);
+        }
         localStorage.setItem('fc_star_user_achievements', JSON.stringify(userAchievements));
         localStorage.setItem('fc_star_consecutive_titles', consecutiveLeagueTitles.toString());
         localStorage.setItem('fc_star_current_win_streak', currentWinStreak.toString());
@@ -747,6 +764,18 @@ async function handleAuthSubmit() {
         return;
     }
     
+    // 계정 전환 및 충돌 유실 방지: 로그인하려는 ID와 로컬 데이터 소유자 ID가 다른 경우 로컬 데이터 강제 초기화
+    const targetUserId = id.trim().toLowerCase();
+    const localOwner = localStorage.getItem('fc_star_local_data_owner');
+    if (localOwner && localOwner.trim().toLowerCase() !== targetUserId) {
+        const isLocalOwnerGuest = localOwner.startsWith('guest_');
+        // 이전 소유자가 게스트가 아닌 다른 계정이거나, 또는 일반 로그인 시도인 경우 로컬 데이터 일괄 청소
+        if (!isLocalOwnerGuest || authMode === 'login') {
+            console.warn("⚠️ [Local Data Owner Mismatch] 기존 로컬 데이터 소유자:", localOwner, "로그인 계정:", targetUserId, "-> 로컬 데이터를 초기화합니다.");
+            clearLocalGameData();
+        }
+    }
+    
     isAuthSubmitting = true;
     const btnSubmit = document.getElementById('btnSubmitAuth');
     if (btnSubmit) btnSubmit.disabled = true;
@@ -804,6 +833,15 @@ async function handleGuestPlay() {
         localStorage.setItem('fc_star_guest_id', guestId);
     }
     
+    const localOwner = localStorage.getItem('fc_star_local_data_owner');
+    if (localOwner && localOwner.trim().toLowerCase() !== guestId.toLowerCase()) {
+        const isLocalOwnerGuest = localOwner.startsWith('guest_');
+        if (!isLocalOwnerGuest) {
+            console.warn("⚠️ [Local Data Owner Mismatch] 기존 정식 사용자 데이터를 비회원 게스트 환경으로 승계하지 않고 삭제합니다. 소유자:", localOwner);
+            clearLocalGameData();
+        }
+    }
+
     isAuthSubmitting = true;
     const btnGuest = document.getElementById('btnGuestAuth');
     if (btnGuest) {
@@ -875,30 +913,64 @@ async function handleGuestPlay() {
     }
 }
 
+function clearLocalGameData() {
+    const keys = [
+        'fc_star_user_points',
+        'fc_star_user_level',
+        'fc_star_player_deck',
+        'fc_star_squad_formations',
+        'fc_star_squad_formation',
+        'fc_star_current_formation',
+        'fc_star_league_teams',
+        'fc_star_league_round',
+        'fc_star_quiz_offset',
+        'fc_star_quiz_last_date',
+        'fc_star_quiz_queue',
+        'fc_star_quiz_solved_count',
+        'fc_star_quiz_current_index',
+        'fc_star_match_last_date',
+        'fc_star_match_today_count',
+        'fc_star_last_login_date',
+        'fc_star_league_year',
+        'fc_star_hall_of_fame',
+        'fc_star_league_stats',
+        'fc_star_career_stats',
+        'fc_star_career_stats_hard',
+        'fc_star_squad_numbers',
+        'fc_star_is_hard_mode',
+        'fc_star_last_synced_updated_at',
+        'fc_star_user_achievements',
+        'fc_star_consecutive_titles',
+        'fc_star_current_win_streak',
+        'fc_star_max_win_streak',
+        'fc_star_winger_styles',
+        'fc_star_striker_styles',
+        'fc_star_local_last_updated',
+        'fc_star_cup_state',
+        'fc_star_acl_state',
+        'fc_star_local_data_owner'
+    ];
+    const myId = currentUser || localStorage.getItem('fc_star_current_user') || "";
+    if (myId) {
+        keys.push(`fc_star_friendly_history_${myId}`);
+        keys.push(`fc_star_friendly_current_index_${myId}`);
+        keys.push(`fc_star_friendly_matches_today_${myId}`);
+        keys.push(`fc_star_friendly_match_last_date_${myId}`);
+        keys.push(`fc_star_friendly_season_start_date_${myId}`);
+    }
+    keys.forEach(k => {
+        try { localStorage.removeItem(k); } catch(e) {}
+    });
+}
+
 function handleLogout() {
     const confirmLogout = confirm("정말 로그아웃 하시겠습니까?\n로그아웃 시 비회원 로컬 모드로 전환됩니다.");
     if (confirmLogout) {
         currentUser = null;
         isCloudDataSynced = false;
-        localStorage.removeItem('fc_star_current_user');
         
-        // Clean active local states to avoid leakage, then reload
-        localStorage.removeItem('fc_star_user_points');
-        localStorage.removeItem('fc_star_player_deck');
-        localStorage.removeItem('fc_star_squad_formations');
-        localStorage.removeItem('fc_star_squad_formation');
-        localStorage.removeItem('fc_star_league_teams');
-        localStorage.removeItem('fc_star_league_round');
-        localStorage.removeItem('fc_star_squad_numbers');
-        localStorage.removeItem('fc_star_squad_captain');
-        localStorage.removeItem('fc_star_cup_state');
-        localStorage.removeItem('fc_star_pvp_w');
-        localStorage.removeItem('fc_star_pvp_d');
-        localStorage.removeItem('fc_star_pvp_l');
-        localStorage.removeItem('fc_star_pvp_opp_stats');
-        localStorage.removeItem('fc_star_winger_styles');
-        localStorage.removeItem('fc_star_striker_styles');
-        localStorage.removeItem('fc_star_local_last_updated');
+        clearLocalGameData();
+        localStorage.removeItem('fc_star_current_user');
         
         showToast("성공적으로 로그아웃되었습니다! 로컬 모드로 리로딩합니다...");
         
