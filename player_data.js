@@ -1763,6 +1763,81 @@ const CARDS_DATABASE = {
             def: 48,
             phy: 78
         }
+    },
+    "mbappe": {
+        id: "mbappe",
+        name: "음바페",
+        rating: 91,
+        position: "ST",
+        nation: "France",
+        nationFlag: "https://flagcdn.com/w40/fr.png",
+        club: "REAL MADRID",
+        image: "player2/음바페.png",
+        rarity: "legend",
+        description: "폭발적인 주력과 경이로운 골 결정력으로 상대 수비진을 무력화하는 세계 최고의 공격수 음바페입니다. 가공할 만한 스피드와 정교한 드리블, 침착한 마무리 능력을 겸비한 월드클래스 크랙입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 97,
+            sho: 90,
+            pas: 80,
+            dri: 92,
+            def: 36,
+            phy: 78
+        }
+    },
+    "lamine_yamal": {
+        id: "lamine_yamal",
+        name: "라민 야말",
+        rating: 89,
+        position: "RW",
+        nation: "Spain",
+        nationFlag: "https://flagcdn.com/w40/es.png",
+        club: "BARCELONA",
+        image: "player2/라민야말.png",
+        rarity: "legend",
+        description: "바르셀로나와 스페인의 미래를 짊어진 역대급 천재 윙어 라민 야말입니다. 나이를 무색게 하는 뛰어난 경기 영향력, 정교한 드리블 돌파, 그리고 날카로운 컷인 플레이와 창의적인 패스로 측면을 파괴합니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 89,
+            sho: 83,
+            pas: 86,
+            dri: 91,
+            def: 35,
+            phy: 68
+        }
+    },
+    "ruben_dias": {
+        id: "ruben_dias",
+        name: "후벵 디아스",
+        rating: 90,
+        position: "CB",
+        nation: "Portugal",
+        nationFlag: "https://flagcdn.com/w40/pt.png",
+        club: "MANCHESTER CITY",
+        image: "player2/후뱅디아스.webp",
+        rarity: "legend",
+        description: "맨체스터 시티의 후방을 든든하게 책임지는 세계 최고의 센터백 후벵 디아스입니다. 뛰어난 수비 지능과 탁월한 대인 방어, 강력한 공중볼 장악력뿐만 아니라 강인한 리더십으로 수비 라인을 지휘하는 사령탑입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 72,
+            sho: 40,
+            pas: 73,
+            dri: 69,
+            def: 91,
+            phy: 89
+        }
     }
 };
 

@@ -2,12 +2,24 @@
 
 const UPDATE_LOGS = [
     {
-        version: "v2.4.1",
-        date: "2026.07.14",
+        version: "v2.5.0",
+        date: "2026.07.17",
         latest: true,
         borderColor: "#ff3e6c",
         titleColor: "#ff3e6c",
         badgeText: "LATEST",
+        items: [
+            "<strong>신규 월드클래스 전설 등급 카드 3종 추가 (음바페, 라민 야말, 후벵 디아스)</strong>: 최강의 전력을 구성할 수 있도록 3명의 월드클래스 전설 선수가 추가되었습니다.<br>• <strong>음바페</strong> (OVR 91, ST, 전설)<br>• <strong>라민 야말</strong> (OVR 89, RW, 전설)<br>• <strong>후벵 디아스</strong> (OVR 90, CB, 전설)",
+            "<strong>선수 데이터베이스 동기화</strong>: <code>player_data.js</code> 및 <code>선수데이터.csv</code> 파일에 신규 전설 카드 메타데이터가 완벽히 수록 및 동기화되었습니다."
+        ]
+    },
+    {
+        version: "v2.4.1",
+        date: "2026.07.14",
+        latest: false,
+        borderColor: "#ffd700",
+        titleColor: "#ffd700",
+        badgeText: "",
         items: [
             "<strong>계정 전환 시 로컬 데이터 강제 초기화 (덮어쓰기 유실 방지)</strong>: 한 기기에서 다중 계정 사용 시 발생하던 로컬 데이터 오염 문제를 완벽히 해결했습니다. 로그인 및 가입 시 로그인 계정 ID가 이전 로컬 데이터 소유자 ID와 다를 경우, 로컬 스토리지를 자동으로 강제 초기화하여 다른 사용자의 플레이 데이터가 무단 덮어씌워지는 현상을 차단했습니다.",
             "<strong>포인트 및 카드 획득 시 실시간 클라우드 즉시 업로드</strong>: 기존 1분 쿨다운 제한에 스마트 예외를 도입했습니다. 포인트(userPoints) 변동 또는 카드 획득/소실 등 주요 계정 데이터 변화 감지 시, 1분 대기 시간 없이 즉각 클라우드 백업을 수행해 불시의 데이터 유실을 방지합니다."
