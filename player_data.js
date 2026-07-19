@@ -1838,6 +1838,31 @@ const CARDS_DATABASE = {
             def: 91,
             phy: 89
         }
+    },
+    "neuer": {
+        id: "neuer",
+        name: "노이어",
+        rating: 91,
+        position: "GK",
+        nation: "Germany",
+        nationFlag: "https://flagcdn.com/w40/de.png",
+        club: "BAYERN MUNICH",
+        image: "player2/노이어.webp",
+        rarity: "legend",
+        description: "현대 축구 골키퍼의 패러다임을 바꾼 스위퍼-키퍼의 시조이자 독일 축구의 살아있는 전설 마누엘 노이어입니다. 경이로운 반사 신경, 압도적인 일대일 저지 능력은 물론, 넓은 수비 범위와 필드 플레이어 수준의 정교한 빌드업 능력을 자랑합니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 88,
+            sho: 89,
+            pas: 91,
+            dri: 92,
+            def: 90,
+            phy: 87
+        }
     }
 };
 

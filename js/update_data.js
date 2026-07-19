@@ -2,12 +2,24 @@
 
 const UPDATE_LOGS = [
     {
-        version: "v2.5.0",
-        date: "2026.07.17",
+        version: "v2.5.1",
+        date: "2026.07.19",
         latest: true,
         borderColor: "#ff3e6c",
         titleColor: "#ff3e6c",
         badgeText: "LATEST",
+        items: [
+            "<strong>신규 전설 등급 골키퍼 카드 추가 (노이어)</strong>: 전설적인 스위퍼 키퍼 노이어 카드가 전설 등급으로 추가되었습니다.<br>• <strong>노이어</strong> (OVR 91, GK, 전설)",
+            "<strong>선수 데이터베이스 동기화</strong>: <code>player_data.js</code> 및 <code>선수데이터.csv</code> 파일에 노이어 카드가 완벽히 수록 및 동기화되었습니다."
+        ]
+    },
+    {
+        version: "v2.5.0",
+        date: "2026.07.17",
+        latest: false,
+        borderColor: "#ffd700",
+        titleColor: "#ffd700",
+        badgeText: "",
         items: [
             "<strong>신규 월드클래스 전설 등급 카드 3종 추가 (음바페, 라민 야말, 후벵 디아스)</strong>: 최강의 전력을 구성할 수 있도록 3명의 월드클래스 전설 선수가 추가되었습니다.<br>• <strong>음바페</strong> (OVR 91, ST, 전설)<br>• <strong>라민 야말</strong> (OVR 89, RW, 전설)<br>• <strong>후벵 디아스</strong> (OVR 90, CB, 전설)",
             "<strong>선수 데이터베이스 동기화</strong>: <code>player_data.js</code> 및 <code>선수데이터.csv</code> 파일에 신규 전설 카드 메타데이터가 완벽히 수록 및 동기화되었습니다."
