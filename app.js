@@ -200,86 +200,15 @@ document.addEventListener('DOMContentLoaded', () => {
         initAudio();
     });
     
-    // Auto restore active logged-in user session
+    // Auto restore active logged-in user session - 무조건 로그인 화면이 나오도록 자동 세션 복원 비활성화
     try {
-        const savedUser = localStorage.getItem('fc_star_current_user');
-        if (savedUser) {
-            console.log("🔐 기존 로그인 세션 자동 복원 중... ID:", savedUser);
-            setTimeout(async () => {
-                try {
-                    const userData = await dbService.getUserData(savedUser);
-                    if (userData) {
-                        currentUser = savedUser;
-                        syncUserDataOnLogin(userData);
-                        console.log("🟢 세션 복원 성공!");
-                    } else {
-                        // If it's a guest user, they might have been created offline and not registered in the cloud yet.
-                        // Try to register the guest user to the cloud.
-                        if (savedUser.startsWith('guest_')) {
-                            console.log("🛠 신규 온라인 게스트 세션 등록 중... ID:", savedUser);
-                            try {
-                                await dbService.register(savedUser, "fc_star_guest_pwd");
-                                currentUser = savedUser;
-                                // Save local progress to the cloud so they don't lose anything
-                                if (typeof saveUserProgress === 'function') {
-                                    saveUserProgress();
-                                }
-                                console.log("🟢 게스트 세션 클라우드 등록 완료!");
-                                
-                                // Load local data and render UI
-                                if (typeof loadFriendlyMatchesState === 'function') {
-                                    loadFriendlyMatchesState();
-                                }
-                                if (typeof updateAuthBadgeUI === 'function') updateAuthBadgeUI();
-                                if (typeof updateDevModeUI === 'function') updateDevModeUI();
-                                renderUserPoints();
-                                updateTotalCardCount();
-                                renderDeck();
-                                renderSquadFormation();
-                                if (typeof syncJeonbukOvr === 'function') syncJeonbukOvr();
-                                if (typeof updateMatchPreviewBoard === 'function') updateMatchPreviewBoard();
-                                if (typeof renderLeagueTable === 'function') renderLeagueTable();
-                                if (typeof renderLeagueStats === 'function') renderLeagueStats();
-                                if (typeof renderCareerStats === 'function') renderCareerStats();
-                            } catch (regErr) {
-                                console.warn("⚠️ 게스트 클라우드 등록 실패 (오프라인/오류), 로컬로 계속 진행:", regErr);
-                                currentUser = savedUser;
-                                if (typeof loadFriendlyMatchesState === 'function') {
-                                    loadFriendlyMatchesState();
-                                }
-                                if (typeof updateAuthBadgeUI === 'function') updateAuthBadgeUI();
-                                if (typeof updateDevModeUI === 'function') updateDevModeUI();
-                                renderUserPoints();
-                                updateTotalCardCount();
-                                renderDeck();
-                                renderSquadFormation();
-                                if (typeof syncJeonbukOvr === 'function') syncJeonbukOvr();
-                                if (typeof updateMatchPreviewBoard === 'function') updateMatchPreviewBoard();
-                                if (typeof renderLeagueTable === 'function') renderLeagueTable();
-                                if (typeof renderLeagueStats === 'function') renderLeagueStats();
-                                if (typeof renderCareerStats === 'function') renderCareerStats();
-                            }
-                        } else {
-                            localStorage.removeItem('fc_star_current_user');
-                            openAuthModal(true); // 세션 복원 실패 시 강제 로그인
-                        }
-                    }
-                } catch (err) {
-                    console.warn("⚠️ 세션 복원 실패 (네트워크 연결 끊김 또는 세션 만료):", err);
-                    localStorage.removeItem('fc_star_current_user');
-                    currentUser = null;
-                    isCloudDataSynced = false;
-                    openAuthModal(true);
-                }
-            }, 100);
-        } else {
-            // 세션 기록이 없다면 즉시 전체화면을 가리는 강제 로그인 팝업 활성화!
-            setTimeout(() => {
-                openAuthModal(true);
-            }, 200);
-        }
+        localStorage.removeItem('fc_star_current_user');
+        currentUser = null;
+        setTimeout(() => {
+            openAuthModal(true);
+        }, 200);
     } catch(e) {
-        console.warn("세션 복원 실패:", e);
+        console.warn("세션 초기화 실패:", e);
         setTimeout(() => {
             openAuthModal(true);
         }, 200);
