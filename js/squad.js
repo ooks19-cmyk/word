@@ -228,7 +228,7 @@ function renderSquadFormation() {
         if (cardData) {
             // Placed player card structure
             totalOvr += cardData.rating;
-            const starIndicator = cardData.awakening > 0 ? `<span style="font-size: 0.55rem; color: #ffd700; margin-left: 1px; vertical-align: middle;">★</span>` : '';
+            const starIndicator = ''; // 각성 표시인 별표 삭제
             
             let conditionArrow = '';
             const isTomy = (typeof isTomy0304 === 'function' && isTomy0304());
@@ -259,7 +259,7 @@ function renderSquadFormation() {
                 <div class="mini-player-card active-placed${captainClass}">
                     ${captainBadge}
                     <div class="mini-card-ovr-badge">${ovrDisplay}${starIndicator}</div>
-                    <div class="mini-card-position-badge">${displayPos}${wingerStyleBadge}</div>
+                    <div class="mini-card-position-badge">${wingerStyleBadge}</div>
                     <div class="mini-card-portrait">
                         <img src="${cardData.image}" alt="${cardData.name}" onerror="this.src='https://placehold.co/80x80/005a3c/ffd700?text=${encodeURIComponent(cardData.name)}'">
                     </div>
@@ -272,7 +272,7 @@ function renderSquadFormation() {
             slotEl.innerHTML = `
                 <div class="mini-player-card anonymous">
                     <div class="mini-card-ovr-badge">70</div>
-                    <div class="mini-card-position-badge">${displayPos}${wingerStyleBadge}</div>
+                    <div class="mini-card-position-badge">${wingerStyleBadge}</div>
                     <div class="mini-card-portrait">
                         <i class="fa-solid fa-user-ninja"></i>
                     </div>
