@@ -396,6 +396,30 @@ const QUIZ_WORDS_BY_DATE = {
         { word: "strong", meaning: "강한" },
         { word: "wiggle", meaning: "씰룩씰룩 움직이다" },
         { word: "wing", meaning: "날개" }
+    ],
+    "260802": [
+        { word: "behind", meaning: "뒤에" },
+        { word: "call", meaning: "부르다" },
+        { word: "drink", meaning: "마시다" },
+        { word: "elf", meaning: "작은 요정" },
+        { word: "fairy", meaning: "날개 달린 요정" },
+        { word: "game", meaning: "놀이" },
+        { word: "giant", meaning: "거인" },
+        { word: "hide", meaning: "숨다" },
+        { word: "invisible", meaning: "보이지 않는" },
+        { word: "later", meaning: "나중에" },
+        { word: "lose", meaning: "(시합, 게임에서) 지다" },
+        { word: "month", meaning: "달, 개월" },
+        { word: "next time", meaning: "다음에" },
+        { word: "potion", meaning: "묘약, (마법의) 물약" },
+        { word: "return", meaning: "돌아가다" },
+        { word: "rock", meaning: "바위" },
+        { word: "stand", meaning: "서 있다" },
+        { word: "try", meaning: "시도하다" },
+        { word: "turn", meaning: "(~하게) 변하다" },
+        { word: "turn back", meaning: "되돌리다" },
+        { word: "wait", meaning: "기다리다" },
+        { word: "wizard", meaning: "마법사" }
     ]
 };
 
@@ -901,5 +925,29 @@ const QUIZ_WORDS = [
     { word: "spread", meaning: "펼치다" },
     { word: "strong", meaning: "강한" },
     { word: "wiggle", meaning: "씰룩씰룩 움직이다" },
-    { word: "wing", meaning: "날개" }
+    { word: "wing", meaning: "날개" },
+
+    /* === [260802 추가분] === */
+    { word: "behind", meaning: "뒤에" },
+    { word: "call", meaning: "부르다" },
+    { word: "drink", meaning: "마시다" },
+    { word: "elf", meaning: "작은 요정" },
+    { word: "fairy", meaning: "날개 달린 요정" },
+    { word: "game", meaning: "놀이" },
+    { word: "giant", meaning: "거인" },
+    { word: "hide", meaning: "숨다" },
+    { word: "invisible", meaning: "보이지 않는" },
+    { word: "later", meaning: "나중에" },
+    { word: "lose", meaning: "(시합, 게임에서) 지다" },
+    { word: "month", meaning: "달, 개월" },
+    { word: "next time", meaning: "다음에" },
+    { word: "potion", meaning: "묘약, (마법의) 물약" },
+    { word: "return", meaning: "돌아가다" },
+    { word: "rock", meaning: "바위" },
+    { word: "stand", meaning: "서 있다" },
+    { word: "try", meaning: "시도하다" },
+    { word: "turn", meaning: "(~하게) 변하다" },
+    { word: "turn back", meaning: "되돌리다" },
+    { word: "wait", meaning: "기다리다" },
+    { word: "wizard", meaning: "마법사" }
 ];
