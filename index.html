@@ -529,8 +529,13 @@
                 <!-- Left panel: Cup Match Simulator Board -->
                 <div class="match-simulator-panel">
                     <div class="squad-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding-bottom: 0.5rem;">
-                        <div id="cupSeasonYearDisplay" style="font-size: 0.78rem; font-weight: 800; color: #00d2fc; background: rgba(0, 210, 252, 0.08); border: 1px solid rgba(0, 210, 252, 0.2); padding: 4px 12px; border-radius: 20px; display: flex; align-items: center; gap: 4px;">
-                            <i class="fa-solid fa-gem"></i> <span id="cupSeasonYearText">2026 코리아컵</span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div id="cupSeasonYearDisplay" style="font-size: 0.78rem; font-weight: 800; color: #00d2fc; background: rgba(0, 210, 252, 0.08); border: 1px solid rgba(0, 210, 252, 0.2); padding: 4px 12px; border-radius: 20px; display: flex; align-items: center; gap: 4px;">
+                                <i class="fa-solid fa-gem"></i> <span id="cupSeasonYearText">2026 코리아컵</span>
+                            </div>
+                            <button onclick="resetCupSeasonWithFP()" class="btn-reset-quiz" title="5 FP 소모하여 코리아컵 초기화 (시즌당 1회)" style="font-size: 0.72rem; padding: 4px 10px; border-radius: 12px; margin: 0; display: inline-flex; align-items: center; gap: 4px; border: 1px solid rgba(0, 210, 252, 0.3); background: rgba(0, 210, 252, 0.05); color: #00d2fc; cursor: pointer; transition: all 0.2s; font-weight: 700;">
+                                <i class="fa-solid fa-rotate-left"></i> 초기화 (5 FP)
+                            </button>
                         </div>
                         <div class="deck-count" id="cupRoundContainer" style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">
                             단계: <span id="cupRoundVal">16강전</span>
@@ -660,8 +665,13 @@
                 <!-- Left panel: ACL Match Simulator Board -->
                 <div class="match-simulator-panel">
                     <div class="squad-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding-bottom: 0.5rem;">
-                        <div id="aclSeasonYearDisplay" style="font-size: 0.78rem; font-weight: 800; color: #00ff87; background: rgba(0, 255, 135, 0.08); border: 1px solid rgba(0, 255, 135, 0.2); padding: 4px 12px; border-radius: 20px; display: flex; align-items: center; gap: 4px;">
-                            <i class="fa-solid fa-earth-asia"></i> <span id="aclSeasonYearText">2026 AFC 챔피언스리그</span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div id="aclSeasonYearDisplay" style="font-size: 0.78rem; font-weight: 800; color: #00ff87; background: rgba(0, 255, 135, 0.08); border: 1px solid rgba(0, 255, 135, 0.2); padding: 4px 12px; border-radius: 20px; display: flex; align-items: center; gap: 4px;">
+                                <i class="fa-solid fa-earth-asia"></i> <span id="aclSeasonYearText">2026 AFC 챔피언스리그</span>
+                            </div>
+                            <button onclick="resetAclSeasonWithFP()" class="btn-reset-quiz" title="5 FP 소모하여 아챔 초기화 (시즌당 1회)" style="font-size: 0.72rem; padding: 4px 10px; border-radius: 12px; margin: 0; display: inline-flex; align-items: center; gap: 4px; border: 1px solid rgba(0, 255, 135, 0.3); background: rgba(0, 255, 135, 0.05); color: #00ff87; cursor: pointer; transition: all 0.2s; font-weight: 700;">
+                                <i class="fa-solid fa-rotate-left"></i> 초기화 (5 FP)
+                            </button>
                         </div>
                         <div class="deck-count" id="aclRoundContainer" style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">
                             단계: <span id="aclRoundVal">16강전</span>
@@ -1779,8 +1789,8 @@
     <script src="js/squad.js?v=2.4"></script>
     <script src="js/match_algorithm.js?v=2.1"></script>
     <script src="js/league.js?v=2.1"></script>
-    <script src="js/cup.js?v=2.1"></script>
-    <script src="js/acl.js?v=2.1"></script>
+    <script src="js/cup.js?v=2.5"></script>
+    <script src="js/acl.js?v=2.5"></script>
     <script src="js/friendly.js?v=2.1"></script>
     <script src="js/achievements.js?v=1.0"></script>
     <!-- 수석코치 조언 플로팅 버튼 -->

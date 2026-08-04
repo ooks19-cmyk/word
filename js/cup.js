@@ -46,6 +46,9 @@ function initCup() {
         const savedState = localStorage.getItem('fc_star_cup_state');
         if (savedState) {
             cupState = JSON.parse(savedState);
+            if (cupState.hasResetThisSeason === undefined) {
+                cupState.hasResetThisSeason = false;
+            }
             // stats 객체가 없는 기존 스토리지 대응 마이그레이션 안전장치
             if (!cupState.stats) {
                 cupState.stats = {
@@ -131,7 +134,8 @@ function resetCupStateData() {
         stats: {
             scorers: generateMockScorers(),
             assisters: generateMockAssisters()
-        }
+        },
+        hasResetThisSeason: false
     };
 
     saveCupState();
@@ -1625,6 +1629,46 @@ function resetCupSeason() {
     }
     
     alert("코리아컵이 성공적으로 초기화되었습니다!");
+}
+
+function resetCupSeasonWithFP() {
+    if (cupState.hasResetThisSeason) {
+        alert("코리아컵 초기화는 한 시즌에 한 번만 가능합니다!");
+        return;
+    }
+    
+    if (typeof userPoints === 'undefined' || userPoints < 5) {
+        alert(`포인트가 부족합니다! (현재 포인트: ${typeof userPoints !== 'undefined' ? userPoints : 0} FP / 필요 포인트: 5 FP)`);
+        return;
+    }
+    
+    if (!confirm("5 FP를 소모하여 코리아컵 대회를 리셋하고 16강 첫 경기부터 새로 시작하시겠습니까?\n(현재 진행 정보 및 스탯이 모두 초기화됩니다)")) {
+        return;
+    }
+    
+    if (typeof playClickSound === 'function') {
+        try { playClickSound(); } catch (e) {}
+    }
+    
+    // Deduct 5 FP
+    userPoints -= 5;
+    localStorage.setItem('fc_star_user_points', userPoints.toString());
+    if (typeof renderUserPoints === 'function') {
+        renderUserPoints();
+    }
+    
+    resetCupStateData();
+    cupState.hasResetThisSeason = true;
+    saveCupState();
+    
+    initCupTab();
+    
+    const commBox = document.getElementById('cupCommentaryScroll');
+    if (commBox) {
+        commBox.innerHTML = '<div class="comm-item comm-system">5 FP를 사용하여 코리아컵이 리셋되었습니다. 아래 경기 시작 버튼을 클릭하면 16강 대회가 진행됩니다.</div>';
+    }
+    
+    alert("코리아컵이 성공적으로 초기화되었습니다! (5 FP 차감)");
 }
 
 // 10. 가상 통계 제너레이터 헬퍼들

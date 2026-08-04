@@ -25,6 +25,9 @@ function initAcl() {
         const savedState = localStorage.getItem('fc_star_acl_state');
         if (savedState) {
             aclState = JSON.parse(savedState);
+            if (aclState.hasResetThisSeason === undefined) {
+                aclState.hasResetThisSeason = false;
+            }
             if (!aclState.stats) {
                 aclState.stats = { scorers: [], assisters: [] };
             }
@@ -187,7 +190,8 @@ function resetAclStateData() {
         stats: {
             scorers: [],
             assisters: []
-        }
+        },
+        hasResetThisSeason: false
     };
 
     saveAclState();
@@ -1771,4 +1775,44 @@ function skipToAclFinal() {
     saveAclState();
     initAclTab();
     console.log("🏆 플레이어팀(전북 현대)이 아챔 결승전(Round 2) 대진으로 바로 진출 완료되었습니다!");
+}
+
+function resetAclSeasonWithFP() {
+    if (aclState.hasResetThisSeason) {
+        alert("AFC 챔피언스리그 초기화는 한 시즌에 한 번만 가능합니다!");
+        return;
+    }
+    
+    if (typeof userPoints === 'undefined' || userPoints < 5) {
+        alert(`포인트가 부족합니다! (현재 포인트: ${typeof userPoints !== 'undefined' ? userPoints : 0} FP / 필요 포인트: 5 FP)`);
+        return;
+    }
+    
+    if (!confirm("5 FP를 소모하여 AFC 챔피언스리그 대회를 리셋하고 16강 첫 경기부터 새로 시작하시겠습니까?\n(현재 진행 정보 및 스탯이 모두 초기화됩니다)")) {
+        return;
+    }
+    
+    if (typeof playClickSound === 'function') {
+        try { playClickSound(); } catch (e) {}
+    }
+    
+    // Deduct 5 FP
+    userPoints -= 5;
+    localStorage.setItem('fc_star_user_points', userPoints.toString());
+    if (typeof renderUserPoints === 'function') {
+        renderUserPoints();
+    }
+    
+    resetAclStateData();
+    aclState.hasResetThisSeason = true;
+    saveAclState();
+    
+    initAclTab();
+    
+    const commBox = document.getElementById('aclCommentaryScroll');
+    if (commBox) {
+        commBox.innerHTML = '<div class="comm-item comm-system">5 FP를 사용하여 AFC 챔피언스리그가 리셋되었습니다. 아래 경기 시작 버튼을 클릭하면 16강 대회가 진행됩니다.</div>';
+    }
+    
+    alert("AFC 챔피언스리그가 성공적으로 초기화되었습니다! (5 FP 차감)");
 }

@@ -2,12 +2,24 @@
 
 const UPDATE_LOGS = [
     {
-        version: "v2.5.2",
+        version: "v2.6.0",
         date: "2026.08.04",
         latest: true,
         borderColor: "#ff3e6c",
         titleColor: "#ff3e6c",
         badgeText: "LATEST",
+        items: [
+            "<strong>코리아컵 및 AFC 챔피언스리그(아챔) 대회 초기화 기능 신설</strong>: 두 토너먼트 탭 상단 헤더 영역에 미려한 [초기화 (5 FP)] 글래스모피즘 버튼이 추가되었습니다.<br>• 대회 진행 중 리셋을 원할 경우 <strong>5 FP</strong>를 사용하여 16강 첫 경기부터 새로 시작할 수 있습니다.<br>• 해당 리셋 기능은 밸런스 유지를 위해 <strong>한 시즌당 각 1회씩만 실행</strong> 가능하도록 안전 장치를 구축했습니다.",
+            "<strong>자동 시즌 리셋 동기화</strong>: 매치 진행에 따른 차기 시즌 개막 시 초기화 횟수 제한이 자동으로 무상 리셋되어 매 시즌 독립적인 리셋 찬스가 1회씩 부여됩니다."
+        ]
+    },
+    {
+        version: "v2.5.2",
+        date: "2026.08.04",
+        latest: false,
+        borderColor: "#ffd700",
+        titleColor: "#ffd700",
+        badgeText: "",
         items: [
             "<strong>신규 특수 카드 추가 (손흥민 월드클래스, 나상호/황인범 전설)</strong>: 기존 능력치 대비 +2 상향된 신규 클래스 카드가 추가되었습니다.<br>• <strong>손흥민</strong> (OVR 91, LW, 월드클래스 / ID: <code>son_heung_min_W</code>)<br>• <strong>나상호</strong> (OVR 90, LW, 전설 / ID: <code>na_sang_ho_L</code>)<br>• <strong>황인범</strong> (OVR 88, CM, 전설 / ID: <code>hwang_in_beom_L</code>)",
             "<strong>선수 데이터베이스 동기화</strong>: <code>player_data.js</code> 및 <code>선수데이터.csv</code> 파일에 신규 스페셜/월드클래스 카드가 추가되어 완벽히 수록 및 동기화되었습니다."
