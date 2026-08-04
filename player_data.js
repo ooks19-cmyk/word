@@ -1913,6 +1913,31 @@ const CARDS_DATABASE = {
             def: 77,
             phy: 81
         }
+    },
+    "son_heung_min_W": {
+        id: "son_heung_min_W",
+        name: "손흥민",
+        rating: 91,
+        position: "LW",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "LA FC",
+        image: "player/손흥민.png",
+        rarity: "worldclass",
+        description: "대한민국 축구 역사상 최고의 전설이자 잉글랜드 프리미어리그 득점왕 출신의 월드클래스 사령탑 손흥민입니다. 경이로운 슛 감각과 양발 폭격, 전속력 스피드와 결정력으로 세계 무대를 정복한 최고 존엄 월드클래스 거장입니다.",
+        theme: {
+            primary: "#000a20",
+            secondary: "#4facfe",
+            glow: "#00f2fe"
+        },
+        stats: {
+            pac: 93,
+            sho: 91,
+            pas: 86,
+            dri: 89,
+            def: 44,
+            phy: 74
+        }
     }
 };
 
