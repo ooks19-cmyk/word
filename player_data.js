@@ -1863,6 +1863,56 @@ const CARDS_DATABASE = {
             def: 90,
             phy: 87
         }
+    },
+    "na_sang_ho_L": {
+        id: "na_sang_ho_L",
+        name: "나상호",
+        rating: 90,
+        position: "LW",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "KOREA",
+        image: "player2/나상호.png",
+        rarity: "legend",
+        description: "왕성한 활동량과 폭발적인 스피드로 상대 측면을 파괴하는 레전드 윙어 나상호입니다. 경이로운 기동력과 한층 더 날카로워진 득점 감각으로 경기의 판도를 조율하는 전설적인 해결사입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 93,
+            sho: 88,
+            pas: 85,
+            dri: 90,
+            def: 50,
+            phy: 80
+        }
+    },
+    "hwang_in_beom_L": {
+        id: "hwang_in_beom_L",
+        name: "황인범",
+        rating: 88,
+        position: "CM",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "KOREA",
+        image: "player/황인범.webp",
+        rarity: "legend",
+        description: "대한민국 중원의 마에스트로이자 전설적인 패스 마스터 황인범입니다. 독보적인 전방 조율 능력과 컴퓨터 패스, 넓은 시야와 탈압박으로 팀의 중원을 완벽히 지휘하는 전설의 미드필더입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 82,
+            sho: 80,
+            pas: 92,
+            dri: 91,
+            def: 77,
+            phy: 81
+        }
     }
 };
 

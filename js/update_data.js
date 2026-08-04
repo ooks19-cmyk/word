@@ -2,12 +2,24 @@
 
 const UPDATE_LOGS = [
     {
-        version: "v2.5.1",
-        date: "2026.07.19",
+        version: "v2.5.2",
+        date: "2026.08.04",
         latest: true,
         borderColor: "#ff3e6c",
         titleColor: "#ff3e6c",
         badgeText: "LATEST",
+        items: [
+            "<strong>신규 전설 등급 카드 2종 추가 (나상호, 황인범)</strong>: 기존 능력치 대비 +2 상향된 레전드 버전 카드가 새롭게 출시되었습니다.<br>• <strong>나상호</strong> (OVR 90, LW, 전설 / ID: <code>na_sang_ho_L</code>)<br>• <strong>황인범</strong> (OVR 88, CM, 전설 / ID: <code>hwang_in_beom_L</code>)",
+            "<strong>선수 데이터베이스 동기화</strong>: <code>player_data.js</code> 및 <code>선수데이터.csv</code> 파일에 전설 등급 나상호, 황인범 카드가 추가되어 완벽히 수록 및 동기화되었습니다."
+        ]
+    },
+    {
+        version: "v2.5.1",
+        date: "2026.07.19",
+        latest: false,
+        borderColor: "#ffd700",
+        titleColor: "#ffd700",
+        badgeText: "",
         items: [
             "<strong>신규 전설 등급 골키퍼 카드 추가 (노이어)</strong>: 전설적인 스위퍼 키퍼 노이어 카드가 전설 등급으로 추가되었습니다.<br>• <strong>노이어</strong> (OVR 91, GK, 전설)",
             "<strong>선수 데이터베이스 동기화</strong>: <code>player_data.js</code> 및 <code>선수데이터.csv</code> 파일에 노이어 카드가 완벽히 수록 및 동기화되었습니다."
