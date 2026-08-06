@@ -1942,7 +1942,7 @@ const CARDS_DATABASE = {
     "semenyo": {
         id: "semenyo",
         name: "세메뇨",
-        rating: 85,
+        rating: 87,
         position: "RW",
         nation: "Ghana",
         nationFlag: "https://flagcdn.com/w40/gh.png",
@@ -1956,18 +1956,18 @@ const CARDS_DATABASE = {
             glow: "#ff3e6c"
         },
         stats: {
-            pac: 89,
-            sho: 84,
-            pas: 78,
-            dri: 85,
-            def: 45,
-            phy: 84
+            pac: 91,
+            sho: 86,
+            pas: 80,
+            dri: 87,
+            def: 47,
+            phy: 86
         }
     },
     "ao_tanaka": {
         id: "ao_tanaka",
         name: "다나카 아오",
-        rating: 84,
+        rating: 89,
         position: "CM",
         nation: "Japan",
         nationFlag: "https://flagcdn.com/w40/jp.png",
@@ -1981,12 +1981,12 @@ const CARDS_DATABASE = {
             glow: "#4facfe"
         },
         stats: {
-            pac: 78,
-            sho: 79,
-            pas: 83,
-            dri: 82,
-            def: 78,
-            phy: 80
+            pac: 83,
+            sho: 84,
+            pas: 88,
+            dri: 87,
+            def: 83,
+            phy: 85
         }
     }
 };

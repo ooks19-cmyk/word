@@ -9,7 +9,7 @@ const UPDATE_LOGS = [
         titleColor: "#ff3e6c",
         badgeText: "LATEST",
         items: [
-            "<strong>신규 스페셜 등급 카드 2종 추가 (세메뇨, 다나카 아오)</strong>: 해외파 및 주력 라인업 보강을 위한 스페셜 카드가 새롭게 추가되었습니다.<br>• <strong>세메뇨</strong> (OVR 85, RW, 스페셜 - 본머스 / ID: <code>semenyo</code>)<br>• <strong>다나카 아오</strong> (OVR 84, CM, 스페셜 - 리즈 유나이티드 / ID: <code>ao_tanaka</code>)",
+            "<strong>신규 스페셜 등급 카드 2종 추가 (세메뇨, 다나카 아오)</strong>: 해외파 및 주력 라인업 보강을 위한 스페셜 카드가 새롭게 추가되었습니다.<br>• <strong>다나카 아오</strong> (OVR 89, CM, 스페셜 - 리즈 유나이티드 / ID: <code>ao_tanaka</code>)<br>• <strong>세메뇨</strong> (OVR 87, RW, 스페셜 - 본머스 / ID: <code>semenyo</code>)",
             "<strong>선수 데이터베이스 동기화</strong>: <code>player_data.js</code> 및 <code>선수데이터.csv</code> 파일에 세메뇨, 다나카 아오 카드가 추가되어 완벽히 수록 및 동기화되었습니다."
         ]
     },
