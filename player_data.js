@@ -1938,6 +1938,56 @@ const CARDS_DATABASE = {
             def: 44,
             phy: 74
         }
+    },
+    "semenyo": {
+        id: "semenyo",
+        name: "세메뇨",
+        rating: 85,
+        position: "RW",
+        nation: "Ghana",
+        nationFlag: "https://flagcdn.com/w40/gh.png",
+        club: "BOURNEMOUTH",
+        image: "player2/세메뇨.webp",
+        rarity: "special",
+        description: "폭발적인 피지컬과 강력한 양발 슈팅 능력을 바탕으로 잉글랜드 프리미어리그를 흔드는 본머스의 공격수 세메뇨입니다. 압도적인 주력과 강력한 대인 돌파로 상대 수비진을 무너뜨리는 스페셜 윙어입니다.",
+        theme: {
+            primary: "#ba0c2f",
+            secondary: "#000000",
+            glow: "#ff3e6c"
+        },
+        stats: {
+            pac: 89,
+            sho: 84,
+            pas: 78,
+            dri: 85,
+            def: 45,
+            phy: 84
+        }
+    },
+    "ao_tanaka": {
+        id: "ao_tanaka",
+        name: "다나카 아오",
+        rating: 84,
+        position: "CM",
+        nation: "Japan",
+        nationFlag: "https://flagcdn.com/w40/jp.png",
+        club: "LEEDS UNITED",
+        image: "player2/다나카 아오.png",
+        rarity: "special",
+        description: "뛰어난 활동량과 높은 축구 지능, 날카로운 전진 침투로 중원을 조율하는 일본 대표팀 핵심 미드필더 다나카 아오입니다. 안정적인 빌드업과 정교한 오프더볼 움직임으로 기회를 창출하는 스페셜 미드필더입니다.",
+        theme: {
+            primary: "#1d2b58",
+            secondary: "#ffb700",
+            glow: "#4facfe"
+        },
+        stats: {
+            pac: 78,
+            sho: 79,
+            pas: 83,
+            dri: 82,
+            def: 78,
+            phy: 80
+        }
     }
 };
 

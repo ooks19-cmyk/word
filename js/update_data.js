@@ -2,12 +2,24 @@
 
 const UPDATE_LOGS = [
     {
-        version: "v2.6.0",
-        date: "2026.08.04",
+        version: "v2.6.1",
+        date: "2026.08.06",
         latest: true,
         borderColor: "#ff3e6c",
         titleColor: "#ff3e6c",
         badgeText: "LATEST",
+        items: [
+            "<strong>신규 스페셜 등급 카드 2종 추가 (세메뇨, 다나카 아오)</strong>: 해외파 및 주력 라인업 보강을 위한 스페셜 카드가 새롭게 추가되었습니다.<br>• <strong>세메뇨</strong> (OVR 85, RW, 스페셜 - 본머스 / ID: <code>semenyo</code>)<br>• <strong>다나카 아오</strong> (OVR 84, CM, 스페셜 - 리즈 유나이티드 / ID: <code>ao_tanaka</code>)",
+            "<strong>선수 데이터베이스 동기화</strong>: <code>player_data.js</code> 및 <code>선수데이터.csv</code> 파일에 세메뇨, 다나카 아오 카드가 추가되어 완벽히 수록 및 동기화되었습니다."
+        ]
+    },
+    {
+        version: "v2.6.0",
+        date: "2026.08.04",
+        latest: false,
+        borderColor: "#ffd700",
+        titleColor: "#ffd700",
+        badgeText: "",
         items: [
             "<strong>코리아컵 및 AFC 챔피언스리그(아챔) 대회 초기화 기능 신설</strong>: 두 토너먼트 탭 상단 헤더 영역에 미려한 [초기화 (5 FP)] 글래스모피즘 버튼이 추가되었습니다.<br>• 대회 진행 중 리셋을 원할 경우 <strong>5 FP</strong>를 사용하여 16강 첫 경기부터 새로 시작할 수 있습니다.<br>• 해당 리셋 기능은 밸런스 유지를 위해 <strong>한 시즌당 각 1회씩만 실행</strong> 가능하도록 안전 장치를 구축했습니다.",
             "<strong>자동 시즌 리셋 동기화</strong>: 매치 진행에 따른 차기 시즌 개막 시 초기화 횟수 제한이 자동으로 무상 리셋되어 매 시즌 독립적인 리셋 찬스가 1회씩 부여됩니다."
