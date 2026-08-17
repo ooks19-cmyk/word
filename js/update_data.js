@@ -2,12 +2,24 @@
 
 const UPDATE_LOGS = [
     {
-        version: "v2.6.2",
+        version: "v2.6.3",
         date: "2026.08.17",
         latest: true,
         borderColor: "#ff3e6c",
         titleColor: "#ff3e6c",
         badgeText: "LATEST",
+        items: [
+            "<strong>신규 전설 등급 수비수 카드 추가 (반다이크)</strong>: 리버풀과 네덜란드의 철벽 센터백 버질 반다이크 카드가 전설 등급(OVR 90)으로 새롭게 추가되었습니다.<br>• <strong>반다이크</strong> (OVR 90, CB, 전설 - 리버풀 / ID: <code>van_dijk</code>)",
+            "<strong>선수 데이터베이스 동기화</strong>: <code>player_data.js</code> 및 <code>선수데이터.csv</code> 파일에 반다이크 카드가 추가되어 완벽히 수록 및 동기화되었습니다."
+        ]
+    },
+    {
+        version: "v2.6.2",
+        date: "2026.08.17",
+        latest: false,
+        borderColor: "#ffd700",
+        titleColor: "#ffd700",
+        badgeText: "",
         items: [
             "<strong>신규 전설 등급 골키퍼 카드 추가 (돈나룸마)</strong>: 파리 생제르맹과 이탈리아의 수문장 돈나룸마 카드가 전설 등급(OVR 92)으로 새로 수록되었습니다.<br>• <strong>돈나룸마</strong> (OVR 92, GK, 전설 - PSG / ID: <code>donnarumma</code>)",
             "<strong>선수 데이터베이스 동기화</strong>: <code>player_data.js</code> 및 <code>선수데이터.csv</code> 파일에 돈나룸마 카드가 추가되어 완벽히 수록 및 동기화되었습니다."

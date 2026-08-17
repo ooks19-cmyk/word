@@ -2013,6 +2013,31 @@ const CARDS_DATABASE = {
             def: 91,
             phy: 89
         }
+    },
+    "van_dijk": {
+        id: "van_dijk",
+        name: "반다이크",
+        rating: 90,
+        position: "CB",
+        nation: "Netherlands",
+        nationFlag: "https://flagcdn.com/w40/nl.png",
+        club: "LIVERPOOL",
+        image: "player2/반다이크.webp",
+        rarity: "legend",
+        description: "압도적인 피지컬과 탁월한 수비 리딩 능력으로 리버풀과 네덜란드의 수비벽을 구축하는 세계 최고의 센터백 버질 반다이크입니다. 통곡의 벽이라 불리는 공중볼 장악력, 침착한 대인 수비, 그리고 정확한 롱패스 빌드업 능력을 겸비한 전설의 수비 사령탑입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 78,
+            sho: 60,
+            pas: 74,
+            dri: 72,
+            def: 92,
+            phy: 88
+        }
     }
 };
 
