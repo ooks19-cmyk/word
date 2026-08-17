@@ -2043,7 +2043,7 @@ const CARDS_DATABASE = {
         id: "rodri",
         name: "로드리",
         rating: 91,
-        position: "CDM",
+        position: "CM",
         nation: "Spain",
         nationFlag: "https://flagcdn.com/w40/es.png",
         club: "MANCHESTER CITY",

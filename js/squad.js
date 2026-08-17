@@ -346,13 +346,13 @@ function isPositionCompatible(displayPos, cardPos) {
         return ['LW', 'RW', 'CAM'].includes(cardPos);
     }
     if (displayPos === 'AM') {
-        return ['CM', 'LW', 'RW', 'CAM', 'CDM'].includes(cardPos);
+        return ['CM', 'LW', 'RW', 'CAM'].includes(cardPos);
     }
     if (['CM', 'LCM', 'RCM', 'DM'].includes(displayPos)) {
-        return ['CM', 'CAM', 'CDM'].includes(cardPos);
+        return ['CM', 'CAM'].includes(cardPos);
     }
     if (['CB', 'LCB', 'RCB', 'LB', 'RB'].includes(displayPos)) {
-        return ['CB', 'LB', 'RB', 'CDM'].includes(cardPos);
+        return ['CB', 'LB', 'RB'].includes(cardPos);
     }
     return false;
 }
