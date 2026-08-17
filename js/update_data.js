@@ -2,12 +2,24 @@
 
 const UPDATE_LOGS = [
     {
-        version: "v2.6.4",
+        version: "v2.6.5",
         date: "2026.08.17",
         latest: true,
         borderColor: "#ff3e6c",
         titleColor: "#ff3e6c",
         badgeText: "LATEST",
+        items: [
+            "<strong>신규 전설 등급 공격수 카드 추가 (포든)</strong>: 맨체스터 시티와 잉글랜드의 황금기를 이끄는 최고의 테크니션 필 포든 카드가 전설 등급(OVR 90)으로 신규 추가되었습니다.<br>• <strong>포든</strong> (OVR 90, RW, 전설 - 맨시티 / ID: <code>foden</code>)",
+            "<strong>선수 데이터베이스 동기화</strong>: <code>player_data.js</code> 및 <code>선수데이터.csv</code> 파일에 포든 카드가 추가되어 완벽히 수록 및 동기화되었습니다."
+        ]
+    },
+    {
+        version: "v2.6.4",
+        date: "2026.08.17",
+        latest: false,
+        borderColor: "#ffd700",
+        titleColor: "#ffd700",
+        badgeText: "",
         items: [
             "<strong>신규 전설 등급 미드필더 카드 추가 (로드리)</strong>: 2024 발롱도르 수상자이자 맨체스터 시티/스페인의 중원 지휘관 로드리 카드가 전설 등급(OVR 91)으로 신규 추가되었습니다.<br>• <strong>로드리</strong> (OVR 91, CM, 전설 - 맨시티 / ID: <code>rodri</code>)",
             "<strong>선수 데이터베이스 동기화</strong>: <code>player_data.js</code> 및 <code>선수데이터.csv</code> 파일에 로드리 카드가 추가되어 완벽히 수록 및 동기화되었습니다."

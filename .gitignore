@@ -19,3 +19,8 @@ Desktop.ini
 # Backups and private data
 fc_star_users_backup.json
 
+# Executables and large binary files
+*.exe
+scratch/
+
+

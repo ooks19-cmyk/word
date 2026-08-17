@@ -2063,6 +2063,31 @@ const CARDS_DATABASE = {
             def: 90,
             phy: 89
         }
+    },
+    "foden": {
+        id: "foden",
+        name: "포든",
+        rating: 90,
+        position: "RW",
+        nation: "England",
+        nationFlag: "https://flagcdn.com/w40/gb-eng.png",
+        club: "MANCHESTER CITY",
+        image: "player2/포든.webp",
+        rarity: "legend",
+        description: "맨체스터 시티와 잉글랜드의 황금기를 이끄는 최고의 테크니션이자 EPL 올해의 선수 필 포든입니다. 환상적인 퍼스트 터치와 유려한 탈압박 드리블, 자로 잰 듯한 왼발 슈팅과 창의적인 플레이메이킹으로 상대 수비진을 완벽하게 무너뜨리는 전설적인 크랙입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 87,
+            sho: 88,
+            pas: 89,
+            dri: 91,
+            def: 58,
+            phy: 68
+        }
     }
 };
 

@@ -1,4 +1,4 @@
-﻿ID,이름,레이팅,포지션,국적,국적국기,클럽,이미지,희귀도,설명,PAC,SHO,PAS,DRI,DEF,PHY
+ID,이름,레이팅,포지션,국적,국적국기,클럽,이미지,희귀도,설명,PAC,SHO,PAS,DRI,DEF,PHY
 son_heung_min,손흥민,89,LW,South Korea,https://flagcdn.com/w40/kr.png,LA FC,player/손흥민.png,legend,"대한민국 축구 역사상 최고의 전설적인 공격수입니다. 탁월한 리더십과 훌륭한 인품, 그리고 그라운드 위에서 끝까지 최선을 다하는 헌신적인 태도로 동료 선수들과 온 국민의 열렬한 사랑과 성원을 받는 이 시대 최고의 축구 선수이자 아이콘입니다.",91,89,84,87,42,72
 lee_seung_woo,이승우,82,LW,South Korea,https://flagcdn.com/w40/kr.png,JEONBUK,player/이승우.png,normal,"번뜩이는 천재성과 예측 불가능한 플레이 스타일을 지닌 대한민국 최고의 크랙형 공격수입니다. 뛰어난 테크닉, 폭발적인 드리블 스피드, 그리고 독보적인 스타성으로 경기장 분위기를 한순간에 뒤바꿔 놓는 해결사입니다.",87,80,78,85,38,62
 lee_seung_woo_kr,이승우,86,LW,South Korea,https://flagcdn.com/w40/kr.png,KOREA,player/이승우_kr.png,special,"가슴에 찬란한 태극 마크를 품고 대한민국의 붉은 함성을 이끄는 특급 국가대표 윙어 이승우입니다. 특유의 기동력과 지칠 줄 모르는 과감한 돌파력, 그리고 그라운드 위에서 번뜩이는 천재적인 플레이로 조국의 승리를 이끄는 스페셜 공격수입니다.",90,84,83,88,40,68
@@ -80,6 +80,7 @@ ao_tanaka,다나카 아오,89,CM,Japan,https://flagcdn.com/w40/jp.png,LEEDS UNIT
 donnarumma,돈나룸마,92,GK,Italy,https://flagcdn.com/w40/it.png,PARIS SAINT-GERMAIN,player2/돈나룸마.png,legend,"압도적인 체격 조건과 경이로운 반사 신경으로 이탈리아와 파리 생제르맹의 골문을 사수하는 세계 최고의 수문장 지안루이지 돈나룸마입니다. Euro 2020 MVP 출신의 압도적인 일대일 저지 능력과 경이로운 핑거 팁 세이브를 자랑하는 전설의 골키퍼입니다.",90,90,92,93,91,89
 van_dijk,반다이크,90,CB,Netherlands,https://flagcdn.com/w40/nl.png,LIVERPOOL,player2/반다이크.webp,legend,"압도적인 피지컬과 탁월한 수비 리딩 능력으로 리버풀과 네덜란드의 수비벽을 구축하는 세계 최고의 센터백 버질 반다이크입니다. 통곡의 벽이라 불리는 공중볼 장악력, 침착한 대인 수비, 그리고 정확한 롱패스 빌드업 능력을 겸비한 전설의 수비 사령탑입니다.",78,60,74,72,92,88
 rodri,로드리,91,CM,Spain,https://flagcdn.com/w40/es.png,MANCHESTER CITY,player2/로드리.webp,legend,"2024 발롱도르 수상에 빛나는 세계 최고의 수비형 미드필더이자 맨체스터 시티와 스페인의 무패 행진을 이끈 중원의 지배자 로드리입니다. 완벽한 경기 조율, 강력한 중거리 슈팅, 그리고 빈틈없는 수비 커버 능력과 패스 성공률을 자랑하는 현대 축구의 정점입니다.",72,84,89,85,90,89
+foden,포든,90,RW,England,https://flagcdn.com/w40/gb-eng.png,MANCHESTER CITY,player2/포든.webp,legend,"맨체스터 시티와 잉글랜드의 황금기를 이끄는 최고의 테크니션이자 EPL 올해의 선수 필 포든입니다. 환상적인 퍼스트 터치와 유려한 탈압박 드리블, 자로 잰 듯한 왼발 슈팅과 창의적인 플레이메이킹으로 상대 수비진을 완벽하게 무너뜨리는 전설적인 크랙입니다.",87,88,89,91,58,68
 
 
 
