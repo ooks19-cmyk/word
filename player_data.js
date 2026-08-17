@@ -2038,6 +2038,31 @@ const CARDS_DATABASE = {
             def: 92,
             phy: 88
         }
+    },
+    "rodri": {
+        id: "rodri",
+        name: "로드리",
+        rating: 91,
+        position: "CDM",
+        nation: "Spain",
+        nationFlag: "https://flagcdn.com/w40/es.png",
+        club: "MANCHESTER CITY",
+        image: "player2/로드리.webp",
+        rarity: "legend",
+        description: "2024 발롱도르 수상에 빛나는 세계 최고의 수비형 미드필더이자 맨체스터 시티와 스페인의 무패 행진을 이끈 중원의 지배자 로드리입니다. 완벽한 경기 조율, 강력한 중거리 슈팅, 그리고 빈틈없는 수비 커버 능력과 패스 성공률을 자랑하는 현대 축구의 정점입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 72,
+            sho: 84,
+            pas: 89,
+            dri: 85,
+            def: 90,
+            phy: 89
+        }
     }
 };
 
