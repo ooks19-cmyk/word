@@ -2,12 +2,24 @@
 
 const UPDATE_LOGS = [
     {
-        version: "v2.6.1",
-        date: "2026.08.06",
+        version: "v2.6.2",
+        date: "2026.08.17",
         latest: true,
         borderColor: "#ff3e6c",
         titleColor: "#ff3e6c",
         badgeText: "LATEST",
+        items: [
+            "<strong>신규 전설 등급 골키퍼 카드 추가 (돈나룸마)</strong>: 파리 생제르맹과 이탈리아의 수문장 돈나룸마 카드가 전설 등급(OVR 92)으로 새로 수록되었습니다.<br>• <strong>돈나룸마</strong> (OVR 92, GK, 전설 - PSG / ID: <code>donnarumma</code>)",
+            "<strong>선수 데이터베이스 동기화</strong>: <code>player_data.js</code> 및 <code>선수데이터.csv</code> 파일에 돈나룸마 카드가 추가되어 완벽히 수록 및 동기화되었습니다."
+        ]
+    },
+    {
+        version: "v2.6.1",
+        date: "2026.08.06",
+        latest: false,
+        borderColor: "#ffd700",
+        titleColor: "#ffd700",
+        badgeText: "",
         items: [
             "<strong>신규 스페셜 등급 카드 2종 추가 (세메뇨, 다나카 아오)</strong>: 해외파 및 주력 라인업 보강을 위한 스페셜 카드가 새롭게 추가되었습니다.<br>• <strong>다나카 아오</strong> (OVR 89, CM, 스페셜 - 리즈 유나이티드 / ID: <code>ao_tanaka</code>)<br>• <strong>세메뇨</strong> (OVR 87, RW, 스페셜 - 본머스 / ID: <code>semenyo</code>)",
             "<strong>선수 데이터베이스 동기화</strong>: <code>player_data.js</code> 및 <code>선수데이터.csv</code> 파일에 세메뇨, 다나카 아오 카드가 추가되어 완벽히 수록 및 동기화되었습니다."

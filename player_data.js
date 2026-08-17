@@ -1988,6 +1988,31 @@ const CARDS_DATABASE = {
             def: 83,
             phy: 85
         }
+    },
+    "donnarumma": {
+        id: "donnarumma",
+        name: "돈나룸마",
+        rating: 92,
+        position: "GK",
+        nation: "Italy",
+        nationFlag: "https://flagcdn.com/w40/it.png",
+        club: "PARIS SAINT-GERMAIN",
+        image: "player2/돈나룸마.png",
+        rarity: "legend",
+        description: "압도적인 체격 조건과 경이로운 반사 신경으로 이탈리아와 파리 생제르맹의 골문을 사수하는 세계 최고의 수문장 지안루이지 돈나룸마입니다. Euro 2020 MVP 출신의 압도적인 일대일 저지 능력과 경이로운 핑거 팁 세이브를 자랑하는 전설의 골키퍼입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 90,
+            sho: 90,
+            pas: 92,
+            dri: 93,
+            def: 91,
+            phy: 89
+        }
     }
 };
 
