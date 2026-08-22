@@ -1,25 +1,65 @@
-// js/league.js - K리그1 매치 시뮬레이터 + 명예의 전당 모듈
+// js/league.js - 멀티 리그(K리그1 / 프리미어리그) 매치 시뮬레이터 + 명예의 전당 모듈
 
-// 11. K-LEAGUE 1 MATCH SIMULATOR & LEAGUE STANDINGS ENGINE
+// 11. MULTI-LEAGUE MATCH SIMULATOR & LEAGUE STANDINGS ENGINE
 let leagueTeams = [];
 let leagueRound = 1;
 let isMatchRunning = false;
 let leaguePlayerStats = {};
 
 const K_LEAGUE_TEAMS_PRESET = [
-    { id: "jeonbuk", name: "전북 현대", rating: 70, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 },
-    { id: "ulsan", name: "울산 HD", rating: 80, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 },
-    { id: "seoul", name: "FC 서울", rating: 78, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 },
-    { id: "pohang", name: "포항 스틸러스", rating: 77, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 },
-    { id: "gangwon", name: "강원 FC", rating: 76, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 },
-    { id: "gwangju", name: "광주 FC", rating: 75, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 },
-    { id: "gimcheon", name: "김천 상무", rating: 75, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 },
-    { id: "bucheon_fc", name: "부천 FC", rating: 74, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 },
-    { id: "jeju", name: "제주 유나이티드", rating: 73, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 },
-    { id: "daejeon", name: "대전 하나", rating: 73, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 },
-    { id: "anyang", name: "FC 안양", rating: 71, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 },
-    { id: "incheon", name: "인천 유나이티드", rating: 70, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 }
+    { id: "jeonbuk", name: "전북 현대", shortName: "JHM", rating: 70, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 },
+    { id: "ulsan", name: "울산 HD", shortName: "ULS", rating: 80, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 },
+    { id: "seoul", name: "FC 서울", shortName: "SEO", rating: 78, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 },
+    { id: "pohang", name: "포항 스틸러스", shortName: "POH", rating: 77, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 },
+    { id: "gangwon", name: "강원 FC", shortName: "GWN", rating: 76, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 },
+    { id: "gwangju", name: "광주 FC", shortName: "GWJ", rating: 75, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 },
+    { id: "gimcheon", name: "김천 상무", shortName: "GMC", rating: 75, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 },
+    { id: "bucheon_fc", name: "부천 FC", shortName: "BCN", rating: 74, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 },
+    { id: "jeju", name: "제주 유나이티드", shortName: "JEJ", rating: 73, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 },
+    { id: "daejeon", name: "대전 하나", shortName: "DJN", rating: 73, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 },
+    { id: "anyang", name: "FC 안양", shortName: "AYG", rating: 71, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 },
+    { id: "incheon", name: "인천 유나이티드", shortName: "ICN", rating: 70, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 }
 ];
+
+const LEAGUE_CONFIGS = {
+    kleague1: {
+        id: 'kleague1',
+        name: 'K리그 1',
+        shortName: 'K1',
+        seasonPrefix: 'K리그1',
+        totalRounds: 33,
+        userTeamId: 'jeonbuk',
+        userTeamName: '전북 현대',
+        userTeamEmblem: 'img/mark_jb.svg',
+        get teamsPreset() { return K_LEAGUE_TEAMS_PRESET; },
+        get playersPreset() { return (typeof OTHER_TEAMS_PLAYERS_PRESET !== 'undefined') ? OTHER_TEAMS_PLAYERS_PRESET : []; },
+        get fixtures() { return JEONBUK_FIXTURES; },
+        themeColor: '#00ff87',
+        accentColor: '#ffd700',
+        strongTeams: ['ulsan', 'seoul', 'pohang', 'gimcheon']
+    },
+    epl: {
+        id: 'epl',
+        name: '프리미어리그',
+        shortName: 'EPL',
+        seasonPrefix: '프리미어리그',
+        totalRounds: 38,
+        userTeamId: 'liverpool',
+        userTeamName: '리버풀',
+        userTeamEmblem: 'img/mark_liverpool.png',
+        get teamsPreset() { return (typeof EPL_TEAMS_PRESET !== 'undefined') ? EPL_TEAMS_PRESET : []; },
+        get playersPreset() { return (typeof OTHER_TEAMS_PLAYERS_PRESET_EPL !== 'undefined') ? OTHER_TEAMS_PLAYERS_PRESET_EPL : []; },
+        get fixtures() { return (typeof LIVERPOOL_FIXTURES_EPL !== 'undefined') ? LIVERPOOL_FIXTURES_EPL : []; },
+        themeColor: '#c8102e',
+        accentColor: '#38003c',
+        strongTeams: ['mancity', 'arsenal', 'chelsea', 'tottenham', 'manutd']
+    }
+};
+
+function getActiveLeagueConfig() {
+    const leagueId = (typeof currentLeagueId !== 'undefined' && LEAGUE_CONFIGS[currentLeagueId]) ? currentLeagueId : 'kleague1';
+    return LEAGUE_CONFIGS[leagueId];
+}
 
 const JEONBUK_FIXTURES = [
     // 1회차 (라운드 1~11)
@@ -62,10 +102,12 @@ const JEONBUK_FIXTURES = [
 
 function initLeaguePlayerStats() {
     leaguePlayerStats = {};
-    if (typeof OTHER_TEAMS_PLAYERS_PRESET !== 'undefined') {
-        const leagueTeamIds = K_LEAGUE_TEAMS_PRESET.map(t => t.id);
-        OTHER_TEAMS_PLAYERS_PRESET.forEach(p => {
-            // K리그 1 참가 팀 소속 선수만 통계 초기화 대상에 포함 (해외 가상팀, K리그 2 등 제외)
+    const config = getActiveLeagueConfig();
+    const playersPreset = config.playersPreset;
+    const leagueTeamIds = config.teamsPreset.map(t => t.id);
+
+    if (Array.isArray(playersPreset)) {
+        playersPreset.forEach(p => {
             if (!p.teamId || !leagueTeamIds.includes(p.teamId)) return;
             
             leaguePlayerStats[p.id] = {
@@ -81,8 +123,8 @@ function initLeaguePlayerStats() {
 }
 
 function registerGoal(playerId, playerName, teamId, teamName) {
-    // K리그 1 참가 팀 소속 선수의 골만 K리그 통계에 기록
-    const leagueTeamIds = K_LEAGUE_TEAMS_PRESET.map(t => t.id);
+    const config = getActiveLeagueConfig();
+    const leagueTeamIds = config.teamsPreset.map(t => t.id);
     if (!teamId || !leagueTeamIds.includes(teamId)) return;
     
     if (!leaguePlayerStats) leaguePlayerStats = {};
@@ -101,8 +143,8 @@ function registerGoal(playerId, playerName, teamId, teamName) {
 
 function registerAssist(playerId, playerName, teamId, teamName) {
     if (!playerId) return;
-    // K리그 1 참가 팀 소속 선수의 도움만 K리그 통계에 기록
-    const leagueTeamIds = K_LEAGUE_TEAMS_PRESET.map(t => t.id);
+    const config = getActiveLeagueConfig();
+    const leagueTeamIds = config.teamsPreset.map(t => t.id);
     if (!teamId || !leagueTeamIds.includes(teamId)) return;
     
     if (!leaguePlayerStats) leaguePlayerStats = {};
@@ -120,16 +162,19 @@ function registerAssist(playerId, playerName, teamId, teamName) {
 }
 
 function processPlayerGoal(goalData) {
+    const config = getActiveLeagueConfig();
     const { scorerId, scorerName, assisterId, assisterName } = goalData || {};
-    if (scorerId) registerGoal(scorerId, scorerName, 'jeonbuk', '전북 현대');
-    if (assisterId) registerAssist(assisterId, assisterName, 'jeonbuk', '전북 현대');
+    if (scorerId) registerGoal(scorerId, scorerName, config.userTeamId, config.userTeamName);
+    if (assisterId) registerAssist(assisterId, assisterName, config.userTeamId, config.userTeamName);
 }
 
 function simulateOtherPlayersStats() {
-    if (typeof OTHER_TEAMS_PLAYERS_PRESET !== 'undefined') {
-        const leagueTeamIds = K_LEAGUE_TEAMS_PRESET.map(t => t.id);
-        OTHER_TEAMS_PLAYERS_PRESET.forEach(p => {
-            // K리그 1 참가 팀 소속 선수만 리그 시뮬레이션(라운드 진행 시 무작위 득점/도움 누적) 진행
+    const config = getActiveLeagueConfig();
+    const playersPreset = config.playersPreset;
+    const leagueTeamIds = config.teamsPreset.map(t => t.id);
+
+    if (Array.isArray(playersPreset)) {
+        playersPreset.forEach(p => {
             if (!p.teamId || !leagueTeamIds.includes(p.teamId)) return;
             
             // Roll for goal (15% chance, approx 0.15 per match)
@@ -158,7 +203,8 @@ function renderLeagueStats() {
     
     if (!goalsBody || !assistsBody) return;
     
-    const leagueTeamIds = K_LEAGUE_TEAMS_PRESET.map(t => t.id);
+    const config = getActiveLeagueConfig();
+    const leagueTeamIds = config.teamsPreset.map(t => t.id);
     const playersArray = Object.values(leaguePlayerStats || {})
         .filter(p => p.teamId && leagueTeamIds.includes(p.teamId));
     
@@ -178,8 +224,8 @@ function renderLeagueStats() {
     } else {
         sortedGoals.forEach((p, idx) => {
             const rank = idx + 1;
-            const isJeonbuk = p.teamId === 'jeonbuk';
-            const rowStyle = isJeonbuk ? 'style="background: rgba(0, 255, 135, 0.08); font-weight: bold; color: #ffd700;"' : '';
+            const isUserTeam = p.teamId === config.userTeamId;
+            const rowStyle = isUserTeam ? 'style="background: rgba(0, 255, 135, 0.08); font-weight: bold; color: #ffd700;"' : '';
             goalsBody.innerHTML += `
                 <tr ${rowStyle} style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
                     <td style="padding: 6px; text-align: center;">${rank}</td>
@@ -207,8 +253,8 @@ function renderLeagueStats() {
     } else {
         sortedAssists.forEach((p, idx) => {
             const rank = idx + 1;
-            const isJeonbuk = p.teamId === 'jeonbuk';
-            const rowStyle = isJeonbuk ? 'style="background: rgba(0, 255, 135, 0.08); font-weight: bold; color: #00ff87;"' : '';
+            const isUserTeam = p.teamId === config.userTeamId;
+            const rowStyle = isUserTeam ? 'style="background: rgba(0, 255, 135, 0.08); font-weight: bold; color: #00ff87;"' : '';
             assistsBody.innerHTML += `
                 <tr ${rowStyle} style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
                     <td style="padding: 6px; text-align: center;">${rank}</td>
@@ -222,37 +268,43 @@ function renderLeagueStats() {
 }
 
 function checkAndMigrateLeagueTeams() {
-    if (!Array.isArray(leagueTeams)) return;
-    
+    const config = getActiveLeagueConfig();
     let isMigrated = false;
     
-    // Map of old team IDs to new team IDs and names
-    const teamMigrations = {
-        "suwon_fc": { id: "bucheon_fc", name: "부천 FC", rating: 74 },
-        "daegu": { id: "anyang", name: "FC 안양", rating: 71 }
-    };
-    
-    leagueTeams.forEach(team => {
-        if (teamMigrations[team.id]) {
-            const mig = teamMigrations[team.id];
-            console.log(`Migrating team ID: ${team.id} -> ${mig.id}`);
-            team.id = mig.id;
-            team.name = mig.name;
-            if (team.rating === undefined || team.rating === 68) {
-                team.rating = mig.rating;
-            }
-            isMigrated = true;
-        }
-    });
-    
-    // Safety check: ensure every team preset in K_LEAGUE_TEAMS_PRESET exists in leagueTeams
-    const currentTeamIds = leagueTeams.map(t => t.id);
-    const missingPresets = K_LEAGUE_TEAMS_PRESET.filter(p => !currentTeamIds.includes(p.id));
-    
-    if (missingPresets.length > 0) {
-        console.warn("League teams list is missing required team presets. Resetting list to preset defaults.", missingPresets);
-        leagueTeams = JSON.parse(JSON.stringify(K_LEAGUE_TEAMS_PRESET));
+    if (!Array.isArray(leagueTeams) || leagueTeams.length === 0) {
+        console.warn(`[League Check] leagueTeams가 비어있어 ${config.name} 기본 프리셋으로 초기화합니다.`);
+        leagueTeams = JSON.parse(JSON.stringify(config.teamsPreset));
         isMigrated = true;
+    } else {
+        // 1. 유저 팀(리버풀 / 전북)이 현재 leagueTeams에 포함되어 있는지 검사
+        const hasUserTeam = leagueTeams.some(t => t.id === config.userTeamId);
+        const currentTeamIds = leagueTeams.map(t => t.id);
+        const missingPresets = config.teamsPreset.filter(p => !currentTeamIds.includes(p.id));
+        
+        if (!hasUserTeam || missingPresets.length > 0 || leagueTeams.length !== config.teamsPreset.length) {
+            console.warn(`[League Check] 현재 리그(${config.name})와 leagueTeams 팀 목록 불일치 감지 -> ${config.name} 기본 프리셋으로 재구성합니다.`, { hasUserTeam, missingCount: missingPresets.length });
+            leagueTeams = JSON.parse(JSON.stringify(config.teamsPreset));
+            isMigrated = true;
+        } else if (config.id === 'kleague1') {
+            // K리그용 레거시 마이그레이션 (부천, 안양)
+            const teamMigrations = {
+                "suwon_fc": { id: "bucheon_fc", name: "부천 FC", rating: 74 },
+                "daegu": { id: "anyang", name: "FC 안양", rating: 71 }
+            };
+            
+            leagueTeams.forEach(team => {
+                if (teamMigrations[team.id]) {
+                    const mig = teamMigrations[team.id];
+                    console.log(`Migrating team ID: ${team.id} -> ${mig.id}`);
+                    team.id = mig.id;
+                    team.name = mig.name;
+                    if (team.rating === undefined || team.rating === 68) {
+                        team.rating = mig.rating;
+                    }
+                    isMigrated = true;
+                }
+            });
+        }
     }
     
     if (isMigrated) {
@@ -264,6 +316,11 @@ function checkAndMigrateLeagueTeams() {
 
 function initLeague() {
     try {
+        const savedLeague = localStorage.getItem('fc_star_current_league');
+        if (savedLeague && LEAGUE_CONFIGS[savedLeague]) {
+            currentLeagueId = savedLeague;
+        }
+
         const savedTeams = localStorage.getItem('fc_star_league_teams');
         const savedRound = localStorage.getItem('fc_star_league_round');
         const savedYear = localStorage.getItem('fc_star_league_year');
@@ -281,55 +338,16 @@ function initLeague() {
         
         if (savedStats) {
             leaguePlayerStats = JSON.parse(savedStats);
+            const config = getActiveLeagueConfig();
+            const leagueTeamIds = config.teamsPreset.map(t => t.id);
             
-            const leagueTeamIds = K_LEAGUE_TEAMS_PRESET.map(t => t.id);
-            // K리그 1 참가 팀 소속이 아닌 예전 데이터(해외 가상팀, K리그 2 등)를 로드 즉시 필터링 및 제거
+            // 타 리그나 없는 팀의 레거시 데이터 정리
             Object.keys(leaguePlayerStats).forEach(playerId => {
                 const p = leaguePlayerStats[playerId];
                 if (!p || !p.teamId || !leagueTeamIds.includes(p.teamId)) {
                     delete leaguePlayerStats[playerId];
                 }
             });
-
-            // 2026시즌 이적 시장 및 선수명 개편 반영 동기화 (기존 저장 데이터 보정)
-            if (typeof OTHER_TEAMS_PLAYERS_PRESET !== 'undefined') {
-                // 1. 구 ID 매핑 보정 (lingard -> anderson, gabriel -> fridjonsson, wanderson -> lee_ho_jae)
-                const idMapping = {
-                    "lingard": "anderson",
-                    "gabriel": "fridjonsson",
-                    "wanderson": "lee_ho_jae"
-                };
-                Object.keys(idMapping).forEach(oldId => {
-                    const newId = idMapping[oldId];
-                    if (leaguePlayerStats[oldId] && !leaguePlayerStats[newId]) {
-                        leaguePlayerStats[newId] = leaguePlayerStats[oldId];
-                        leaguePlayerStats[newId].id = newId;
-                        delete leaguePlayerStats[oldId];
-                    }
-                });
-
-                // 2. 이름 및 소속팀 최신화 동기화
-                OTHER_TEAMS_PLAYERS_PRESET.forEach(p => {
-                    // K리그 1 참가 팀 소속 선수만 동기화 대상에 포함
-                    if (!p.teamId || !leagueTeamIds.includes(p.teamId)) return;
-                    
-                    if (leaguePlayerStats[p.id]) {
-                        leaguePlayerStats[p.id].name = p.name;
-                        leaguePlayerStats[p.id].teamId = p.teamId;
-                        leaguePlayerStats[p.id].teamName = p.teamName;
-                    } else {
-                        // 세션 도중 새로 추가된 선수가 있다면 등록
-                        leaguePlayerStats[p.id] = {
-                            id: p.id,
-                            name: p.name,
-                            teamId: p.teamId,
-                            teamName: p.teamName,
-                            goals: 0,
-                            assists: 0
-                        };
-                    }
-                });
-            }
         } else {
             initLeaguePlayerStats();
         }
@@ -350,11 +368,12 @@ function initLeague() {
         resetLeagueSeasonState();
     }
     
-    // Sync Jeonbuk OVR with current active formation
-    syncJeonbukOvr();
+    // Sync User Team OVR with current active formation
+    syncPlayerTeamOvr();
     renderLeagueTable();
     updateMatchPreviewBoard();
     renderLeagueStats();
+    if (typeof updateAppLogo === 'function') updateAppLogo();
     renderCareerStats();
     
     // Initialize Friendly Match State
@@ -363,17 +382,17 @@ function initLeague() {
     }
     
     // 시즌 완료 후 페이지 새로고침 시 챔피언 확인 모달 자동 복구
-    if (leagueRound > 33) {
+    const config = getActiveLeagueConfig();
+    if (leagueRound > config.totalRounds) {
         setTimeout(() => {
             checkSeasonChampion();
         }, 500);
     }
 }
 
-// getPlayerPureOvr() and syncJeonbukOvr() have been moved to js/match_algorithm.js
-
 function resetLeagueSeasonState() {
-    leagueTeams = JSON.parse(JSON.stringify(K_LEAGUE_TEAMS_PRESET));
+    const config = getActiveLeagueConfig();
+    leagueTeams = JSON.parse(JSON.stringify(config.teamsPreset));
     leagueRound = 1;
     initLeaguePlayerStats();
     
@@ -381,17 +400,17 @@ function resetLeagueSeasonState() {
     if (typeof leagueYear !== 'undefined' && leagueYear > 2026) {
         const pureOvr = getPlayerPureOvr();
         const top20Ovr = getPlayerTop20Ovr();
-        const strongTeams = ['ulsan', 'seoul', 'pohang', 'gimcheon'];
+        const strongTeams = config.strongTeams || [];
         
         leagueTeams.forEach(team => {
-            if (team.id === 'jeonbuk') {
+            if (team.id === config.userTeamId) {
                 team.rating = pureOvr;
             } else if (strongTeams.includes(team.id)) {
-                // 강팀 4팀: 플레이어 덱 상위 20개 평균 OVR - 2 ~ 0 범위 랜덤
+                // 강팀: 플레이어 덱 상위 11개 평균 OVR - 2 ~ 0 범위 랜덤
                 const offset = Math.floor(Math.random() * 3) - 2; // -2, -1, 0
                 team.rating = top20Ovr + offset;
             } else {
-                // 약팀 8팀: 플레이어 덱 상위 20개 평균 OVR - 10 ~ -2 범위 랜덤
+                // 중하위팀: 플레이어 덱 상위 11개 평균 OVR - 10 ~ -2 범위 랜덤
                 const offset = Math.floor(Math.random() * 9) - 10; // -10 ~ -2
                 team.rating = top20Ovr + offset;
             }
@@ -399,9 +418,11 @@ function resetLeagueSeasonState() {
     }
     
     try {
+        localStorage.setItem('fc_star_current_league', currentLeagueId);
         localStorage.setItem('fc_star_league_teams', JSON.stringify(leagueTeams));
         localStorage.setItem('fc_star_league_round', leagueRound.toString());
         localStorage.setItem('fc_star_league_stats', JSON.stringify(leaguePlayerStats));
+        localStorage.setItem('fc_star_league_year', leagueYear.toString());
     } catch (e) {
         console.warn("Saving reset league failed", e);
     }
@@ -428,23 +449,184 @@ function resetLeagueSeason() {
         initAclTab();
     }
     
-    syncJeonbukOvr();
+    syncPlayerTeamOvr();
     renderLeagueTable();
     renderLeagueStats();
     updateMatchPreviewBoard();
     
     // Clear commentary
     const commBox = document.getElementById('commentaryScroll');
-    commBox.innerHTML = '<div class="comm-item comm-system">시즌이 초기화되었습니다. 경기를 시작하려면 아래 \'경기 시작\' 버튼을 누르세요.</div>';
+    if (commBox) {
+        commBox.innerHTML = '<div class="comm-item comm-system">시즌이 초기화되었습니다. 경기를 시작하려면 아래 \'경기 시작\' 버튼을 누르세요.</div>';
+    }
     
-    showToast("리그 시즌이 성공적으로 초기화되었습니다!");
+    const config = getActiveLeagueConfig();
+    showToast(`${config.name} 시즌이 성공적으로 초기화되었습니다!`);
     
     // Auto-save user data to cloud
     saveUserProgress();
 }
 
+// 감독 커리어 통산 기록 및 명예의 전당 진행상태 기록 (isResigned: 중도 사퇴 여부)
+function recordSeasonProgressToFame(isResigned = false) {
+    const config = getActiveLeagueConfig();
+    const sorted = [...leagueTeams].sort((a, b) => {
+        if (b.pts !== a.pts) return b.pts - a.pts;
+        if (b.gd !== a.gd) return b.gd - a.gd;
+        return b.gf - a.gf;
+    });
+    
+    const userTeamRank = sorted.findIndex(t => t.id === config.userTeamId) + 1;
+    const userTeam = leagueTeams.find(t => t.id === config.userTeamId) || { w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0 };
+    const champion = sorted[0] || { name: config.userTeamName };
+    
+    // 득점왕 / 도움왕 산출 (해당 팀 선수만 기록)
+    const playersArray = Object.values(leaguePlayerStats || {});
+    const sortedGoals = [...playersArray].filter(p => p.goals > 0).sort((a, b) => b.goals - a.goals);
+    const sortedAssists = [...playersArray].filter(p => p.assists > 0).sort((a, b) => b.assists - a.assists);
+    
+    const topScorer = sortedGoals[0] || null;
+    const topAssister = sortedAssists[0] || null;
+    
+    let cupRecordText = "-";
+    if (typeof cupState !== 'undefined' && cupState) {
+        if (cupState.champion === 'jeonbuk' || cupState.champion === 'liverpool') cupRecordText = "우승 🏆";
+        else if (cupState.round === 4) cupRecordText = "준우승 🥈";
+        else if (cupState.round === 3) cupRecordText = "4강";
+        else if (cupState.round === 2) cupRecordText = "8강";
+        else cupRecordText = "16강";
+    }
+    
+    let aclRecordText = "-";
+    if (typeof aclState !== 'undefined' && aclState) {
+        if (aclState.champion === 'jeonbuk' || aclState.champion === 'liverpool') aclRecordText = "우승 🏆";
+        else if (aclState.stage === 'final') aclRecordText = "준우승 🥈";
+        else if (aclState.stage === 'semi') aclRecordText = "4강";
+        else if (aclState.stage === 'quarter') aclRecordText = "8강";
+        else if (aclState.stage === 'r16') aclRecordText = "16강";
+        else aclRecordText = "조별리그";
+    }
+    
+    const record = {
+        leagueId: config.id,
+        leagueName: config.name,
+        year: leagueYear,
+        resigned: isResigned,
+        playedRound: leagueRound,
+        totalRounds: config.totalRounds,
+        userTeamId: config.userTeamId,
+        userTeamName: config.userTeamName,
+        userTeamRank: userTeamRank,
+        jeonbukRank: userTeamRank, // 레거시 뷰 호환
+        userTeamStats: {
+            w: userTeam.w,
+            d: userTeam.d,
+            l: userTeam.l,
+            gf: userTeam.gf,
+            ga: userTeam.ga,
+            pts: userTeam.pts
+        },
+        jeonbukStats: {
+            w: userTeam.w,
+            d: userTeam.d,
+            l: userTeam.l,
+            pts: userTeam.pts
+        },
+        champion: champion.name,
+        topScorer: (topScorer && topScorer.teamId === config.userTeamId) ? { name: topScorer.name, goals: topScorer.goals } : null,
+        topAssister: (topAssister && topAssister.teamId === config.userTeamId) ? { name: topAssister.name, assists: topAssister.assists } : null,
+        cupRecord: cupRecordText,
+        aclRecord: aclRecordText,
+        isHardMode: isHardMode
+    };
+    
+    // 중복 방지 검증 후 추가
+    if (!hallOfFame.some(r => r.year === leagueYear && r.leagueId === config.id && r.isHardMode === isHardMode)) {
+        hallOfFame.push(record);
+        
+        // 통산 커리어 스탯 누적
+        let activeCareer = isHardMode ? careerStatsHard : careerStats;
+        if (!activeCareer) {
+            activeCareer = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+            if (isHardMode) careerStatsHard = activeCareer;
+            else careerStats = activeCareer;
+        }
+        activeCareer.w += userTeam.w;
+        activeCareer.d += userTeam.d;
+        activeCareer.l += userTeam.l;
+        activeCareer.gf += userTeam.gf;
+        activeCareer.ga += userTeam.ga;
+        
+        // 플레이어 구단 소속 선수 골 누적
+        playersArray.forEach(p => {
+            if (p.teamId === config.userTeamId && p.goals > 0) {
+                if (!activeCareer.playerGoals) activeCareer.playerGoals = {};
+                if (!activeCareer.playerGoals[p.id]) {
+                    activeCareer.playerGoals[p.id] = { name: p.name, goals: 0 };
+                }
+                activeCareer.playerGoals[p.id].goals += p.goals;
+            }
+        });
+        
+        try {
+            localStorage.setItem('fc_star_hall_of_fame', JSON.stringify(hallOfFame));
+            if (isHardMode) {
+                localStorage.setItem('fc_star_career_stats_hard', JSON.stringify(careerStatsHard));
+            } else {
+                localStorage.setItem('fc_star_career_stats', JSON.stringify(careerStats));
+            }
+        } catch (e) {}
+    }
+}
+
+// 감독 커리어 이적 함수 (새로운 리그 부임 -> 다음 연도 1라운드 시작)
+function transferToLeague(targetLeagueId) {
+    if (isMatchRunning) {
+        showToast("경기 진행 중에는 리그를 이동할 수 없습니다.");
+        return;
+    }
+    if (!LEAGUE_CONFIGS[targetLeagueId]) {
+        console.error("Unknown league target:", targetLeagueId);
+        return;
+    }
+    if (targetLeagueId === currentLeagueId) {
+        showToast(`이미 ${LEAGUE_CONFIGS[targetLeagueId].name}를 진행 중입니다.`);
+        return;
+    }
+    
+    const oldConfig = getActiveLeagueConfig();
+    
+    // 1. 현재 시즌 진행 중(1R 이상 경기 기록 있음)이면 명예의 전당에 '중도 사퇴' 기록
+    const playedMatches = leagueTeams.reduce((acc, t) => acc + (t.p || 0), 0);
+    if (playedMatches > 0 && leagueRound <= oldConfig.totalRounds) {
+        recordSeasonProgressToFame(true); // isResigned = true
+    }
+    
+    // 2. 새 리그 설정 및 연도 증가
+    currentLeagueId = targetLeagueId;
+    leagueYear += 1;
+    leagueRound = 1;
+    
+    // 3. 새 시즌 초기화 및 뷰 갱신
+    resetLeagueSeasonState();
+    syncPlayerTeamOvr();
+    renderLeagueTable();
+    updateMatchPreviewBoard();
+    renderLeagueStats();
+    renderHallOfFame();
+    if (typeof updateAppLogo === 'function') updateAppLogo();
+    if (typeof updateMatchSubTabsUI === 'function') updateMatchSubTabsUI();
+    if (typeof switchMatchSubTab === 'function') switchMatchSubTab('league');
+    
+    // 4. 저장 및 부임 환영 안내
+    saveUserProgress();
+    const newConfig = getActiveLeagueConfig();
+    showToast(`🎉 ${leagueYear}년, ${newConfig.name} [${newConfig.userTeamName}]의 새 사령탑으로 부임하셨습니다!`);
+}
+
 function getTeamEmblemPath(teamId) {
     const mapping = {
+        // K리그
         "jeonbuk": "img/mark_jb.svg",
         "ulsan": "img/mark_ulsan.png",
         "seoul": "img/mark_seoul.png",
@@ -456,16 +638,39 @@ function getTeamEmblemPath(teamId) {
         "jeju": "img/mark_jeju.png",
         "daejeon": "img/mark_dj.png",
         "anyang": "img/mark_anyang.png",
-        "incheon": "img/mark_incheon.png"
+        "incheon": "img/mark_incheon.png",
+        // EPL
+        "liverpool": "img/mark_liverpool.png",
+        "mancity": "img/mark_mancity.png",
+        "arsenal": "img/mark_arsenal.png",
+        "chelsea": "img/mark_chelsea.png",
+        "tottenham": "img/mark_tottenham.png",
+        "manutd": "img/mark_manutd.png",
+        "newcastle": "img/mark_newcastle.png",
+        "astonvilla": "img/mark_astonvilla.png",
+        "brighton": "img/mark_brighton.png",
+        "westham": "img/mark_westham.png",
+        "bournemouth": "img/mark_bournemouth.png",
+        "fulham": "img/mark_fulham.png",
+        "palace": "img/mark_palace.png",
+        "brentford": "img/mark_brentford.png",
+        "nottingham": "img/mark_nottingham.png",
+        "wolves": "img/mark_wolves.png",
+        "everton": "img/mark_everton.png",
+        "leicester": "img/mark_leicester.png",
+        "ipswich": "img/mark_ipswich.png",
+        "southampton": "img/mark_southampton.png"
     };
     return mapping[teamId] || "img/mark_jb.svg";
 }
 
 function updateMatchPreviewBoard() {
+    const config = getActiveLeagueConfig();
+    
     // 현재 연도 시즌 텍스트 갱신
     const seasonYearTextEl = document.getElementById('leagueSeasonYearText');
     if (seasonYearTextEl) {
-        seasonYearTextEl.innerText = `${leagueYear} 시즌`;
+        seasonYearTextEl.innerText = `${leagueYear} ${config.seasonPrefix}`;
     }
 
     // 어려움 모드 뱃지 갱신
@@ -482,10 +687,15 @@ function updateMatchPreviewBoard() {
         matchTodayCountValEl.innerText = displayCount;
     }
 
+    const matchRoundContainerEl = document.getElementById('matchRoundContainer');
+    if (matchRoundContainerEl) {
+        matchRoundContainerEl.innerHTML = `라운드: <span id="matchRoundVal">${Math.min(leagueRound, config.totalRounds)}</span>/${config.totalRounds} | 오늘 경기: <span id="matchTodayCountVal">${(matchLastDate === new Date().toLocaleDateString('ko-KR')) ? matchTodayCount : 0}</span>/10`;
+    }
 
-    if (leagueRound > 33) {
+    if (leagueRound > config.totalRounds) {
         // Season completed
-        document.getElementById('matchRoundVal').innerText = "33";
+        const roundValEl = document.getElementById('matchRoundVal');
+        if (roundValEl) roundValEl.innerText = config.totalRounds;
         document.getElementById('sbTimeDisplay').innerText = "끝";
         document.getElementById('homeTeamName').innerText = "시즌";
         document.getElementById('awayTeamName').innerText = "종료";
@@ -497,11 +707,12 @@ function updateMatchPreviewBoard() {
         return;
     }
     
-    const fixture = JEONBUK_FIXTURES[leagueRound - 1];
-    const opponent = leagueTeams.find(t => t.id === fixture.opponent);
-    const jeonbuk = leagueTeams.find(t => t.id === 'jeonbuk');
+    const fixtures = config.fixtures;
+    const fixture = fixtures[leagueRound - 1] || fixtures[0];
+    const opponent = leagueTeams.find(t => t.id === fixture.opponent) || config.teamsPreset.find(t => t.id === fixture.opponent) || { id: fixture.opponent || "unknown", name: "상대팀", rating: 75 };
+    const userTeam = leagueTeams.find(t => t.id === config.userTeamId) || config.teamsPreset.find(t => t.id === config.userTeamId) || { id: config.userTeamId, name: config.userTeamName, rating: 75 };
     
-    // K리그 상대팀 분위기 설정 및 바인딩
+    // 상대팀 분위기 설정 및 바인딩
     if (typeof prepareOpponentMood === 'function') {
         if (!currentOpponentMood || currentOpponentMood.opponentId !== opponent.id) {
             prepareOpponentMood(opponent.id);
@@ -509,13 +720,11 @@ function updateMatchPreviewBoard() {
     }
     const mood = (typeof currentOpponentMood !== 'undefined' && currentOpponentMood) ? currentOpponentMood : { modifier: 0, label: "보통", emoji: "😐" };
     const moodModifierSign = mood.modifier > 0 ? `+${mood.modifier}` : (mood.modifier < 0 ? `${mood.modifier}` : '');
-    const moodModifierText = mood.modifier !== 0 ? ` (${moodModifierSign})` : '';
-    // 피드백 반영: 상대팀 컨디션 정보가 분석 카드에 노출되므로 OVR 옆의 이모지 배지는 제거하고 점수만 출력
     const oppOvrDisplayHtml = `${opponent.rating + mood.modifier}`;
 
     // 상대팀 포메이션 정보 로드 및 상성 분석
-    const oppFormation = TEAM_FORMATIONS_PRESET[opponent.id] || "4-4-2";
-    const compBonus = getFormationCompatibilityBonus(currentFormation, oppFormation);
+    const oppFormation = (typeof TEAM_FORMATIONS_PRESET !== 'undefined' && TEAM_FORMATIONS_PRESET[opponent.id]) ? TEAM_FORMATIONS_PRESET[opponent.id] : "4-4-2";
+    const compBonus = (typeof getFormationCompatibilityBonus === 'function') ? getFormationCompatibilityBonus(currentFormation, oppFormation) : 0;
     
     // UI에 바인딩
     const analysisCard = document.getElementById('leagueOpponentAnalysisCard');
@@ -530,33 +739,35 @@ function updateMatchPreviewBoard() {
             if (compBonus > 0) {
                 compTextEl.style.display = 'block';
                 compTextEl.classList.add('tactic-advantage');
-                compTextEl.innerHTML = `전북 현대의 <strong>${currentFormation}</strong> 전술이 상대의 <strong>${oppFormation}</strong> 전술에 상성상 우세합니다! (공격 찬스 확률 +5.0% ⚡)`;
+                compTextEl.innerHTML = `${config.userTeamName}의 <strong>${currentFormation}</strong> 전술이 상대의 <strong>${oppFormation}</strong> 전술에 상성상 우세합니다! (공격 찬스 확률 +5.0% ⚡)`;
             } else if (compBonus < 0) {
                 compTextEl.style.display = 'block';
                 compTextEl.classList.add('tactic-disadvantage');
-                compTextEl.innerHTML = `상대의 <strong>${oppFormation}</strong> 전술이 전북 현대의 <strong>${currentFormation}</strong> 전술에 상성상 우세합니다. (공격 찬스 확률 -5.0% ⚠️)`;
+                compTextEl.innerHTML = `상대의 <strong>${oppFormation}</strong> 전술이 ${config.userTeamName}의 <strong>${currentFormation}</strong> 전술에 상성상 우세합니다. (공격 찬스 확률 -5.0% ⚠️)`;
             } else {
-                // 피드백 반영: 상성이 비겼을 때(보너스 0)는 한 줄 설명 영역 숨김
                 compTextEl.style.display = 'none';
             }
         }
     }
 
-    document.getElementById('matchRoundVal').innerText = leagueRound;
+    const roundValEl = document.getElementById('matchRoundVal');
+    if (roundValEl) roundValEl.innerText = leagueRound;
     document.getElementById('sbTimeDisplay').innerText = "VS";
     document.getElementById('homeScore').innerText = "0";
     document.getElementById('awayScore').innerText = "0";
     
+    const venueName = (config.id === 'epl') ? '안필드' : '전주성';
+    
     if (fixture.isHome) {
-        document.getElementById('homeTeamName').innerText = jeonbuk.name;
-        document.getElementById('homeTeamOvr').innerText = jeonbuk.rating + 2;
+        document.getElementById('homeTeamName').innerText = userTeam.name;
+        document.getElementById('homeTeamOvr').innerText = userTeam.rating + 2;
         document.getElementById('awayTeamName').innerText = opponent.name;
         document.getElementById('awayTeamOvr').innerHTML = oppOvrDisplayHtml;
         
         const homeEmb = document.getElementById('homeEmblem');
         const awayEmb = document.getElementById('awayEmblem');
         if (homeEmb) {
-            homeEmb.innerHTML = `<img src="img/mark_jb.svg" alt="전북 현대" class="match-emblem-img match-emblem-glow" style="height: 48px; width: 48px; object-fit: contain;">`;
+            homeEmb.innerHTML = `<img src="${getTeamEmblemPath(userTeam.id)}" alt="${userTeam.name}" class="match-emblem-img match-emblem-glow" style="height: 48px; width: 48px; object-fit: contain;">`;
             homeEmb.removeAttribute('style');
             homeEmb.classList.add('jeonbuk-emblem-box');
         }
@@ -566,12 +777,12 @@ function updateMatchPreviewBoard() {
             awayEmb.classList.remove('jeonbuk-emblem-box');
         }
         
-        document.getElementById('matchVenueDisplay').innerText = "홈 경기 (전주성) - HOME ADVANTAGE +2 OVR";
+        document.getElementById('matchVenueDisplay').innerText = `홈 경기 (${venueName}) - HOME ADVANTAGE +2 OVR`;
     } else {
         document.getElementById('homeTeamName').innerText = opponent.name;
         document.getElementById('homeTeamOvr').innerHTML = opponent.rating + mood.modifier + 2;
-        document.getElementById('awayTeamName').innerText = jeonbuk.name;
-        document.getElementById('awayTeamOvr').innerText = jeonbuk.rating;
+        document.getElementById('awayTeamName').innerText = userTeam.name;
+        document.getElementById('awayTeamOvr').innerText = userTeam.rating;
         
         const homeEmb = document.getElementById('homeEmblem');
         const awayEmb = document.getElementById('awayEmblem');
@@ -581,7 +792,7 @@ function updateMatchPreviewBoard() {
             homeEmb.classList.remove('jeonbuk-emblem-box');
         }
         if (awayEmb) {
-            awayEmb.innerHTML = `<img src="img/mark_jb.svg" alt="전북 현대" class="match-emblem-img match-emblem-glow" style="height: 48px; width: 48px; object-fit: contain;">`;
+            awayEmb.innerHTML = `<img src="${getTeamEmblemPath(userTeam.id)}" alt="${userTeam.name}" class="match-emblem-img match-emblem-glow" style="height: 48px; width: 48px; object-fit: contain;">`;
             awayEmb.removeAttribute('style');
             awayEmb.classList.add('jeonbuk-emblem-box');
         }
@@ -591,12 +802,14 @@ function updateMatchPreviewBoard() {
 }
 
 function renderLeagueTable() {
+    const config = getActiveLeagueConfig();
     const titleEl = document.getElementById('leagueTableTitle');
     if (titleEl) {
-        titleEl.innerHTML = `<i class="fa-solid fa-ranking-star" style="margin-right: 8px; color: #ffd700;"></i>${leagueYear} K리그1 실시간 순위`;
+        titleEl.innerHTML = `<i class="fa-solid fa-ranking-star" style="margin-right: 8px; color: #ffd700;"></i>${leagueYear} ${config.seasonPrefix} 실시간 순위`;
     }
 
     const tbody = document.getElementById('leagueTableBody');
+    if (!tbody) return;
     tbody.innerHTML = '';
     
     // Sort Standings: 1. PTS (desc), 2. GD (desc), 3. GF (desc)
@@ -610,7 +823,7 @@ function renderLeagueTable() {
         const rank = idx + 1;
         const row = document.createElement('tr');
         
-        if (team.id === 'jeonbuk') {
+        if (team.id === config.userTeamId) {
             row.className = 'league-row-jeonbuk';
         }
         
@@ -636,11 +849,12 @@ function renderLeagueTable() {
 }
 
 function startLeagueAutoSimulation() {
+    const config = getActiveLeagueConfig();
     if (isMatchRunning) {
         showToast("⚠️ 현재 경기가 진행 중입니다.");
         return;
     }
-    if (leagueRound > 33) {
+    if (leagueRound > config.totalRounds) {
         showToast("시즌이 종료되었습니다. 우측 상단의 '시즌 리셋'을 진행해주세요!");
         return;
     }
@@ -668,13 +882,13 @@ function startLeagueAutoSimulation() {
     }
     
     for (let i = 0; i < roundsToSimulate; i++) {
-        if (leagueRound > 33) {
+        if (leagueRound > config.totalRounds) {
             alert(`시즌이 종료되어 자동진행이 중단되었습니다.\n진행된 경기: ${simulatedCount}경기 (${wins}승 ${draws}무 ${losses}패)`);
             break;
         }
         
-        // 33라운드 최종전 직전, 결승전 완료 상태 검사
-        if (leagueRound === 33) {
+        // K리그일 때만 33라운드 최종전 직전, 코리아컵/아챔 완료 상태 검사
+        if (config.id === 'kleague1' && leagueRound === 33) {
             let isCupFinished = false;
             try {
                 const savedCup = localStorage.getItem('fc_star_cup_state');
@@ -714,12 +928,14 @@ function startLeagueAutoSimulation() {
             break;
         }
         
-        // 1. 전북 현대 OVR 동기화
-        syncJeonbukOvr();
+        // 1. 플레이어 팀 OVR 동기화
+        syncPlayerTeamOvr();
         
-        const fixture = JEONBUK_FIXTURES[leagueRound - 1];
-        const opponent = leagueTeams.find(t => t.id === fixture.opponent);
-        const jeonbuk = leagueTeams.find(t => t.id === 'jeonbuk');
+        const fixtures = config.fixtures;
+        const fixture = fixtures[leagueRound - 1];
+        if (!fixture) break;
+        const opponent = leagueTeams.find(t => t.id === fixture.opponent) || { rating: 75, name: "상대팀" };
+        const userTeam = leagueTeams.find(t => t.id === config.userTeamId) || { rating: 75, name: config.userTeamName };
         
         // 2. 포메이션 전술 보너스 연산
         const formTactic = getPlayerFormationTacticBonuses();
@@ -749,8 +965,8 @@ function startLeagueAutoSimulation() {
         const maxProb = 0.80;
         const minProb = 0.20;
         
-        const opponentFormation = TEAM_FORMATIONS_PRESET[opponent.id] || "4-4-2";
-        const compatibilityBonus = getFormationCompatibilityBonus(currentFormation, opponentFormation);
+        const opponentFormation = (typeof TEAM_FORMATIONS_PRESET !== 'undefined' && TEAM_FORMATIONS_PRESET[opponent.id]) ? TEAM_FORMATIONS_PRESET[opponent.id] : "4-4-2";
+        const compatibilityBonus = (typeof getFormationCompatibilityBonus === 'function') ? getFormationCompatibilityBonus(currentFormation, opponentFormation) : 0;
         let activeDiff = diff;
         let activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (diff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
         
@@ -856,22 +1072,22 @@ function startLeagueAutoSimulation() {
         
         if (isWinner) {
             wins++;
-            jeonbuk.w += 1; jeonbuk.pts += 3;
+            userTeam.w += 1; userTeam.pts += 3;
             opponent.l += 1;
             if (typeof updateLeagueWinStreak === 'function') updateLeagueWinStreak(true, false);
         } else if (isDraw) {
             draws++;
-            jeonbuk.d += 1; jeonbuk.pts += 1;
+            userTeam.d += 1; userTeam.pts += 1;
             opponent.d += 1; opponent.pts += 1;
             if (typeof updateLeagueWinStreak === 'function') updateLeagueWinStreak(false, true);
         } else {
             losses++;
-            jeonbuk.l += 1;
+            userTeam.l += 1;
             opponent.w += 1; opponent.pts += 3;
             if (typeof updateLeagueWinStreak === 'function') updateLeagueWinStreak(false, false);
         }
         
-        jeonbuk.p += 1; jeonbuk.gf += playerScoreVal; jeonbuk.ga += opponentScoreVal; jeonbuk.gd = jeonbuk.gf - jeonbuk.ga;
+        userTeam.p += 1; userTeam.gf += playerScoreVal; userTeam.ga += opponentScoreVal; userTeam.gd = userTeam.gf - userTeam.ga;
         opponent.p += 1; opponent.gf += opponentScoreVal; opponent.ga += playerScoreVal; opponent.gd = opponent.gf - opponent.ga;
         
         simulateOtherMatches(fixture.opponent);
@@ -908,7 +1124,7 @@ function startLeagueAutoSimulation() {
         document.getElementById('awayScore').innerText = "-";
         document.getElementById('sbTimeDisplay').innerText = "대기";
         
-        if (leagueRound > 33) {
+        if (leagueRound > config.totalRounds) {
             setTimeout(() => {
                 checkSeasonChampion();
             }, 500);
@@ -918,19 +1134,20 @@ function startLeagueAutoSimulation() {
         
         saveUserProgress();
         
-        alert(`🏆 리그 자동 진행이 완료되었습니다!\n\n▶ 진행 경기: ${simulatedCount}경기\n▶ 결과: ${wins}승 ${draws}무 ${losses}패\n▶ 현재 라운드: ${leagueRound > 33 ? '시즌 종료' : leagueRound + '라운드'}`);
+        alert(`🏆 ${config.name} 자동 진행이 완료되었습니다!\n\n▶ 진행 경기: ${simulatedCount}경기\n▶ 결과: ${wins}승 ${draws}무 ${losses}패\n▶ 현재 라운드: ${leagueRound > config.totalRounds ? '시즌 종료' : leagueRound + '라운드'}`);
     }
 }
 
 function startMatchSimulation() {
+    const config = getActiveLeagueConfig();
     if (isMatchRunning) return;
-    if (leagueRound > 33) {
+    if (leagueRound > config.totalRounds) {
         showToast("시즌이 종료되었습니다. 우측 상단의 '시즌 리셋'을 진행해주세요!");
         return;
     }
     
-    // KFA 코리아컵 & ACL 완료 여부 체크 (33라운드 최종전 진입 시 차단)
-    if (leagueRound === 33) {
+    // KFA 코리아컵 & ACL 완료 여부 체크 (K리그일 때만 33라운드 최종전 진입 시 차단)
+    if (config.id === 'kleague1' && leagueRound === 33) {
         let isCupFinished = false;
         try {
             const savedCup = localStorage.getItem('fc_star_cup_state');
@@ -978,20 +1195,23 @@ function startMatchSimulation() {
         return;
     }
     
-    // Ensure Jeonbuk stats are synchronized
-    syncJeonbukOvr();
+    // Ensure User Team stats are synchronized
+    syncPlayerTeamOvr();
     
     isMatchRunning = true;
     
     const startBtn = document.getElementById('btnStartMatch');
-    startBtn.disabled = true;
-    startBtn.style.background = 'rgba(255, 255, 255, 0.05)';
-    startBtn.style.color = 'var(--text-muted)';
-    startBtn.style.cursor = 'not-allowed';
+    if (startBtn) {
+        startBtn.disabled = true;
+        startBtn.style.background = 'rgba(255, 255, 255, 0.05)';
+        startBtn.style.color = 'var(--text-muted)';
+        startBtn.style.cursor = 'not-allowed';
+    }
     
-    const fixture = JEONBUK_FIXTURES[leagueRound - 1];
-    const opponent = leagueTeams.find(t => t.id === fixture.opponent);
-    const jeonbuk = leagueTeams.find(t => t.id === 'jeonbuk');
+    const fixtures = config.fixtures;
+    const fixture = fixtures[leagueRound - 1];
+    const opponent = leagueTeams.find(t => t.id === fixture.opponent) || { rating: 75, name: "상대팀" };
+    const userTeam = leagueTeams.find(t => t.id === config.userTeamId) || { rating: 75, name: config.userTeamName };
     
     // 포메이션 전술에 따른 직접/비례 확률 보너스 연산 엔진
     const formTactic = getPlayerFormationTacticBonuses();
@@ -1250,22 +1470,29 @@ function startMatchSimulation() {
             addCommentary('FT', getMatchEventCommentary('RESULT', commentaryData, false), 'normal');
         }
 
-        const jb = leagueTeams.find(t => t.id === 'jeonbuk');
+        const userTeam = leagueTeams.find(t => t.id === config.userTeamId);
         const opp = leagueTeams.find(t => t.id === opponent.id);
         
-        jb.p += 1; jb.gf += playerScoreVal; jb.ga += opponentScoreVal; jb.gd = jb.gf - jb.ga;
-        opp.p += 1; opp.gf += opponentScoreVal; opp.ga += playerScoreVal; opp.gd = opp.gf - opp.ga;
+        if (userTeam) {
+            userTeam.p += 1; userTeam.gf += playerScoreVal; userTeam.ga += opponentScoreVal; userTeam.gd = userTeam.gf - userTeam.ga;
+        }
+        if (opp) {
+            opp.p += 1; opp.gf += opponentScoreVal; opp.ga += playerScoreVal; opp.gd = opp.gf - opp.ga;
+        }
         
         if (isWinner) {
-            jb.w += 1; jb.pts += 3; opp.l += 1;
+            if (userTeam) { userTeam.w += 1; userTeam.pts += 3; }
+            if (opp) { opp.l += 1; }
             if (typeof updateLeagueWinStreak === 'function') updateLeagueWinStreak(true, false);
         }
         else if (isDraw) {
-            jb.d += 1; jb.pts += 1; opp.d += 1; opp.pts += 1;
+            if (userTeam) { userTeam.d += 1; userTeam.pts += 1; }
+            if (opp) { opp.d += 1; opp.pts += 1; }
             if (typeof updateLeagueWinStreak === 'function') updateLeagueWinStreak(false, true);
         }
         else {
-            jb.l += 1; opp.w += 1; opp.pts += 3;
+            if (userTeam) { userTeam.l += 1; }
+            if (opp) { opp.w += 1; opp.pts += 3; }
             if (typeof updateLeagueWinStreak === 'function') updateLeagueWinStreak(false, false);
         }
 
@@ -1297,7 +1524,7 @@ function startMatchSimulation() {
         startBtn.style.color = '';
         startBtn.style.cursor = '';
 
-        if (leagueRound > 33) {
+        if (leagueRound > config.totalRounds) {
             checkSeasonChampion();
         } else {
             updateMatchPreviewBoard();
@@ -1526,13 +1753,13 @@ function startMatchSimulation() {
             }
             
             // 4. Update Standing Points
-            const jb = leagueTeams.find(t => t.id === 'jeonbuk');
+            const userTeam = leagueTeams.find(t => t.id === config.userTeamId);
             const opp = leagueTeams.find(t => t.id === opponent.id);
             
-            jb.p += 1;
-            jb.gf += playerScoreVal;
-            jb.ga += opponentScoreVal;
-            jb.gd = jb.gf - jb.ga;
+            userTeam.p += 1;
+            userTeam.gf += playerScoreVal;
+            userTeam.ga += opponentScoreVal;
+            userTeam.gd = userTeam.gf - userTeam.ga;
             
             opp.p += 1;
             opp.gf += opponentScoreVal;
@@ -1540,20 +1767,20 @@ function startMatchSimulation() {
             opp.gd = opp.gf - opp.ga;
             
             if (isWinner) {
-                jb.w += 1; jb.pts += 3;
+                userTeam.w += 1; userTeam.pts += 3;
                 opp.l += 1;
                 if (typeof updateLeagueWinStreak === 'function') updateLeagueWinStreak(true, false);
             } else if (isDraw) {
-                jb.d += 1; jb.pts += 1;
+                userTeam.d += 1; userTeam.pts += 1;
                 opp.d += 1; opp.pts += 1;
                 if (typeof updateLeagueWinStreak === 'function') updateLeagueWinStreak(false, true);
             } else {
-                jb.l += 1;
+                userTeam.l += 1;
                 opp.w += 1; opp.pts += 3;
                 if (typeof updateLeagueWinStreak === 'function') updateLeagueWinStreak(false, false);
             }
             
-            // 5. Simulate all other 5 K League fixtures for this round
+            // 5. Simulate all other league fixtures for this round
             simulateOtherMatches(fixture.opponent);
             
             // Increase round
@@ -1582,13 +1809,15 @@ function startMatchSimulation() {
             isMatchRunning = false;
             
             // Unlock start button
-            startBtn.disabled = false;
-            startBtn.style.background = '';
-            startBtn.style.color = '';
-            startBtn.style.cursor = '';
+            if (startBtn) {
+                startBtn.disabled = false;
+                startBtn.style.background = '';
+                startBtn.style.color = '';
+                startBtn.style.cursor = '';
+            }
             
             // Check season completion celebrating
-            if (leagueRound > 33) {
+            if (leagueRound > config.totalRounds) {
                 setTimeout(() => {
                     checkSeasonChampion();
                 }, 1000);
@@ -1609,8 +1838,9 @@ function startMatchSimulation() {
 }
 
 function simulateOtherMatches(opponentId) {
+    const config = getActiveLeagueConfig();
     const roundFixtures = [];
-    const availableTeams = leagueTeams.filter(t => t.id !== 'jeonbuk' && t.id !== opponentId);
+    const availableTeams = leagueTeams.filter(t => t.id !== config.userTeamId && t.id !== opponentId);
     
     // Shuffle available teams to pair them randomly for simulation
     const shuffled = [...availableTeams].sort(() => 0.5 - Math.random());
@@ -1684,153 +1914,32 @@ function getTopScorerAndAssister() {
 }
 
 function checkSeasonChampion() {
+    const config = getActiveLeagueConfig();
     const sorted = [...leagueTeams].sort((a, b) => {
         if (b.pts !== a.pts) return b.pts - a.pts;
         if (b.gd !== a.gd) return b.gd - a.gd;
         return b.gf - a.gf;
     });
     
-    const champion = sorted[0];
-    const jb = sorted.find(t => t.id === 'jeonbuk');
-    const jbRank = sorted.findIndex(t => t.id === 'jeonbuk') + 1;
-    const isJeonbukChamp = champion.id === 'jeonbuk';
+    const champion = sorted[0] || { name: config.userTeamName, pts: 0 };
+    const userTeam = sorted.find(t => t.id === config.userTeamId) || sorted[0];
+    const userTeamRank = sorted.findIndex(t => t.id === config.userTeamId) + 1;
+    const isUserTeamChamp = (champion.id === config.userTeamId);
     
     // Stop starts previews
-    document.getElementById('matchVenueDisplay').innerText = `${leagueYear} 시즌 종료! 명예의 전당 등록 및 다음 시즌을 준비하세요.`;
-    document.getElementById('sbTimeDisplay').innerText = "끝";
-    
-    // 1. 명예의 전당에 전적 기록 등록
-    const { topScorer, topAssister } = getTopScorerAndAssister();
-    
-    // 코리아컵 시즌 성적 조회
-    let cupRecordText = "미참가";
-    try {
-        const savedCup = localStorage.getItem('fc_star_cup_state');
-        if (savedCup) {
-            const cupStateParsed = JSON.parse(savedCup);
-            
-            // 전북 현대 성적 판별
-            if (cupStateParsed.bracket && cupStateParsed.bracket.winner && cupStateParsed.bracket.winner.id === 'jeonbuk') {
-                cupRecordText = "우승 🏆";
-            } else {
-                const rounds = [2, 4, 8, 16];
-                let foundRecord = false;
-                for (let r of rounds) {
-                    const matches = cupStateParsed.bracket[r] || [];
-                    const jbMatch = matches.find(m => (m.team1 && m.team1.id === 'jeonbuk') || (m.team2 && m.team2.id === 'jeonbuk'));
-                    if (jbMatch) {
-                        if (r === 2) cupRecordText = "준우승 🥈";
-                        else if (r === 4) cupRecordText = "4강 탈락";
-                        else if (r === 8) cupRecordText = "8강 탈락";
-                        else if (r === 16) cupRecordText = "16강 탈락";
-                        foundRecord = true;
-                        break;
-                    }
-                }
-                
-                if (!foundRecord && !cupStateParsed.isFinished) {
-                    cupRecordText = `진행 중 (${cupStateParsed.round}강전)`;
-                }
-            }
-        }
-    } catch (e) {
-        console.warn("Cup Hall of Fame check failed:", e);
+    const venueDisplay = document.getElementById('matchVenueDisplay');
+    if (venueDisplay) {
+        venueDisplay.innerText = `${leagueYear} ${config.seasonPrefix} 종료! 명예의 전당 등록 및 다음 시즌을 준비하세요.`;
     }
+    const timeDisplay = document.getElementById('sbTimeDisplay');
+    if (timeDisplay) timeDisplay.innerText = "끝";
     
-    // 아챔(AFC 챔피언스리그) 시즌 성적 조회
-    let aclRecordText = "미참가";
-    try {
-        const savedAcl = localStorage.getItem('fc_star_acl_state');
-        if (savedAcl) {
-            const aclStateParsed = JSON.parse(savedAcl);
-            
-            // 전북 현대 성적 판별
-            if (aclStateParsed.bracket && aclStateParsed.bracket.winner && aclStateParsed.bracket.winner.id === 'jeonbuk') {
-                aclRecordText = "우승 🏆";
-            } else {
-                const rounds = [2, 4, 8, 16];
-                let foundRecord = false;
-                for (let r of rounds) {
-                    const matches = aclStateParsed.bracket[r] || [];
-                    const jbMatch = matches.find(m => (m.team1 && m.team1.id === 'jeonbuk') || (m.team2 && m.team2.id === 'jeonbuk'));
-                    if (jbMatch) {
-                        if (r === 2) aclRecordText = "준우승 🥈";
-                        else if (r === 4) aclRecordText = "4강 탈락";
-                        else if (r === 8) aclRecordText = "8강 탈락";
-                        else if (r === 16) aclRecordText = "16강 탈락";
-                        foundRecord = true;
-                        break;
-                    }
-                }
-                
-                if (!foundRecord && !aclStateParsed.isFinished) {
-                    aclRecordText = `진행 중 (${aclStateParsed.round}강전)`;
-                }
-            }
-        }
-    } catch (e) {
-        console.warn("ACL Hall of Fame check failed:", e);
-    }
-    
-    const record = {
-        year: leagueYear,
-        jeonbukRank: jbRank,
-        jeonbukRecord: {
-            w: jb.w,
-            d: jb.d,
-            l: jb.l,
-            pts: jb.pts
-        },
-        champion: champion.name,
-        topScorer: (topScorer && topScorer.teamId === 'jeonbuk') ? { name: topScorer.name, goals: topScorer.goals } : null,
-        topAssister: (topAssister && topAssister.teamId === 'jeonbuk') ? { name: topAssister.name, assists: topAssister.assists } : null,
-        cupRecord: cupRecordText,
-        aclRecord: aclRecordText,
-        isHardMode: isHardMode
-    };
-    
-    // 중복 방지 검증 후 추가
-    if (!hallOfFame.some(r => r.year === leagueYear && r.isHardMode === isHardMode)) {
-        hallOfFame.push(record);
-        
-        // Accumulate Club Career Stats
-        let activeCareer = isHardMode ? careerStatsHard : careerStats;
-        if (!activeCareer) {
-            activeCareer = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
-            if (isHardMode) careerStatsHard = activeCareer;
-            else careerStats = activeCareer;
-        }
-        activeCareer.w += jb.w;
-        activeCareer.d += jb.d;
-        activeCareer.l += jb.l;
-        activeCareer.gf += jb.gf;
-        activeCareer.ga += jb.ga;
-        
-        // Accumulate player goals (Jeonbuk players only)
-        const playersArray = Object.values(leaguePlayerStats || {});
-        playersArray.forEach(p => {
-            if (p.teamId === 'jeonbuk' && p.goals > 0) {
-                if (!activeCareer.playerGoals) activeCareer.playerGoals = {};
-                if (!activeCareer.playerGoals[p.id]) {
-                    activeCareer.playerGoals[p.id] = { name: p.name, goals: 0 };
-                }
-                activeCareer.playerGoals[p.id].goals += p.goals;
-            }
-        });
-        
-        try {
-            localStorage.setItem('fc_star_hall_of_fame', JSON.stringify(hallOfFame));
-            if (isHardMode) {
-                localStorage.setItem('fc_star_career_stats_hard', JSON.stringify(careerStatsHard));
-            } else {
-                localStorage.setItem('fc_star_career_stats', JSON.stringify(careerStats));
-            }
-        } catch (e) {}
-    }
+    // 1. 명예의 전당에 완주 기록 등록
+    recordSeasonProgressToFame(false);
     
     // 1-B. 리그 우승 보상 (+10 FP) 연동 및 헌정 배너 생성
     let captainAwakenedMsg = "";
-    if (isJeonbukChamp) {
+    if (isUserTeamChamp) {
         if (typeof userPoints !== 'undefined') {
             userPoints += 10;
         } else {
@@ -1844,7 +1953,7 @@ function checkSeasonChampion() {
         } catch (e) {}
 
         if (typeof checkLeagueEndAchievements === 'function') {
-            checkLeagueEndAchievements(true, jb.l);
+            checkLeagueEndAchievements(true, userTeam.l);
         }
 
         captainAwakenedMsg = `
@@ -1853,7 +1962,7 @@ function checkSeasonChampion() {
                     <i class="fa-solid fa-trophy" style="color: #ffd700; animation: keyPlayerLabelPulse 1s infinite alternate;"></i>
                     <span style="font-size: 0.88rem; font-weight: 900;">리그 우승 보상: +10 FP 지급!</span>
                 </div>
-                전북 현대의 위대한 우승을 축하드립니다!<br>
+                ${config.userTeamName}의 위대한 우승을 축하드립니다!<br>
                 리그 우승 기념 보상으로 <strong>10 드림 포인트(FP)</strong>가 성공적으로 지급되었습니다.
             </div>
         `;
@@ -1871,15 +1980,22 @@ function checkSeasonChampion() {
     
     // 2. 최종 결과 모달 활성화 및 커스터마이징
     const modal = document.getElementById('revealModal');
+    if (!modal) return;
     modal.classList.add('active');
     
     const card3d = document.getElementById('card3dWrapper');
     if (card3d) card3d.style.display = 'none'; // Hide player card
     
     const btnCollect = document.getElementById('btnCollect');
-    if (btnCollect) btnCollect.style.display = 'none'; // 영입 버튼 숨기기 (리그 우승 팝업 누수 방지)
+    if (btnCollect) btnCollect.style.display = 'none'; // 영입 버튼 숨기기
     
     const stage = document.querySelector('.reveal-stage');
+    if (!stage) return;
+    
+    // 기존 축하 팝업이 남아있다면 제거
+    const oldCeleb = document.getElementById('squadChampCelebration');
+    if (oldCeleb) oldCeleb.remove();
+    
     const trophyContainer = document.createElement('div');
     trophyContainer.id = "squadChampCelebration";
     trophyContainer.className = "empty-deck";
@@ -1891,10 +2007,20 @@ function checkSeasonChampion() {
     trophyContainer.style.textAlign = 'center';
     trophyContainer.style.animation = 'goalPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
     
-    const isTreble = isJeonbukChamp && cupRecordText.includes("우승") && aclRecordText.includes("우승");
+    // K리그 트레블 검사 (코리아컵 + 아챔)
+    let isTreble = false;
+    if (config.id === 'kleague1' && isUserTeamChamp) {
+        let cupWon = false, aclWon = false;
+        try {
+            const savedCup = localStorage.getItem('fc_star_cup_state');
+            if (savedCup && JSON.parse(savedCup).bracket?.winner?.id === 'jeonbuk') cupWon = true;
+            const savedAcl = localStorage.getItem('fc_star_acl_state');
+            if (savedAcl && JSON.parse(savedAcl).bracket?.winner?.id === 'jeonbuk') aclWon = true;
+            isTreble = cupWon && aclWon;
+        } catch(e) {}
+    }
     
     if (isTreble) {
-        // Add treble bonus reward (+10 FP)
         userPoints += 10;
         try {
             localStorage.setItem('fc_star_user_points', userPoints.toString());
@@ -1915,20 +2041,20 @@ function checkSeasonChampion() {
             </div>
             <h2 style="font-size:1.80rem; font-weight:900; background: linear-gradient(135deg, #ffd700 0%, #00ff87 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:0.8rem; text-shadow: 0 0 10px rgba(0,255,135,0.25);">👑 역사적인 트레블 달성! 👑</h2>
             <p style="color:var(--text-light); font-size:1.05rem; line-height:1.6; margin-bottom:1rem;">
-                축하합니다! 전북 현대가 ${leagueYear} 시즌 **K리그1 + 코리아컵 + AFC 챔피언스리그**를 모두 제패하며 위대한 **트레블(3관왕)**을 완성했습니다!<br>
-                아시아 축구 역사에 영원히 기억될 대기록의 주인공이 되었습니다.<br>
+                축하합니다! ${config.userTeamName}가 ${leagueYear} 시즌 **K리그1 + 코리아컵 + AFC 챔피언스리그**를 모두 제패하며 위대한 **트레블(3관왕)**을 완성했습니다!<br>
+                축구 역사에 영원히 기억될 대기록의 주인공이 되었습니다.<br>
                 <strong style="color: #ffd700; font-size: 1.05rem;">🎁 트레블 달성 보상: +10 FP</strong>
             </p>
             ${captainAwakenedMsg}
             <button class="btn-open-pack" onclick="closeChampModal()" style="margin-top:1.5rem;">다음 시즌 시작하기</button>
         `;
-    } else if (isJeonbukChamp) {
+    } else if (isUserTeamChamp) {
         trophyContainer.innerHTML = `
             <i class="fa-solid fa-trophy" style="font-size: 5rem; color:#ffd700; filter:drop-shadow(0 0 25px rgba(255,215,0,0.6)); margin-bottom:1.5rem; animation: float 3s ease-in-out infinite;"></i>
-            <h2 style="font-size:1.8rem; font-weight:900; background:var(--gold-gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:0.8rem;">🎉 리그 우승 달성! 🎉</h2>
+            <h2 style="font-size:1.8rem; font-weight:900; background:var(--gold-gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:0.8rem;">🎉 ${config.seasonPrefix} 우승 달성! 🎉</h2>
             <p style="color:var(--text-light); font-size:1.05rem; line-height:1.6; margin-bottom:1rem;">
-                축하합니다! 전북 현대가 ${leagueYear} 시즌 K리그1 우승을 차지하여 역사적인 트로피를 들어올렸습니다!<br>
-                당신이 꾸린 베스트 11이 K리그 정상의 주역으로 우뚝 섰습니다.
+                축하합니다! ${config.userTeamName}가 ${leagueYear} 시즌 ${config.name} 우승을 차지하여 역사적인 트로피를 들어올렸습니다!<br>
+                당신이 지휘한 스쿼드가 리그 정상의 주역으로 우뚝 섰습니다.
             </p>
             ${captainAwakenedMsg}
             <button class="btn-open-pack" onclick="closeChampModal()" style="margin-top:1.5rem;">다음 시즌 시작하기</button>
@@ -1936,9 +2062,9 @@ function checkSeasonChampion() {
     } else {
         trophyContainer.innerHTML = `
             <i class="fa-solid fa-ranking-star" style="font-size: 5rem; color:#b5c2d9; filter:drop-shadow(0 0 20px rgba(255,255,255,0.2)); margin-bottom:1.5rem; animation: float 3s ease-in-out infinite;"></i>
-            <h2 style="font-size:1.8rem; font-weight:900; color:#cbd5e1; margin-bottom:0.8rem;">⚽ ${leagueYear} 시즌 종료 ⚽</h2>
+            <h2 style="font-size:1.8rem; font-weight:900; color:#cbd5e1; margin-bottom:0.8rem;">⚽ ${leagueYear} ${config.seasonPrefix} 종료 ⚽</h2>
             <p style="color:var(--text-light); font-size:1.05rem; line-height:1.6; margin-bottom:1.8rem;">
-                전북 현대가 최종 **${jbRank}위**로 시즌을 마쳤습니다.<br>
+                ${config.userTeamName}가 최종 **${userTeamRank}위**로 시즌을 마쳤습니다.<br>
                 시즌 우승팀: **${champion.name}** (승점 ${champion.pts}점)<br>
                 아쉽지만 스쿼드를 더 강력하게 정비하여 다음 연도 시즌의 정상에 재도전하세요!
             </p>
@@ -1955,7 +2081,7 @@ function checkSeasonChampion() {
             clearInterval(celebrationTimer);
             return;
         }
-        createSparkParticles(true, isJeonbukChamp ? '#ffd700' : '#00ff87');
+        createSparkParticles(true, isUserTeamChamp ? '#ffd700' : '#00ff87');
         celebrationTimerCount++;
         if (celebrationTimerCount > 8) clearInterval(celebrationTimer);
     }, 1200);
@@ -1966,7 +2092,7 @@ function checkSeasonChampion() {
 
 function closeChampModal() {
     const modal = document.getElementById('revealModal');
-    modal.classList.remove('active');
+    if (modal) modal.classList.remove('active');
     
     // Restore elements
     const card3d = document.getElementById('card3dWrapper');
@@ -1980,14 +2106,16 @@ function closeChampModal() {
 }
 
 function startNextSeason() {
+    const config = getActiveLeagueConfig();
+    
     // 1. 리그 연도 증가
     leagueYear += 1;
     localStorage.setItem('fc_star_league_year', leagueYear.toString());
     
-    // 2. K리그 순위표 초기화 및 라운드 1로 리셋 (기존 스쿼드 및 카드/포인트 보존)
+    // 2. 현재 리그 순위표 초기화 및 라운드 1로 리셋 (기존 스쿼드 및 카드/포인트 보존)
     resetLeagueSeasonState();
     
-    // 코리아컵 새 시즌 리셋 연동
+    // 코리아컵 및 아챔 새 시즌 리셋 연동
     if (typeof resetCupStateData === 'function') {
         resetCupStateData();
     }
@@ -1995,7 +2123,6 @@ function startNextSeason() {
         initCupTab();
     }
 
-    // 아챔 새 시즌 리셋 연동
     if (typeof resetAclStateData === 'function') {
         resetAclStateData();
     }
@@ -2004,20 +2131,38 @@ function startNextSeason() {
     }
     
     // 3. 순위표 렌더링 및 프리뷰 정보 새로고침
-    syncJeonbukOvr();
+    syncPlayerTeamOvr();
     renderLeagueTable();
     updateMatchPreviewBoard();
+    renderLeagueStats();
     
     // Commentary clear
     const commBox = document.getElementById('commentaryScroll');
     if (commBox) {
-        commBox.innerHTML = `<div class="comm-item comm-system">새로운 ${leagueYear} 시즌이 시작되었습니다! 첫 경기를 진행해 보세요.</div>`;
+        commBox.innerHTML = `<div class="comm-item comm-system">새로운 ${leagueYear} ${config.seasonPrefix}이 시작되었습니다! 첫 경기를 진행해 보세요.</div>`;
     }
     
-    showToast(`🚀 새로운 ${leagueYear} 시즌의 막이 올랐습니다!`);
+    showToast(`🚀 새로운 ${leagueYear} ${config.seasonPrefix}의 막이 올랐습니다!`);
     
     // 4. 세이브 동기화
     saveUserProgress();
+}
+
+function switchFameLeagueTab(leagueId) {
+    if (!LEAGUE_CONFIGS[leagueId]) return;
+    currentFameLeagueTab = leagueId;
+    
+    // Update active style on league sub-tab buttons
+    const tabs = document.querySelectorAll('.fame-league-tab-btn');
+    tabs.forEach(tab => {
+        if (tab.dataset.league === leagueId) {
+            tab.classList.add('active');
+        } else {
+            tab.classList.remove('active');
+        }
+    });
+    
+    renderHallOfFame();
 }
 
 function renderHallOfFame() {
@@ -2039,9 +2184,14 @@ function renderHallOfFameSub(subTabId) {
     
     if (!gridEl) return;
     
+    // 1. 현재 선택된 리그 탭(currentFameLeagueTab) 및 난이도에 따라 필터링
+    const targetLeagueId = currentFameLeagueTab || 'kleague1';
+    const targetConfig = LEAGUE_CONFIGS[targetLeagueId] || LEAGUE_CONFIGS['kleague1'];
+    
     const filteredFame = hallOfFame.filter(record => {
-        if (isHard) return record.isHardMode === true;
-        return !record.isHardMode;
+        const matchesLeague = (record.leagueId === targetLeagueId) || (!record.leagueId && targetLeagueId === 'kleague1');
+        const matchesHard = isHard ? (record.isHardMode === true) : !record.isHardMode;
+        return matchesLeague && matchesHard;
     });
     
     // Update count display
@@ -2052,7 +2202,10 @@ function renderHallOfFameSub(subTabId) {
     existingCards.forEach(c => c.remove());
     
     if (filteredFame.length === 0) {
-        if (placeholderEl) placeholderEl.style.display = 'flex';
+        if (placeholderEl) {
+            placeholderEl.style.display = 'flex';
+            placeholderEl.querySelector('p') && (placeholderEl.querySelector('p').innerText = `아직 ${targetConfig.name} 명예의 전당에 등록된 시즌 기록이 없습니다.`);
+        }
         if (headerEl) headerEl.style.display = 'none';
         renderCareerStatsSub(subTabId);
         return;
@@ -2061,13 +2214,14 @@ function renderHallOfFameSub(subTabId) {
     if (placeholderEl) placeholderEl.style.display = 'none';
 
     // Calculate championships
-    let kLeagueTitles = 0;
+    let leagueTitles = 0;
     let cupTitles = 0;
     let aclTitles = 0;
 
     filteredFame.forEach(record => {
-        if (record.jeonbukRank === 1) {
-            kLeagueTitles++;
+        const rank = record.userTeamRank || record.jeonbukRank;
+        if (rank === 1 && !record.resigned) {
+            leagueTitles++;
         }
         if (record.cupRecord && record.cupRecord.includes("우승")) {
             cupTitles++;
@@ -2080,23 +2234,28 @@ function renderHallOfFameSub(subTabId) {
     // Render Club Header
     if (headerEl) {
         headerEl.style.display = 'flex';
-        headerEl.style.flexWrap = 'wrap'; // Responsive wrap for mobile
+        headerEl.style.flexWrap = 'wrap';
         
-        headerEl.innerHTML = `
-            <div class="fame-club-info" style="display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 200px;">
-                <img src="img/mark_jb.svg" class="logo-emblem" alt="Jeonbuk Hyundai Motors Logo" style="height: 60px; width: 60px; object-fit: contain; filter: drop-shadow(0 0 8px rgba(0, 255, 135, 0.6)); animation: emblemPulse 3s ease-in-out infinite alternate;">
-                <div>
-                    <h3 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin-bottom: 2px;">전북 현대 모터스 ${isHard ? '<span style="color:#ff3e6c;">[어려움]</span>' : ''}</h3>
-                    <p style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">명예의 전당 트로피 룸</p>
+        let trophyShelfHtml = '';
+        if (targetLeagueId === 'epl') {
+            trophyShelfHtml = `
+                <!-- EPL Trophy -->
+                <div class="trophy-badge-container" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${leagueTitles > 0 ? (isHard ? 'rgba(255, 62, 108, 0.4)' : 'rgba(255, 215, 0, 0.3)') : 'rgba(255, 255, 255, 0.05)'}; padding: 0.5rem 0.8rem; border-radius: 14px; min-width: 130px; transition: all 0.3s; ${leagueTitles > 0 ? (isHard ? 'box-shadow: 0 0 15px rgba(255, 62, 108, 0.2);' : 'box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);') : ''}">
+                    <i class="fa-solid fa-crown" style="font-size: 1.6rem; color: ${leagueTitles > 0 ? (isHard ? '#ff3e6c' : '#ffd700') : '#4b5563'}; filter: ${leagueTitles > 0 ? (isHard ? 'drop-shadow(0 0 6px rgba(255, 62, 108, 0.6))' : 'drop-shadow(0 0 6px rgba(255, 215, 0, 0.6))') : 'none'};"></i>
+                    <div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">프리미어리그</div>
+                        <div style="font-size: 0.9rem; font-weight: 800; color: ${leagueTitles > 0 ? '#fff' : '#6b7280'};">${leagueTitles}회 우승</div>
+                    </div>
                 </div>
-            </div>
-            <div class="fame-trophy-shelf" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-left: auto;">
+            `;
+        } else {
+            trophyShelfHtml = `
                 <!-- K-League Trophy -->
-                <div class="trophy-badge-container" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${kLeagueTitles > 0 ? (isHard ? 'rgba(255, 62, 108, 0.4)' : 'rgba(255, 215, 0, 0.3)') : 'rgba(255, 255, 255, 0.05)'}; padding: 0.5rem 0.8rem; border-radius: 14px; min-width: 110px; transition: all 0.3s; ${kLeagueTitles > 0 ? (isHard ? 'box-shadow: 0 0 15px rgba(255, 62, 108, 0.2);' : 'box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);') : ''}">
-                    <i class="fa-solid fa-crown" style="font-size: 1.6rem; color: ${kLeagueTitles > 0 ? (isHard ? '#ff3e6c' : '#ffd700') : '#4b5563'}; filter: ${kLeagueTitles > 0 ? (isHard ? 'drop-shadow(0 0 6px rgba(255, 62, 108, 0.6))' : 'drop-shadow(0 0 6px rgba(255, 215, 0, 0.6))') : 'none'};"></i>
+                <div class="trophy-badge-container" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${leagueTitles > 0 ? (isHard ? 'rgba(255, 62, 108, 0.4)' : 'rgba(255, 215, 0, 0.3)') : 'rgba(255, 255, 255, 0.05)'}; padding: 0.5rem 0.8rem; border-radius: 14px; min-width: 110px; transition: all 0.3s; ${leagueTitles > 0 ? (isHard ? 'box-shadow: 0 0 15px rgba(255, 62, 108, 0.2);' : 'box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);') : ''}">
+                    <i class="fa-solid fa-crown" style="font-size: 1.6rem; color: ${leagueTitles > 0 ? (isHard ? '#ff3e6c' : '#ffd700') : '#4b5563'}; filter: ${leagueTitles > 0 ? (isHard ? 'drop-shadow(0 0 6px rgba(255, 62, 108, 0.6))' : 'drop-shadow(0 0 6px rgba(255, 215, 0, 0.6))') : 'none'};"></i>
                     <div>
                         <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">K리그1</div>
-                        <div style="font-size: 0.9rem; font-weight: 800; color: ${kLeagueTitles > 0 ? '#fff' : '#6b7280'};">${kLeagueTitles}회 우승</div>
+                        <div style="font-size: 0.9rem; font-weight: 800; color: ${leagueTitles > 0 ? '#fff' : '#6b7280'};">${leagueTitles}회 우승</div>
                     </div>
                 </div>
                 <!-- Korea Cup Trophy -->
@@ -2115,6 +2274,19 @@ function renderHallOfFameSub(subTabId) {
                         <div style="font-size: 0.9rem; font-weight: 800; color: ${aclTitles > 0 ? '#fff' : '#6b7280'};">${aclTitles}회 우승</div>
                     </div>
                 </div>
+            `;
+        }
+        
+        headerEl.innerHTML = `
+            <div class="fame-club-info" style="display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 200px;">
+                <img src="${getTeamEmblemPath(targetConfig.userTeamId)}" class="logo-emblem" alt="${targetConfig.userTeamName}" style="height: 60px; width: 60px; object-fit: contain; filter: drop-shadow(0 0 8px rgba(0, 255, 135, 0.6)); animation: emblemPulse 3s ease-in-out infinite alternate;">
+                <div>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin-bottom: 2px;">${targetConfig.userTeamName} ${isHard ? '<span style="color:#ff3e6c;">[어려움]</span>' : ''}</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">${targetConfig.name} 명예의 전당 트로피 룸</p>
+                </div>
+            </div>
+            <div class="fame-trophy-shelf" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-left: auto;">
+                ${trophyShelfHtml}
             </div>
         `;
     }
@@ -2123,16 +2295,24 @@ function renderHallOfFameSub(subTabId) {
         const card = document.createElement('div');
         card.className = 'fame-card';
         
+        const rank = record.userTeamRank || record.jeonbukRank;
+        const stats = record.userTeamStats || record.jeonbukRecord || { w: 0, d: 0, l: 0, pts: 0 };
+        const totalRounds = record.totalRounds || 33;
+        const leagueName = record.leagueName || 'K리그1';
+        
         let badgeClass = 'other-medal';
         let badgeIcon = '<i class="fa-solid fa-award"></i>';
         
-        if (record.jeonbukRank === 1) {
+        if (record.resigned) {
+            badgeClass = 'other-medal';
+            badgeIcon = '<i class="fa-solid fa-person-walking-arrow-right" style="color: #f59e0b;"></i>';
+        } else if (rank === 1) {
             badgeClass = 'gold-crown';
             badgeIcon = '<i class="fa-solid fa-crown"></i>';
-        } else if (record.jeonbukRank === 2) {
+        } else if (rank === 2) {
             badgeClass = 'silver-medal';
             badgeIcon = '<i class="fa-solid fa-medal"></i>';
-        } else if (record.jeonbukRank === 3) {
+        } else if (rank === 3) {
             badgeClass = 'bronze-medal';
             badgeIcon = '<i class="fa-solid fa-medal"></i>';
         } else {
@@ -2152,20 +2332,36 @@ function renderHallOfFameSub(subTabId) {
             awardHtml += `</div>`;
         }
         
+        let roundStatusHtml = '';
+        if (record.resigned) {
+            roundStatusHtml = `
+                <div class="fame-card-rank" style="color: #f59e0b;"><i class="fa-solid fa-person-running"></i> [중도 사퇴] ${record.playedRound}R 진행 중 (당시 ${rank}위)</div>
+                <div class="fame-card-stats">
+                    <span>진행 승점: <strong>${stats.pts} 점</strong></span>
+                    <span>진행 전적: <strong>${stats.w}승 ${stats.d}무 ${stats.l}패</strong></span>
+                    <span style="color: #94a3b8; font-size: 0.75rem;">※ 타 리그 감독 부임으로 시즌을 중도 마감했습니다.</span>
+                </div>
+            `;
+        } else {
+            roundStatusHtml = `
+                <div class="fame-card-rank">최종 순위: ${rank}위</div>
+                <div class="fame-card-stats">
+                    <span>최종 승점: <strong>${stats.pts} 점</strong></span>
+                    <span>시즌 전적: <strong>${totalRounds}전 ${stats.w}승 ${stats.d}무 ${stats.l}패</strong></span>
+                    <span>시즌 우승팀: <strong>${record.champion}</strong></span>
+                    ${record.cupRecord ? `<span>코리아컵 성적: <strong style="color: #00d2fc;">${record.cupRecord}</strong></span>` : ''}
+                    ${record.aclRecord ? `<span>아챔 성적: <strong style="color: #00ff87;">${record.aclRecord}</strong></span>` : ''}
+                </div>
+            `;
+        }
+        
         card.innerHTML = `
             <div class="fame-card-badge ${badgeClass}">
                 ${badgeIcon}
             </div>
             <div class="fame-card-content">
-                <h4 class="fame-card-title">${record.year}년 시즌 K리그1</h4>
-                <div class="fame-card-rank">최종 순위: ${record.jeonbukRank}위</div>
-                <div class="fame-card-stats">
-                    <span>최종 승점: <strong>${record.jeonbukRecord.pts} 점</strong></span>
-                    <span>시즌 전적: <strong>33전 ${record.jeonbukRecord.w}승 ${record.jeonbukRecord.d}무 ${record.jeonbukRecord.l}패</strong></span>
-                    <span>시즌 우승팀: <strong>${record.champion}</strong></span>
-                    ${record.cupRecord ? `<span>코리아컵 성적: <strong style="color: #00d2fc;">${record.cupRecord}</strong></span>` : ''}
-                    ${record.aclRecord ? `<span>아챔 성적: <strong style="color: #00ff87;">${record.aclRecord}</strong></span>` : ''}
-                </div>
+                <h4 class="fame-card-title">${record.year}년 시즌 ${leagueName} ${record.resigned ? '<span style="font-size:0.75rem; color:#f59e0b; font-weight:bold;">[중도 사퇴]</span>' : ''}</h4>
+                ${roundStatusHtml}
                 ${awardHtml}
             </div>
         `;
@@ -2286,5 +2482,96 @@ function updateLeagueWinStreak(isWin, isDraw) {
     // 연승 업적 체크
     if (typeof checkWinStreakAchievements === 'function') {
         checkWinStreakAchievements(currentWinStreak);
+    }
+}
+
+// 감독 이적 (리그 변경) 모달 제어
+function openLeagueTransferModal() {
+    if (isMatchRunning) {
+        showToast("경기 진행 중에는 리그를 이동할 수 없습니다.");
+        return;
+    }
+    const modal = document.getElementById('leagueTransferModal');
+    if (!modal) return;
+    
+    // 대상 리그 카드 및 버튼 활성화 상태 동기화
+    const kleagueCard = document.getElementById('transferCardKLeague');
+    const eplCard = document.getElementById('transferCardEpl');
+    const btnKLeague = document.getElementById('btnTransferToKLeague');
+    const btnEpl = document.getElementById('btnTransferToEpl');
+    
+    if (currentLeagueId === 'kleague1') {
+        if (kleagueCard) {
+            kleagueCard.style.borderColor = '#00ff87';
+            kleagueCard.style.background = 'rgba(0, 255, 135, 0.08)';
+        }
+        if (btnKLeague) {
+            btnKLeague.innerText = '진행 중 ⚽';
+            btnKLeague.disabled = true;
+            btnKLeague.style.background = 'rgba(255, 255, 255, 0.08)';
+            btnKLeague.style.color = '#94a3b8';
+            btnKLeague.style.cursor = 'default';
+        }
+        if (eplCard) {
+            eplCard.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+            eplCard.style.background = 'rgba(255, 255, 255, 0.03)';
+        }
+        if (btnEpl) {
+            btnEpl.innerText = '부임하기 🚀';
+            btnEpl.disabled = false;
+            btnEpl.style.background = 'linear-gradient(135deg, #ffd700, #ff6b6b)';
+            btnEpl.style.color = '#051622';
+            btnEpl.style.cursor = 'pointer';
+        }
+    } else {
+        if (eplCard) {
+            eplCard.style.borderColor = '#ffd700';
+            eplCard.style.background = 'rgba(255, 215, 0, 0.08)';
+        }
+        if (btnEpl) {
+            btnEpl.innerText = '진행 중 ⚽';
+            btnEpl.disabled = true;
+            btnEpl.style.background = 'rgba(255, 255, 255, 0.08)';
+            btnEpl.style.color = '#94a3b8';
+            btnEpl.style.cursor = 'default';
+        }
+        if (kleagueCard) {
+            kleagueCard.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+            kleagueCard.style.background = 'rgba(255, 255, 255, 0.03)';
+        }
+        if (btnKLeague) {
+            btnKLeague.innerText = '부임하기 🚀';
+            btnKLeague.disabled = false;
+            btnKLeague.style.background = 'linear-gradient(135deg, #00ff87, #60efff)';
+            btnKLeague.style.color = '#051622';
+            btnKLeague.style.cursor = 'pointer';
+        }
+    }
+    
+    modal.style.display = 'flex';
+    modal.classList.add('active');
+}
+
+function closeLeagueTransferModal() {
+    const modal = document.getElementById('leagueTransferModal');
+    if (modal) {
+        modal.style.display = 'none';
+        modal.classList.remove('active');
+    }
+}
+
+function confirmLeagueTransfer(targetLeagueId) {
+    if (targetLeagueId === currentLeagueId) {
+        showToast(`이미 ${LEAGUE_CONFIGS[targetLeagueId].name}를 진행 중입니다.`);
+        closeLeagueTransferModal();
+        return;
+    }
+    
+    const targetConfig = LEAGUE_CONFIGS[targetLeagueId];
+    const confirmMsg = `[감독 이적 안내]\n\n▶ 부임 리그: ${targetConfig.name} (${targetConfig.userTeamName})\n▶ 시작 연도: ${leagueYear + 1}년 시즌 1라운드부터 시작\n\n※ 현재 시즌 진행 내역은 명예의 전당에 '중도 사퇴'로 기록되며, 통산 기록에 승/무/패/골이 누적됩니다.\n\n정말로 이적하시겠습니까?`;
+    
+    if (confirm(confirmMsg)) {
+        closeLeagueTransferModal();
+        transferToLeague(targetLeagueId);
     }
 }

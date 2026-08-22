@@ -83,8 +83,65 @@ function switchTab(tabName) {
     renderUserPoints(); // Ensure header points are sync'd
 }
 
+// 리그에 따른 상단 헤더 로고 엠블럼 동적 갱신
+function updateAppLogo() {
+    const logoImg = document.getElementById('appLogoImg') || document.querySelector('#appLogo img');
+    if (!logoImg) return;
+    
+    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
+        logoImg.src = 'img/mark_liverpool.png';
+        logoImg.alt = '리버풀 FC';
+    } else {
+        logoImg.src = 'img/mark_jb.svg';
+        logoImg.alt = '전북 현대';
+    }
+}
+
+// 리그에 따른 경기 서브 탭 텍스트 및 UI 갱신 (EPL 모드 시 아챔 -> 챔스 표시 & 개발중 뱃지)
+function updateMatchSubTabsUI() {
+    const btnCup = document.getElementById('matchSubTabCup');
+    const btnAcl = document.getElementById('matchSubTabAcl');
+    if (!btnCup || !btnAcl) return;
+    
+    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
+        btnCup.innerHTML = `<i class="fa-solid fa-gem"></i><span>리그컵</span><span style="font-size: 0.65rem; color: #94a3b8; background: rgba(255,255,255,0.08); padding: 1px 4px; border-radius: 4px; margin-left: 2px;">개발중</span>`;
+        btnCup.style.opacity = '0.75';
+        
+        btnAcl.innerHTML = `<i class="fa-solid fa-star"></i><span>챔스</span><span style="font-size: 0.65rem; color: #94a3b8; background: rgba(255,255,255,0.08); padding: 1px 4px; border-radius: 4px; margin-left: 2px;">개발중</span>`;
+        btnAcl.style.opacity = '0.75';
+    } else {
+        btnCup.innerHTML = `<i class="fa-solid fa-gem"></i><span>리그컵</span>`;
+        btnCup.style.opacity = '1';
+        
+        btnAcl.innerHTML = `<i class="fa-solid fa-earth-asia"></i><span>아챔</span>`;
+        btnAcl.style.opacity = '1';
+    }
+}
+
 // 경기진행 하위 탭 전환 함수
 function switchMatchSubTab(tabId) {
+    // 프리미어리그 모드일 경우 리그컵과 챔스(아챔) 진입 차단
+    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
+        if (tabId === 'cup') {
+            if (typeof showToast === 'function') {
+                showToast("🚧 프리미어리그 리그컵은 현재 개발 중입니다.");
+            }
+            if (typeof playClickSound === 'function') {
+                try { playClickSound(); } catch (e) {}
+            }
+            return;
+        }
+        if (tabId === 'acl') {
+            if (typeof showToast === 'function') {
+                showToast("🚧 프리미어리그 UEFA 챔피언스리그는 현재 개발 중입니다.");
+            }
+            if (typeof playClickSound === 'function') {
+                try { playClickSound(); } catch (e) {}
+            }
+            return;
+        }
+    }
+
     const subTabs = {
         'league': {
             btn: document.getElementById('matchSubTabLeague'),
@@ -151,6 +208,8 @@ document.addEventListener('DOMContentLoaded', () => {
     updateTotalCardCount();
     renderSquadFormation(); // Initialize squad pitch rendering
     initLeague();           // Initialize K League Standing & Fixtures
+    if (typeof updateAppLogo === 'function') updateAppLogo();
+    if (typeof updateMatchSubTabsUI === 'function') updateMatchSubTabsUI();
     if (typeof initCup === 'function') initCup(); // Initialize KFA Cup State
     if (typeof initAcl === 'function') initAcl(); // Initialize ACL State
     renderUserPoints();     // Sync user gacha points on load
@@ -271,6 +330,7 @@ function checkAndCloseActiveModal() {
         { id: 'advisorModal', active: (el) => el.classList.contains('active'), close: () => { if (typeof closeCoachAdvisorModal === 'function') closeCoachAdvisorModal(); } },
         { id: 'hardModeExplainModal', active: (el) => el.classList.contains('active') || el.style.display === 'flex', close: () => { if (typeof closeHardModeExplainModal === 'function') closeHardModeExplainModal(); } },
         { id: 'hardModeEntryModal', active: (el) => el.classList.contains('active') || el.style.display === 'flex', close: () => { if (typeof closeHardModeEntryModal === 'function') closeHardModeEntryModal(); } },
+        { id: 'leagueTransferModal', active: (el) => el.classList.contains('active') || el.style.display === 'flex', close: () => { if (typeof closeLeagueTransferModal === 'function') closeLeagueTransferModal(); } },
         { id: 'achievementDetailModal', active: (el) => el.style.display === 'flex' || el.classList.contains('active'), close: () => { if (typeof closeAchievementModal === 'function') closeAchievementModal(); } }
     ];
 

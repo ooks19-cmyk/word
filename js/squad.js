@@ -513,7 +513,7 @@ function openCardSelector(position) {
     
     // Retrieve all collected cards from deck and sort by placeability (compatible first), then by rating (OVR) in descending order
     const deckKeys = Object.keys(playerDeck)
-        .filter(k => playerDeck[k].quantity > 0)
+        .filter(k => playerDeck[k].quantity > 0 && !playerDeck[k].isStored)
         .sort((a, b) => {
             const cardA = getAwakenedCard(a);
             const cardB = getAwakenedCard(b);

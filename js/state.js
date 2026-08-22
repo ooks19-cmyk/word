@@ -91,6 +91,17 @@ try {
 
 // DEVELOPER MODE & MULTI-YEAR LEAGUE STATE VARIABLES
 let isDeveloperMode = false;
+let currentLeagueId = 'kleague1'; // 'kleague1' or 'epl'
+try {
+    const savedLeague = localStorage.getItem('fc_star_current_league');
+    if (savedLeague && (savedLeague === 'kleague1' || savedLeague === 'epl')) {
+        currentLeagueId = savedLeague;
+    }
+} catch (e) {
+    currentLeagueId = 'kleague1';
+}
+let currentFameLeagueTab = 'kleague1'; // 'kleague1' or 'epl'
+
 let leagueYear = 2026;
 let hallOfFame = [];
 let careerStats = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };

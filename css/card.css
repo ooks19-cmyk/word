@@ -654,3 +654,157 @@
 #revealModal .card-back {
     display: none !important;
 }
+
+/* ==========================================================================
+   선수카드 보관함(Storage) & 카드 우측 하단 플로팅 버튼 스타일
+   ========================================================================== */
+.deck-card-wrapper {
+    position: relative;
+}
+
+/* 카드 우측 하단 플로팅 보관/복원 버튼 */
+.btn-card-storage-float {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    z-index: 25;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.22);
+    color: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-card-storage-float:hover {
+    transform: scale(1.15) translateY(-2px);
+    background: rgba(30, 41, 59, 0.95);
+    border-color: #ffd700;
+    color: #ffd700;
+    box-shadow: 0 0 16px rgba(255, 215, 0, 0.55), 0 6px 16px rgba(0, 0, 0, 0.6);
+}
+
+.btn-card-storage-float.restore:hover {
+    border-color: #00ff87;
+    color: #00ff87;
+    box-shadow: 0 0 16px rgba(0, 255, 135, 0.55), 0 6px 16px rgba(0, 0, 0, 0.6);
+}
+
+.btn-card-storage-float:active {
+    transform: scale(0.92);
+}
+
+/* 컬렉션 헤더 상단 보관함 버튼 */
+.btn-deck-header-storage {
+    cursor: pointer;
+    border: 1.5px solid rgba(255, 215, 0, 0.4);
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.12) 0%, rgba(255, 159, 67, 0.12) 100%);
+    color: #ffd700;
+    font-weight: 800;
+    padding: 0.45rem 1rem;
+    border-radius: 14px;
+    font-size: 0.82rem;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.btn-deck-header-storage:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.22) 0%, rgba(255, 159, 67, 0.22) 100%);
+    border-color: #ffd700;
+    box-shadow: 0 0 14px rgba(255, 215, 0, 0.4);
+}
+
+/* 보관함 상단 뒤로가기 버튼 */
+.btn-deck-header-back {
+    cursor: pointer;
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    font-weight: 800;
+    padding: 0.45rem 1rem;
+    border-radius: 14px;
+    font-size: 0.82rem;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+}
+
+.btn-deck-header-back:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.16);
+    border-color: #00ff87;
+    color: #00ff87;
+    box-shadow: 0 0 14px rgba(0, 255, 135, 0.35);
+}
+
+/* ==========================================================================
+   내 컬렉션 & 보관함 포지션 필터 버튼 바 (Position Filter Bar)
+   ========================================================================== */
+.deck-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 1.2rem;
+    padding: 0.4rem 0.6rem;
+    background: rgba(15, 23, 42, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    backdrop-filter: blur(10px);
+    width: fit-content;
+}
+
+.deck-filter-btn {
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    color: #94a3b8;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.38rem 0.95rem;
+    border-radius: 12px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.deck-filter-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #f8fafc;
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
+}
+
+.deck-filter-btn.active {
+    background: linear-gradient(135deg, rgba(0, 255, 135, 0.2) 0%, rgba(0, 210, 252, 0.2) 100%);
+    border-color: #00ff87;
+    color: #00ff87;
+    font-weight: 800;
+    box-shadow: 0 0 12px rgba(0, 255, 135, 0.35);
+}
+
+.deck-filter-btn .filter-count-badge {
+    font-size: 0.68rem;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1px 5px;
+    border-radius: 8px;
+    color: inherit;
+}
+
+

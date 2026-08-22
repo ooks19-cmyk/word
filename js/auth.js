@@ -108,6 +108,7 @@ function saveAllToLocalStorage() {
         localStorage.setItem('fc_star_squad_formations', JSON.stringify(squadFormations));
         localStorage.setItem('fc_star_squad_formation', JSON.stringify(squadFormation));
         localStorage.setItem('fc_star_current_formation', currentFormation);
+        localStorage.setItem('fc_star_current_league', typeof currentLeagueId !== 'undefined' ? currentLeagueId : 'kleague1');
         localStorage.setItem('fc_star_league_teams', JSON.stringify(leagueTeams));
         localStorage.setItem('fc_star_league_round', leagueRound.toString());
         localStorage.setItem('fc_star_quiz_offset', quizOffset.toString());
@@ -215,6 +216,7 @@ function saveUserProgress() {
             squadFormation: squadFormation,
             squadFormations: squadFormations,
             currentFormation: currentFormation,
+            currentLeagueId: typeof currentLeagueId !== 'undefined' ? currentLeagueId : 'kleague1',
             squadNumbers: squadNumbers,
             squadCaptain: squadCaptain,
             leagueRound: leagueRound,
@@ -339,15 +341,18 @@ function showSyncConflictModal(progressData, serverData) {
 function refreshAllScreens() {
     updateDevModeUI();
     if (typeof updateGlowTheme === 'function') updateGlowTheme();
+    if (typeof updateAppLogo === 'function') updateAppLogo();
     renderUserPoints();
     updateTotalCardCount();
     renderDeck();
+    if (typeof renderStorageDeck === 'function') renderStorageDeck();
     renderSquadFormation();
     syncJeonbukOvr();
     updateMatchPreviewBoard();
     renderLeagueTable();
     renderLeagueStats();
     renderCareerStats();
+    if (typeof updateMatchSubTabsUI === 'function') updateMatchSubTabsUI();
     if (typeof initCupTab === 'function') {
         initCupTab();
     }
@@ -465,6 +470,14 @@ function syncUserDataOnLogin(userData, forceLoad = false) {
             });
         }
         
+        // 활성 리그 최우선 복원 (leagueTeams 검증에 필수)
+        if (userData.currentLeagueId && (userData.currentLeagueId === 'kleague1' || userData.currentLeagueId === 'epl')) {
+            currentLeagueId = userData.currentLeagueId;
+        } else {
+            currentLeagueId = 'kleague1';
+        }
+        localStorage.setItem('fc_star_current_league', currentLeagueId);
+
         if (userData.leagueTeams && userData.leagueTeams.length > 0) {
             leagueTeams = userData.leagueTeams;
             if (typeof checkAndMigrateLeagueTeams === 'function') {

@@ -186,5 +186,27 @@ const TEAM_FORMATIONS_PRESET = {
     "al_ain": "4-2-3-1",
     "al_sadd": "5-4-1",
     "persepolis": "4-4-2",
-    "pakhtakor": "4-4-2"
+    "pakhtakor": "4-4-2",
+
+    // 🏴󠁧󠁢󠁥󠁮󠁧󠁿 프리미어리그 (EPL 20개 구단)
+    "liverpool": "4-3-3",
+    "mancity": "4-3-3",
+    "arsenal": "4-3-3",
+    "chelsea": "4-2-3-1",
+    "tottenham": "4-3-3",
+    "manutd": "3-4-3",
+    "newcastle": "4-3-3",
+    "astonvilla": "4-2-3-1",
+    "brighton": "4-2-3-1",
+    "westham": "4-2-3-1",
+    "bournemouth": "4-2-3-1",
+    "fulham": "4-2-3-1",
+    "palace": "3-4-3",
+    "brentford": "5-4-1",
+    "nottingham": "4-2-3-1",
+    "wolves": "3-4-3",
+    "everton": "4-4-2",
+    "leicester": "4-2-3-1",
+    "ipswich": "4-2-3-1",
+    "southampton": "5-4-1"
 };

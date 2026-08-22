@@ -79,8 +79,24 @@ function getPlayerTop20Ovr() {
 }
 
 
-// 2. 스쿼드 포메이션 전술/세부전술 보너스를 취합하여 전북 현대 최종 OVR 동기화 및 현황판 UI 업데이트
-function syncJeonbukOvr() {
+// 활성 리그에 따른 플레이어 구단명 및 홈 구장 동적 반환 헬퍼
+function getActiveUserTeamName() {
+    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') return "리버풀 FC";
+    return "전북 현대";
+}
+
+function getActiveUserShortName() {
+    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') return "리버풀";
+    return "전북";
+}
+
+function getActiveUserStadiumName() {
+    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') return "안필드";
+    return "전주성";
+}
+
+// 2. 스쿼드 포메이션 전술/세부전술 보너스를 취합하여 플레이어 구단(전북 현대 / 리버풀) 최종 OVR 동기화 및 현황판 UI 업데이트
+function syncPlayerTeamOvr() {
     let avgOvr = getPlayerPureOvr();
     
     // 포메이션 전술 완성 보너스 계산
@@ -96,9 +112,12 @@ function syncJeonbukOvr() {
     
     avgOvr += formationBonus;
     
-    const jb = leagueTeams.find(t => t.id === 'jeonbuk');
-    if (jb) {
-        jb.rating = avgOvr;
+    const activeUserTeamId = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') ? 'liverpool' : 'jeonbuk';
+    if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {
+        const userTeam = leagueTeams.find(t => t.id === activeUserTeamId);
+        if (userTeam) {
+            userTeam.rating = avgOvr;
+        }
     }
     
     // UI 업데이트 (스쿼드 피치 상단 및 매치 프리뷰 영역 동기화)
@@ -197,6 +216,11 @@ function syncJeonbukOvr() {
             }
         }
     }
+}
+
+// 하위 호환성 유지용 별칭 함수
+function syncJeonbukOvr() {
+    syncPlayerTeamOvr();
 }
 
 // 2a. 플레이어의 포메이션 전술 완성 보너스 및 비례 공격/득점 확률 계산
@@ -574,7 +598,7 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
     // 1) 드리블 돌파 스타일 (개인기 중심)
     const getDribbleTexts = (wingerName) => {
         const lwGoals = [
-            `골!!! ${wingerName}의 환상적인 감아차기 슛이 골문 오른쪽 구석에 정확히 꽂힙니다! 전북 득점!! 🎉`,
+            `골!!! ${wingerName}의 환상적인 감아차기 슛이 골문 오른쪽 구석에 정확히 꽂힙니다! ${getActiveUserShortName()} 득점!! 🎉`,
             `골!!! 수비수 2명을 환상적인 드리블 돌파로 흔들어 놓은 ${wingerName}! 키퍼 가랑이 사이를 꿰뚫는 절묘한 슈팅으로 골망을 흔듭니다! ⚽`
         ];
         const selectedGoal = lwGoals[Math.floor(Math.random() * lwGoals.length)];
@@ -799,7 +823,7 @@ function getMatchEventCommentary(type, data, isFriendly = false, isDevMode = fal
                 const modifierSign = lastOpponentMood.modifier > 0 ? `+${lastOpponentMood.modifier}` : (lastOpponentMood.modifier < 0 ? `${lastOpponentMood.modifier}` : '0');
                 moodText = ` [상대 분위기: ${lastOpponentMood.label} ${lastOpponentMood.emoji} OVR ${modifierSign}]`;
             }
-            return `경기 시작 전력 분석 | 전북 OVR ${playerOvr} (${isPlayerHome ? '홈' : '원정'}) vs ${opponentName} OVR ${opponentOvr}${moodText}`;
+            return `경기 시작 전력 분석 | ${getActiveUserShortName()} OVR ${playerOvr} (${isPlayerHome ? '홈' : '원정'}) vs ${opponentName} OVR ${opponentOvr}${moodText}`;
         }
     }
 
@@ -858,11 +882,11 @@ function getMatchEventCommentary(type, data, isFriendly = false, isDevMode = fal
             }
         } else {
             if (isWinner) {
-                return `승리!!! 전북 현대가 완벽한 전술 장악과 에이스들의 빛나는 골 활약에 힘입어 ${playerScoreVal} - ${opponentScoreVal} 짜릿한 승리를 챙깁니다! 🏆`;
+                return `승리!!! ${getActiveUserTeamName()}가 완벽한 전술 장악과 에이스들의 빛나는 골 활약에 힘입어 ${playerScoreVal} - ${opponentScoreVal} 짜릿한 승리를 챙깁니다! 🏆`;
             } else if (isDraw) {
                 return `무승부! 양 팀 승부를 가리지 못하며 ${playerScoreVal} - ${opponentScoreVal} 로 승점 1점씩 나누어 가집니다. 다음 라운드 반등을 노립니다.`;
             } else {
-                return `패배! 전북 현대가 분전했으나 상대의 기습 카운터 공격을 넘지 못하며 ${playerScoreVal} - ${opponentScoreVal} 아쉬운 승점 3점을 내줍니다. 피드백이 필요합니다.`;
+                return `패배! ${getActiveUserTeamName()}가 분전했으나 상대의 기습 카운터 공격을 넘지 못하며 ${playerScoreVal} - ${opponentScoreVal} 아쉬운 승점 3점을 내줍니다. 피드백이 필요합니다.`;
             }
         }
     }
@@ -885,7 +909,7 @@ function getMatchEventCommentary(type, data, isFriendly = false, isDevMode = fal
     if (type === 'GK_SAVE') {
         const gkSaveTexts = [
             `${activeGk} 골키퍼의 빛나는 판단력! 침착하게 날아오는 크로스를 캐칭해 냅니다. 위기를 넘깁니다!`,
-            `미친 세이브!!! 전북의 수호신 ${activeGk} 골키퍼가 한 마리 새처럼 날아올라 손끝으로 공을 쳐냅니다! 전주성이 열광의 도가니에 빠집니다! 🧤`
+            `미친 세이브!!! ${getActiveUserShortName()}의 수호신 ${activeGk} 골키퍼가 한 마리 새처럼 날아올라 손끝으로 공을 쳐냅니다! ${getActiveUserStadiumName()}이 열광의 도가니에 빠집니다! 🧤`
         ];
         return gkSaveTexts[Math.floor(Math.random() * gkSaveTexts.length)];
     }
@@ -1198,16 +1222,20 @@ function rollSpecialMatchEvent(activePlayers, opponentName) {
             type: "pk_opponent",
             isGoal: isGoal,
             ovrChange: 0,
-            eventDesc: `[패널티킥 허용] 위기! 상대팀 공격수가 박스 모퉁이에서 현란한 드리블로 돌파를 시도하는 과정에서 전북 수비수의 다리에 걸려 쓰러집니다. 주심의 킥오프 휘슬과 함께 패널티킥이 선언됩니다.`,
+            eventDesc: `[패널티킥 허용] 위기! 상대팀 공격수가 박스 모퉁이에서 현란한 드리블로 돌파를 시도하는 과정에서 ${getActiveUserShortName()} 수비수의 다리에 걸려 쓰러집니다. 주심의 킥오프 휘슬과 함께 패널티킥이 선언됩니다.`,
             eventGoal: `실점! 상대 키커가 골키퍼 손끝을 스치고 빠르게 지나가는 레이저 슈팅으로 패널티킥 득점을 올립니다.`,
-            eventFail: `키퍼의 미친 슈퍼세이브!!! 전북의 수호신 ${activeGK} 골키퍼가 한 마리 새처럼 날아올라 상대의 날카로운 PK 슛을 손끝으로 쳐냅니다! 전주성이 엄청난 환호와 흥분으로 물듭니다! 🧤`
+            eventFail: `키퍼의 미친 슈퍼세이브!!! ${getActiveUserShortName()}의 수호신 ${activeGK} 골키퍼가 한 마리 새처럼 날아올라 상대의 날카로운 PK 슛을 손끝으로 쳐냅니다! ${getActiveUserStadiumName()}이 엄청난 환호와 흥분으로 물듭니다! 🧤`
         };
     }
 }
 
 // 9. 상대팀 전용 동적 득점자/도움자 판정 함수
 function determineOpponentScorerAndAssister(opponentTeamId) {
-    if (typeof OTHER_TEAMS_PLAYERS_PRESET === 'undefined') {
+    const allOpponentPlayers = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl' && typeof OTHER_TEAMS_PLAYERS_PRESET_EPL !== 'undefined')
+        ? OTHER_TEAMS_PLAYERS_PRESET_EPL
+        : (typeof OTHER_TEAMS_PLAYERS_PRESET !== 'undefined' ? OTHER_TEAMS_PLAYERS_PRESET : []);
+    
+    if (allOpponentPlayers.length === 0) {
         return {
             scorerId: "opp_generic_scorer",
             scorerName: "상대 공격수",
@@ -1217,7 +1245,7 @@ function determineOpponentScorerAndAssister(opponentTeamId) {
     }
     
     const normalizedTeamId = opponentTeamId ? opponentTeamId.toString().trim() : "";
-    const squadPlayers = OTHER_TEAMS_PLAYERS_PRESET.filter(p => p.teamId === normalizedTeamId);
+    const squadPlayers = allOpponentPlayers.filter(p => p.teamId === normalizedTeamId);
     
     if (squadPlayers.length === 0) {
         return {
