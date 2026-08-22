@@ -50,6 +50,7 @@ try {
         Object.keys(playerDeck).forEach(key => {
             if (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE[key]) {
                 playerDeck[key].card = CARDS_DATABASE[key];
+                playerDeck[key].isStored = playerDeck[key].isStored === true;
             } else {
                 delete playerDeck[key]; // Cleanup legacy format cards
             }

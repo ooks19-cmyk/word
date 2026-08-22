@@ -207,7 +207,8 @@ function saveUserProgress() {
                             quantity: playerDeck[key].quantity || 1,
                             awakening: playerDeck[key].awakening || 0,
                             condition: typeof playerDeck[key].condition === 'number' ? playerDeck[key].condition : 0,
-                            conditionDate: playerDeck[key].conditionDate || ""
+                            conditionDate: playerDeck[key].conditionDate || "",
+                            isStored: playerDeck[key].isStored === true
                         };
                     }
                 });
@@ -464,6 +465,7 @@ function syncUserDataOnLogin(userData, forceLoad = false) {
             Object.keys(playerDeck).forEach(key => {
                 if (CARDS_DATABASE[key]) {
                     playerDeck[key].card = CARDS_DATABASE[key];
+                    playerDeck[key].isStored = playerDeck[key].isStored === true;
                 } else {
                     delete playerDeck[key];
                 }

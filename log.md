@@ -1027,6 +1027,27 @@ graph TD
     - 변경 데이터가 즉각 반영되도록 `index.html` 내 `player_data.js` 로드 버전을 `v=1.48`로, `update_data.js` 로드 버전을 `v=2.66`으로 올렸습니다.
     - 서비스 워커 PWA 캐시 버전을 `'fc-star-v267'`로 올렸습니다.
 
+---
+
+### ⚙️ 91) 선수 카드 보관함(Storage) 세이브 및 클라우드 동기화 버그 수정 (2026-08-22)
+* **배경 및 목적**:
+  - 카드를 보관함으로 이동시킨 후 게임을 재접속(새로고침 또는 재로그인)했을 때, 보관함에 보관했던 카드가 보관함에 남아있지 않고 다시 덱(내 컬렉션)으로 돌아오는 현상을 완벽히 해결하기 위함입니다.
+* **원인 분석**:
+  - `js/auth.js`의 `saveUserProgress()` 함수에서 Firestore 업로드용 미니멀 덱 데이터(`minimalDeck`)를 생성할 때 `isStored` 속성이 누락되어 서버에 저장되지 않았습니다.
+  - 이로 인해 게임 재실행 시 Firestore에서 유저 데이터를 동기화(`syncUserDataOnLogin()`)할 때 `isStored: true`가 유실된 덱 정보로 로컬 스토리지(`localStorage`)까지 덮어써지는 문제가 발생했습니다.
+* **반영 사항**:
+  - **`js/auth.js` 세이브 및 로그인 복원 로직 보강**:
+    - `saveUserProgress()`의 `minimalDeck` 필드에 `isStored: playerDeck[key].isStored === true`를 포함하여 Firestore 원격 DB에 보관 상태가 영구 기록되도록 수정.
+    - `syncUserDataOnLogin()`의 하이드레이션 루프에서 `playerDeck[key].isStored = playerDeck[key].isStored === true;`를 명시하여 로그인 시 온전하게 복원되도록 처리.
+  - **`js/state.js` 초기 로드 하이드레이션 동기화**:
+    - `localStorage`로부터 덱을 처음 읽어들여 하이드레이션할 때 `isStored` 상태가 안전하게 유지되도록 보강.
+  - **`js/squad.js` 등번호 배정 드로어 필터링 개선**:
+    - 등번호 관리 드로어(`renderSquadNumberDrawer`)에서 보관함에 들어간 카드는 후보 목록에서 제외되도록 `!playerDeck[k].isStored` 필터를 추가.
+  - **PWA 캐시 및 스크립트 버전 최신화 (`index.html`, `sw.js`, `js/update_data.js`)**:
+    - `index.html` 내 `state.js` 버전을 `v=2.5`, `squad.js` 버전을 `v=2.8`, `auth.js` 버전을 `v=2.46`, `update_data.js` 로드 버전을 `v=2.67`로 올렸습니다.
+    - 서비스 워커 PWA 캐시 버전을 `'fc-star-v268'`로 올렸습니다.
+
+
 
 
 

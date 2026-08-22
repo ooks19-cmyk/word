@@ -73,3 +73,6 @@ showToast("33라운드로 이동했습니다!");
         console.log("🟢 친선경기 리셋 완료! (잔여 횟수: 3/3)");
     }
 })();
+
+// 오늘 경기 초기화 코드
+matchTodayCount = 0; matchLastDate = new Date().toLocaleDateString('ko-KR'); localStorage.setItem('fc_star_match_today_count', '0'); localStorage.setItem('fc_star_match_last_date', matchLastDate); updateMatchPreviewBoard(); if (typeof saveUserProgress === 'function') saveUserProgress(); showToast("🔓 오늘 경기 초기화 완료 (0/10)");

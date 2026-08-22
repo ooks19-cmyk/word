@@ -2,12 +2,24 @@
 
 const UPDATE_LOGS = [
     {
+        version: "v2.6.6",
+        date: "2026.08.22",
+        latest: true,
+        borderColor: "#00ff87",
+        titleColor: "#00ff87",
+        badgeText: "HOTFIX",
+        items: [
+            "<strong>선수 카드 보관함(Storage) 상태 클라우드 및 세이브 동기화 정상화</strong>: 보관함으로 이동한 카드의 보관 상태(<code>isStored</code>)가 클라우드 Firestore 및 로컬 스토리지 백업 시 누락되던 현상을 완벽히 수정했습니다. 이제 게임을 재접속하거나 새로고침해도 보관함 카드가 안전하게 보관 상태로 유지됩니다.",
+            "<strong>등번호 배정 후보 필터 개선</strong>: 등번호 배정 목록에서도 보관함에 보관 중인 카드가 제외되어 한결 깔끔하게 관리할 수 있도록 개선되었습니다."
+        ]
+    },
+    {
         version: "v2.6.5",
         date: "2026.08.17",
-        latest: true,
-        borderColor: "#ff3e6c",
-        titleColor: "#ff3e6c",
-        badgeText: "LATEST",
+        latest: false,
+        borderColor: "#ffd700",
+        titleColor: "#ffd700",
+        badgeText: "",
         items: [
             "<strong>신규 전설 등급 공격수 카드 추가 (포든)</strong>: 맨체스터 시티와 잉글랜드의 황금기를 이끄는 최고의 테크니션 필 포든 카드가 전설 등급(OVR 90)으로 신규 추가되었습니다.<br>• <strong>포든</strong> (OVR 90, RW, 전설 - 맨시티 / ID: <code>foden</code>)",
             "<strong>선수 데이터베이스 동기화</strong>: <code>player_data.js</code> 및 <code>선수데이터.csv</code> 파일에 포든 카드가 추가되어 완벽히 수록 및 동기화되었습니다."

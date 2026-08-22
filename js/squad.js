@@ -1016,9 +1016,9 @@ function openSquadNumberPlayerSelector(numKey) {
         content.appendChild(releaseBtn);
     }
     
-    // 보유한 카드 가져와 정렬 (OVR 내림차순)
+    // 보유한 카드 가져와 정렬 (OVR 내림차순, 보관함 카드 제외)
     const deckKeys = Object.keys(playerDeck)
-        .filter(k => playerDeck[k].quantity > 0)
+        .filter(k => playerDeck[k].quantity > 0 && !playerDeck[k].isStored)
         .sort((a, b) => {
             const cardA = getAwakenedCard(a);
             const cardB = getAwakenedCard(b);
