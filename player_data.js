@@ -2088,6 +2088,31 @@ const CARDS_DATABASE = {
             def: 58,
             phy: 68
         }
+    },
+    "kaoru_mitoma_L": {
+        id: "kaoru_mitoma_L",
+        name: "미토마",
+        rating: 90,
+        position: "LW",
+        nation: "Japan",
+        nationFlag: "https://flagcdn.com/w40/jp.png",
+        club: "BRIGHTON",
+        image: "player2/미토마.png",
+        rarity: "legend",
+        description: "독보적인 아웃프런트 킥과 경이로운 드리블 돌파로 프리미어리그를 뒤흔든 전설적인 윙어 미토마입니다. 상대를 얼어붙게 만드는 전매특허 잔발 드리블과 정교한 크로스, 폭발적인 결정력으로 경기를 지배하는 레전드 크랙입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 93,
+            sho: 84,
+            pas: 86,
+            dri: 95,
+            def: 46,
+            phy: 74
+        }
     }
 };
 
