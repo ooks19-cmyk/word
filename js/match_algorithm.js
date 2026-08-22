@@ -95,6 +95,11 @@ function getActiveUserStadiumName() {
     return "전주성";
 }
 
+function getActiveUserEmblem() {
+    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') return "img/mark_liverpool.png";
+    return "img/mark_jb.svg";
+}
+
 // 2. 스쿼드 포메이션 전술/세부전술 보너스를 취합하여 플레이어 구단(전북 현대 / 리버풀) 최종 OVR 동기화 및 현황판 UI 업데이트
 function syncPlayerTeamOvr() {
     let avgOvr = getPlayerPureOvr();
@@ -816,7 +821,7 @@ function getMatchEventCommentary(type, data, isFriendly = false, isDevMode = fal
 
     if (type === 'PRE_ANALYZE') {
         if (isFriendly) {
-            return `⚽ 🤝 친선 경기 매칭 전력 분석 | 나의 구단 OVR ${playerOvr} vs 상대 ${opponentName} OVR ${opponentOvr} (홈 ADV: 0)`;
+            return `⚽ 🤝 친선 경기 매칭 전력 분석 | ${getActiveUserTeamName()} OVR ${playerOvr} vs 상대 ${opponentName} OVR ${opponentOvr} (홈 ADV: 0)`;
         } else {
             let moodText = "";
             if (lastOpponentMood) {
@@ -874,7 +879,7 @@ function getMatchEventCommentary(type, data, isFriendly = false, isDevMode = fal
         const isDraw = playerScoreVal === opponentScoreVal;
         if (isFriendly) {
             if (isWinner) {
-                return `승리!!! 나의 구단이 완벽한 전술 제어로 상대 ${opponentName}를 ${playerScoreVal} - ${opponentScoreVal}로 제압합니다! 🏆`;
+                return `승리!!! ${getActiveUserTeamName()}가 완벽한 전술 제어로 상대 ${opponentName}를 ${playerScoreVal} - ${opponentScoreVal}로 제압합니다! 🏆`;
             } else if (isDraw) {
                 return `무승부! 접전 끝에 양 팀 ${playerScoreVal} - ${opponentScoreVal} 스코어로 승부를 가리지 못했습니다.`;
             } else {

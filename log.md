@@ -1047,6 +1047,27 @@ graph TD
     - `index.html` 내 `state.js` 버전을 `v=2.5`, `squad.js` 버전을 `v=2.8`, `auth.js` 버전을 `v=2.46`, `update_data.js` 로드 버전을 `v=2.67`로 올렸습니다.
     - 서비스 워커 PWA 캐시 버전을 `'fc-star-v268'`로 올렸습니다.
 
+---
+
+### ⚙️ 92) 친선경기(Friendly Match) 활성 리그 팀명 및 엠블럼 동적 연동 (2026-08-22)
+* **배경 및 목적**:
+  - 프리미어리그(EPL 모드 - 리버풀 FC)를 선택하여 플레이 중일 때에도 친선경기 탭 진입 시 팀명이 '전북'으로 고정 표기되고 전북 현대 엠블럼이 노출되던 현상을 수정하기 위함입니다.
+* **반영 사항**:
+  - **`js/match_algorithm.js`**:
+    - 현재 부임 중인 활성 리그에 맞춰 홈팀 엠블럼 이미지를 반환하는 `getActiveUserEmblem()` 헬퍼 함수를 신설 (`kleague1` ➔ `img/mark_jb.svg`, `epl` ➔ `img/mark_liverpool.png`).
+    - `getMatchEventCommentary()` 내 친선경기 전력 분석 및 경기 종료 승리/패배 코멘터리에서 하드코딩된 '나의 구단' 대신 `${getActiveUserTeamName()}`을 연동하여 리버풀/전북 팀명이 생생하게 출력되도록 개선.
+  - **`js/friendly.js`**:
+    - `updateFriendlyMatchPreview()`: 프리뷰 보드 홈팀 이름(`friendlyHomeTeamName`)을 `나의 구단 (리버풀)` 또는 `나의 구단 (전북)`으로 동적 설정하고, 홈팀 엠블럼(`friendlyHomeEmblem`) 이미지 또한 현재 활성 리그의 공식 로고로 변경.
+    - 전술 상성 분석 카드(`friendlyOpponentCompatibilityText`)에서도 하드코딩된 '전북 현대' 대신 `${userTeamName}`이 표시되도록 개선.
+    - `renderFriendlyTable()`: 주간 순위표에서 유저 행의 구단명을 `나의 구단 (${userShortName})`으로 동적 표기.
+    - `triggerFriendlySeasonClose()`: 주간 정산 로직 파싱 시 `리버풀` 및 `league-row-jeonbuk` 클래스까지 포괄적으로 감지하도록 조건식 보강.
+  - **`js/league.js`**:
+    - `transferToLeague()`: 감독 이적 시 `updateFriendlyMatchPreview()` 및 `renderFriendlyTable()`을 즉시 트리거하여 새로고침 없이도 친선경기 화면이 변경된 리그의 팀명과 로고로 즉각 갱신되도록 연동.
+  - **PWA 캐시 및 스크립트 버전 최신화 (`index.html`, `sw.js`, `js/update_data.js`)**:
+    - `index.html` 내 `match_algorithm.js` 버전을 `v=2.4`, `league.js` 버전을 `v=3.0`, `friendly.js` 버전을 `v=2.2`, `update_data.js` 로드 버전을 `v=2.68`로 올렸습니다.
+    - 서비스 워커 PWA 캐시 버전을 `'fc-star-v269'`로 올렸습니다.
+
+
 
 
 

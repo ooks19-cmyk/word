@@ -616,6 +616,8 @@ function transferToLeague(targetLeagueId) {
     renderHallOfFame();
     if (typeof updateAppLogo === 'function') updateAppLogo();
     if (typeof updateMatchSubTabsUI === 'function') updateMatchSubTabsUI();
+    if (typeof updateFriendlyMatchPreview === 'function') updateFriendlyMatchPreview();
+    if (typeof renderFriendlyTable === 'function') renderFriendlyTable();
     if (typeof switchMatchSubTab === 'function') switchMatchSubTab('league');
     
     // 4. 저장 및 부임 환영 안내

@@ -501,15 +501,19 @@ function updateFriendlyMatchPreview() {
     if (fAwayScore) fAwayScore.innerText = "0";
 
     // 나 자신 (홈)
+    const userTeamName = (typeof getActiveUserTeamName === 'function') ? getActiveUserTeamName() : ((typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') ? '리버풀 FC' : '전북 현대');
+    const userShortName = (typeof getActiveUserShortName === 'function') ? getActiveUserShortName() : ((typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') ? '리버풀' : '전북');
+    const userEmblem = (typeof getActiveUserEmblem === 'function') ? getActiveUserEmblem() : ((typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') ? 'img/mark_liverpool.png' : 'img/mark_jb.svg');
+
     const fHomeName = document.getElementById('friendlyHomeTeamName');
-    if (fHomeName) fHomeName.innerText = "나의 구단 (전북)";
+    if (fHomeName) fHomeName.innerText = `나의 구단 (${userShortName})`;
     
     const fHomeOvr = document.getElementById('friendlyHomeTeamOvr');
     if (fHomeOvr) fHomeOvr.innerText = jeonbukOvr;
     
     const fHomeEmblem = document.getElementById('friendlyHomeEmblem');
     if (fHomeEmblem) {
-        fHomeEmblem.innerHTML = `<img src="img/mark_jb.svg" alt="전북 현대" class="match-emblem-img match-emblem-glow" style="height: 48px; width: 48px; object-fit: contain;">`;
+        fHomeEmblem.innerHTML = `<img src="${userEmblem}" alt="${userTeamName}" class="match-emblem-img match-emblem-glow" style="height: 48px; width: 48px; object-fit: contain;">`;
         fHomeEmblem.removeAttribute('style');
         fHomeEmblem.classList.add('jeonbuk-emblem-box');
     }
@@ -557,11 +561,11 @@ function updateFriendlyMatchPreview() {
             if (compBonus > 0) {
                 compTextEl.style.display = 'block';
                 compTextEl.classList.add('tactic-advantage');
-                compTextEl.innerHTML = `전북 현대의 <strong>${currentFormation}</strong> 전술이 상대의 <strong>${oppFormation}</strong> 전술에 상성상 우세합니다! (공격 찬스 확률 +5.0% ⚡)`;
+                compTextEl.innerHTML = `${userTeamName}의 <strong>${currentFormation}</strong> 전술이 상대의 <strong>${oppFormation}</strong> 전술에 상성상 우세합니다! (공격 찬스 확률 +5.0% ⚡)`;
             } else if (compBonus < 0) {
                 compTextEl.style.display = 'block';
                 compTextEl.classList.add('tactic-disadvantage');
-                compTextEl.innerHTML = `상대의 <strong>${oppFormation}</strong> 전술이 전북 현대의 <strong>${currentFormation}</strong> 전술에 상성상 우세합니다. (공격 찬스 확률 -5.0% ⚠️)`;
+                compTextEl.innerHTML = `상대의 <strong>${oppFormation}</strong> 전술이 ${userTeamName}의 <strong>${currentFormation}</strong> 전술에 상성상 우세합니다. (공격 찬스 확률 -5.0% ⚠️)`;
             } else {
                 // 피드백 반영: 상성이 비겼을 때(보너스 0)는 설명 숨김
                 compTextEl.style.display = 'none';
@@ -606,8 +610,9 @@ function renderFriendlyTable() {
 
     tbody.innerHTML = '';
 
+    const userShortName = (typeof getActiveUserShortName === 'function') ? getActiveUserShortName() : ((typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') ? '리버풀' : '전북');
     const myRowData = {
-        name: `나의 구단 (전북)`,
+        name: `나의 구단 (${userShortName})`,
         pts: friendlyMatchesHistory.pts || 0,
         record: `${friendlyMatchesHistory.w || 0}승 ${friendlyMatchesHistory.d || 0}무 ${friendlyMatchesHistory.l || 0}패`,
         rate: getFriendlyWinRate(friendlyMatchesHistory),
@@ -1435,8 +1440,11 @@ function triggerFriendlySeasonClose(isForce = false) {
     
     rows.forEach((tr, index) => {
         const teamCol = tr.querySelector('.league-team-col span');
-        const teamNameText = teamCol ? teamCol.innerText : "";
-        if (teamNameText.includes("나의 구단") || teamNameText.includes("전북")) {
+        const isMyTeam = teamNameText.includes("나의 구단") || 
+                         teamNameText.includes("전북") || 
+                         teamNameText.includes("리버풀") || 
+                         (tr.classList && tr.classList.contains('league-row-jeonbuk'));
+        if (isMyTeam) {
             myRank = index + 1;
             const ptsText = tr.querySelector('.league-row-pts') ? tr.querySelector('.league-row-pts').innerText : "0";
             const recordTd = tr.querySelectorAll('td')[3];
