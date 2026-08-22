@@ -1092,18 +1092,22 @@ graph TD
     - 로컬 스토리지 및 Firebase 클라우드 동기화 페이로드에 `cupStateEpl` 및 `cupStateKLeague`를 모두 추가하여 멀티 디바이스 간 독립 토너먼트 데이터 영구 보존.
   - **PWA 캐시 및 스크립트 버전 최신화 (`index.html`, `sw.js`, `js/update_data.js`)**:
     - `index.html` 내 `other_teams_data_epl.js` 버전을 `v=1.1`, `league.js` 버전을 `v=3.1`, `cup.js` 버전을 `v=2.6`, `app.js` 버전을 `v=3.0`, `auth.js` 버전을 `v=2.47`, `update_data.js` 버전을 `v=2.69`로 갱신.
-    - 서비스 워커 PWA 캐시 버전을 `'fc-star-v270'`으로 갱신하고 `other_teams_data_epl.js`를 캐싱 자산 목록에 등록.
+---
 
-
-
-
-
-
-
-
-
-
-
-
-
+### ⚙️ 94) 리그 순위표 전적(승무패/승점) 보존 및 마이그레이션 안전화 긴급 핫픽스 (2026-08-22, v2.7.1)
+* **문제 현상 및 원인 분석**:
+  - 리그컵(카라바오컵/코리아컵) 매치 진행 및 종료 후 리그 탭으로 돌아왔을 때, 또는 클라우드 동기화 과정에서 리그 순위표(각 팀의 경기수, 승무패, 득실차, 승점)가 모두 '0'으로 초기화되는 현상이 발생함.
+  - **원인 1**: `other_teams_data_epl.js`에서 `EPL_TEAMS_PRESET`에 사우샘프턴(`southampton`)이 누락되어 19개 구단만 등록되어 있었으나, 픽스처 `LIVERPOOL_FIXTURES_EPL`에는 20개 구단 38라운드 일정이 수록되어 있어 구단 목록 불일치가 발생함.
+  - **원인 2**: `checkAndMigrateLeagueTeams()`가 구단 목록의 불일치를 감지했을 때 기존에 진행 중이던 전적(`p, w, d, l, gf, ga, gd, pts`)을 고려하지 않고 `teamsPreset`의 초기값(0)으로 일괄 덮어씌워 버리던 취약성 존재.
+  - **원인 3**: `js/cup.js` 시뮬레이션 중 `playerMatch.team1.id === 'jeonbuk'` 하드코딩으로 인해 EPL 모드에서 홈/원정 및 엠블럼 판정이 왜곡되던 문제.
+* **반영 사항**:
+  - **`other_teams_data_epl.js`**:
+    - `EPL_TEAMS_PRESET`에 사우샘프턴(`southampton`, OVR 80)을 정식 추가하여 20개 구단 체제 완성.
+  - **`js/league.js`**:
+    - `checkAndMigrateLeagueTeams()` 전면 개편: 팀 목록 검증 및 마이그레이션 시 기존 `leagueTeams`에 저장된 전적 데이터(`p, w, d, l, gf, ga, gd, pts, rating`)를 맵 형태로 안전하게 보관한 뒤, 새 프리셋 팀들에 기존 전적을 유지하여 병합하도록 수정. 이제 컵 대회 진행이나 클라우드 동기화 중에도 리그 전적이 영구 보존됨.
+  - **`js/cup.js`**:
+    - `startCupMatchSimulation()` 내 `isHome` 판정을 `playerMatch.team1.id === playerTeamId`로 수정하여 멀티 리그 지원 강화.
+  - **PWA 캐시 및 스크립트 버전 최신화 (`index.html`, `sw.js`, `js/update_data.js`)**:
+    - `index.html` 내 `league.js` 버전을 `v=3.2`, `cup.js` 버전을 `v=2.7`, `other_teams_data_epl.js` 버전을 `v=1.2`, `update_data.js` 버전을 `v=2.70`으로 갱신.
+    - 서비스 워커 PWA 캐시 버전을 `'fc-star-v271'`로 갱신.
 

@@ -281,9 +281,58 @@ function checkAndMigrateLeagueTeams() {
         const currentTeamIds = leagueTeams.map(t => t.id);
         const missingPresets = config.teamsPreset.filter(p => !currentTeamIds.includes(p.id));
         
+        // 팀 목록에 변화가 있거나 누락된 팀이 있는 경우 기존 전적을 안전하게 보존하며 병합
         if (!hasUserTeam || missingPresets.length > 0 || leagueTeams.length !== config.teamsPreset.length) {
-            console.warn(`[League Check] 현재 리그(${config.name})와 leagueTeams 팀 목록 불일치 감지 -> ${config.name} 기본 프리셋으로 재구성합니다.`, { hasUserTeam, missingCount: missingPresets.length });
-            leagueTeams = JSON.parse(JSON.stringify(config.teamsPreset));
+            console.warn(`[League Check] 현재 리그(${config.name})와 leagueTeams 팀 목록 불일치 감지 -> 기존 전적을 보존하며 ${config.name} 프리셋과 병합합니다.`, { hasUserTeam, missingCount: missingPresets.length });
+            
+            // 기존 전적 맵 생성 (팀 ID 기준)
+            const statsMap = {};
+            leagueTeams.forEach(t => {
+                if (t && t.id) {
+                    statsMap[t.id] = {
+                        p: t.p || 0,
+                        w: t.w || 0,
+                        d: t.d || 0,
+                        l: t.l || 0,
+                        gf: t.gf || 0,
+                        ga: t.ga || 0,
+                        gd: t.gd !== undefined ? t.gd : ((t.gf || 0) - (t.ga || 0)),
+                        pts: t.pts || 0,
+                        rating: t.rating
+                    };
+                }
+            });
+            
+            // K리그 레거시 ID 마이그레이션 매핑 지원
+            if (config.id === 'kleague1') {
+                if (statsMap["suwon_fc"] && !statsMap["bucheon_fc"]) {
+                    statsMap["bucheon_fc"] = statsMap["suwon_fc"];
+                }
+                if (statsMap["daegu"] && !statsMap["anyang"]) {
+                    statsMap["anyang"] = statsMap["daegu"];
+                }
+            }
+            
+            // 새 프리셋에 기존 전적 주입
+            leagueTeams = config.teamsPreset.map(preset => {
+                const existing = statsMap[preset.id];
+                if (existing) {
+                    return {
+                        ...preset,
+                        rating: (existing.rating !== undefined && existing.rating > 0) ? existing.rating : preset.rating,
+                        p: existing.p,
+                        w: existing.w,
+                        d: existing.d,
+                        l: existing.l,
+                        gf: existing.gf,
+                        ga: existing.ga,
+                        gd: existing.gd,
+                        pts: existing.pts
+                    };
+                }
+                return { ...preset };
+            });
+            
             isMigrated = true;
         } else if (config.id === 'kleague1') {
             // K리그용 레거시 마이그레이션 (부천, 안양)

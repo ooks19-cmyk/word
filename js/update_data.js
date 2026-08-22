@@ -2,9 +2,20 @@
 
 const UPDATE_LOGS = [
     {
-        version: "v2.7.0",
+        version: "v2.7.1",
         date: "2026.08.22",
         latest: true,
+        borderColor: "#ffd700",
+        titleColor: "#ffd700",
+        badgeText: "HOTFIX",
+        items: [
+            "<strong>리그 순위표 전적(승/무/패/승점) 보존 및 마이그레이션 엔진 강화</strong>: 컵 대회(카라바오컵/코리아컵) 진행 후 또는 클라우드 동기화 시 리그 순위표의 경기 전적과 승점이 0으로 초기화되던 현상을 원천 차단했습니다.<br>• <strong>안전한 전적 보존 병합</strong>: 리그 팀 목록 검증 및 마이그레이션 시 기존에 진행 중이던 모든 구단의 경기수, 승무패, 득점, 실점, 승점 기록을 안전하게 보존하면서 프리셋과 병합하도록 개선<br>• <strong>프리미어리그 20개 구단 완전 동기화</strong>: EPL 구단 프리셋에 누락되었던 사우샘프턴(Southampton)을 정식 등록하여 20개 구단 정규 리그 데이터 및 대진표 불일치를 완벽히 해소<br>• <strong>리그컵 경기 진행 홈/원정 판정 개선</strong>: 프리미어리그 카라바오컵에서 플레이어 팀(리버풀)의 홈/원정 및 엠블럼 표기가 올바르게 반영되도록 로직 정밀화"
+        ]
+    },
+    {
+        version: "v2.7.0",
+        date: "2026.08.22",
+        latest: false,
         borderColor: "#00d2fc",
         titleColor: "#00d2fc",
         badgeText: "NEW CUP",

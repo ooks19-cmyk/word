@@ -26,6 +26,7 @@ const EPL_TEAMS_PRESET = [
     { id: "everton", name: "에버튼", shortName: "EVE", rating: 83, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0, emblem: "img/mark_everton.png", color: "#003399" },
     { id: "leicester", name: "레스터 시티", shortName: "LEI", rating: 82, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0, emblem: "img/mark_leicester.png", color: "#003090" },
     { id: "ipswich", name: "입스위치 타운", shortName: "IPS", rating: 80, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0, emblem: "img/mark_ipswich.png", color: "#003399" },
+    { id: "southampton", name: "사우샘프턴", shortName: "SOU", rating: 80, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0, emblem: "img/mark_southampton.png", color: "#d71920" }
 ];
 
 // 1-1. 카라바오컵 (Carabao Cup / EFL Cup) 16개 참여 구단 프리셋

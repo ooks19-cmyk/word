@@ -875,7 +875,7 @@ function startCupMatchSimulation() {
     const detailedTacticLabel = detailedTactic.detailedTacticLabel;
     const suitabilityLabel = detailedTactic.suitabilityLabel;
 
-    const isHome = playerMatch.team1.id === 'jeonbuk';
+    const isHome = playerMatch.team1.id === playerTeamId;
     const opponent = isHome ? playerMatch.team2 : playerMatch.team1;
 
     const finalOvrs = calculateFinalMatchOvrs('neutral', isHome, opponent.rating, false);
