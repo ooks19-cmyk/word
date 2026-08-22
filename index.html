@@ -586,9 +586,9 @@
                     <div class="squad-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding-bottom: 0.5rem;">
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <div id="cupSeasonYearDisplay" style="font-size: 0.78rem; font-weight: 800; color: #00d2fc; background: rgba(0, 210, 252, 0.08); border: 1px solid rgba(0, 210, 252, 0.2); padding: 4px 12px; border-radius: 20px; display: flex; align-items: center; gap: 4px;">
-                                <i class="fa-solid fa-gem"></i> <span id="cupSeasonYearText">2026 코리아컵</span>
+                                <i class="fa-solid fa-gem"></i> <span id="cupSeasonYearText">2026 리그컵</span>
                             </div>
-                            <button onclick="resetCupSeasonWithFP()" class="btn-reset-quiz" title="5 FP 소모하여 코리아컵 초기화 (시즌당 1회)" style="font-size: 0.72rem; padding: 4px 10px; border-radius: 12px; margin: 0; display: inline-flex; align-items: center; gap: 4px; border: 1px solid rgba(0, 210, 252, 0.3); background: rgba(0, 210, 252, 0.05); color: #00d2fc; cursor: pointer; transition: all 0.2s; font-weight: 700;">
+                            <button onclick="resetCupSeasonWithFP()" class="btn-reset-quiz" title="5 FP 소모하여 리그컵 초기화 (시즌당 1회)" style="font-size: 0.72rem; padding: 4px 10px; border-radius: 12px; margin: 0; display: inline-flex; align-items: center; gap: 4px; border: 1px solid rgba(0, 210, 252, 0.3); background: rgba(0, 210, 252, 0.05); color: #00d2fc; cursor: pointer; transition: all 0.2s; font-weight: 700;">
                                 <i class="fa-solid fa-rotate-left"></i> 초기화 (5 FP)
                             </button>
                         </div>
@@ -640,7 +640,7 @@
                     <!-- Live Text Broadcast Commentary Box -->
                     <div class="commentary-box-wrapper" style="border-color: rgba(0, 210, 252, 0.15);">
                         <div class="commentary-header" style="background: rgba(0, 210, 252, 0.08); border-bottom-color: rgba(0, 210, 252, 0.15);">
-                            <span style="color: #00d2fc;"><i class="fa-solid fa-radio"></i> 코리아컵 라이브 중계</span>
+                            <span style="color: #00d2fc;"><i class="fa-solid fa-radio"></i> 리그컵 라이브 중계</span>
                             <span class="live-pulse" id="cupLivePulseIndicator" style="background: #00d2fc; box-shadow: 0 0 10px #00d2fc;">LIVE</span>
                         </div>
                         <div class="commentary-scroll" id="cupCommentaryScroll">
@@ -650,7 +650,7 @@
                     
                     <div class="match-controls">
                         <button class="btn-open-pack" id="btnStartCupMatch" onclick="startCupMatchSimulation()" style="width: 100%; margin-top: 1.5rem; background: linear-gradient(135deg, #00d2fc, #4b7bec); box-shadow: 0 4px 15px rgba(0, 210, 252, 0.3);">
-                            <i class="fa-solid fa-play" style="margin-right: 8px;"></i>코리아컵 경기 시작 (15초 소요)
+                            <i class="fa-solid fa-play" style="margin-right: 8px;"></i>리그컵 경기 시작 (15초 소요)
                         </button>
                     </div>
                 </div>
@@ -1911,7 +1911,7 @@
     <script src="player_data.js?v=1.48"></script>
     <script src="quiz_data.js?v=1.8"></script>
     <script src="other_teams_data.js?v=1.5"></script>
-    <script src="other_teams_data_epl.js?v=1.0"></script>
+    <script src="other_teams_data_epl.js?v=1.1"></script>
     <script src="db.js?v=2.1"></script>
     <script src="sound.js?v=1.2"></script>
     <script src="js/state.js?v=2.5"></script>
@@ -1922,8 +1922,8 @@
     <script src="js/deck.js?v=2.6"></script>
     <script src="js/squad.js?v=2.8"></script>
     <script src="js/match_algorithm.js?v=2.4"></script>
-    <script src="js/league.js?v=3.0"></script>
-    <script src="js/cup.js?v=2.5"></script>
+    <script src="js/league.js?v=3.1"></script>
+    <script src="js/cup.js?v=2.6"></script>
     <script src="js/acl.js?v=2.5"></script>
     <script src="js/friendly.js?v=2.2"></script>
     <script src="js/achievements.js?v=1.0"></script>
@@ -2015,12 +2015,12 @@
         </div>
     </div>
 
-    <script src="js/update_data.js?v=2.68"></script>
+    <script src="js/update_data.js?v=2.69"></script>
     <script src="js/friend.js?v=1.1"></script>
-    <script src="js/auth.js?v=2.46"></script>
+    <script src="js/auth.js?v=2.47"></script>
     <script src="js/realtime.js?v=2.1"></script>
     <script src="js/coach_advisor.js?v=1.0"></script>
-    <script src="app.js?v=2.9"></script>
+    <script src="app.js?v=3.0"></script>
     <script>
         if (typeof updateGlowTheme === 'function') {
             updateGlowTheme();

@@ -1067,6 +1067,34 @@ graph TD
     - `index.html` 내 `match_algorithm.js` 버전을 `v=2.4`, `league.js` 버전을 `v=3.0`, `friendly.js` 버전을 `v=2.2`, `update_data.js` 로드 버전을 `v=2.68`로 올렸습니다.
     - 서비스 워커 PWA 캐시 버전을 `'fc-star-v269'`로 올렸습니다.
 
+---
+
+### ⚙️ 93) 프리미어리그 모드 'EFL 카라바오컵(Carabao Cup)' 토너먼트 정식 구현 (2026-08-22)
+* **배경 및 목적**:
+  - 프리미어리그(EPL 모드 - 리버풀 FC) 플레이 시에도 리그 경기 외에 흥미진진한 토너먼트 리그컵(카라바오컵)을 즐길 수 있도록 16개 프리미어리그 구단이 참가하는 독립 토너먼트 시스템을 구축합니다.
+* **반영 사항**:
+  - **`other_teams_data_epl.js`**:
+    - 리버풀 FC를 비롯한 프리미어리그 16개 구단(맨시티, 아스날, 첼시, 토트넘, 맨유, 뉴캐슬, 아스톤 빌라, 브라이튼, 웨스트햄, 본머스, 풀럼, 팰리스, 브렌트포드, 노팅엄, 울버햄튼)의 `CUP_TEAMS_PRESET_EPL` 프리셋 신설.
+  - **`js/cup.js`**:
+    - `getActiveCupTournamentName()`, `getActiveCupUserTeamId()`, `getActiveCupUserTeamName()`, `getActiveCupTeamsPreset()`, `getActiveCupPlayersPreset()`, `getCupStorageKey()` 등 활성 리그 동적 헬퍼 구축.
+    - `initCup()`, `resetCupStateData()`, `saveCupState()`: 리그별 독립 스토리지 키(`fc_star_cup_state_kleague1`, `fc_star_cup_state_epl`) 분리 및 레거시 데이터 호환 보장.
+    - `updateCupScoreboard()`, `renderCupBracket()`, `getCupTeamEmblemHtml()`: 프리미어리그 16개 팀의 공식 엠블럼 및 팀명, 전술 상성 분석 완벽 연동. 결승전 장소로 웸블리 스타디움 표기.
+    - 경기 시뮬레이션 및 연장/승부차기: 프리미어리그 스타 선수들(살라, 홀란, 사카, 손흥민 등)의 실시간 득점/도움 누적 및 라이브 해설 출력.
+    - 우승 모달 및 리셋: 카라바오컵 전용 우승 축하 팝업과 5 FP 리셋 기능 연동.
+  - **`app.js`**:
+    - `updateMatchSubTabsUI()`: EPL 모드 진입 시 `카라바오컵` 활성화 및 뱃지 제거.
+    - `switchMatchSubTab()`: EPL 모드에서 리그컵 탭 진입 허용.
+  - **`js/league.js`**:
+    - `transferToLeague()`: 감독 이적 시 `initCup()` 및 `initCupTab()`을 즉시 호출하여 리그 변경 즉시 해당 리그의 컵 토너먼트가 로드되도록 연동.
+    - `recordSeasonProgressToFame()` 및 `renderHallOfFameSub()`: 명예의 전당에서 카라바오컵 우승 트로피 뱃지 및 성적(`카라바오컵 성적`)이 완벽히 기록/렌더링되도록 구현.
+    - `simulateBatchMatches()`: EPL 38라운드 최종전 직전 카라바오컵 완료 상태 체크 추가.
+  - **`js/auth.js`**:
+    - 로컬 스토리지 및 Firebase 클라우드 동기화 페이로드에 `cupStateEpl` 및 `cupStateKLeague`를 모두 추가하여 멀티 디바이스 간 독립 토너먼트 데이터 영구 보존.
+  - **PWA 캐시 및 스크립트 버전 최신화 (`index.html`, `sw.js`, `js/update_data.js`)**:
+    - `index.html` 내 `other_teams_data_epl.js` 버전을 `v=1.1`, `league.js` 버전을 `v=3.1`, `cup.js` 버전을 `v=2.6`, `app.js` 버전을 `v=3.0`, `auth.js` 버전을 `v=2.47`, `update_data.js` 버전을 `v=2.69`로 갱신.
+    - 서비스 워커 PWA 캐시 버전을 `'fc-star-v270'`으로 갱신하고 `other_teams_data_epl.js`를 캐싱 자산 목록에 등록.
+
+
 
 
 

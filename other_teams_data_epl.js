@@ -26,7 +26,26 @@ const EPL_TEAMS_PRESET = [
     { id: "everton", name: "에버튼", shortName: "EVE", rating: 83, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0, emblem: "img/mark_everton.png", color: "#003399" },
     { id: "leicester", name: "레스터 시티", shortName: "LEI", rating: 82, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0, emblem: "img/mark_leicester.png", color: "#003090" },
     { id: "ipswich", name: "입스위치 타운", shortName: "IPS", rating: 80, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0, emblem: "img/mark_ipswich.png", color: "#003399" },
-    { id: "southampton", name: "사우샘프턴", shortName: "SOU", rating: 80, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0, emblem: "img/mark_southampton.png", color: "#d71920" }
+];
+
+// 1-1. 카라바오컵 (Carabao Cup / EFL Cup) 16개 참여 구단 프리셋
+const CUP_TEAMS_PRESET_EPL = [
+    { id: "liverpool", name: "리버풀", rating: 94, emblem: "img/mark_liverpool.png", color: "#c8102e" },
+    { id: "mancity", name: "맨체스터 시티", rating: 95, emblem: "img/mark_mancity.png", color: "#6cabdd" },
+    { id: "arsenal", name: "아스날", rating: 94, emblem: "img/mark_arsenal.png", color: "#ef0107" },
+    { id: "chelsea", name: "첼시", rating: 91, emblem: "img/mark_chelsea.png", color: "#034694" },
+    { id: "tottenham", name: "토트넘 홋스퍼", rating: 91, emblem: "img/mark_tottenham.png", color: "#132257" },
+    { id: "manutd", name: "맨체스터 유나이티드", rating: 90, emblem: "img/mark_manutd.png", color: "#da291c" },
+    { id: "newcastle", name: "뉴캐슬 유나이티드", rating: 89, emblem: "img/mark_newcastle.png", color: "#241f20" },
+    { id: "astonvilla", name: "아스톤 빌라", rating: 89, emblem: "img/mark_astonvilla.png", color: "#95bfe5" },
+    { id: "brighton", name: "브라이튼", rating: 87, emblem: "img/mark_brighton.png", color: "#0057b8" },
+    { id: "westham", name: "웨스트햄 유나이티드", rating: 86, emblem: "img/mark_westham.png", color: "#7a263a" },
+    { id: "bournemouth", name: "본머스", rating: 85, emblem: "img/mark_bournemouth.png", color: "#da291c" },
+    { id: "fulham", name: "풀럼", rating: 85, emblem: "img/mark_fulham.png", color: "#cc0000" },
+    { id: "palace", name: "크리스탈 팰리스", rating: 85, emblem: "img/mark_palace.png", color: "#1b458f" },
+    { id: "brentford", name: "브렌트포드", rating: 84, emblem: "img/mark_brentford.png", color: "#e30613" },
+    { id: "nottingham", name: "노팅엄 포레스트", rating: 84, emblem: "img/mark_nottingham.png", color: "#dd0000" },
+    { id: "wolves", name: "울버햄튼", rating: 83, emblem: "img/mark_wolves.png", color: "#fdb913" }
 ];
 
 // 2. EPL 상대팀 주요 선수 프리셋 (득점왕/도움왕 시뮬레이터 연동)

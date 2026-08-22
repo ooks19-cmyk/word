@@ -1,6 +1,54 @@
-// js/cup.js - KFA 코리아컵 (리그컵) UI 및 토너먼트 모듈
+// js/cup.js - KFA 코리아컵 & EFL 카라바오컵 (리그컵) UI 및 토너먼트 모듈
 
-// 1. 코리아컵 상태 및 변수 선언
+// 0. 활성 리그 연동 헬퍼 함수
+function getActiveCupTournamentName() {
+    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
+        return "카라바오컵";
+    }
+    return "코리아컵";
+}
+
+function getActiveCupUserTeamId() {
+    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
+        return "liverpool";
+    }
+    return "jeonbuk";
+}
+
+function getActiveCupUserTeamName() {
+    if (typeof getActiveUserTeamName === 'function') {
+        return getActiveUserTeamName();
+    }
+    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
+        return "리버풀 FC";
+    }
+    return "전북 현대";
+}
+
+function getActiveCupTeamsPreset() {
+    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
+        if (typeof CUP_TEAMS_PRESET_EPL !== 'undefined' && CUP_TEAMS_PRESET_EPL.length > 0) {
+            return CUP_TEAMS_PRESET_EPL;
+        }
+    }
+    return CUP_TEAMS_PRESET;
+}
+
+function getActiveCupPlayersPreset() {
+    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
+        if (typeof OTHER_TEAMS_PLAYERS_PRESET_EPL !== 'undefined' && OTHER_TEAMS_PLAYERS_PRESET_EPL.length > 0) {
+            return OTHER_TEAMS_PLAYERS_PRESET_EPL;
+        }
+    }
+    return (typeof OTHER_TEAMS_PLAYERS_PRESET !== 'undefined') ? OTHER_TEAMS_PLAYERS_PRESET : [];
+}
+
+function getCupStorageKey() {
+    const leagueId = (typeof currentLeagueId !== 'undefined' && currentLeagueId) ? currentLeagueId : 'kleague1';
+    return `fc_star_cup_state_${leagueId}`;
+}
+
+// 1. 리그컵 상태 및 변수 선언
 let cupState = {
     year: 2026,
     round: 16, // 16: 16강, 8: 8강, 4: 4강, 2: 결승, 1: 종료 (우승자 탄생)
@@ -40,10 +88,16 @@ const CUP_TEAMS_PRESET = [
     { id: "seoul_e_land", name: "서울E", rating: 66 }
 ];
 
-// 2. 코리아컵 초기화 함수
+// 2. 리그컵 초기화 함수
 function initCup() {
     try {
-        const savedState = localStorage.getItem('fc_star_cup_state');
+        const key = getCupStorageKey();
+        let savedState = localStorage.getItem(key);
+        // K리그 레거시 세이브 호환 fallback
+        if (!savedState && (!currentLeagueId || currentLeagueId === 'kleague1')) {
+            savedState = localStorage.getItem('fc_star_cup_state');
+        }
+        
         if (savedState) {
             cupState = JSON.parse(savedState);
             if (cupState.hasResetThisSeason === undefined) {
@@ -59,7 +113,7 @@ function initCup() {
                 if (!cupState.stats.scorers) cupState.stats.scorers = [];
                 if (!cupState.stats.assisters) cupState.stats.assisters = [];
             }
-            // K리그 시즌 연도 동기화 (league.js 연동 대비)
+            // 시즌 연도 동기화 (league.js 연동 대비)
             if (typeof leagueYear !== 'undefined') {
                 cupState.year = leagueYear;
             }
@@ -78,15 +132,17 @@ function initCup() {
 function resetCupStateData() {
     const curYear = (typeof leagueYear !== 'undefined') ? leagueYear : 2026;
     const top20Ovr = (typeof getPlayerTop20Ovr === 'function') ? getPlayerTop20Ovr() : 70;
+    const preset = getActiveCupTeamsPreset();
+    const isEpl = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl');
     
-    // K2 팀의 OVR을 플레이어 상위 20개 평균 OVR - (2~10) 범위로 동적 설정, K1 팀은 리그 상대팀 OVR 적용
-    const initializedTeams = CUP_TEAMS_PRESET.map(team => {
+    // K2 팀의 OVR을 플레이어 상위 20개 평균 OVR - (2~10) 범위로 동적 설정, K1/EPL 팀은 리그 상대팀 OVR 적용
+    const initializedTeams = preset.map(team => {
         let rating = team.rating;
-        if (["suwon_samsung", "daegu_fc", "busan_ipark", "seoul_e_land"].includes(team.id)) {
+        if (!isEpl && ["suwon_samsung", "daegu_fc", "busan_ipark", "seoul_e_land"].includes(team.id)) {
             const offset = Math.floor(Math.random() * 9) - 10; // -10 ~ -2 범위 랜덤
             rating = Math.max(50, top20Ovr + offset);
         } else {
-            // K1 팀인 경우 리그의 상대팀 OVR 가져오기
+            // 리그 팀인 경우 리그의 상대팀 OVR 가져오기
             if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {
                 const leagueTeam = leagueTeams.find(t => t.id === team.id);
                 if (leagueTeam && leagueTeam.rating !== undefined) {
@@ -143,7 +199,11 @@ function resetCupStateData() {
 
 function saveCupState() {
     try {
-        localStorage.setItem('fc_star_cup_state', JSON.stringify(cupState));
+        const key = getCupStorageKey();
+        localStorage.setItem(key, JSON.stringify(cupState));
+        if (!currentLeagueId || currentLeagueId === 'kleague1') {
+            localStorage.setItem('fc_star_cup_state', JSON.stringify(cupState));
+        }
     } catch(e) {}
     if (typeof saveUserProgress === 'function' && typeof currentUser !== 'undefined' && currentUser) {
         saveUserProgress();
@@ -154,15 +214,16 @@ function saveCupState() {
 function checkAndRecoverEliminatedCup() {
     if (cupState.isFinished) return;
     
+    const playerTeamId = getActiveCupUserTeamId();
     let isPlayerEliminated = false;
     [16, 8, 4, 2].forEach(roundKey => {
         const matches = cupState.bracket[roundKey] || [];
         matches.forEach(match => {
             if (match.status === 'completed') {
-                const hasPlayer = (match.team1 && match.team1.id === 'jeonbuk') || (match.team2 && match.team2.id === 'jeonbuk');
+                const hasPlayer = (match.team1 && match.team1.id === playerTeamId) || (match.team2 && match.team2.id === playerTeamId);
                 if (hasPlayer) {
-                    const isPlayerWinner = (match.winner === 'team1' && match.team1.id === 'jeonbuk') ||
-                                          (match.winner === 'team2' && match.team2.id === 'jeonbuk');
+                    const isPlayerWinner = (match.winner === 'team1' && match.team1.id === playerTeamId) ||
+                                          (match.winner === 'team2' && match.team2.id === playerTeamId);
                     if (!isPlayerWinner) {
                         isPlayerEliminated = true;
                     }
@@ -172,7 +233,7 @@ function checkAndRecoverEliminatedCup() {
     });
     
     if (isPlayerEliminated) {
-        console.log("플레이어가 코리아컵에서 탈락한 상태를 감지했습니다. 남은 대회를 자동 시뮬레이션 처리합니다.");
+        console.log(`플레이어가 ${getActiveCupTournamentName()}에서 탈락한 상태를 감지했습니다. 남은 대회를 자동 시뮬레이션 처리합니다.`);
         simulateRemainingCupRounds();
     }
 }
@@ -258,14 +319,26 @@ function initCupTab() {
     // 컵 탈락 복구 체크 먼저 실행
     checkAndRecoverEliminatedCup();
 
+    const tournamentName = getActiveCupTournamentName();
+
     const seasonText = document.getElementById('cupSeasonYearText');
     if (seasonText) {
-        seasonText.textContent = `${cupState.year} 코리아컵`;
+        seasonText.textContent = `${cupState.year} ${tournamentName}`;
     }
     
     const roundValText = document.getElementById('cupRoundVal');
     if (roundValText) {
         roundValText.textContent = getCupRoundText(cupState.round);
+    }
+
+    const broadcastHeader = document.querySelector('#matchLayoutCup .commentary-header span:first-child');
+    if (broadcastHeader) {
+        broadcastHeader.innerHTML = `<i class="fa-solid fa-radio"></i> ${tournamentName} 라이브 중계`;
+    }
+
+    const resetBtn = document.querySelector('#matchLayoutCup button[onclick*="resetCupSeasonWithFP"]');
+    if (resetBtn) {
+        resetBtn.title = `5 FP 소모하여 ${tournamentName} 초기화 (시즌당 1회)`;
     }
 
     updatePlayerTeamOvr();
@@ -274,18 +347,20 @@ function initCupTab() {
     renderCupStats();
 }
 
-// 4. 플레이어 팀 및 K1 상대팀 OVR 최신 동기화
+// 4. 플레이어 팀 및 상대팀 OVR 최신 동기화
 function updatePlayerTeamOvr() {
     const pureOvr = (typeof getPlayerPureOvr === 'function') ? getPlayerPureOvr() : 70;
     const formBonus = (typeof getPlayerFormationTacticBonuses === 'function') ? getPlayerFormationTacticBonuses().formationBonus : 0;
     const playerOvr = pureOvr + formBonus; // 포메이션 전술 완성 보너스 포함
+    const playerTeamId = getActiveCupUserTeamId();
+    const isEpl = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl');
     
     // 1. cupState.teams 동기화
     cupState.teams.forEach(team => {
-        if (team.id === 'jeonbuk') {
+        if (team.id === playerTeamId) {
             team.rating = playerOvr;
-        } else if (!["suwon_samsung", "daegu_fc", "busan_ipark", "seoul_e_land"].includes(team.id)) {
-            // K1 팀인 경우 리그의 최신 OVR로 동기화
+        } else if (isEpl || !["suwon_samsung", "daegu_fc", "busan_ipark", "seoul_e_land"].includes(team.id)) {
+            // 리그 팀인 경우 리그의 최신 OVR로 동기화
             if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {
                 const leagueTeam = leagueTeams.find(t => t.id === team.id);
                 if (leagueTeam && leagueTeam.rating !== undefined) {
@@ -299,9 +374,9 @@ function updatePlayerTeamOvr() {
     [16, 8, 4, 2].forEach(roundKey => {
         cupState.bracket[roundKey].forEach(match => {
             if (match.team1) {
-                if (match.team1.id === 'jeonbuk') {
+                if (match.team1.id === playerTeamId) {
                     match.team1.rating = playerOvr;
-                } else if (!["suwon_samsung", "daegu_fc", "busan_ipark", "seoul_e_land"].includes(match.team1.id)) {
+                } else if (isEpl || !["suwon_samsung", "daegu_fc", "busan_ipark", "seoul_e_land"].includes(match.team1.id)) {
                     if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {
                         const leagueTeam = leagueTeams.find(t => t.id === match.team1.id);
                         if (leagueTeam && leagueTeam.rating !== undefined) {
@@ -311,9 +386,9 @@ function updatePlayerTeamOvr() {
                 }
             }
             if (match.team2) {
-                if (match.team2.id === 'jeonbuk') {
+                if (match.team2.id === playerTeamId) {
                     match.team2.rating = playerOvr;
-                } else if (!["suwon_samsung", "daegu_fc", "busan_ipark", "seoul_e_land"].includes(match.team2.id)) {
+                } else if (isEpl || !["suwon_samsung", "daegu_fc", "busan_ipark", "seoul_e_land"].includes(match.team2.id)) {
                     if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {
                         const leagueTeam = leagueTeams.find(t => t.id === match.team2.id);
                         if (leagueTeam && leagueTeam.rating !== undefined) {
@@ -334,9 +409,13 @@ function updateCupScoreboard() {
     const analysisCard = document.getElementById('cupOpponentAnalysisCard');
     if (analysisCard) analysisCard.style.display = 'none';
 
+    const playerTeamId = getActiveCupUserTeamId();
+    const playerTeamName = getActiveCupUserTeamName();
+    const tournamentName = getActiveCupTournamentName();
+
     if (cupState.isFinished) {
-        const winner = cupState.bracket.winner || { name: '전북 현대', rating: 75 };
-        const isPlayerWinner = winner.id === 'jeonbuk';
+        const winner = cupState.bracket.winner || { name: playerTeamName, rating: 75 };
+        const isPlayerWinner = winner.id === playerTeamId;
         
         document.getElementById('cupRoundVal').textContent = "대회 종료";
         document.getElementById('cupHomeTeamName').textContent = winner.name;
@@ -348,14 +427,14 @@ function updateCupScoreboard() {
         document.getElementById('cupSbTimeDisplay').textContent = "FINISH";
         document.getElementById('cupSbTimeDisplay').classList.remove('live-ticking');
         document.getElementById('cupMatchVenueDisplay').textContent = isPlayerWinner 
-            ? "코리아컵 시즌이 완료되었습니다. 축하합니다!" 
-            : `코리아컵 시즌이 완료되었습니다. (${winner.name} 우승)`;
+            ? `${tournamentName} 시즌이 완료되었습니다. 축하합니다!` 
+            : `${tournamentName} 시즌이 완료되었습니다. (${winner.name} 우승)`;
         
         const btn = document.getElementById('btnStartCupMatch');
         if (btn) {
             btn.disabled = true;
             if (isPlayerWinner) {
-                btn.innerHTML = `<i class="fa-solid fa-trophy" style="margin-right: 8px;"></i>코리아컵 우승 완료`;
+                btn.innerHTML = `<i class="fa-solid fa-trophy" style="margin-right: 8px;"></i>${tournamentName} 우승 완료`;
             } else {
                 btn.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="margin-right: 8px;"></i>토너먼트 탈락 (대회 종료)`;
             }
@@ -365,13 +444,13 @@ function updateCupScoreboard() {
 
     const curRound = cupState.round;
     const matches = cupState.bracket[curRound];
-    const playerMatch = matches.find(m => (m.team1 && m.team1.id === 'jeonbuk') || (m.team2 && m.team2.id === 'jeonbuk'));
+    const playerMatch = matches.find(m => (m.team1 && m.team1.id === playerTeamId) || (m.team2 && m.team2.id === playerTeamId));
 
     const btn = document.getElementById('btnStartCupMatch');
     const timeDisplay = document.getElementById('cupSbTimeDisplay');
 
     if (!playerMatch) {
-        document.getElementById('cupHomeTeamName').textContent = "전북 현대";
+        document.getElementById('cupHomeTeamName').textContent = playerTeamName;
         document.getElementById('cupAwayTeamName').textContent = "토너먼트 탈락";
         document.getElementById('cupHomeTeamOvr').textContent = "-";
         document.getElementById('cupAwayTeamOvr').textContent = "-";
@@ -381,7 +460,7 @@ function updateCupScoreboard() {
             timeDisplay.textContent = "OUT";
             timeDisplay.classList.remove('live-ticking');
         }
-        document.getElementById('cupMatchVenueDisplay').textContent = "전북 현대가 탈락했습니다.";
+        document.getElementById('cupMatchVenueDisplay').textContent = `${playerTeamName}가 탈락했습니다.`;
         
         if (analysisCard) analysisCard.style.display = 'none';
         
@@ -401,8 +480,8 @@ function updateCupScoreboard() {
     document.getElementById('cupAwayTeamOvr').textContent = t2.rating;
 
     // 상대팀 정보 요약 프레임 연동
-    const opponent = t1.id === 'jeonbuk' ? t2 : t1;
-    const oppFormation = TEAM_FORMATIONS_PRESET[opponent.id] || "4-4-2";
+    const opponent = t1.id === playerTeamId ? t2 : t1;
+    const oppFormation = (typeof TEAM_FORMATIONS_PRESET !== 'undefined' && TEAM_FORMATIONS_PRESET[opponent.id]) ? TEAM_FORMATIONS_PRESET[opponent.id] : "4-4-2";
     const compBonus = getFormationCompatibilityBonus(currentFormation, oppFormation);
     
     if (analysisCard) {
@@ -416,11 +495,11 @@ function updateCupScoreboard() {
             if (compBonus > 0) {
                 compTextEl.style.display = 'block';
                 compTextEl.classList.add('tactic-advantage');
-                compTextEl.innerHTML = `전북 현대의 <strong>${currentFormation}</strong> 전술이 상대의 <strong>${oppFormation}</strong> 전술에 상성상 우세합니다! (공격 찬스 확률 +5.0% ⚡)`;
+                compTextEl.innerHTML = `${playerTeamName}의 <strong>${currentFormation}</strong> 전술이 상대의 <strong>${oppFormation}</strong> 전술에 상성상 우세합니다! (공격 찬스 확률 +5.0% ⚡)`;
             } else if (compBonus < 0) {
                 compTextEl.style.display = 'block';
                 compTextEl.classList.add('tactic-disadvantage');
-                compTextEl.innerHTML = `상대의 <strong>${oppFormation}</strong> 전술이 전북 현대의 <strong>${currentFormation}</strong> 전술에 상성상 우세합니다. (공격 찬스 확률 -5.0% ⚠️)`;
+                compTextEl.innerHTML = `상대의 <strong>${oppFormation}</strong> 전술이 ${playerTeamName}의 <strong>${currentFormation}</strong> 전술에 상성상 우세합니다. (공격 찬스 확률 -5.0% ⚠️)`;
             } else {
                 // 피드백 반영: 상성이 비겼을 때(보너스 0)는 설명 숨김
                 compTextEl.style.display = 'none';
@@ -457,7 +536,7 @@ function updateCupScoreboard() {
         
         if (btn) {
             btn.disabled = false;
-            btn.innerHTML = `<i class="fa-solid fa-play" style="margin-right: 8px;"></i>코리아컵 경기 시작 (15초 소요)`;
+            btn.innerHTML = `<i class="fa-solid fa-play" style="margin-right: 8px;"></i>${tournamentName} 경기 시작 (15초 소요)`;
         }
     }
 
@@ -465,7 +544,7 @@ function updateCupScoreboard() {
     const awayEmblemEl = document.getElementById('cupAwayEmblem');
     if (homeEmblemEl) {
         homeEmblemEl.innerHTML = getCupTeamEmblemHtml(t1, 48);
-        if (t1.id === 'jeonbuk') {
+        if (t1.id === playerTeamId) {
             homeEmblemEl.classList.add('jeonbuk-emblem-box');
         } else {
             homeEmblemEl.classList.remove('jeonbuk-emblem-box');
@@ -473,14 +552,14 @@ function updateCupScoreboard() {
     }
     if (awayEmblemEl) {
         awayEmblemEl.innerHTML = getCupTeamEmblemHtml(t2, 48);
-        if (t2.id === 'jeonbuk') {
+        if (t2.id === playerTeamId) {
             awayEmblemEl.classList.add('jeonbuk-emblem-box');
         } else {
             awayEmblemEl.classList.remove('jeonbuk-emblem-box');
         }
     }
     
-    document.getElementById('cupMatchVenueDisplay').textContent = `${getCupRoundText(curRound)} 단판 승부 (중립 구장)`;
+    document.getElementById('cupMatchVenueDisplay').textContent = `${getCupRoundText(curRound)} 단판 승부 (${(currentLeagueId === 'epl' && curRound === 2) ? '웸블리 스타디움' : '중립 구장'})`;
 }
 
 // 6. 대진표 (Bracket Tree) 렌더링 함수
@@ -552,7 +631,8 @@ function renderCupBracket() {
 
 // 개별 경기 노드 그리기 헬퍼
 function renderCupMatchNode(match, round) {
-    const isPlayerMatch = (match.team1 && match.team1.id === 'jeonbuk') || (match.team2 && match.team2.id === 'jeonbuk');
+    const playerTeamId = getActiveCupUserTeamId();
+    const isPlayerMatch = (match.team1 && match.team1.id === playerTeamId) || (match.team2 && match.team2.id === playerTeamId);
     const isActive = (cupState.round === round && isPlayerMatch && match.status !== 'completed');
     const activeClass = isActive ? 'match-active' : '';
     
@@ -561,7 +641,7 @@ function renderCupMatchNode(match, round) {
         let t1Class = '';
         if (match.winner === 'team1') t1Class = 'team-won';
         else if (match.winner === 'team2') t1Class = 'team-lost';
-        if (match.team1.id === 'jeonbuk') t1Class += ' team-player';
+        if (match.team1.id === playerTeamId) t1Class += ' team-player';
         
         let score1Val = match.score1 !== null ? match.score1 : '-';
         if (match.pkScore1 !== undefined && match.pkScore2 !== undefined) {
@@ -591,7 +671,7 @@ function renderCupMatchNode(match, round) {
         let t2Class = '';
         if (match.winner === 'team2') t2Class = 'team-won';
         else if (match.winner === 'team1') t2Class = 'team-lost';
-        if (match.team2.id === 'jeonbuk') t2Class += ' team-player';
+        if (match.team2.id === playerTeamId) t2Class += ' team-player';
         
         let score2Val = match.score2 !== null ? match.score2 : '-';
         if (match.pkScore1 !== undefined && match.pkScore2 !== undefined) {
@@ -624,8 +704,17 @@ function renderCupMatchNode(match, round) {
     `;
 }
 
-// 팀 엠블럼 HTML 헬퍼 (K1 SVG/PNG 매핑 + K2 컬러 쉴드 아이콘 분기)
+// 팀 엠블럼 HTML 헬퍼 (K1/EPL 엠블럼 + K2 컬러 쉴드 아이콘 분기)
 function getCupTeamEmblemHtml(team, size = 18) {
+    if (!team) return '';
+    const userTeamId = getActiveCupUserTeamId();
+    const isPlayer = team.id === userTeamId;
+    const isGlow = (isPlayer && size >= 30) ? 'match-emblem-glow' : '';
+
+    if (team.emblem) {
+        return `<img src="${team.emblem}" alt="${team.name}" class="match-emblem-img ${isGlow}" style="height: ${size}px; width: ${size}px; object-fit: contain; vertical-align: middle; flex-shrink: 0; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));">`;
+    }
+
     const k1Mapping = {
         "jeonbuk": "img/mark_jb.svg",
         "ulsan": "img/mark_ulsan.png",
@@ -642,8 +731,7 @@ function getCupTeamEmblemHtml(team, size = 18) {
     };
 
     if (k1Mapping[team.id]) {
-        const isJeonbukGlow = (team.id === 'jeonbuk' && size >= 30) ? 'match-emblem-glow' : '';
-        return `<img src="${k1Mapping[team.id]}" alt="${team.name}" class="match-emblem-img ${isJeonbukGlow}" style="height: ${size}px; width: ${size}px; object-fit: contain; vertical-align: middle; flex-shrink: 0; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));">`;
+        return `<img src="${k1Mapping[team.id]}" alt="${team.name}" class="match-emblem-img ${isGlow}" style="height: ${size}px; width: ${size}px; object-fit: contain; vertical-align: middle; flex-shrink: 0; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));">`;
     } else {
         let color = '#94a3b8';
         if (team.id === 'suwon_samsung') color = '#2563eb'; // 수원 블루
@@ -669,13 +757,15 @@ function renderCupStats() {
         cupState.stats.assisters.sort((a, b) => b.assists - a.assists);
     }
 
+    const playerTeamId = getActiveCupUserTeamId();
+
     goalsBody.innerHTML = '';
     if (!cupState.stats.scorers || cupState.stats.scorers.length === 0) {
         goalsBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #64748b; padding: 12px; font-size: 0.8rem;">득점 기록이 없습니다.</td></tr>`;
     } else {
         cupState.stats.scorers.slice(0, 5).forEach((p, idx) => {
-            const isJeonbuk = p.teamId === 'jeonbuk';
-            const rowStyle = isJeonbuk ? 'style="background: rgba(0, 255, 135, 0.08); font-weight: bold; color: #ffd700;"' : '';
+            const isPlayer = p.teamId === playerTeamId;
+            const rowStyle = isPlayer ? 'style="background: rgba(0, 255, 135, 0.08); font-weight: bold; color: #ffd700;"' : '';
             goalsBody.innerHTML += `
                 <tr ${rowStyle} style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
                     <td style="padding: 6px; text-align: center;">${idx + 1}</td>
@@ -692,8 +782,8 @@ function renderCupStats() {
         assistsBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #64748b; padding: 12px; font-size: 0.8rem;">도움 기록이 없습니다.</td></tr>`;
     } else {
         cupState.stats.assisters.slice(0, 5).forEach((p, idx) => {
-            const isJeonbuk = p.teamId === 'jeonbuk';
-            const rowStyle = isJeonbuk ? 'style="background: rgba(0, 255, 135, 0.08); font-weight: bold; color: #00ff87;"' : '';
+            const isPlayer = p.teamId === playerTeamId;
+            const rowStyle = isPlayer ? 'style="background: rgba(0, 255, 135, 0.08); font-weight: bold; color: #00ff87;"' : '';
             assistsBody.innerHTML += `
                 <tr ${rowStyle} style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
                     <td style="padding: 6px; text-align: center;">${idx + 1}</td>
@@ -706,17 +796,21 @@ function renderCupStats() {
     }
 }
 
-// 8. 코리아컵 경기 시뮬레이터 (15초 단판 라이브 텍스트 중계)
+// 8. 리그컵 경기 시뮬레이터 (15초 단판 라이브 텍스트 중계)
 function startCupMatchSimulation() {
+    const tournamentName = getActiveCupTournamentName();
+    const playerTeamId = getActiveCupUserTeamId();
+    const playerTeamName = getActiveCupUserTeamName();
+
     if (cupState.isFinished) {
-        alert("이미 이번 시즌 코리아컵이 종료되었습니다.");
+        alert(`이미 이번 시즌 ${tournamentName}이 종료되었습니다.`);
         return;
     }
 
     const curRound = cupState.round;
     const matches = cupState.bracket[curRound];
     
-    const playerMatch = matches.find(m => (m.team1 && m.team1.id === 'jeonbuk') || (m.team2 && m.team2.id === 'jeonbuk'));
+    const playerMatch = matches.find(m => (m.team1 && m.team1.id === playerTeamId) || (m.team2 && m.team2.id === playerTeamId));
     if (!playerMatch) {
         alert("플레이어 매치를 찾을 수 없습니다. 이미 탈락하셨거나 오류가 발생했습니다.");
         return;
@@ -769,7 +863,7 @@ function startCupMatchSimulation() {
         }
     } catch(e) {}
 
-    // 실제 전북 현대 스쿼드 OVR 및 전술 보너스 연산
+    // 실제 플레이어 스쿼드 OVR 및 전술 보너스 연산
     const formTactic = getPlayerFormationTacticBonuses();
     const formationAttackBoost = formTactic.formationAttackBoost;
     const formationScoreBoost = formTactic.formationScoreBoost;
@@ -1155,8 +1249,8 @@ function startCupMatchSimulation() {
                 addCommentary('SYSTEM', "⚖️ 정규 시간 90분 무승부! 토너먼트 규정에 따라 연장전으로 돌입합니다.", "system");
                 setTimeout(() => {
                     const etData = {
-                        team1Name: isHome ? '전북 현대' : opponent.name,
-                        team2Name: isHome ? opponent.name : '전북 현대',
+                        team1Name: isHome ? playerTeamName : opponent.name,
+                        team2Name: isHome ? opponent.name : playerTeamName,
                         rating1: isHome ? playerOvr : opponent.rating,
                         rating2: isHome ? opponent.rating : playerOvr,
                         score1: isHome ? playerScoreVal : opponentScoreVal,
@@ -1185,6 +1279,7 @@ function playerRwName() {
 function runActualCupExtraTime(score1, score2, playerMatch, playerOvr, opponentOvr, playerScorerName, playerAssisterName, isHome) {
     const timeDisplay = document.getElementById('cupSbTimeDisplay');
     const commBox = document.getElementById('cupCommentaryScroll');
+    const playerTeamName = getActiveCupUserTeamName();
     
     const addCommentary = (min, text, type = 'normal') => {
         const item = document.createElement('div');
@@ -1205,8 +1300,8 @@ function runActualCupExtraTime(score1, score2, playerMatch, playerOvr, opponentO
     const activeAssisterName = etGoalData.assisterName;
 
     const etData = {
-        team1Name: isHome ? "전북 현대" : playerMatch.team1.name,
-        team2Name: isHome ? playerMatch.team2.name : "전북 현대",
+        team1Name: isHome ? playerTeamName : playerMatch.team1.name,
+        team2Name: isHome ? playerMatch.team2.name : playerTeamName,
         rating1: isHome ? playerOvr : playerMatch.team1.rating,
         rating2: isHome ? playerMatch.team2.rating : playerOvr,
         score1: isHome ? score1 : score2,
@@ -1290,6 +1385,7 @@ function runActualCupExtraTime(score1, score2, playerMatch, playerOvr, opponentO
 function runActualCupPenaltyShootout(etScore1, etScore2, playerMatch, playerOvr, opponentOvr, isHome) {
     const timeDisplay = document.getElementById('cupSbTimeDisplay');
     const commBox = document.getElementById('cupCommentaryScroll');
+    const playerTeamName = getActiveCupUserTeamName();
     
     if (timeDisplay) {
         timeDisplay.textContent = "PK";
@@ -1308,8 +1404,8 @@ function runActualCupPenaltyShootout(etScore1, etScore2, playerMatch, playerOvr,
     };
 
     const pkData = {
-        team1Name: isHome ? "전북 현대" : playerMatch.team1.name,
-        team2Name: isHome ? playerMatch.team2.name : "전북 현대",
+        team1Name: isHome ? playerTeamName : playerMatch.team1.name,
+        team2Name: isHome ? playerMatch.team2.name : playerTeamName,
         rating1: isHome ? playerOvr : playerMatch.team1.rating,
         rating2: isHome ? playerMatch.team2.rating : playerOvr,
         isTeam1Jeonbuk: isHome
@@ -1356,7 +1452,8 @@ function runActualCupPenaltyShootout(etScore1, etScore2, playerMatch, playerOvr,
 function addPlayerStatRecord(team, scorerName, assisterName) {
     if (!team) return;
     
-    const isPlayer = team.id === 'jeonbuk';
+    const playerTeamId = getActiveCupUserTeamId();
+    const isPlayer = team.id === playerTeamId;
     const sName = scorerName ? scorerName : (isPlayer ? "무명 선수" : `${team.name} 에이스`);
     const existScorer = cupState.stats.scorers.find(s => s.name === sName && s.teamId === team.id);
     if (existScorer) {
@@ -1412,6 +1509,10 @@ function finalizeCupMatch(score1, score2, playerMatch, pkScore1 = undefined, pkS
     const timeDisplay = document.getElementById('cupSbTimeDisplay');
     if (timeDisplay) timeDisplay.classList.remove('live-ticking');
 
+    const playerTeamId = getActiveCupUserTeamId();
+    const playerTeamName = getActiveCupUserTeamName();
+    const tournamentName = getActiveCupTournamentName();
+
     playerMatch.score1 = score1;
     playerMatch.score2 = score2;
     playerMatch.pkScore1 = pkScore1;
@@ -1425,8 +1526,8 @@ function finalizeCupMatch(score1, score2, playerMatch, pkScore1 = undefined, pkS
     
     playerMatch.status = 'completed';
 
-    const isPlayerWinner = (playerMatch.winner === 'team1' && playerMatch.team1.id === 'jeonbuk') ||
-                          (playerMatch.winner === 'team2' && playerMatch.team2.id === 'jeonbuk');
+    const isPlayerWinner = (playerMatch.winner === 'team1' && playerMatch.team1.id === playerTeamId) ||
+                          (playerMatch.winner === 'team2' && playerMatch.team2.id === playerTeamId);
 
     const btn = document.getElementById('btnStartCupMatch');
     const commBox = document.getElementById('cupCommentaryScroll');
@@ -1450,8 +1551,8 @@ function finalizeCupMatch(score1, score2, playerMatch, pkScore1 = undefined, pkS
         let scoreDisplayStr = `${score1} : ${score2}`;
         if (pkScore1 !== undefined) scoreDisplayStr += ` (PK ${pkScore1} : ${pkScore2})`;
         
-        addCommentary("종료", `[승리] 최종 스코어 ${scoreDisplayStr}로 전북 현대가 다음 토너먼트 라운드로 진출합니다!`, "goal");
-        showToast(`승리했습니다! 전북 현대가 코리아컵 다음 라운드에 진출합니다.`);
+        addCommentary("종료", `[승리] 최종 스코어 ${scoreDisplayStr}로 ${playerTeamName}가 다음 토너먼트 라운드로 진출합니다!`, "goal");
+        showToast(`승리했습니다! ${playerTeamName}가 ${tournamentName} 다음 라운드에 진출합니다.`);
 
         if (btn) {
             btn.innerHTML = `<i class="fa-solid fa-forward" style="margin-right: 8px;"></i>다음 라운드 대진표 갱신`;
@@ -1464,7 +1565,7 @@ function finalizeCupMatch(score1, score2, playerMatch, pkScore1 = undefined, pkS
         let scoreDisplayStr = `${score1} : ${score2}`;
         if (pkScore1 !== undefined) scoreDisplayStr += ` (PK ${pkScore1} : ${pkScore2})`;
 
-        addCommentary("종료", `[패배] 최종 스코어 ${scoreDisplayStr}로 전북 현대의 코리아컵 여정이 여기서 멈춥니다.`, "system");
+        addCommentary("종료", `[패배] 최종 스코어 ${scoreDisplayStr}로 ${playerTeamName}의 ${tournamentName} 여정이 여기서 멈춥니다.`, "system");
         
         let rewardPoints = 0;
         let rewardText = "";
@@ -1511,6 +1612,7 @@ function finalizeCupMatch(score1, score2, playerMatch, pkScore1 = undefined, pkS
 // 다음 라운드 대진표 및 진출 팀 갱신
 function advanceCupRound() {
     const curRound = cupState.round;
+    const playerTeamId = getActiveCupUserTeamId();
 
     simulateCupAiMatches(curRound);
 
@@ -1559,7 +1661,7 @@ function advanceCupRound() {
         cupState.round = 1;
         cupState.isFinished = true;
 
-        if (champion.id === 'jeonbuk') {
+        if (champion.id === playerTeamId) {
             userPoints += 10;
             try {
                 localStorage.setItem('fc_star_user_points', userPoints.toString());
@@ -1578,8 +1680,10 @@ function advanceCupRound() {
 // 비플레이어 경기 무작위 결과 연산 시뮬레이션
 function simulateCupAiMatches(round) {
     const matches = cupState.bracket[round];
+    const playerTeamId = getActiveCupUserTeamId();
+
     matches.forEach(match => {
-        const isPlayerMatch = (match.team1 && match.team1.id === 'jeonbuk') || (match.team2 && match.team2.id === 'jeonbuk');
+        const isPlayerMatch = (match.team1 && match.team1.id === playerTeamId) || (match.team2 && match.team2.id === playerTeamId);
         if (isPlayerMatch || match.status === 'completed') return;
 
         const rateDiff = (match.team1 ? match.team1.rating : 70) - (match.team2 ? match.team2.rating : 70);
@@ -1612,7 +1716,8 @@ function simulateCupAiMatches(round) {
 
 // 9. 컵 시즌 전체 초기화
 function resetCupSeason() {
-    if (!confirm("코리아컵 대회를 리셋하고 16강 첫 경기부터 새로 시작하시겠습니까?\n(현재 진행 정보 및 스탯이 모두 초기화됩니다)")) {
+    const tournamentName = getActiveCupTournamentName();
+    if (!confirm(`${tournamentName} 대회를 리셋하고 16강 첫 경기부터 새로 시작하시겠습니까?\n(현재 진행 정보 및 스탯이 모두 초기화됩니다)`)) {
         return;
     }
     
@@ -1625,15 +1730,17 @@ function resetCupSeason() {
     
     const commBox = document.getElementById('cupCommentaryScroll');
     if (commBox) {
-        commBox.innerHTML = '<div class="comm-item comm-system">코리아컵이 리셋되었습니다. 아래 경기 시작 버튼을 클릭하면 16강 대회가 진행됩니다.</div>';
+        commBox.innerHTML = `<div class="comm-item comm-system">${tournamentName}이 리셋되었습니다. 아래 경기 시작 버튼을 클릭하면 16강 대회가 진행됩니다.</div>`;
     }
     
-    alert("코리아컵이 성공적으로 초기화되었습니다!");
+    alert(`${tournamentName}이 성공적으로 초기화되었습니다!`);
 }
 
 function resetCupSeasonWithFP() {
+    const tournamentName = getActiveCupTournamentName();
+
     if (cupState.hasResetThisSeason) {
-        alert("코리아컵 초기화는 한 시즌에 한 번만 가능합니다!");
+        alert(`${tournamentName} 초기화는 한 시즌에 한 번만 가능합니다!`);
         return;
     }
     
@@ -1642,7 +1749,7 @@ function resetCupSeasonWithFP() {
         return;
     }
     
-    if (!confirm("5 FP를 소모하여 코리아컵 대회를 리셋하고 16강 첫 경기부터 새로 시작하시겠습니까?\n(현재 진행 정보 및 스탯이 모두 초기화됩니다)")) {
+    if (!confirm(`5 FP를 소모하여 ${tournamentName} 대회를 리셋하고 16강 첫 경기부터 새로 시작하시겠습니까?\n(현재 진행 정보 및 스탯이 모두 초기화됩니다)`)) {
         return;
     }
     
@@ -1665,10 +1772,10 @@ function resetCupSeasonWithFP() {
     
     const commBox = document.getElementById('cupCommentaryScroll');
     if (commBox) {
-        commBox.innerHTML = '<div class="comm-item comm-system">5 FP를 사용하여 코리아컵이 리셋되었습니다. 아래 경기 시작 버튼을 클릭하면 16강 대회가 진행됩니다.</div>';
+        commBox.innerHTML = `<div class="comm-item comm-system">5 FP를 사용하여 ${tournamentName}이 리셋되었습니다. 아래 경기 시작 버튼을 클릭하면 16강 대회가 진행됩니다.</div>`;
     }
     
-    alert("코리아컵이 성공적으로 초기화되었습니다! (5 FP 차감)");
+    alert(`${tournamentName}이 성공적으로 초기화되었습니다! (5 FP 차감)`);
 }
 
 // 10. 가상 통계 제너레이터 헬퍼들
@@ -1710,6 +1817,9 @@ function shuffleCupArray(array) {
 
 // 12. 우승 축하 팝업 모달
 function showCupWinnerCelebrationModal() {
+    const tournamentName = getActiveCupTournamentName();
+    const playerTeamName = getActiveCupUserTeamName();
+
     const modal = document.createElement('div');
     modal.style.position = 'fixed';
     modal.style.top = '0';
@@ -1729,8 +1839,8 @@ function showCupWinnerCelebrationModal() {
             <div style="font-size: 5rem; color: #ffd700; filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.6)); margin-bottom: 1rem; animation: winnerPulse 2s infinite ease-in-out;">
                 <i class="fa-solid fa-trophy"></i>
             </div>
-            <h1 style="font-size: 2.2rem; font-weight: 900; color: #fff; margin-bottom: 0.5rem; letter-spacing: 1px;">코리아컵 우승!</h1>
-            <p style="font-size: 1rem; color: #00d2fc; font-weight: 800; margin-bottom: 1.5rem;">전북 현대가 대한민국 정상에 올랐습니다!</p>
+            <h1 style="font-size: 2.2rem; font-weight: 900; color: #fff; margin-bottom: 0.5rem; letter-spacing: 1px;">${tournamentName} 우승!</h1>
+            <p style="font-size: 1rem; color: #00d2fc; font-weight: 800; margin-bottom: 1.5rem;">${playerTeamName}가 정상에 올랐습니다!</p>
             <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 2rem;">
                 수많은 강팀들을 제치고 이뤄낸 값진 성과입니다.<br>
                 선수단과 팬들의 열정적인 응원이 만들어낸 찬란한 우승컵입니다!

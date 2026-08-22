@@ -143,6 +143,8 @@ function saveAllToLocalStorage() {
             localStorage.setItem('fc_star_pvp_opp_stats', JSON.stringify(userPvpOpponentStats));
         }
         if (typeof cupState !== 'undefined') {
+            const cupKey = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') ? 'fc_star_cup_state_epl' : 'fc_star_cup_state_kleague1';
+            localStorage.setItem(cupKey, JSON.stringify(cupState));
             localStorage.setItem('fc_star_cup_state', JSON.stringify(cupState));
         }
         if (typeof aclState !== 'undefined') {
@@ -238,6 +240,18 @@ function saveUserProgress() {
             pvpStats: typeof userPvpStats !== 'undefined' ? userPvpStats : { w: 0, d: 0, l: 0 },
             pvpOpponentStats: typeof userPvpOpponentStats !== 'undefined' ? userPvpOpponentStats : {},
             cupState: typeof cupState !== 'undefined' ? cupState : null,
+            cupStateEpl: (() => {
+                try {
+                    const eplCup = localStorage.getItem('fc_star_cup_state_epl');
+                    return eplCup ? JSON.parse(eplCup) : null;
+                } catch(e) { return null; }
+            })(),
+            cupStateKLeague: (() => {
+                try {
+                    const kCup = localStorage.getItem('fc_star_cup_state_kleague1') || localStorage.getItem('fc_star_cup_state');
+                    return kCup ? JSON.parse(kCup) : null;
+                } catch(e) { return null; }
+            })(),
             aclState: typeof aclState !== 'undefined' ? aclState : null,
             isHardMode: isHardMode,
             userAchievements: userAchievements,
@@ -551,13 +565,19 @@ function syncUserDataOnLogin(userData, forceLoad = false) {
         currentWinStreak = userData.currentWinStreak || 0;
         maxWinStreak = userData.maxWinStreak || 0;
         
-        // 코리아컵 상태 클라우드 데이터 복원
-        if (userData.cupState) {
-            cupState = userData.cupState;
-            localStorage.setItem('fc_star_cup_state', JSON.stringify(cupState));
-            if (typeof initCup === 'function') {
-                initCup();
-            }
+        // 리그컵 상태 클라우드 데이터 복원 (K리그 / EPL 독립 스토리지)
+        if (userData.cupStateEpl) {
+            localStorage.setItem('fc_star_cup_state_epl', JSON.stringify(userData.cupStateEpl));
+        }
+        if (userData.cupStateKLeague) {
+            localStorage.setItem('fc_star_cup_state_kleague1', JSON.stringify(userData.cupStateKLeague));
+            localStorage.setItem('fc_star_cup_state', JSON.stringify(userData.cupStateKLeague));
+        } else if (userData.cupState) {
+            localStorage.setItem('fc_star_cup_state_kleague1', JSON.stringify(userData.cupState));
+            localStorage.setItem('fc_star_cup_state', JSON.stringify(userData.cupState));
+        }
+        if (typeof initCup === 'function') {
+            initCup();
         }
         
         // 아챔 상태 클라우드 데이터 복원

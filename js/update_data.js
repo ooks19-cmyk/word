@@ -2,9 +2,20 @@
 
 const UPDATE_LOGS = [
     {
-        version: "v2.6.6",
+        version: "v2.7.0",
         date: "2026.08.22",
         latest: true,
+        borderColor: "#00d2fc",
+        titleColor: "#00d2fc",
+        badgeText: "NEW CUP",
+        items: [
+            "<strong>프리미어리그 모드 'EFL 카라바오컵(Carabao Cup)' 정식 출시!</strong>: 프리미어리그(리버풀 FC) 모드에서 참여할 수 있는 16강 토너먼트 리그컵 대회가 완벽히 구현되었습니다.<br>• <strong>참여 팀</strong>: 리버풀 FC를 포함한 프리미어리그 16개 구단 (맨시티, 아스날, 첼시, 토트넘, 맨유, 뉴캐슬, 아스톤 빌라, 브라이튼, 웨스트햄 등)<br>• <strong>대회 시스템</strong>: 16강전부터 웸블리 결승전까지 단판 승부 토너먼트, 정규 90분 무승부 시 연장전 및 승부차기(PK) 시스템 연동<br>• <strong>고유 엠블럼 및 스타 선수 스탯</strong>: 프리미어리그 각 팀의 공식 로고 및 살라, 홀란, 사카, 손흥민 등 스타 선수들의 실시간 득점/도움 순위표 지원<br>• <strong>독립 세이브 및 보상</strong>: K리그 코리아컵과 프리미어리그 카라바오컵의 진행 상태 및 스탯이 독립적으로 영구 저장되며, 우승 시 10 FP 및 전용 우승 트로피 룸 연동 지원"
+        ]
+    },
+    {
+        version: "v2.6.6",
+        date: "2026.08.22",
+        latest: false,
         borderColor: "#00ff87",
         titleColor: "#00ff87",
         badgeText: "HOTFIX",

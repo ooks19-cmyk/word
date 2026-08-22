@@ -490,11 +490,23 @@ function recordSeasonProgressToFame(isResigned = false) {
     
     let cupRecordText = "-";
     if (typeof cupState !== 'undefined' && cupState) {
-        if (cupState.champion === 'jeonbuk' || cupState.champion === 'liverpool') cupRecordText = "우승 🏆";
-        else if (cupState.round === 4) cupRecordText = "준우승 🥈";
-        else if (cupState.round === 3) cupRecordText = "4강";
-        else if (cupState.round === 2) cupRecordText = "8강";
-        else cupRecordText = "16강";
+        const winnerId = cupState.bracket?.winner?.id || cupState.champion;
+        if (winnerId === config.userTeamId) {
+            cupRecordText = "우승 🏆";
+        } else {
+            let playerEliminatedRound = 16;
+            [16, 8, 4, 2].forEach(r => {
+                const matches = cupState.bracket?.[r] || [];
+                const pMatch = matches.find(m => (m.team1 && m.team1.id === config.userTeamId) || (m.team2 && m.team2.id === config.userTeamId));
+                if (pMatch) {
+                    playerEliminatedRound = r;
+                }
+            });
+            if (playerEliminatedRound === 2) cupRecordText = "준우승 🥈";
+            else if (playerEliminatedRound === 4) cupRecordText = "4강";
+            else if (playerEliminatedRound === 8) cupRecordText = "8강";
+            else cupRecordText = "16강";
+        }
     }
     
     let aclRecordText = "-";
@@ -609,6 +621,8 @@ function transferToLeague(targetLeagueId) {
     
     // 3. 새 시즌 초기화 및 뷰 갱신
     resetLeagueSeasonState();
+    if (typeof initCup === 'function') initCup();
+    if (typeof initCupTab === 'function') initCupTab();
     syncPlayerTeamOvr();
     renderLeagueTable();
     updateMatchPreviewBoard();
@@ -893,7 +907,7 @@ function startLeagueAutoSimulation() {
         if (config.id === 'kleague1' && leagueRound === 33) {
             let isCupFinished = false;
             try {
-                const savedCup = localStorage.getItem('fc_star_cup_state');
+                const savedCup = localStorage.getItem('fc_star_cup_state_kleague1') || localStorage.getItem('fc_star_cup_state');
                 if (savedCup) {
                     const cupStateParsed = JSON.parse(savedCup);
                     isCupFinished = cupStateParsed.isFinished;
@@ -920,6 +934,23 @@ function startLeagueAutoSimulation() {
             
             if (!isAclFinished) {
                 alert(`⚠️ K리그1 33라운드 최종전을 시작하기 전에 AFC 챔피언스리그를 완료해야 하므로 자동진행이 중단되었습니다!\n진행된 경기: ${simulatedCount}경기 (${wins}승 ${draws}무 ${losses}패)`);
+                break;
+            }
+        } else if (config.id === 'epl' && leagueRound === 38) {
+            // EPL 38라운드 최종전 직전 카라바오컵 완료 상태 검사
+            let isCupFinished = false;
+            try {
+                const savedCup = localStorage.getItem('fc_star_cup_state_epl');
+                if (savedCup) {
+                    const cupStateParsed = JSON.parse(savedCup);
+                    isCupFinished = cupStateParsed.isFinished;
+                }
+            } catch (e) {
+                console.warn("EPL Cup state check failed:", e);
+            }
+            
+            if (!isCupFinished) {
+                alert(`⚠️ 프리미어리그 38라운드 최종전을 시작하기 전에 카라바오컵 결승전을 완료해야 하므로 자동진행이 중단되었습니다!\n진행된 경기: ${simulatedCount}경기 (${wins}승 ${draws}무 ${losses}패)`);
                 break;
             }
         }
@@ -2249,6 +2280,14 @@ function renderHallOfFameSub(subTabId) {
                         <div style="font-size: 0.9rem; font-weight: 800; color: ${leagueTitles > 0 ? '#fff' : '#6b7280'};">${leagueTitles}회 우승</div>
                     </div>
                 </div>
+                <!-- Carabao Cup Trophy -->
+                <div class="trophy-badge-container" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${cupTitles > 0 ? 'rgba(0, 210, 252, 0.3)' : 'rgba(255, 255, 255, 0.05)'}; padding: 0.5rem 0.8rem; border-radius: 14px; min-width: 130px; transition: all 0.3s; ${cupTitles > 0 ? 'box-shadow: 0 0 15px rgba(0, 210, 252, 0.1);' : ''}">
+                    <i class="fa-solid fa-trophy" style="font-size: 1.6rem; color: ${cupTitles > 0 ? '#00d2fc' : '#4b5563'}; filter: ${cupTitles > 0 ? 'drop-shadow(0 0 6px rgba(0, 210, 252, 0.6))' : 'none'};"></i>
+                    <div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">카라바오컵</div>
+                        <div style="font-size: 0.9rem; font-weight: 800; color: ${cupTitles > 0 ? '#fff' : '#6b7280'};">${cupTitles}회 우승</div>
+                    </div>
+                </div>
             `;
         } else {
             trophyShelfHtml = `
@@ -2301,6 +2340,8 @@ function renderHallOfFameSub(subTabId) {
         const stats = record.userTeamStats || record.jeonbukRecord || { w: 0, d: 0, l: 0, pts: 0 };
         const totalRounds = record.totalRounds || 33;
         const leagueName = record.leagueName || 'K리그1';
+        const isRecordEpl = (record.leagueId === 'epl');
+        const cupName = isRecordEpl ? '카라바오컵' : '코리아컵';
         
         let badgeClass = 'other-medal';
         let badgeIcon = '<i class="fa-solid fa-award"></i>';
@@ -2351,7 +2392,7 @@ function renderHallOfFameSub(subTabId) {
                     <span>최종 승점: <strong>${stats.pts} 점</strong></span>
                     <span>시즌 전적: <strong>${totalRounds}전 ${stats.w}승 ${stats.d}무 ${stats.l}패</strong></span>
                     <span>시즌 우승팀: <strong>${record.champion}</strong></span>
-                    ${record.cupRecord ? `<span>코리아컵 성적: <strong style="color: #00d2fc;">${record.cupRecord}</strong></span>` : ''}
+                    ${record.cupRecord ? `<span>${cupName} 성적: <strong style="color: #00d2fc;">${record.cupRecord}</strong></span>` : ''}
                     ${record.aclRecord ? `<span>아챔 성적: <strong style="color: #00ff87;">${record.aclRecord}</strong></span>` : ''}
                 </div>
             `;
