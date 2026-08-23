@@ -272,95 +272,131 @@ function checkAndMigrateLeagueTeams() {
     let isMigrated = false;
     
     if (!Array.isArray(leagueTeams) || leagueTeams.length === 0) {
-        console.warn(`[League Check] leagueTeams가 비어있어 ${config.name} 기본 프리셋으로 초기화합니다.`);
-        leagueTeams = JSON.parse(JSON.stringify(config.teamsPreset));
-        isMigrated = true;
-    } else {
-        // 1. 유저 팀(리버풀 / 전북)이 현재 leagueTeams에 포함되어 있는지 검사
-        const hasUserTeam = leagueTeams.some(t => t.id === config.userTeamId);
-        const currentTeamIds = leagueTeams.map(t => t.id);
-        const missingPresets = config.teamsPreset.filter(p => !currentTeamIds.includes(p.id));
-        
-        // 팀 목록에 변화가 있거나 누락된 팀이 있는 경우 기존 전적을 안전하게 보존하며 병합
-        if (!hasUserTeam || missingPresets.length > 0 || leagueTeams.length !== config.teamsPreset.length) {
-            console.warn(`[League Check] 현재 리그(${config.name})와 leagueTeams 팀 목록 불일치 감지 -> 기존 전적을 보존하며 ${config.name} 프리셋과 병합합니다.`, { hasUserTeam, missingCount: missingPresets.length });
-            
-            // 기존 전적 맵 생성 (팀 ID 기준)
-            const statsMap = {};
-            leagueTeams.forEach(t => {
-                if (t && t.id) {
-                    statsMap[t.id] = {
-                        p: t.p || 0,
-                        w: t.w || 0,
-                        d: t.d || 0,
-                        l: t.l || 0,
-                        gf: t.gf || 0,
-                        ga: t.ga || 0,
-                        gd: t.gd !== undefined ? t.gd : ((t.gf || 0) - (t.ga || 0)),
-                        pts: t.pts || 0,
-                        rating: t.rating
-                    };
-                }
-            });
-            
-            // K리그 레거시 ID 마이그레이션 매핑 지원
-            if (config.id === 'kleague1') {
-                if (statsMap["suwon_fc"] && !statsMap["bucheon_fc"]) {
-                    statsMap["bucheon_fc"] = statsMap["suwon_fc"];
-                }
-                if (statsMap["daegu"] && !statsMap["anyang"]) {
-                    statsMap["anyang"] = statsMap["daegu"];
-                }
-            }
-            
-            // 새 프리셋에 기존 전적 주입
-            leagueTeams = config.teamsPreset.map(preset => {
-                const existing = statsMap[preset.id];
-                if (existing) {
-                    return {
-                        ...preset,
-                        rating: (existing.rating !== undefined && existing.rating > 0) ? existing.rating : preset.rating,
-                        p: existing.p,
-                        w: existing.w,
-                        d: existing.d,
-                        l: existing.l,
-                        gf: existing.gf,
-                        ga: existing.ga,
-                        gd: existing.gd,
-                        pts: existing.pts
-                    };
-                }
-                return { ...preset };
-            });
-            
+        const specificKey = `fc_star_league_teams_${config.id}`;
+        const savedSpecific = localStorage.getItem(specificKey);
+        if (savedSpecific) {
+            try {
+                leagueTeams = JSON.parse(savedSpecific);
+            } catch(e) {}
+        }
+        if (!Array.isArray(leagueTeams) || leagueTeams.length === 0) {
+            console.warn(`[League Check] leagueTeams가 비어있어 ${config.name} 기본 프리셋으로 초기화합니다.`);
+            leagueTeams = JSON.parse(JSON.stringify(config.teamsPreset));
             isMigrated = true;
-        } else if (config.id === 'kleague1') {
-            // K리그용 레거시 마이그레이션 (부천, 안양)
-            const teamMigrations = {
-                "suwon_fc": { id: "bucheon_fc", name: "부천 FC", rating: 74 },
-                "daegu": { id: "anyang", name: "FC 안양", rating: 71 }
-            };
-            
-            leagueTeams.forEach(team => {
-                if (teamMigrations[team.id]) {
-                    const mig = teamMigrations[team.id];
-                    console.log(`Migrating team ID: ${team.id} -> ${mig.id}`);
-                    team.id = mig.id;
-                    team.name = mig.name;
-                    if (team.rating === undefined || team.rating === 68) {
-                        team.rating = mig.rating;
-                    }
-                    isMigrated = true;
-                }
-            });
         }
     }
     
-    if (isMigrated) {
-        try {
-            localStorage.setItem('fc_star_league_teams', JSON.stringify(leagueTeams));
-        } catch (e) {}
+    // 1. 유저 팀(리버풀 / 전북)이 현재 leagueTeams에 포함되어 있는지 검사
+    const hasUserTeam = leagueTeams.some(t => t && t.id === config.userTeamId);
+    const currentTeamIds = leagueTeams.map(t => t ? t.id : null).filter(Boolean);
+    const missingPresets = config.teamsPreset.filter(p => !currentTeamIds.includes(p.id));
+    
+    // 팀 목록에 변화가 있거나 누락된 팀이 있는 경우 기존 전적을 안전하게 보존하며 병합
+    if (!hasUserTeam || missingPresets.length > 0 || leagueTeams.length !== config.teamsPreset.length) {
+        console.warn(`[League Check] 현재 리그(${config.name})와 leagueTeams 팀 목록 불일치 감지 -> 전적 보존 병합을 실행합니다.`, { hasUserTeam, missingCount: missingPresets.length });
+        
+        // 만약 leagueTeams에 전혀 다른 리그 팀들이 들어있다면(예: EPL 모드인데 전북/울산이 들어있는 경우)
+        // 기존 데이터를 상대 리그 전용 스토리지에 백업 보존!
+        const otherLeagueId = (config.id === 'epl') ? 'kleague1' : 'epl';
+        const otherConfig = LEAGUE_CONFIGS[otherLeagueId];
+        const hasOtherUserTeam = otherConfig && leagueTeams.some(t => t && t.id === otherConfig.userTeamId);
+        if (hasOtherUserTeam) {
+            const otherLeagueKey = `fc_star_league_teams_${otherLeagueId}`;
+            try {
+                localStorage.setItem(otherLeagueKey, JSON.stringify(leagueTeams));
+                console.log(`[League Check] 이전 리그(${otherConfig.name}) 전적을 ${otherLeagueKey}에 안전하게 백업했습니다.`);
+            } catch(e) {}
+        }
+        
+        // 현재 리그 전용 스토리지에 보관된 이전 전적이 있는지 확인하여 복원 후보로 사용
+        let candidateTeams = leagueTeams;
+        const currentLeagueKey = `fc_star_league_teams_${config.id}`;
+        const savedCurrent = localStorage.getItem(currentLeagueKey);
+        if (savedCurrent) {
+            try {
+                const parsed = JSON.parse(savedCurrent);
+                if (Array.isArray(parsed) && parsed.some(t => t && t.id === config.userTeamId)) {
+                    candidateTeams = parsed;
+                }
+            } catch(e) {}
+        }
+        
+        // 기존 전적 맵 생성 (팀 ID 기준)
+        const statsMap = {};
+        candidateTeams.forEach(t => {
+            if (t && t.id) {
+                statsMap[t.id] = {
+                    p: t.p || 0,
+                    w: t.w || 0,
+                    d: t.d || 0,
+                    l: t.l || 0,
+                    gf: t.gf || 0,
+                    ga: t.ga || 0,
+                    gd: t.gd !== undefined ? t.gd : ((t.gf || 0) - (t.ga || 0)),
+                    pts: t.pts || 0,
+                    rating: t.rating
+                };
+            }
+        });
+        
+        // K리그 레거시 ID 마이그레이션 매핑 지원
+        if (config.id === 'kleague1') {
+            if (statsMap["suwon_fc"] && !statsMap["bucheon_fc"]) {
+                statsMap["bucheon_fc"] = statsMap["suwon_fc"];
+            }
+            if (statsMap["daegu"] && !statsMap["anyang"]) {
+                statsMap["anyang"] = statsMap["daegu"];
+            }
+        }
+        
+        // 새 프리셋에 기존 전적 주입
+        leagueTeams = config.teamsPreset.map(preset => {
+            const existing = statsMap[preset.id];
+            if (existing) {
+                return {
+                    ...preset,
+                    rating: (existing.rating !== undefined && existing.rating > 0) ? existing.rating : preset.rating,
+                    p: existing.p || 0,
+                    w: existing.w || 0,
+                    d: existing.d || 0,
+                    l: existing.l || 0,
+                    gf: existing.gf || 0,
+                    ga: existing.ga || 0,
+                    gd: existing.gd !== undefined ? existing.gd : ((existing.gf || 0) - (existing.ga || 0)),
+                    pts: existing.pts || 0
+                };
+            }
+            return { ...preset };
+        });
+        
+        isMigrated = true;
+    } else if (config.id === 'kleague1') {
+        // K리그용 레거시 마이그레이션 (부천, 안양)
+        const teamMigrations = {
+            "suwon_fc": { id: "bucheon_fc", name: "부천 FC", rating: 74 },
+            "daegu": { id: "anyang", name: "FC 안양", rating: 71 }
+        };
+        
+        leagueTeams.forEach(team => {
+            if (team && teamMigrations[team.id]) {
+                const mig = teamMigrations[team.id];
+                console.log(`Migrating team ID: ${team.id} -> ${mig.id}`);
+                team.id = mig.id;
+                team.name = mig.name;
+                if (team.rating === undefined || team.rating === 68) {
+                    team.rating = mig.rating;
+                }
+                isMigrated = true;
+            }
+        });
     }
+    
+    // 리그 전용 키 및 레거시 키 모두 동기화 저장
+    try {
+        const specificKey = `fc_star_league_teams_${config.id}`;
+        localStorage.setItem(specificKey, JSON.stringify(leagueTeams));
+        localStorage.setItem('fc_star_league_teams', JSON.stringify(leagueTeams));
+    } catch (e) {}
 }
 
 function initLeague() {
@@ -370,12 +406,17 @@ function initLeague() {
             currentLeagueId = savedLeague;
         }
 
-        const savedTeams = localStorage.getItem('fc_star_league_teams');
-        const savedRound = localStorage.getItem('fc_star_league_round');
+        const config = getActiveLeagueConfig();
+        const specificTeamsKey = `fc_star_league_teams_${config.id}`;
+        const specificRoundKey = `fc_star_league_round_${config.id}`;
+        const specificStatsKey = `fc_star_league_stats_${config.id}`;
+
+        const savedTeams = localStorage.getItem(specificTeamsKey) || localStorage.getItem('fc_star_league_teams');
+        const savedRound = localStorage.getItem(specificRoundKey) || localStorage.getItem('fc_star_league_round');
         const savedYear = localStorage.getItem('fc_star_league_year');
         const savedFame = localStorage.getItem('fc_star_hall_of_fame');
         const savedMatchDate = localStorage.getItem('fc_star_match_last_date');
-        const savedStats = localStorage.getItem('fc_star_league_stats');
+        const savedStats = localStorage.getItem(specificStatsKey) || localStorage.getItem('fc_star_league_stats');
         
         if (savedTeams && savedRound) {
             leagueTeams = JSON.parse(savedTeams);
@@ -387,7 +428,6 @@ function initLeague() {
         
         if (savedStats) {
             leaguePlayerStats = JSON.parse(savedStats);
-            const config = getActiveLeagueConfig();
             const leagueTeamIds = config.teamsPreset.map(t => t.id);
             
             // 타 리그나 없는 팀의 레거시 데이터 정리
@@ -468,8 +508,11 @@ function resetLeagueSeasonState() {
     
     try {
         localStorage.setItem('fc_star_current_league', currentLeagueId);
+        localStorage.setItem(`fc_star_league_teams_${config.id}`, JSON.stringify(leagueTeams));
         localStorage.setItem('fc_star_league_teams', JSON.stringify(leagueTeams));
+        localStorage.setItem(`fc_star_league_round_${config.id}`, leagueRound.toString());
         localStorage.setItem('fc_star_league_round', leagueRound.toString());
+        localStorage.setItem(`fc_star_league_stats_${config.id}`, JSON.stringify(leaguePlayerStats));
         localStorage.setItem('fc_star_league_stats', JSON.stringify(leaguePlayerStats));
         localStorage.setItem('fc_star_league_year', leagueYear.toString());
     } catch (e) {
@@ -560,12 +603,23 @@ function recordSeasonProgressToFame(isResigned = false) {
     
     let aclRecordText = "-";
     if (typeof aclState !== 'undefined' && aclState) {
-        if (aclState.champion === 'jeonbuk' || aclState.champion === 'liverpool') aclRecordText = "우승 🏆";
-        else if (aclState.stage === 'final') aclRecordText = "준우승 🥈";
-        else if (aclState.stage === 'semi') aclRecordText = "4강";
-        else if (aclState.stage === 'quarter') aclRecordText = "8강";
-        else if (aclState.stage === 'r16') aclRecordText = "16강";
-        else aclRecordText = "조별리그";
+        const winnerId = aclState.bracket?.winner?.id || aclState.champion;
+        if (winnerId === config.userTeamId) {
+            aclRecordText = "우승 🏆";
+        } else {
+            let playerEliminatedRound = 16;
+            [16, 8, 4, 2].forEach(r => {
+                const matches = aclState.bracket?.[r] || [];
+                const pMatch = matches.find(m => (m.team1 && m.team1.id === config.userTeamId) || (m.team2 && m.team2.id === config.userTeamId));
+                if (pMatch) {
+                    playerEliminatedRound = r;
+                }
+            });
+            if (playerEliminatedRound === 2) aclRecordText = "준우승 🥈";
+            else if (playerEliminatedRound === 4) aclRecordText = "4강";
+            else if (playerEliminatedRound === 8) aclRecordText = "8강";
+            else aclRecordText = "16강";
+        }
     }
     
     const record = {
@@ -672,6 +726,8 @@ function transferToLeague(targetLeagueId) {
     resetLeagueSeasonState();
     if (typeof initCup === 'function') initCup();
     if (typeof initCupTab === 'function') initCupTab();
+    if (typeof initAcl === 'function') initAcl();
+    if (typeof initAclTab === 'function') initAclTab();
     syncPlayerTeamOvr();
     renderLeagueTable();
     updateMatchPreviewBoard();
@@ -1182,12 +1238,16 @@ function startLeagueAutoSimulation() {
         matchLastDate = todayStr;
         
         try {
+            const config = getActiveLeagueConfig();
+            localStorage.setItem(`fc_star_league_teams_${config.id}`, JSON.stringify(leagueTeams));
             localStorage.setItem('fc_star_league_teams', JSON.stringify(leagueTeams));
+            localStorage.setItem(`fc_star_league_round_${config.id}`, leagueRound.toString());
             localStorage.setItem('fc_star_league_round', leagueRound.toString());
+            localStorage.setItem(`fc_star_league_stats_${config.id}`, JSON.stringify(leaguePlayerStats));
+            localStorage.setItem('fc_star_league_stats', JSON.stringify(leaguePlayerStats));
             localStorage.setItem('fc_star_match_last_date', matchLastDate);
             localStorage.setItem('fc_star_match_today_count', matchTodayCount.toString());
             localStorage.setItem('fc_star_user_points', userPoints.toString());
-            localStorage.setItem('fc_star_league_stats', JSON.stringify(leaguePlayerStats));
         } catch(e) {
             console.warn("Saving standing failed", e);
         }
@@ -1228,11 +1288,13 @@ function startMatchSimulation() {
         return;
     }
     
-    // KFA 코리아컵 & ACL 완료 여부 체크 (K리그일 때만 33라운드 최종전 진입 시 차단)
-    if (config.id === 'kleague1' && leagueRound === 33) {
+    // 최종 라운드 직전 컵대회 & 대륙 클럽대항전 완료 여부 검증
+    if (leagueRound === config.totalRounds) {
         let isCupFinished = false;
         try {
-            const savedCup = localStorage.getItem('fc_star_cup_state');
+            const cupKey = (config.id === 'epl') ? 'fc_star_cup_state_epl' : 'fc_star_cup_state_kleague1';
+            let savedCup = localStorage.getItem(cupKey);
+            if (!savedCup && config.id === 'kleague1') savedCup = localStorage.getItem('fc_star_cup_state');
             if (savedCup) {
                 const cupStateParsed = JSON.parse(savedCup);
                 isCupFinished = cupStateParsed.isFinished;
@@ -1241,14 +1303,17 @@ function startMatchSimulation() {
             console.warn("Cup state check failed:", e);
         }
         
+        const cupName = (config.id === 'epl') ? '카라바오컵' : '코리아컵';
         if (!isCupFinished) {
-            alert("⚠️ K리그1 33라운드 최종전을 시작하기 전에 코리아컵(리그컵) 결승전을 완료해야 합니다!\n코리아컵 탭으로 이동하여 대회를 마쳐주세요.");
+            alert(`⚠️ ${config.name} ${config.totalRounds}라운드 최종전을 시작하기 전에 ${cupName}(리그컵)을 완료해야 합니다!\n${cupName} 탭으로 이동하여 대회를 마쳐주세요.`);
             return;
         }
 
         let isAclFinished = false;
         try {
-            const savedAcl = localStorage.getItem('fc_star_acl_state');
+            const aclKey = (config.id === 'epl') ? 'fc_star_acl_state_epl' : 'fc_star_acl_state_kleague1';
+            let savedAcl = localStorage.getItem(aclKey);
+            if (!savedAcl && config.id === 'kleague1') savedAcl = localStorage.getItem('fc_star_acl_state');
             if (savedAcl) {
                 const aclStateParsed = JSON.parse(savedAcl);
                 isAclFinished = aclStateParsed.isFinished;
@@ -1257,8 +1322,9 @@ function startMatchSimulation() {
             console.warn("ACL state check failed:", e);
         }
         
+        const tournamentName = (config.id === 'epl') ? 'UEFA 챔피언스리그(챔스)' : 'AFC 챔피언스리그(아챔)';
         if (!isAclFinished) {
-            alert("⚠️ K리그1 33라운드 최종전을 시작하기 전에 AFC 챔피언스리그(아챔)를 완료해야 합니다!\n아챔 탭으로 이동하여 대회를 마쳐주세요.");
+            alert(`⚠️ ${config.name} ${config.totalRounds}라운드 최종전을 시작하기 전에 ${tournamentName}를 완료해야 합니다!\n${config.id === 'epl' ? '챔스' : '아챔'} 탭으로 이동하여 대회를 마쳐주세요.`);
             return;
         }
     }
@@ -1590,8 +1656,13 @@ function startMatchSimulation() {
         }
         
         try {
+            const config = getActiveLeagueConfig();
+            localStorage.setItem(`fc_star_league_teams_${config.id}`, JSON.stringify(leagueTeams));
             localStorage.setItem('fc_star_league_teams', JSON.stringify(leagueTeams));
+            localStorage.setItem(`fc_star_league_round_${config.id}`, leagueRound.toString());
             localStorage.setItem('fc_star_league_round', leagueRound.toString());
+            localStorage.setItem(`fc_star_league_stats_${config.id}`, JSON.stringify(leaguePlayerStats));
+            localStorage.setItem('fc_star_league_stats', JSON.stringify(leaguePlayerStats));
             localStorage.setItem('fc_star_match_last_date', matchLastDate);
             localStorage.setItem('fc_star_match_today_count', matchTodayCount.toString());
             localStorage.setItem('fc_star_user_points', userPoints.toString());
@@ -1877,8 +1948,13 @@ function startMatchSimulation() {
             }
 
             try {
+                const config = getActiveLeagueConfig();
+                localStorage.setItem(`fc_star_league_teams_${config.id}`, JSON.stringify(leagueTeams));
                 localStorage.setItem('fc_star_league_teams', JSON.stringify(leagueTeams));
+                localStorage.setItem(`fc_star_league_round_${config.id}`, leagueRound.toString());
                 localStorage.setItem('fc_star_league_round', leagueRound.toString());
+                localStorage.setItem(`fc_star_league_stats_${config.id}`, JSON.stringify(leaguePlayerStats));
+                localStorage.setItem('fc_star_league_stats', JSON.stringify(leaguePlayerStats));
                 localStorage.setItem('fc_star_match_last_date', matchLastDate);
                 localStorage.setItem('fc_star_match_today_count', matchTodayCount.toString());
                 localStorage.setItem('fc_star_user_points', userPoints.toString());
@@ -2322,7 +2398,7 @@ function renderHallOfFameSub(subTabId) {
         if (targetLeagueId === 'epl') {
             trophyShelfHtml = `
                 <!-- EPL Trophy -->
-                <div class="trophy-badge-container" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${leagueTitles > 0 ? (isHard ? 'rgba(255, 62, 108, 0.4)' : 'rgba(255, 215, 0, 0.3)') : 'rgba(255, 255, 255, 0.05)'}; padding: 0.5rem 0.8rem; border-radius: 14px; min-width: 130px; transition: all 0.3s; ${leagueTitles > 0 ? (isHard ? 'box-shadow: 0 0 15px rgba(255, 62, 108, 0.2);' : 'box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);') : ''}">
+                <div class="trophy-badge-container" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${leagueTitles > 0 ? (isHard ? 'rgba(255, 62, 108, 0.4)' : 'rgba(255, 215, 0, 0.3)') : 'rgba(255, 255, 255, 0.05)'}; padding: 0.5rem 0.8rem; border-radius: 14px; min-width: 120px; transition: all 0.3s; ${leagueTitles > 0 ? (isHard ? 'box-shadow: 0 0 15px rgba(255, 62, 108, 0.2);' : 'box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);') : ''}">
                     <i class="fa-solid fa-crown" style="font-size: 1.6rem; color: ${leagueTitles > 0 ? (isHard ? '#ff3e6c' : '#ffd700') : '#4b5563'}; filter: ${leagueTitles > 0 ? (isHard ? 'drop-shadow(0 0 6px rgba(255, 62, 108, 0.6))' : 'drop-shadow(0 0 6px rgba(255, 215, 0, 0.6))') : 'none'};"></i>
                     <div>
                         <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">프리미어리그</div>
@@ -2330,11 +2406,19 @@ function renderHallOfFameSub(subTabId) {
                     </div>
                 </div>
                 <!-- Carabao Cup Trophy -->
-                <div class="trophy-badge-container" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${cupTitles > 0 ? 'rgba(0, 210, 252, 0.3)' : 'rgba(255, 255, 255, 0.05)'}; padding: 0.5rem 0.8rem; border-radius: 14px; min-width: 130px; transition: all 0.3s; ${cupTitles > 0 ? 'box-shadow: 0 0 15px rgba(0, 210, 252, 0.1);' : ''}">
+                <div class="trophy-badge-container" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${cupTitles > 0 ? 'rgba(0, 210, 252, 0.3)' : 'rgba(255, 255, 255, 0.05)'}; padding: 0.5rem 0.8rem; border-radius: 14px; min-width: 120px; transition: all 0.3s; ${cupTitles > 0 ? 'box-shadow: 0 0 15px rgba(0, 210, 252, 0.1);' : ''}">
                     <i class="fa-solid fa-trophy" style="font-size: 1.6rem; color: ${cupTitles > 0 ? '#00d2fc' : '#4b5563'}; filter: ${cupTitles > 0 ? 'drop-shadow(0 0 6px rgba(0, 210, 252, 0.6))' : 'none'};"></i>
                     <div>
                         <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">카라바오컵</div>
                         <div style="font-size: 0.9rem; font-weight: 800; color: ${cupTitles > 0 ? '#fff' : '#6b7280'};">${cupTitles}회 우승</div>
+                    </div>
+                </div>
+                <!-- UCL Big Ear Trophy -->
+                <div class="trophy-badge-container" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${aclTitles > 0 ? 'rgba(0, 255, 135, 0.3)' : 'rgba(255, 255, 255, 0.05)'}; padding: 0.5rem 0.8rem; border-radius: 14px; min-width: 120px; transition: all 0.3s; ${aclTitles > 0 ? 'box-shadow: 0 0 15px rgba(0, 255, 135, 0.1);' : ''}">
+                    <i class="fa-solid fa-star" style="font-size: 1.6rem; color: ${aclTitles > 0 ? '#00ff87' : '#4b5563'}; filter: ${aclTitles > 0 ? 'drop-shadow(0 0 6px rgba(0, 255, 135, 0.6))' : 'none'};"></i>
+                    <div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">챔피언스리그</div>
+                        <div style="font-size: 0.9rem; font-weight: 800; color: ${aclTitles > 0 ? '#fff' : '#6b7280'};">${aclTitles}회 우승</div>
                     </div>
                 </div>
             `;
@@ -2391,6 +2475,7 @@ function renderHallOfFameSub(subTabId) {
         const leagueName = record.leagueName || 'K리그1';
         const isRecordEpl = (record.leagueId === 'epl');
         const cupName = isRecordEpl ? '카라바오컵' : '코리아컵';
+        const aclName = isRecordEpl ? '챔스' : '아챔';
         
         let badgeClass = 'other-medal';
         let badgeIcon = '<i class="fa-solid fa-award"></i>';
@@ -2442,7 +2527,7 @@ function renderHallOfFameSub(subTabId) {
                     <span>시즌 전적: <strong>${totalRounds}전 ${stats.w}승 ${stats.d}무 ${stats.l}패</strong></span>
                     <span>시즌 우승팀: <strong>${record.champion}</strong></span>
                     ${record.cupRecord ? `<span>${cupName} 성적: <strong style="color: #00d2fc;">${record.cupRecord}</strong></span>` : ''}
-                    ${record.aclRecord ? `<span>아챔 성적: <strong style="color: #00ff87;">${record.aclRecord}</strong></span>` : ''}
+                    ${record.aclRecord ? `<span>${aclName} 성적: <strong style="color: #00ff87;">${record.aclRecord}</strong></span>` : ''}
                 </div>
             `;
         }

@@ -205,8 +205,20 @@ const TEAM_FORMATIONS_PRESET = {
     "brentford": "5-4-1",
     "nottingham": "4-2-3-1",
     "wolves": "3-4-3",
-    "everton": "4-4-2",
-    "leicester": "4-2-3-1",
     "ipswich": "4-2-3-1",
-    "southampton": "5-4-1"
+    "southampton": "5-4-1",
+
+    // 🏆 UEFA 챔피언스리그 (UCL 12개 유럽 명문 구단)
+    "real_madrid": "4-3-3",
+    "bayern_munchen": "4-2-3-1",
+    "barcelona": "4-3-3",
+    "psg": "4-3-3",
+    "inter_milan": "3-4-3",
+    "leverkusen": "3-4-3",
+    "atletico_madrid": "4-4-2",
+    "dortmund": "4-2-3-1",
+    "juventus": "4-2-3-1",
+    "ac_milan": "4-2-3-1",
+    "sporting_cp": "3-4-3",
+    "benfica": "4-2-3-1"
 };

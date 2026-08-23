@@ -172,3 +172,74 @@ const LIVERPOOL_FIXTURES_EPL = [
     { round: 37, opponent: "arsenal", isHome: true },
     { round: 38, opponent: "palace", isHome: true }
 ];
+
+// 4. UEFA 챔피언스리그 (UCL) 유럽 12대 명문 구단 프리셋
+const UCL_TEAMS_PRESET_EPL = [
+    { id: "real_madrid", name: "레알 마드리드", rating: 95, color: "#ffffff", emblem: "img/mark_real_madrid.png" },
+    { id: "bayern_munchen", name: "바이에른 뮌헨", rating: 94, color: "#dc052d", emblem: "img/mark_bayern.png" },
+    { id: "barcelona", name: "FC 바르셀로나", rating: 93, color: "#a50044", emblem: "img/mark_barcelona.png" },
+    { id: "psg", name: "파리 생제르맹", rating: 93, color: "#004170", emblem: "img/mark_psg.png" },
+    { id: "inter_milan", name: "인테르", rating: 92, color: "#001ea0", emblem: "img/mark_inter.png" },
+    { id: "leverkusen", name: "바이어 레버쿠젠", rating: 91, color: "#e32219", emblem: "img/mark_leverkusen.png" },
+    { id: "atletico_madrid", name: "아틀레티코 마드리드", rating: 90, color: "#cb3524", emblem: "img/mark_atletico.png" },
+    { id: "dortmund", name: "도르트문트", rating: 89, color: "#fde100", emblem: "img/mark_dortmund.png" },
+    { id: "juventus", name: "유벤투스", rating: 89, color: "#111111", emblem: "img/mark_juventus.png" },
+    { id: "ac_milan", name: "AC 밀란", rating: 88, color: "#fb090b", emblem: "img/mark_acmilan.png" },
+    { id: "sporting_cp", name: "스포르팅 CP", rating: 87, color: "#008057", emblem: "img/mark_sporting.png" },
+    { id: "benfica", name: "SL 벤피카", rating: 86, color: "#e81b23", emblem: "img/mark_benfica.png" }
+];
+
+// 5. UEFA 챔피언스리그 (UCL) 유럽 스타 플레이어 프리셋 (득점왕/도움왕 연동)
+const UCL_PLAYERS_PRESET_EPL = [
+    // 1. 레알 마드리드 (real_madrid)
+    { id: "ucl_rm_1", name: "음바페", teamId: "real_madrid", teamName: "레알 마드리드" },
+    { id: "ucl_rm_2", name: "비니시우스", teamId: "real_madrid", teamName: "레알 마드리드" },
+    { id: "ucl_rm_3", name: "벨링엄", teamId: "real_madrid", teamName: "레알 마드리드" },
+
+    // 2. 바이에른 뮌헨 (bayern_munchen)
+    { id: "ucl_bayern_1", name: "케인", teamId: "bayern_munchen", teamName: "바이에른 뮌헨" },
+    { id: "ucl_bayern_2", name: "무시알라", teamId: "bayern_munchen", teamName: "바이에른 뮌헨" },
+    { id: "ucl_bayern_3", name: "김민재", teamId: "bayern_munchen", teamName: "바이에른 뮌헨" },
+
+    // 3. FC 바르셀로나 (barcelona)
+    { id: "ucl_barca_1", name: "레반도프스키", teamId: "barcelona", teamName: "FC 바르셀로나" },
+    { id: "ucl_barca_2", name: "야말", teamId: "barcelona", teamName: "FC 바르셀로나" },
+    { id: "ucl_barca_3", name: "하피냐", teamId: "barcelona", teamName: "FC 바르셀로나" },
+
+    // 4. 파리 생제르맹 (psg)
+    { id: "ucl_psg_1", name: "뎀벨레", teamId: "psg", teamName: "파리 생제르맹" },
+    { id: "ucl_psg_2", name: "바르콜라", teamId: "psg", teamName: "파리 생제르맹" },
+
+    // 5. 인테르 (inter_milan)
+    { id: "ucl_inter_1", name: "라우타로", teamId: "inter_milan", teamName: "인테르" },
+    { id: "ucl_inter_2", name: "튀람", teamId: "inter_milan", teamName: "인테르" },
+
+    // 6. 바이어 레버쿠젠 (leverkusen)
+    { id: "ucl_lever_1", name: "비르츠", teamId: "leverkusen", teamName: "바이어 레버쿠젠" },
+    { id: "ucl_lever_2", name: "보니페이스", teamId: "leverkusen", teamName: "바이어 레버쿠젠" },
+
+    // 7. 아틀레티코 마드리드 (atletico_madrid)
+    { id: "ucl_atm_1", name: "그리즈만", teamId: "atletico_madrid", teamName: "아틀레티코 마드리드" },
+    { id: "ucl_atm_2", name: "알바레스", teamId: "atletico_madrid", teamName: "아틀레티코 마드리드" },
+    { id: "ucl_atm_3", name: "이강인", teamId: "atletico_madrid", teamName: "아틀레티코 마드리드" },
+
+    // 8. 보루시아 도르트문트 (dortmund)
+    { id: "ucl_bvb_1", name: "기라시", teamId: "dortmund", teamName: "보루시아 도르트문트" },
+    { id: "ucl_bvb_2", name: "브란트", teamId: "dortmund", teamName: "보루시아 도르트문트" },
+
+    // 9. 유벤투스 (juventus)
+    { id: "ucl_juve_1", name: "블라호비치", teamId: "juventus", teamName: "유벤투스" },
+    { id: "ucl_juve_2", name: "일디즈", teamId: "juventus", teamName: "유벤투스" },
+
+    // 10. AC 밀란 (ac_milan)
+    { id: "ucl_acm_1", name: "레앙", teamId: "ac_milan", teamName: "AC 밀란" },
+    { id: "ucl_acm_2", name: "풀리식", teamId: "ac_milan", teamName: "AC 밀란" },
+
+    // 11. 스포르팅 CP (sporting_cp)
+    { id: "ucl_scp_1", name: "요케레스", teamId: "sporting_cp", teamName: "스포르팅 CP" },
+    { id: "ucl_scp_2", name: "트린캉", teamId: "sporting_cp", teamName: "스포르팅 CP" },
+
+    // 12. SL 벤피카 (benfica)
+    { id: "ucl_slb_1", name: "디마리아", teamId: "benfica", teamName: "SL 벤피카" },
+    { id: "ucl_slb_2", name: "파블리디스", teamId: "benfica", teamName: "SL 벤피카" }
+];

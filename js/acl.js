@@ -1,6 +1,54 @@
-// js/acl.js - AFC 챔피언스리그 (아챔) UI 및 토너먼트 모듈
+// js/acl.js - AFC 챔피언스리그 (아챔) & UEFA 챔피언스리그 (챔스) UI 및 토너먼트 모듈
 
-// 1. 아챔 상태 및 변수 선언
+// 0. 활성 리그 연동 헬퍼 함수
+function getActiveAclTournamentName() {
+    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
+        return "UEFA 챔피언스리그";
+    }
+    return "AFC 챔피언스리그";
+}
+
+function getActiveAclUserTeamId() {
+    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
+        return "liverpool";
+    }
+    return "jeonbuk";
+}
+
+function getActiveAclUserTeamName() {
+    if (typeof getActiveUserTeamName === 'function') {
+        return getActiveUserTeamName();
+    }
+    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
+        return "리버풀 FC";
+    }
+    return "전북 현대";
+}
+
+function getActiveAclTeamsPreset() {
+    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
+        if (typeof UCL_TEAMS_PRESET_EPL !== 'undefined' && UCL_TEAMS_PRESET_EPL.length > 0) {
+            return UCL_TEAMS_PRESET_EPL;
+        }
+    }
+    return (typeof ACL_TEAMS_PRESET !== 'undefined') ? ACL_TEAMS_PRESET : [];
+}
+
+function getActiveAclPlayersPreset() {
+    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
+        if (typeof UCL_PLAYERS_PRESET_EPL !== 'undefined' && UCL_PLAYERS_PRESET_EPL.length > 0) {
+            return UCL_PLAYERS_PRESET_EPL;
+        }
+    }
+    return (typeof OTHER_TEAMS_PLAYERS_PRESET !== 'undefined') ? OTHER_TEAMS_PLAYERS_PRESET : [];
+}
+
+function getAclStorageKey() {
+    const leagueId = (typeof currentLeagueId !== 'undefined' && currentLeagueId) ? currentLeagueId : 'kleague1';
+    return `fc_star_acl_state_${leagueId}`;
+}
+
+// 1. 챔피언스리그 상태 및 변수 선언
 let aclState = {
     year: 2026,
     round: 16, // 16: 16강, 8: 8강, 4: 4강, 2: 결승, 1: 종료 (우승자 탄생)
@@ -8,7 +56,7 @@ let aclState = {
     bracket: {
         16: [], // 8개 경기 객체 { id, team1, team2, score1, score2, winner, status }
         8: [],  // 4개 경기 객체
-        4: [],  // 2개 경기 객체 (동-서 교차)
+        4: [],  // 2개 경기 객체
         2: [],  // 1개 경기 객체 (결승)
         winner: null // 최종 우승팀 객체
     },
@@ -19,10 +67,14 @@ let aclState = {
     }
 };
 
-// 2. 아챔 초기화 함수
+// 2. 챔피언스리그 초기화 함수
 function initAcl() {
     try {
-        const savedState = localStorage.getItem('fc_star_acl_state');
+        const key = getAclStorageKey();
+        let savedState = localStorage.getItem(key);
+        if (!savedState && (!currentLeagueId || currentLeagueId === 'kleague1')) {
+            savedState = localStorage.getItem('fc_star_acl_state');
+        }
         if (savedState) {
             aclState = JSON.parse(savedState);
             if (aclState.hasResetThisSeason === undefined) {
@@ -51,155 +103,276 @@ function resetAclStateData() {
     const formBonus = (typeof getPlayerFormationTacticBonuses === 'function') ? getPlayerFormationTacticBonuses().formationBonus : 0;
     const playerOvr = pureOvr + formBonus; // 포메이션 전술 완성 보너스 포함
     const top20Ovr = (typeof getPlayerTop20Ovr === 'function') ? getPlayerTop20Ovr() : 70;
+    const isEpl = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl');
+    const playerTeamId = getActiveAclUserTeamId();
+    const playerTeamName = getActiveAclUserTeamName();
+    const presetTeams = getActiveAclTeamsPreset();
 
-    // 1. K리그 구단 중 우리팀(전북)을 제외한 상위 2개 팀 선발
-    let kLeagueQualifiers = [];
-    if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams) && leagueTeams.length > 0) {
-        const sorted = [...leagueTeams]
-            .filter(t => t.id !== 'jeonbuk')
-            .sort((a, b) => {
-                if (b.pts !== a.pts) return b.pts - a.pts;
-                if (b.gd !== a.gd) return b.gd - a.gd;
-                return b.gf - a.gf;
-            });
+    if (isEpl) {
+        // ==========================================
+        // 🏴󠁧󠁢󠁥󠁮󠁧󠁿 프리미어리그: UEFA 챔피언스리그 (UCL 16강)
+        // ==========================================
+        // 1. EPL 구단 중 우리팀(리버풀)을 제외한 상위 3개 팀 선발
+        let eplQualifiers = [];
+        if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams) && leagueTeams.length > 0) {
+            const sorted = [...leagueTeams]
+                .filter(t => t.id !== playerTeamId)
+                .sort((a, b) => {
+                    if (b.pts !== a.pts) return b.pts - a.pts;
+                    if (b.gd !== a.gd) return b.gd - a.gd;
+                    return b.gf - a.gf;
+                });
+            
+            for (let i = 0; i < Math.min(3, sorted.length); i++) {
+                eplQualifiers.push({ id: sorted[i].id, name: sorted[i].name, rating: sorted[i].rating, color: sorted[i].color || '#034694' });
+            }
+        }
         
-        if (sorted.length >= 2) {
-            kLeagueQualifiers.push({ id: sorted[0].id, name: sorted[0].name, rating: sorted[0].rating });
-            kLeagueQualifiers.push({ id: sorted[1].id, name: sorted[1].name, rating: sorted[1].rating });
+        // Fallback EPL 진출 구단
+        if (eplQualifiers.length < 3) {
+            eplQualifiers = [
+                { id: "mancity", name: "맨체스터 시티", rating: 95, color: "#6cabdd" },
+                { id: "arsenal", name: "아스날", rating: 94, color: "#ef0107" },
+                { id: "chelsea", name: "첼시", rating: 91, color: "#034694" }
+            ];
         }
-    }
-    
-    // fallback (리그 미진행 상태 대비)
-    if (kLeagueQualifiers.length < 2) {
-        kLeagueQualifiers = [
-            { id: "ulsan", name: "울산 HD", rating: 80 },
-            { id: "seoul", name: "FC 서울", rating: 78 }
+
+        const initializedTeams = [];
+        
+        // 플레이어 구단 (리버풀 FC)
+        initializedTeams.push({ id: playerTeamId, name: playerTeamName, rating: playerOvr, color: '#c8102e' });
+        
+        // EPL 진출 3구단
+        eplQualifiers.forEach(team => {
+            initializedTeams.push({ id: team.id, name: team.name, rating: team.rating, color: team.color || '#2563eb' });
+        });
+
+        // 유럽 12대 명문 구단 추가 (OVR을 플레이어 OVR 기준 보정)
+        presetTeams.forEach(team => {
+            let adjustedRating = team.rating;
+            if (["real_madrid", "bayern_munchen"].includes(team.id)) {
+                // 초강호 보스팀: 플레이어 상위20개 평균 OVR + (1~2)
+                adjustedRating = Math.max(88, top20Ovr + Math.floor(Math.random() * 2) + 1);
+            } else if (["barcelona", "psg", "inter_milan", "leverkusen"].includes(team.id)) {
+                // 강호팀: 플레이어 상위20개 평균 OVR + (0~-2)
+                const offset = Math.floor(Math.random() * 3) - 2;
+                adjustedRating = Math.max(85, top20Ovr + offset);
+            } else {
+                // 다크호스: 플레이어 상위20개 평균 OVR - (2~6)
+                const offset = Math.floor(Math.random() * 5) - 6;
+                adjustedRating = Math.max(80, top20Ovr + offset);
+            }
+            initializedTeams.push({
+                id: team.id,
+                name: team.name,
+                rating: adjustedRating,
+                color: team.color,
+                emblem: team.emblem
+            });
+        });
+
+        // EPL 4구단과 유럽 12구단 분산 셔플 매칭 (16강에서 EPL 구단끼리 맞붙지 않도록 분산)
+        const allEplTeams = shuffleAclArray([initializedTeams[0], ...eplQualifiers]); // 4팀
+        const europeanTeams = shuffleAclArray(initializedTeams.slice(4)); // 12팀
+
+        // 16강 8경기 매칭:
+        // 4경기: EPL 팀 vs 유럽 팀
+        // 4경기: 유럽 팀 vs 유럽 팀
+        const matches16 = [];
+        for (let i = 0; i < 4; i++) {
+            const isEplHome = Math.random() < 0.5;
+            matches16.push({
+                id: `16_${i}`,
+                team1: isEplHome ? allEplTeams[i] : europeanTeams[i],
+                team2: isEplHome ? europeanTeams[i] : allEplTeams[i],
+                score1: null,
+                score2: null,
+                winner: null,
+                status: "scheduled"
+            });
+        }
+        for (let i = 0; i < 4; i++) {
+            matches16.push({
+                id: `16_${i + 4}`,
+                team1: europeanTeams[4 + i * 2],
+                team2: europeanTeams[4 + i * 2 + 1],
+                score1: null,
+                score2: null,
+                winner: null,
+                status: "scheduled"
+            });
+        }
+
+        const shuffledMatches16 = shuffleAclArray(matches16);
+        shuffledMatches16.forEach((m, idx) => { m.id = `16_${idx}`; });
+
+        const matches8 = Array.from({ length: 4 }, (_, i) => ({ id: `8_${i}`, team1: null, team2: null, score1: null, score2: null, winner: null, status: "scheduled" }));
+        const matches4 = Array.from({ length: 2 }, (_, i) => ({ id: `4_${i}`, team1: null, team2: null, score1: null, score2: null, winner: null, status: "scheduled" }));
+        const matches2 = [{ id: `2_0`, team1: null, team2: null, score1: null, score2: null, winner: null, status: "scheduled" }];
+
+        aclState = {
+            year: curYear,
+            round: 16,
+            teams: initializedTeams,
+            bracket: {
+                16: shuffledMatches16,
+                8: matches8,
+                4: matches4,
+                2: matches2,
+                winner: null
+            },
+            isFinished: false,
+            stats: {
+                scorers: [],
+                assisters: []
+            },
+            hasResetThisSeason: false
+        };
+
+    } else {
+        // ==========================================
+        // 🇰🇷 K리그 1: AFC 챔피언스리그 (ACL 16강)
+        // ==========================================
+        let kLeagueQualifiers = [];
+        if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams) && leagueTeams.length > 0) {
+            const sorted = [...leagueTeams]
+                .filter(t => t.id !== 'jeonbuk')
+                .sort((a, b) => {
+                    if (b.pts !== a.pts) return b.pts - a.pts;
+                    if (b.gd !== a.gd) return b.gd - a.gd;
+                    return b.gf - a.gf;
+                });
+            
+            if (sorted.length >= 2) {
+                kLeagueQualifiers.push({ id: sorted[0].id, name: sorted[0].name, rating: sorted[0].rating });
+                kLeagueQualifiers.push({ id: sorted[1].id, name: sorted[1].name, rating: sorted[1].rating });
+            }
+        }
+        
+        if (kLeagueQualifiers.length < 2) {
+            kLeagueQualifiers = [
+                { id: "ulsan", name: "울산 HD", rating: 80 },
+                { id: "seoul", name: "FC 서울", rating: 78 }
+            ];
+        }
+
+        const initializedTeams = [];
+        
+        // 플레이어 팀 추가 (전북)
+        initializedTeams.push({ id: 'jeonbuk', name: '전북 현대', rating: playerOvr, color: '#005a3c' });
+        
+        // K리그 진출 구단 2팀 추가
+        kLeagueQualifiers.forEach(team => {
+            initializedTeams.push({ id: team.id, name: team.name, rating: team.rating, color: '#2563eb' });
+        });
+        
+        // 해외 13개 팀 추가 (OVR을 플레이어 OVR 기준 보정)
+        const westTeamIds = ["al_hilal", "al_nassr", "al_ahli", "al_itihad", "al_ain", "al_sadd", "persepolis", "pakhtakor"];
+        const chosenBossWestTeamId = westTeamIds[Math.floor(Math.random() * westTeamIds.length)];
+        const strongAclTeams = ["vissel_kobe", "yokohama_marinos", "kawasaki_frontale", "al_hilal", "al_nassr", "al_ahli", "al_itihad", "al_ain", "al_sadd"];
+
+        presetTeams.forEach(team => {
+            let adjustedRating;
+            if (team.id === chosenBossWestTeamId) {
+                adjustedRating = Math.max(55, top20Ovr + 1);
+            } else if (strongAclTeams.includes(team.id)) {
+                const offset = Math.floor(Math.random() * 3) - 2;
+                adjustedRating = Math.max(55, top20Ovr + offset);
+            } else {
+                const offset = Math.floor(Math.random() * 9) - 10;
+                adjustedRating = Math.max(55, top20Ovr + offset);
+            }
+            initializedTeams.push({
+                id: team.id,
+                name: team.name,
+                rating: adjustedRating,
+                color: team.color
+            });
+        });
+
+        // 동아시아(8팀) 및 서아시아(8팀) 브라켓 분리 및 16강 경기 배치
+        const eastTeams = initializedTeams.filter(t => ['jeonbuk', 'ulsan', 'seoul', 'pohang', 'gangwon', 'gwangju', 'gimcheon', 'bucheon_fc', 'jeju', 'daejeon', 'anyang', 'incheon', 'vissel_kobe', 'yokohama_marinos', 'kawasaki_frontale', 'shanghai_port', 'buriram_united'].includes(t.id));
+        const westTeams = initializedTeams.filter(t => !eastTeams.some(et => et.id === t.id));
+        
+        const kLeagueIds = ['jeonbuk', ...kLeagueQualifiers.map(q => q.id)];
+        const eastKLeagueTeams = eastTeams.filter(t => kLeagueIds.includes(t.id));
+        const eastForeignTeams = eastTeams.filter(t => !kLeagueIds.includes(t.id));
+        
+        const shuffledKLeague = shuffleAclArray(eastKLeagueTeams);
+        const shuffledForeign = shuffleAclArray(eastForeignTeams);
+        
+        const eastMatches = [
+            { team1: shuffledKLeague[0], team2: shuffledForeign[0] },
+            { team1: shuffledKLeague[1], team2: shuffledForeign[1] },
+            { team1: shuffledKLeague[2], team2: shuffledForeign[2] },
+            { team1: shuffledForeign[3], team2: shuffledForeign[4] }
         ];
-    }
-
-    // 2. 프리셋 팀 정보 동적 로드 및 OVR 난수 세팅 (+-2 범위)
-    const presetTeams = (typeof ACL_TEAMS_PRESET !== 'undefined') ? ACL_TEAMS_PRESET : [];
-    
-    const initializedTeams = [];
-    
-    // 플레이어 팀 추가 (전북)
-    initializedTeams.push({ id: 'jeonbuk', name: '전북 현대', rating: playerOvr, color: '#005a3c' });
-    
-    // K리그 진출 구단 2팀 추가
-    kLeagueQualifiers.forEach(team => {
-        initializedTeams.push({ id: team.id, name: team.name, rating: team.rating, color: '#2563eb' });
-    });
-    
-    // 해외 13개 팀 추가 (OVR을 플레이어 OVR 기준 보정)
-    const westTeamIds = ["al_hilal", "al_nassr", "al_ahli", "al_itihad", "al_ain", "al_sadd", "persepolis", "pakhtakor"];
-    const chosenBossWestTeamId = westTeamIds[Math.floor(Math.random() * westTeamIds.length)];
-    const strongAclTeams = ["vissel_kobe", "yokohama_marinos", "kawasaki_frontale", "al_hilal", "al_nassr", "al_ahli", "al_itihad", "al_ain", "al_sadd"];
-
-    presetTeams.forEach(team => {
-        let adjustedRating;
-        if (team.id === chosenBossWestTeamId) {
-            // 서부리그 보스팀 1팀은 우리팀 상위 20개 평균 OVR + 1
-            adjustedRating = Math.max(55, top20Ovr + 1);
-        } else if (strongAclTeams.includes(team.id)) {
-            // 강팀: -2 ~ 0 범위
-            const offset = Math.floor(Math.random() * 3) - 2; // -2, -1, 0
-            adjustedRating = Math.max(55, top20Ovr + offset);
-        } else {
-            // 약팀: -10 ~ -2 범위
-            const offset = Math.floor(Math.random() * 9) - 10; // -10 ~ -2
-            adjustedRating = Math.max(55, top20Ovr + offset);
+        
+        const shuffledEastMatches = shuffleAclArray(eastMatches);
+        const shuffledWest = shuffleAclArray(westTeams);
+        
+        const matches16 = [];
+        
+        // 동아시아 16강 (4경기: 16_0 ~ 16_3)
+        for (let i = 0; i < 4; i++) {
+            matches16.push({
+                id: `16_${i}`,
+                team1: shuffledEastMatches[i].team1,
+                team2: shuffledEastMatches[i].team2,
+                score1: null,
+                score2: null,
+                winner: null,
+                status: "scheduled"
+            });
         }
-        initializedTeams.push({
-            id: team.id,
-            name: team.name,
-            rating: adjustedRating,
-            color: team.color
-        });
-    });
+        
+        // 서아시아 16강 (4경기: 16_4 ~ 16_7)
+        for (let i = 4; i < 8; i++) {
+            matches16.push({
+                id: `16_${i}`,
+                team1: shuffledWest[(i - 4) * 2],
+                team2: shuffledWest[(i - 4) * 2 + 1],
+                score1: null,
+                score2: null,
+                winner: null,
+                status: "scheduled"
+            });
+        }
 
-    // 3. 동아시아(8팀) 및 서아시아(8팀) 브라켓 분리 및 16강 경기 배치
-    const eastTeams = initializedTeams.filter(t => ['jeonbuk', 'ulsan', 'seoul', 'pohang', 'gangwon', 'gwangju', 'gimcheon', 'bucheon_fc', 'jeju', 'daejeon', 'anyang', 'incheon', 'vissel_kobe', 'yokohama_marinos', 'kawasaki_frontale', 'shanghai_port', 'buriram_united'].includes(t.id));
-    const westTeams = initializedTeams.filter(t => !eastTeams.some(et => et.id === t.id));
-    
-    // 동아시아 팀에서 K리그 구단(전북 + K리그 진출 2구단) 리스트 추출
-    const kLeagueIds = ['jeonbuk', ...kLeagueQualifiers.map(q => q.id)];
-    const eastKLeagueTeams = eastTeams.filter(t => kLeagueIds.includes(t.id));
-    const eastForeignTeams = eastTeams.filter(t => !kLeagueIds.includes(t.id));
-    
-    const shuffledKLeague = shuffleAclArray(eastKLeagueTeams); // K리그 3구단 셔플
-    const shuffledForeign = shuffleAclArray(eastForeignTeams); // 해외 동부 5구단 셔플
-    
-    // 16강 맞대결 방지용 경기 리스트 생성
-    const eastMatches = [
-        { team1: shuffledKLeague[0], team2: shuffledForeign[0] },
-        { team1: shuffledKLeague[1], team2: shuffledForeign[1] },
-        { team1: shuffledKLeague[2], team2: shuffledForeign[2] },
-        { team1: shuffledForeign[3], team2: shuffledForeign[4] }
-    ];
-    
-    // 동아시아 16강 경기 순서 자체를 한 번 더 셔플하여 8강 상/하단 브라켓 배치 분산
-    const shuffledEastMatches = shuffleAclArray(eastMatches);
-    
-    const shuffledWest = shuffleAclArray(westTeams);
-    
-    const matches16 = [];
-    
-    // 동아시아 16강 (4경기: acl_16_0 ~ acl_16_3)
-    for (let i = 0; i < 4; i++) {
-        matches16.push({
-            id: `16_${i}`,
-            team1: shuffledEastMatches[i].team1,
-            team2: shuffledEastMatches[i].team2,
-            score1: null,
-            score2: null,
-            winner: null,
-            status: "scheduled"
-        });
+        const matches8 = Array.from({ length: 4 }, (_, i) => ({ id: `8_${i}`, team1: null, team2: null, score1: null, score2: null, winner: null, status: "scheduled" }));
+        const matches4 = Array.from({ length: 2 }, (_, i) => ({ id: `4_${i}`, team1: null, team2: null, score1: null, score2: null, winner: null, status: "scheduled" }));
+        const matches2 = [{ id: `2_0`, team1: null, team2: null, score1: null, score2: null, winner: null, status: "scheduled" }];
+
+        aclState = {
+            year: curYear,
+            round: 16,
+            teams: initializedTeams,
+            bracket: {
+                16: matches16,
+                8: matches8,
+                4: matches4,
+                2: matches2,
+                winner: null
+            },
+            isFinished: false,
+            stats: {
+                scorers: [],
+                assisters: []
+            },
+            hasResetThisSeason: false
+        };
     }
-    
-    // 서아시아 16강 (4경기: acl_16_4 ~ acl_16_7)
-    for (let i = 4; i < 8; i++) {
-        matches16.push({
-            id: `16_${i}`,
-            team1: shuffledWest[(i - 4) * 2],
-            team2: shuffledWest[(i - 4) * 2 + 1],
-            score1: null,
-            score2: null,
-            winner: null,
-            status: "scheduled"
-        });
-    }
-
-    // 8강(4경기), 4강(2경기), 결승(1경기) 대진 껍데기
-    const matches8 = Array.from({ length: 4 }, (_, i) => ({ id: `8_${i}`, team1: null, team2: null, score1: null, score2: null, winner: null, status: "scheduled" }));
-    const matches4 = Array.from({ length: 2 }, (_, i) => ({ id: `4_${i}`, team1: null, team2: null, score1: null, score2: null, winner: null, status: "scheduled" }));
-    const matches2 = [{ id: `2_0`, team1: null, team2: null, score1: null, score2: null, winner: null, status: "scheduled" }];
-
-    aclState = {
-        year: curYear,
-        round: 16,
-        teams: initializedTeams,
-        bracket: {
-            16: matches16,
-            8: matches8,
-            4: matches4,
-            2: matches2,
-            winner: null
-        },
-        isFinished: false,
-        stats: {
-            scorers: [],
-            assisters: []
-        },
-        hasResetThisSeason: false
-    };
 
     saveAclState();
 }
 
 function saveAclState() {
     try {
-        localStorage.setItem('fc_star_acl_state', JSON.stringify(aclState));
+        const key = getAclStorageKey();
+        localStorage.setItem(key, JSON.stringify(aclState));
+        if (!currentLeagueId || currentLeagueId === 'kleague1') {
+            localStorage.setItem('fc_star_acl_state', JSON.stringify(aclState));
+        }
     } catch(e) {}
     if (typeof saveUserProgress === 'function' && typeof currentUser !== 'undefined' && currentUser) {
         saveUserProgress();
@@ -209,16 +382,17 @@ function saveAclState() {
 // 플레이어가 탈락했을 때 자동 복구 및 남은 토너먼트 시뮬레이션
 function checkAndRecoverEliminatedAcl() {
     if (aclState.isFinished) return;
+    const playerTeamId = getActiveAclUserTeamId();
     
     let isPlayerEliminated = false;
     [16, 8, 4, 2].forEach(roundKey => {
         const matches = aclState.bracket[roundKey] || [];
         matches.forEach(match => {
             if (match.status === 'completed') {
-                const hasPlayer = (match.team1 && match.team1.id === 'jeonbuk') || (match.team2 && match.team2.id === 'jeonbuk');
+                const hasPlayer = (match.team1 && match.team1.id === playerTeamId) || (match.team2 && match.team2.id === playerTeamId);
                 if (hasPlayer) {
-                    const isPlayerWinner = (match.winner === 'team1' && match.team1.id === 'jeonbuk') ||
-                                          (match.winner === 'team2' && match.team2.id === 'jeonbuk');
+                    const isPlayerWinner = (match.winner === 'team1' && match.team1.id === playerTeamId) ||
+                                          (match.winner === 'team2' && match.team2.id === playerTeamId);
                     if (!isPlayerWinner) {
                         isPlayerEliminated = true;
                     }
@@ -228,7 +402,7 @@ function checkAndRecoverEliminatedAcl() {
     });
     
     if (isPlayerEliminated) {
-        console.log("플레이어가 아챔에서 탈락한 상태를 감지했습니다. 남은 대회를 자동 시뮬레이션 처리합니다.");
+        console.log(`플레이어가 ${getActiveAclTournamentName()}에서 탈락한 상태를 감지했습니다. 남은 대회를 자동 시뮬레이션 처리합니다.`);
         simulateRemainingAclRounds();
     }
 }
@@ -242,36 +416,59 @@ function simulateRemainingAclRounds() {
         if (curRound === 16) {
             const matches16 = aclState.bracket[16];
             const matches8 = aclState.bracket[8];
-            // 동아시아 8강전 매칭 (Winner 16_0 vs 16_1, Winner 16_2 vs 16_3)
-            for (let i = 0; i < 2; i++) {
-                const m1 = matches16[i * 2];
-                const m2 = matches16[i * 2 + 1];
-                matches8[i].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
-                matches8[i].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
-                matches8[i].status = "scheduled";
-            }
-            // 서아시아 8강전 매칭 (Winner 16_4 vs 16_5, Winner 16_6 vs 16_7)
-            for (let i = 2; i < 4; i++) {
-                const m1 = matches16[i * 2];
-                const m2 = matches16[i * 2 + 1];
-                matches8[i].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
-                matches8[i].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
-                matches8[i].status = "scheduled";
+            const isEpl = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl');
+            
+            if (isEpl) {
+                // EPL 챔스: 16강 승자 8팀을 순차적으로 8강 매칭
+                for (let i = 0; i < 4; i++) {
+                    const m1 = matches16[i * 2];
+                    const m2 = matches16[i * 2 + 1];
+                    matches8[i].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
+                    matches8[i].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
+                    matches8[i].status = "scheduled";
+                }
+            } else {
+                // K리그 아챔: 동아시아(16_0~3) 8강전 2경기, 서아시아(16_4~7) 8강전 2경기
+                for (let i = 0; i < 2; i++) {
+                    const m1 = matches16[i * 2];
+                    const m2 = matches16[i * 2 + 1];
+                    matches8[i].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
+                    matches8[i].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
+                    matches8[i].status = "scheduled";
+                }
+                for (let i = 2; i < 4; i++) {
+                    const m1 = matches16[i * 2];
+                    const m2 = matches16[i * 2 + 1];
+                    matches8[i].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
+                    matches8[i].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
+                    matches8[i].status = "scheduled";
+                }
             }
             aclState.round = 8;
         } else if (curRound === 8) {
             const matches8 = aclState.bracket[8];
             const matches4 = aclState.bracket[4];
-            // 동-서 교차 4강전 매치 생성 (East Winner 1 vs West Winner 1, East Winner 2 vs West Winner 2)
-            // East 8강 위너: matches8[0], matches8[1]
-            // West 8강 위너: matches8[2], matches8[3]
-            matches4[0].team1 = matches8[0].winner === 'team1' ? matches8[0].team1 : matches8[0].team2;
-            matches4[0].team2 = matches8[2].winner === 'team1' ? matches8[2].team1 : matches8[2].team2;
-            matches4[0].status = "scheduled";
+            const isEpl = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl');
             
-            matches4[1].team1 = matches8[1].winner === 'team1' ? matches8[1].team1 : matches8[1].team2;
-            matches4[1].team2 = matches8[3].winner === 'team1' ? matches8[3].team1 : matches8[3].team2;
-            matches4[1].status = "scheduled";
+            if (isEpl) {
+                // EPL 챔스: 8강 승자 매칭 (8_0 vs 8_1, 8_2 vs 8_3)
+                for (let i = 0; i < 2; i++) {
+                    const m1 = matches8[i * 2];
+                    const m2 = matches8[i * 2 + 1];
+                    matches4[i].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
+                    matches4[i].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
+                    matches4[i].status = "scheduled";
+                }
+            } else {
+                // K리그 아챔: 동-서 교차 4강전 매치 생성 (East 1 vs West 1, East 2 vs West 2)
+                matches4[0].team1 = matches8[0].winner === 'team1' ? matches8[0].team1 : matches8[0].team2;
+                matches4[0].team2 = matches8[2].winner === 'team1' ? matches8[2].team1 : matches8[2].team2;
+                matches4[0].status = "scheduled";
+                
+                matches4[1].team1 = matches8[1].winner === 'team1' ? matches8[1].team1 : matches8[1].team2;
+                matches4[1].team2 = matches8[3].winner === 'team1' ? matches8[3].team1 : matches8[3].team2;
+                matches4[1].status = "scheduled";
+            }
             
             aclState.round = 4;
         } else if (curRound === 4) {
@@ -318,13 +515,14 @@ function simulateRemainingAclRounds() {
     saveAclState();
 }
 
-// 3. 아챔 탭 로드 시 렌더링 호출
+// 3. 아챔/챔스 탭 로드 시 렌더링 호출
 function initAclTab() {
     checkAndRecoverEliminatedAcl();
 
+    const tournamentName = getActiveAclTournamentName();
     const seasonText = document.getElementById('aclSeasonYearText');
     if (seasonText) {
-        seasonText.textContent = `${aclState.year} AFC 챔피언스리그`;
+        seasonText.textContent = `${aclState.year} ${tournamentName}`;
     }
     
     const roundValText = document.getElementById('aclRoundVal');
@@ -343,13 +541,23 @@ function updateAclPlayerTeamOvr() {
     const pureOvr = (typeof getPlayerPureOvr === 'function') ? getPlayerPureOvr() : 70;
     const formBonus = (typeof getPlayerFormationTacticBonuses === 'function') ? getPlayerFormationTacticBonuses().formationBonus : 0;
     const playerOvr = pureOvr + formBonus; // 포메이션 전술 완성 보너스 포함
+    const playerTeamId = getActiveAclUserTeamId();
+    const isEpl = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl');
     
-    // 1. aclState.teams 동기화 (전북)
+    // 1. aclState.teams 동기화
     aclState.teams.forEach(team => {
-        if (team.id === 'jeonbuk') {
+        if (team.id === playerTeamId) {
             team.rating = playerOvr;
-        } else if (['ulsan', 'seoul', 'pohang', 'gangwon', 'gwangju', 'gimcheon', 'bucheon_fc', 'jeju', 'daejeon', 'anyang', 'incheon'].includes(team.id)) {
+        } else if (!isEpl && ['ulsan', 'seoul', 'pohang', 'gangwon', 'gwangju', 'gimcheon', 'bucheon_fc', 'jeju', 'daejeon', 'anyang', 'incheon'].includes(team.id)) {
             // 다른 K리그 구단은 리그 OVR과 맞춤 동기화
+            if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {
+                const leagueTeam = leagueTeams.find(t => t.id === team.id);
+                if (leagueTeam && leagueTeam.rating !== undefined) {
+                    team.rating = leagueTeam.rating;
+                }
+            }
+        } else if (isEpl) {
+            // EPL 국내 진출 구단(맨시티, 아스날, 첼시 등)은 리그 OVR 동기화
             if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {
                 const leagueTeam = leagueTeams.find(t => t.id === team.id);
                 if (leagueTeam && leagueTeam.rating !== undefined) {
@@ -363,26 +571,22 @@ function updateAclPlayerTeamOvr() {
     [16, 8, 4, 2].forEach(roundKey => {
         aclState.bracket[roundKey].forEach(match => {
             if (match.team1) {
-                if (match.team1.id === 'jeonbuk') {
+                if (match.team1.id === playerTeamId) {
                     match.team1.rating = playerOvr;
-                } else if (['ulsan', 'seoul', 'pohang', 'gangwon', 'gwangju', 'gimcheon', 'bucheon_fc', 'jeju', 'daejeon', 'anyang', 'incheon'].includes(match.team1.id)) {
-                    if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {
-                        const leagueTeam = leagueTeams.find(t => t.id === match.team1.id);
-                        if (leagueTeam && leagueTeam.rating !== undefined) {
-                            match.team1.rating = leagueTeam.rating;
-                        }
+                } else if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {
+                    const leagueTeam = leagueTeams.find(t => t.id === match.team1.id);
+                    if (leagueTeam && leagueTeam.rating !== undefined) {
+                        match.team1.rating = leagueTeam.rating;
                     }
                 }
             }
             if (match.team2) {
-                if (match.team2.id === 'jeonbuk') {
+                if (match.team2.id === playerTeamId) {
                     match.team2.rating = playerOvr;
-                } else if (['ulsan', 'seoul', 'pohang', 'gangwon', 'gwangju', 'gimcheon', 'bucheon_fc', 'jeju', 'daejeon', 'anyang', 'incheon'].includes(match.team2.id)) {
-                    if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {
-                        const leagueTeam = leagueTeams.find(t => t.id === match.team2.id);
-                        if (leagueTeam && leagueTeam.rating !== undefined) {
-                            match.team2.rating = leagueTeam.rating;
-                        }
+                } else if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {
+                    const leagueTeam = leagueTeams.find(t => t.id === match.team2.id);
+                    if (leagueTeam && leagueTeam.rating !== undefined) {
+                        match.team2.rating = leagueTeam.rating;
                     }
                 }
             }
@@ -398,9 +602,14 @@ function updateAclScoreboard() {
     const analysisCard = document.getElementById('aclOpponentAnalysisCard');
     if (analysisCard) analysisCard.style.display = 'none';
 
+    const playerTeamId = getActiveAclUserTeamId();
+    const playerTeamName = getActiveAclUserTeamName();
+    const tournamentName = getActiveAclTournamentName();
+    const isEpl = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl');
+
     if (aclState.isFinished) {
-        const winner = aclState.bracket.winner || { name: '전북 현대', rating: 75 };
-        const isPlayerWinner = winner.id === 'jeonbuk';
+        const winner = aclState.bracket.winner || { name: playerTeamName, rating: 75 };
+        const isPlayerWinner = winner.id === playerTeamId;
         
         document.getElementById('aclRoundVal').textContent = "대회 종료";
         document.getElementById('aclHomeTeamName').textContent = winner.name;
@@ -412,14 +621,14 @@ function updateAclScoreboard() {
         document.getElementById('aclSbTimeDisplay').textContent = "FINISH";
         document.getElementById('aclSbTimeDisplay').classList.remove('live-ticking');
         document.getElementById('aclMatchVenueDisplay').textContent = isPlayerWinner 
-            ? "AFC 챔피언스리그 우승을 축하합니다! 아시아 최정상 구단에 등극했습니다." 
-            : `AFC 챔피언스리그 시즌 완료. (${winner.name} 우승)`;
+            ? `${tournamentName} 우승을 축하합니다! 최정상 구단에 등극했습니다.` 
+            : `${tournamentName} 시즌 완료. (${winner.name} 우승)`;
         
         const btn = document.getElementById('btnStartAclMatch');
         if (btn) {
             btn.disabled = true;
             if (isPlayerWinner) {
-                btn.innerHTML = `<i class="fa-solid fa-trophy" style="margin-right: 8px;"></i>아챔 우승 완료`;
+                btn.innerHTML = `<i class="fa-solid fa-trophy" style="margin-right: 8px;"></i>${tournamentName} 우승 완료`;
             } else {
                 btn.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="margin-right: 8px;"></i>토너먼트 탈락 (대회 종료)`;
             }
@@ -429,13 +638,13 @@ function updateAclScoreboard() {
 
     const curRound = aclState.round;
     const matches = aclState.bracket[curRound];
-    const playerMatch = matches.find(m => (m.team1 && m.team1.id === 'jeonbuk') || (m.team2 && m.team2.id === 'jeonbuk'));
+    const playerMatch = matches.find(m => (m.team1 && m.team1.id === playerTeamId) || (m.team2 && m.team2.id === playerTeamId));
 
     const btn = document.getElementById('btnStartAclMatch');
     const timeDisplay = document.getElementById('aclSbTimeDisplay');
 
     if (!playerMatch) {
-        document.getElementById('aclHomeTeamName').textContent = "전북 현대";
+        document.getElementById('aclHomeTeamName').textContent = playerTeamName;
         document.getElementById('aclAwayTeamName').textContent = "토너먼트 탈락";
         document.getElementById('aclHomeTeamOvr').textContent = "-";
         document.getElementById('aclAwayTeamOvr').textContent = "-";
@@ -445,7 +654,7 @@ function updateAclScoreboard() {
             timeDisplay.textContent = "OUT";
             timeDisplay.classList.remove('live-ticking');
         }
-        document.getElementById('aclMatchVenueDisplay').textContent = "전북 현대가 탈락했습니다.";
+        document.getElementById('aclMatchVenueDisplay').textContent = `${playerTeamName}가 탈락했습니다.`;
         
         if (analysisCard) analysisCard.style.display = 'none';
         
@@ -465,14 +674,14 @@ function updateAclScoreboard() {
     document.getElementById('aclAwayTeamOvr').textContent = t2.rating;
 
     // 상대팀 정보 요약 프레임 연동
-    const opponent = t1.id === 'jeonbuk' ? t2 : t1;
+    const opponent = t1.id === playerTeamId ? t2 : t1;
     const oppFormation = TEAM_FORMATIONS_PRESET[opponent.id] || "4-4-2";
     const compBonus = getFormationCompatibilityBonus(currentFormation, oppFormation);
     
     if (analysisCard) {
         analysisCard.style.display = 'block';
         document.getElementById('aclOpponentFormationText').innerText = oppFormation;
-        document.getElementById('aclOpponentMoodText').innerHTML = `보통 😐`; // 아챔 대회 컨디션 보통 고정
+        document.getElementById('aclOpponentMoodText').innerHTML = `보통 😐`;
         
         const compTextEl = document.getElementById('aclOpponentCompatibilityText');
         if (compTextEl) {
@@ -480,13 +689,12 @@ function updateAclScoreboard() {
             if (compBonus > 0) {
                 compTextEl.style.display = 'block';
                 compTextEl.classList.add('tactic-advantage');
-                compTextEl.innerHTML = `전북 현대의 <strong>${currentFormation}</strong> 전술이 상대의 <strong>${oppFormation}</strong> 전술에 상성상 우세합니다! (공격 찬스 확률 +5.0% ⚡)`;
+                compTextEl.innerHTML = `${playerTeamName}의 <strong>${currentFormation}</strong> 전술이 상대의 <strong>${oppFormation}</strong> 전술에 상성상 우세합니다! (공격 찬스 확률 +5.0% ⚡)`;
             } else if (compBonus < 0) {
                 compTextEl.style.display = 'block';
                 compTextEl.classList.add('tactic-disadvantage');
-                compTextEl.innerHTML = `상대의 <strong>${oppFormation}</strong> 전술이 전북 현대의 <strong>${currentFormation}</strong> 전술에 상성상 우세합니다. (공격 찬스 확률 -5.0% ⚠️)`;
+                compTextEl.innerHTML = `상대의 <strong>${oppFormation}</strong> 전술이 ${playerTeamName}의 <strong>${currentFormation}</strong> 전술에 상성상 우세합니다. (공격 찬스 확률 -5.0% ⚠️)`;
             } else {
-                // 피드백 반영: 상성이 비겼을 때(보너스 0)는 설명 숨김
                 compTextEl.style.display = 'none';
             }
         }
@@ -515,13 +723,13 @@ function updateAclScoreboard() {
         document.getElementById('aclHomeScore').textContent = "0";
         document.getElementById('aclAwayScore').textContent = "0";
         if (timeDisplay) {
-            timeDisplay.textContent = 'ACL VS';
+            timeDisplay.textContent = `${isEpl ? 'UCL' : 'ACL'} VS`;
             timeDisplay.classList.remove('live-ticking');
         }
         
         if (btn) {
             btn.disabled = false;
-            btn.innerHTML = `<i class="fa-solid fa-play" style="margin-right: 8px;"></i>아챔 경기 시작 (15초 소요)`;
+            btn.innerHTML = `<i class="fa-solid fa-play" style="margin-right: 8px;"></i>${tournamentName} 경기 시작 (15초 소요)`;
         }
     }
 
@@ -529,7 +737,7 @@ function updateAclScoreboard() {
     const awayEmblemEl = document.getElementById('aclAwayEmblem');
     if (homeEmblemEl) {
         homeEmblemEl.innerHTML = getAclTeamEmblemHtml(t1, 48);
-        if (t1.id === 'jeonbuk') {
+        if (t1.id === playerTeamId) {
             homeEmblemEl.classList.add('jeonbuk-emblem-box');
         } else {
             homeEmblemEl.classList.remove('jeonbuk-emblem-box');
@@ -537,7 +745,7 @@ function updateAclScoreboard() {
     }
     if (awayEmblemEl) {
         awayEmblemEl.innerHTML = getAclTeamEmblemHtml(t2, 48);
-        if (t2.id === 'jeonbuk') {
+        if (t2.id === playerTeamId) {
             awayEmblemEl.classList.add('jeonbuk-emblem-box');
         } else {
             awayEmblemEl.classList.remove('jeonbuk-emblem-box');
@@ -552,6 +760,8 @@ function renderAclBracket() {
     const container = document.getElementById('aclBracketContainer');
     if (!container) return;
 
+    const isEpl = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl');
+    const tournamentName = getActiveAclTournamentName();
     let html = '';
 
     // 16강전 컬럼
@@ -573,8 +783,9 @@ function renderAclBracket() {
     html += `</div></div>`;
 
     // 준결승전 컬럼
+    const semiTitle = isEpl ? '준결승전 (4강)' : '준결승 (동-서 교차)';
     html += `<div class="bracket-round">
-        <div class="bracket-round-title" style="color:#00ff87; border-color:rgba(0,255,135,0.2); background:rgba(0,255,135,0.06);">준결승 (동-서 교차)</div>
+        <div class="bracket-round-title" style="color:#00ff87; border-color:rgba(0,255,135,0.2); background:rgba(0,255,135,0.06);">${semiTitle}</div>
         <div class="bracket-match-list">`;
     aclState.bracket[4].forEach(match => {
         html += renderAclMatchNode(match, 4);
@@ -596,7 +807,7 @@ function renderAclBracket() {
     if (aclState.bracket.winner) {
         html += `
         <div class="bracket-winner-node" style="border-color: rgba(0, 255, 135, 0.4); box-shadow: 0 8px 24px rgba(0, 255, 135, 0.2); background: radial-gradient(circle at top, rgba(0, 255, 135, 0.15) 0%, rgba(10, 14, 26, 0.95) 100%);">
-            <div class="bracket-winner-title" style="color:#00ff87;"><i class="fa-solid fa-trophy"></i> ACL CHAMPION</div>
+            <div class="bracket-winner-title" style="color:#00ff87;"><i class="fa-solid fa-trophy"></i> ${isEpl ? 'UCL' : 'ACL'} CHAMPION</div>
             <div class="bracket-winner-name">
                 ${getAclTeamEmblemHtml(aclState.bracket.winner, 20)}
                 <span style="margin-left: 4px;">${aclState.bracket.winner.name}</span>
@@ -605,7 +816,7 @@ function renderAclBracket() {
     } else {
         html += `
         <div class="bracket-winner-node" style="opacity: 0.5; border-style: dashed; background: transparent; box-shadow: none; animation: none;">
-            <div class="bracket-winner-title" style="color:var(--text-muted);">ACL CHAMPION</div>
+            <div class="bracket-winner-title" style="color:var(--text-muted);">${isEpl ? 'UCL' : 'ACL'} CHAMPION</div>
             <div class="bracket-winner-name" style="color: var(--text-muted);">대기 중</div>
         </div>`;
     }
@@ -615,7 +826,8 @@ function renderAclBracket() {
 }
 
 function renderAclMatchNode(match, round) {
-    const isPlayerMatch = (match.team1 && match.team1.id === 'jeonbuk') || (match.team2 && match.team2.id === 'jeonbuk');
+    const playerTeamId = getActiveAclUserTeamId();
+    const isPlayerMatch = (match.team1 && match.team1.id === playerTeamId) || (match.team2 && match.team2.id === playerTeamId);
     const isActive = (aclState.round === round && isPlayerMatch && match.status !== 'completed');
     const activeClass = isActive ? 'match-active' : '';
     
@@ -624,7 +836,7 @@ function renderAclMatchNode(match, round) {
         let t1Class = '';
         if (match.winner === 'team1') t1Class = 'team-won';
         else if (match.winner === 'team2') t1Class = 'team-lost';
-        if (match.team1.id === 'jeonbuk') t1Class += ' team-player';
+        if (match.team1.id === playerTeamId) t1Class += ' team-player';
         
         let score1Val = match.score1 !== null ? match.score1 : '-';
         if (match.pkScore1 !== undefined && match.pkScore2 !== undefined) {
@@ -642,8 +854,8 @@ function renderAclMatchNode(match, round) {
         `;
     } else {
         t1Html = `
-            <div class="bracket-team" style="opacity: 0.5;">
-                <span class="bracket-team-name">대기 중</span>
+            <div class="bracket-team">
+                <span class="bracket-team-name" style="color: var(--text-muted);">미정</span>
                 <span class="bracket-team-score">-</span>
             </div>
         `;
@@ -654,7 +866,7 @@ function renderAclMatchNode(match, round) {
         let t2Class = '';
         if (match.winner === 'team2') t2Class = 'team-won';
         else if (match.winner === 'team1') t2Class = 'team-lost';
-        if (match.team2.id === 'jeonbuk') t2Class += ' team-player';
+        if (match.team2.id === playerTeamId) t2Class += ' team-player';
         
         let score2Val = match.score2 !== null ? match.score2 : '-';
         if (match.pkScore1 !== undefined && match.pkScore2 !== undefined) {
@@ -672,52 +884,29 @@ function renderAclMatchNode(match, round) {
         `;
     } else {
         t2Html = `
-            <div class="bracket-team" style="opacity: 0.5;">
-                <span class="bracket-team-name">대기 중</span>
+            <div class="bracket-team">
+                <span class="bracket-team-name" style="color: var(--text-muted);">미정</span>
                 <span class="bracket-team-score">-</span>
             </div>
         `;
     }
 
-    // 아챔 전용 호버 효과 적용을 위해 border-color 클래스 추가
     return `
-        <div class="bracket-match ${activeClass}" style="${isActive ? 'border-color: rgba(0, 255, 135, 0.6); box-shadow: 0 0 12px rgba(0, 255, 135, 0.25); background: rgba(0, 255, 135, 0.04);' : ''}">
+        <div class="bracket-match ${activeClass}">
             ${t1Html}
             ${t2Html}
         </div>
     `;
 }
 
-// 7. 팀 엠블럼 HTML 헬퍼 (K리그 에셋 + 아시아 해외구단 고유 컬러 테마 쉴드)
-function getAclTeamEmblemHtml(team, size = 18) {
-    const k1Mapping = {
-        "jeonbuk": "img/mark_jb.svg",
-        "ulsan": "img/mark_ulsan.png",
-        "seoul": "img/mark_seoul.png",
-        "pohang": "img/mark_pohang.png",
-        "gangwon": "img/mark_gangwon.png",
-        "gwangju": "img/mark_gwangju.png",
-        "gimcheon": "img/mark_kc.png",
-        "bucheon_fc": "img/mark_buchn.png",
-        "jeju": "img/mark_jeju.png",
-        "daejeon": "img/mark_dj.png",
-        "anyang": "img/mark_anyang.png",
-        "incheon": "img/mark_incheon.png"
-    };
-
-    if (k1Mapping[team.id]) {
-        const isJeonbukGlow = (team.id === 'jeonbuk' && size >= 30) ? 'match-emblem-glow' : '';
-        return `<img src="${k1Mapping[team.id]}" alt="${team.name}" class="match-emblem-img ${isJeonbukGlow}" style="height: ${size}px; width: ${size}px; object-fit: contain; vertical-align: middle; flex-shrink: 0; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));">`;
-    } else {
-        // 해외 구단은 컬러 쉴드
-        let color = '#a55eea';
-        if (typeof ACL_TEAMS_PRESET !== 'undefined') {
-            const preset = ACL_TEAMS_PRESET.find(p => p.id === team.id);
-            if (preset && preset.color) color = preset.color;
-        }
-        
-        return `<i class="fa-solid fa-shield-halved" style="color: ${color}; font-size: ${size - 2}px; width: ${size}px; height: ${size}px; display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; flex-shrink: 0; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));"></i>`;
+// 7. 팀 엠블럼 렌더링 헬퍼
+function getAclTeamEmblemHtml(team, size = 20) {
+    if (!team) return '';
+    const emblem = team.emblem || (typeof getTeamEmblemPath === 'function' ? getTeamEmblemPath(team.id) : '');
+    if (emblem && (emblem.endsWith('.png') || emblem.endsWith('.svg') || emblem.endsWith('.jpg') || emblem.includes('/'))) {
+        return `<img src="${emblem}" alt="${team.name}" style="width: ${size}px; height: ${size}px; object-fit: contain; vertical-align: middle; margin-right: 4px; display: inline-block;">`;
     }
+    return `<span style="font-size: ${Math.max(10, size - 4)}px; margin-right: 4px;">⚽</span>`;
 }
 
 // 8. 득점/도움 순위판 렌더링
@@ -725,6 +914,8 @@ function renderAclStats() {
     const goalsBody = document.getElementById('aclGoalsBody');
     const assistsBody = document.getElementById('aclAssistsBody');
     if (!goalsBody || !assistsBody) return;
+
+    const playerTeamId = getActiveAclUserTeamId();
 
     if (aclState.stats && aclState.stats.scorers) {
         aclState.stats.scorers.sort((a, b) => b.goals - a.goals);
@@ -738,8 +929,8 @@ function renderAclStats() {
         goalsBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #64748b; padding: 12px; font-size: 0.8rem;">득점 기록이 없습니다.</td></tr>`;
     } else {
         aclState.stats.scorers.slice(0, 5).forEach((p, idx) => {
-            const isJeonbuk = p.teamId === 'jeonbuk';
-            const rowStyle = isJeonbuk ? 'style="background: rgba(0, 255, 135, 0.08); font-weight: bold; color: #ffd700;"' : '';
+            const isPlayer = p.teamId === playerTeamId;
+            const rowStyle = isPlayer ? 'style="background: rgba(0, 255, 135, 0.08); font-weight: bold; color: #ffd700;"' : '';
             goalsBody.innerHTML += `
                 <tr ${rowStyle} style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
                     <td style="padding: 6px; text-align: center;">${idx + 1}</td>
@@ -756,8 +947,8 @@ function renderAclStats() {
         assistsBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #64748b; padding: 12px; font-size: 0.8rem;">도움 기록이 없습니다.</td></tr>`;
     } else {
         aclState.stats.assisters.slice(0, 5).forEach((p, idx) => {
-            const isJeonbuk = p.teamId === 'jeonbuk';
-            const rowStyle = isJeonbuk ? 'style="background: rgba(0, 255, 135, 0.08); font-weight: bold; color: #00ff87;"' : '';
+            const isPlayer = p.teamId === playerTeamId;
+            const rowStyle = isPlayer ? 'style="background: rgba(0, 255, 135, 0.08); font-weight: bold; color: #00ff87;"' : '';
             assistsBody.innerHTML += `
                 <tr ${rowStyle} style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
                     <td style="padding: 6px; text-align: center;">${idx + 1}</td>
@@ -770,17 +961,21 @@ function renderAclStats() {
     }
 }
 
-// 9. 아챔 경기 시뮬레이터 (15초 라이브 텍스트 중계)
+// 9. 챔피언스리그 경기 시뮬레이터 (15초 라이브 텍스트 중계)
 function startAclMatchSimulation() {
+    const tournamentName = getActiveAclTournamentName();
+    const playerTeamId = getActiveAclUserTeamId();
+    const playerTeamName = getActiveAclUserTeamName();
+
     if (aclState.isFinished) {
-        alert("이미 이번 시즌 AFC 챔피언스리그가 종료되었습니다.");
+        alert(`이미 이번 시즌 ${tournamentName}가 종료되었습니다.`);
         return;
     }
 
     const curRound = aclState.round;
     const matches = aclState.bracket[curRound];
     
-    const playerMatch = matches.find(m => (m.team1 && m.team1.id === 'jeonbuk') || (m.team2 && m.team2.id === 'jeonbuk'));
+    const playerMatch = matches.find(m => (m.team1 && m.team1.id === playerTeamId) || (m.team2 && m.team2.id === playerTeamId));
     if (!playerMatch) {
         alert("플레이어 매치를 찾을 수 없습니다.");
         return;
@@ -822,8 +1017,8 @@ function startAclMatchSimulation() {
         timeDisplay.classList.add('live-ticking');
     }
 
-    let playerScorerName = "이승우";
-    let playerAssisterName = "송민규";
+    let playerScorerName = (currentLeagueId === 'epl') ? "살라" : "이승우";
+    let playerAssisterName = (currentLeagueId === 'epl') ? "소보슬라이" : "송민규";
     try {
         if (typeof squadFormation !== 'undefined' && squadFormation["ST"] && CARDS_DATABASE[squadFormation["ST"]]) {
             playerScorerName = CARDS_DATABASE[squadFormation["ST"]].name;
@@ -840,25 +1035,27 @@ function startAclMatchSimulation() {
 
     const detailedTactic = getPlayerDetailedTacticBonuses();
     const detailedTacticBonus = detailedTactic.detailedTacticBonus;
-    const isDetailedActive = detailedTacticBonus > 0;
     const suitabilityBonus = detailedTactic.suitabilityBonus;
     const detailedTacticLabel = detailedTactic.detailedTacticLabel;
     const suitabilityLabel = detailedTactic.suitabilityLabel;
 
-    const isHome = playerMatch.team1.id === 'jeonbuk';
+    const isHome = playerMatch.team1.id === playerTeamId;
     const opponent = isHome ? playerMatch.team2 : playerMatch.team1;
 
     const finalOvrs = calculateFinalMatchOvrs('neutral', isHome, opponent.rating, false);
     const playerOvr = finalOvrs.playerOvr;
     const opponentOvr = finalOvrs.opponentOvr;
-    let activeDiff = playerOvr - opponentOvr;
+    const diff = playerOvr - opponentOvr;
     
     const maxProb = 0.80;
     const minProb = 0.20;
     
     const oppFormation = TEAM_FORMATIONS_PRESET[opponent.id] || "4-4-2";
     const compatibilityBonus = getFormationCompatibilityBonus(currentFormation, oppFormation);
-    let activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
+    const playerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (diff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
+    
+    let activeDiff = diff;
+    let activePlayerAttackProb = playerAttackProb;
 
     const commentaryData = {
         playerOvr: playerOvr,
@@ -870,7 +1067,7 @@ function startAclMatchSimulation() {
         activeGk: (squadFormation["GK"] && CARDS_DATABASE[squadFormation["GK"]]) ? CARDS_DATABASE[squadFormation["GK"]].name : "무명 골키퍼",
         detailedTacticLabel: detailedTacticLabel,
         suitabilityLabel: suitabilityLabel,
-        playerAttackProb: activePlayerAttackProb,
+        playerAttackProb: playerAttackProb,
         compatibilityBonus: compatibilityBonus
     };
 
@@ -897,14 +1094,14 @@ function startAclMatchSimulation() {
             if (currentMin === 0) {
                 addCommentary(0, getMatchEventCommentary('KICKOFF', commentaryData, false), 'normal');
             } else if (eventMins.includes(currentMin)) {
-                // 돌발 변수 룰렛
                 const activePlayers = { ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName, GK: commentaryData.activeGk };
                 const specialEvent = rollSpecialMatchEvent(activePlayers, opponent.name);
                 
                 if (specialEvent) {
                     addCommentary(currentMin, specialEvent.eventDesc, 'system');
                     if (specialEvent.type === "pk_player") {
-                        if (specialEvent.isGoal) {
+                        const isGoal = specialEvent.isGoal;
+                        if (isGoal) {
                             playerScoreVal++;
                             const goalData = determineScorerAndAssister(1);
                             addAclPlayerStatRecord(isHome ? playerMatch.team1 : playerMatch.team2, goalData.scorerName, goalData.assisterName);
@@ -913,69 +1110,66 @@ function startAclMatchSimulation() {
                             addCommentary(currentMin, specialEvent.eventFail, 'normal');
                         }
                     } else if (specialEvent.type === "pk_opponent") {
-                        if (specialEvent.isGoal) {
+                        const isGoal = specialEvent.isGoal;
+                        if (isGoal) {
                             opponentScoreVal++;
-                            const oppGoalData = determineOpponentScorerAndAssister(opponent.id);
+                            let oppGoalData = { scorerName: null, assisterName: null };
+                            if (typeof determineOpponentScorerAndAssister === 'function') {
+                                oppGoalData = determineOpponentScorerAndAssister(opponent.id);
+                            }
                             addAclPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, oppGoalData.scorerName, oppGoalData.assisterName);
-                            addCommentary(currentMin, specialEvent.eventGoal, 'goal');
+                            let pkCommentaryText = specialEvent.eventGoal;
+                            if (oppGoalData.scorerName) {
+                                pkCommentaryText = `⚽ <strong>[PK 실점]</strong> 상대 키커 <strong>${oppGoalData.scorerName}</strong>의 강력한 슛이 그대로 그물을 출렁입니다! 골키퍼가 방향을 읽지 못했습니다.`;
+                            }
+                            addCommentary(currentMin, pkCommentaryText, 'normal');
                         } else {
                             addCommentary(currentMin, specialEvent.eventFail, 'normal');
                         }
                     } else if (specialEvent.type === "red_opponent") {
-                        activeDiff += specialEvent.ovrChange; // +5
-                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
+                        activeDiff += specialEvent.ovrChange;
+                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus - (isHardMode ? 0.05 : 0)));
                         addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     } else if (specialEvent.type === "red_player") {
-                        activeDiff += specialEvent.ovrChange; // -5
-                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
+                        activeDiff += specialEvent.ovrChange;
+                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus - (isHardMode ? 0.05 : 0)));
                         addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     }
                 } else {
-                    // 일반 경기 찬스 시뮬레이션
-                    const isPlayerTurn = Math.random() < activePlayerAttackProb;
-                    if (isPlayerTurn) {
-                        const attackOptions = [0, 1, 2];
+                    const isPlayerAttack = Math.random() < activePlayerAttackProb;
+                    if (isPlayerAttack) {
+                        let attackOptions = [0, 1, 2];
                         if (currentFormation === '4-2-3-1') attackOptions.push(5);
-                        const option = attackOptions[Math.floor(Math.random() * attackOptions.length)];
                         
+                        const selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
                         let chancePlayerStat = 75;
-                        if (option === 0) {
+                        
+                        if (selectedOption === 0) {
                             const lwCardId = squadFormation['LW'];
-                            if (lwCardId && CARDS_DATABASE[lwCardId]) {
-                                const card = getAwakenedCard(lwCardId);
-                                chancePlayerStat = getWingerChanceStat('LW', card);
-                            }
-                        } else if (option === 1) {
+                            if (lwCardId && CARDS_DATABASE[lwCardId]) chancePlayerStat = getWingerChanceStat('LW', getAwakenedCard(lwCardId));
+                        } else if (selectedOption === 1) {
                             const stCardId = squadFormation['ST'];
-                            if (stCardId && CARDS_DATABASE[stCardId]) {
-                                const card = getAwakenedCard(stCardId);
-                                chancePlayerStat = getStrikerChanceStat('ST', card, strikerStyles);
-                            }
-                        } else if (option === 2) {
+                            if (stCardId && CARDS_DATABASE[stCardId]) chancePlayerStat = getStrikerChanceStat('ST', getAwakenedCard(stCardId), strikerStyles);
+                        } else if (selectedOption === 2) {
                             const rwCardId = squadFormation['RW'];
-                            if (rwCardId && CARDS_DATABASE[rwCardId]) {
-                                const card = getAwakenedCard(rwCardId);
-                                chancePlayerStat = getWingerChanceStat('RW', card);
-                            }
-                        } else if (option === 5) {
+                            if (rwCardId && CARDS_DATABASE[rwCardId]) chancePlayerStat = getWingerChanceStat('RW', getAwakenedCard(rwCardId));
+                        } else if (selectedOption === 5) {
                             const cmCardId = squadFormation['CM'];
-                            if (cmCardId && CARDS_DATABASE[cmCardId]) {
-                                const card = getAwakenedCard(cmCardId);
-                                chancePlayerStat = card.stats.dri || 75;
-                            }
+                            if (cmCardId && CARDS_DATABASE[cmCardId]) chancePlayerStat = getAwakenedCard(cmCardId).stats.dri || 75;
                         }
                         
                         const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentOvr, formationScoreBoost, suitabilityBonus);
                         const isGoal = Math.random() < scoreProb;
                         
-                        const commDataLocal = { ...commentaryData, ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName };
-                        const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(option, currentFormation, isDetailedActive, commDataLocal, squadFormation, playerDeck, wingerStyles, strikerStyles);
+                        const activePlayers = { ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName };
+                        const isTacticActive = detailedTacticBonus > 0;
+                        const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers, squadFormation, playerDeck, wingerStyles, strikerStyles);
                         
-                        addCommentary(currentMin, eventDesc, 'normal');
+                        addCommentary(currentMin, eventDesc, 'attack');
                         
                         if (isGoal) {
                             playerScoreVal++;
-                            const goalData = determineScorerAndAssister(option);
+                            const goalData = determineScorerAndAssister(selectedOption);
                             addAclPlayerStatRecord(isHome ? playerMatch.team1 : playerMatch.team2, goalData.scorerName, goalData.assisterName);
                             addCommentary(currentMin, eventGoal, 'goal');
                         } else {
@@ -985,222 +1179,260 @@ function startAclMatchSimulation() {
                         let playerGkStat = 70;
                         const gkCardId = squadFormation['GK'];
                         if (gkCardId && CARDS_DATABASE[gkCardId]) {
-                            const card = getAwakenedCard(gkCardId);
-                            playerGkStat = card.stats.def || card.rating || 70;
+                            playerGkStat = getAwakenedCard(gkCardId).stats.def || getAwakenedCard(gkCardId).rating || 70;
                         }
+                        
                         const oppScoreProb = calculateOpponentScoreProb(activeDiff, opponentOvr, playerGkStat);
                         const isGoal = Math.random() < oppScoreProb;
                         
-                        const oppGoalData = determineOpponentScorerAndAssister(opponent.id);
-                        const commDataLocal = { ...commentaryData, opponentScorerName: oppGoalData.scorerName, opponentAssisterName: oppGoalData.assisterName };
-                        
-                        addCommentary(currentMin, getMatchEventCommentary('OPP_ATTACK', commDataLocal, false), 'normal');
+                        addCommentary(currentMin, getMatchEventCommentary('OPP_ATTACK', commentaryData, false), 'attack');
                         
                         if (isGoal) {
                             opponentScoreVal++;
+                            let oppGoalData = { scorerName: null, assisterName: null };
+                            if (typeof determineOpponentScorerAndAssister === 'function') {
+                                oppGoalData = determineOpponentScorerAndAssister(opponent.id);
+                            }
                             addAclPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, oppGoalData.scorerName, oppGoalData.assisterName);
-                            addCommentary(currentMin, getMatchEventCommentary('OPP_GOAL', commDataLocal, false), 'goal');
+                            const goalCommentaryData = { ...commentaryData, opponentScorerName: oppGoalData.scorerName, opponentAssisterName: oppGoalData.assisterName };
+                            addCommentary(currentMin, getMatchEventCommentary('OPP_GOAL', goalCommentaryData, false), 'normal');
                         } else {
-                            addCommentary(currentMin, getMatchEventCommentary('GK_SAVE', commDataLocal, false), 'normal');
+                            addCommentary(currentMin, getMatchEventCommentary('GK_SAVE', commentaryData, false), 'normal');
                         }
                     }
                 }
             } else if (currentMin === 45) {
-                addCommentary('HT', `[하프타임] 전반전이 종료되었습니다. 스코어 ${playerScoreVal}:${opponentScoreVal}. 잠시 휴식 후 후반전이 시작됩니다.`, 'system');
-            } else if (currentMin === 90) {
-                addCommentary(90, `[정규시간 종료] 주심이 시계를 보며 경기 종료 휘슬을 불 준비를 합니다.`, 'normal');
+                commentaryData.playerScoreVal = isHome ? playerScoreVal : opponentScoreVal;
+                commentaryData.opponentScoreVal = isHome ? opponentScoreVal : playerScoreVal;
+                addCommentary('HT', getMatchEventCommentary('HALFTIME', commentaryData, false), 'system');
             }
         });
-        
-        // 점수 실시간 반영
+
+        // 스코어판 갱신
         if (isHome) {
-            document.getElementById('aclHomeScore').textContent = playerScoreVal;
-            document.getElementById('aclAwayScore').textContent = opponentScoreVal;
+            document.getElementById('aclHomeScore').innerText = playerScoreVal;
+            document.getElementById('aclAwayScore').innerText = opponentScoreVal;
         } else {
-            document.getElementById('aclHomeScore').textContent = opponentScoreVal;
-            document.getElementById('aclAwayScore').textContent = playerScoreVal;
+            document.getElementById('aclHomeScore').innerText = opponentScoreVal;
+            document.getElementById('aclAwayScore').innerText = playerScoreVal;
         }
-        
-        // 결과 처리
+
+        commentaryData.playerScoreVal = isHome ? playerScoreVal : opponentScoreVal;
+        commentaryData.opponentScoreVal = isHome ? opponentScoreVal : playerScoreVal;
+        addCommentary('FT', getMatchEventCommentary('FULLTIME', commentaryData, false), 'system');
+
         if (playerScoreVal === opponentScoreVal) {
-            addCommentary('FT', `[종료] 전후반 90분이 종료되었습니다. 스코어 ${playerScoreVal}:${opponentScoreVal}. 승부를 가리기 위한 연장/승부차기로 돌입합니다!`, 'system');
-            simulateAclOvertimeOrPenalties(playerScoreVal, opponentScoreVal, playerMatch, playerScorerName, playerAssisterName, opponent);
+            addCommentary('SYSTEM', "⚖️ 정규 시간 90분 무승부! 토너먼트 규정에 따라 연장전으로 돌입합니다.", "system");
+            runActualAclExtraTime(playerScoreVal, opponentScoreVal, playerMatch, playerOvr, opponent.rating, playerScorerName, playerAssisterName, isHome);
         } else {
-            const score1 = isHome ? playerScoreVal : opponentScoreVal;
-            const score2 = isHome ? opponentScoreVal : playerScoreVal;
-            finalizeAclMatch(score1, score2, playerMatch);
+            finalizeAclMatch(isHome ? playerScoreVal : opponentScoreVal, isHome ? opponentScoreVal : playerScoreVal, playerMatch);
         }
         return;
     }
 
-    const tickInterval = setInterval(() => {
-        if (tickIdx >= matchMinutes.length) {
-            clearInterval(tickInterval);
-            
-            // 동점일 경우 연장전/승부차기 돌입
-            if (playerScoreVal === opponentScoreVal) {
-                addCommentary('FT', `[종료] 전후반 90분이 종료되었습니다. 스코어 ${playerScoreVal}:${opponentScoreVal}. 승부를 가리기 위한 연장/승부차기로 돌입합니다!`, 'system');
-                
-                setTimeout(() => {
-                    simulateAclOvertimeOrPenalties(playerScoreVal, opponentScoreVal, playerMatch, playerScorerName, playerAssisterName, opponent);
-                }, 1000);
-            } else {
-                const score1 = isHome ? playerScoreVal : opponentScoreVal;
-                const score2 = isHome ? opponentScoreVal : playerScoreVal;
-                finalizeAclMatch(score1, score2, playerMatch);
-            }
-            return;
-        }
-
+    // 일반 15초 실시간 중계 모드
+    const matchTimer = setInterval(() => {
         const currentMin = matchMinutes[tickIdx];
         if (timeDisplay) timeDisplay.textContent = `${currentMin}'`;
 
         if (currentMin === 0) {
             addCommentary(0, getMatchEventCommentary('KICKOFF', commentaryData, false), 'normal');
         } else if (eventMins.includes(currentMin)) {
-            // 돌발 변수 룰렛
             const activePlayers = { ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName, GK: commentaryData.activeGk };
             const specialEvent = rollSpecialMatchEvent(activePlayers, opponent.name);
             
             if (specialEvent) {
                 addCommentary(currentMin, specialEvent.eventDesc, 'system');
                 if (specialEvent.type === "pk_player") {
-                    if (specialEvent.isGoal) {
-                        playerScoreVal++;
-                        const goalData = determineScorerAndAssister(1);
-                        addAclPlayerStatRecord(isHome ? playerMatch.team1 : playerMatch.team2, goalData.scorerName, goalData.assisterName);
-                        addCommentary(currentMin, specialEvent.eventGoal, 'goal');
-                    } else {
-                        addCommentary(currentMin, specialEvent.eventFail, 'normal');
-                    }
+                    const isGoal = specialEvent.isGoal;
+                    setTimeout(() => {
+                        if (isGoal) {
+                            playerScoreVal++;
+                            if (isHome) {
+                                document.getElementById('aclHomeScore').innerText = playerScoreVal;
+                            } else {
+                                document.getElementById('aclAwayScore').innerText = playerScoreVal;
+                            }
+                            if (typeof playGoalSound === 'function') {
+                                try { playGoalSound(); } catch (e) {}
+                            }
+                            const goalData = determineScorerAndAssister(1);
+                            addAclPlayerStatRecord(isHome ? playerMatch.team1 : playerMatch.team2, goalData.scorerName, goalData.assisterName);
+                            addCommentary(currentMin, specialEvent.eventGoal, 'goal');
+                        } else {
+                            addCommentary(currentMin, specialEvent.eventFail, 'normal');
+                        }
+                    }, 400);
                 } else if (specialEvent.type === "pk_opponent") {
-                    if (specialEvent.isGoal) {
-                        opponentScoreVal++;
-                        const oppGoalData = determineOpponentScorerAndAssister(opponent.id);
-                        addAclPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, oppGoalData.scorerName, oppGoalData.assisterName);
-                        addCommentary(currentMin, specialEvent.eventGoal, 'goal');
-                    } else {
-                        addCommentary(currentMin, specialEvent.eventFail, 'normal');
-                    }
+                    const isGoal = specialEvent.isGoal;
+                    setTimeout(() => {
+                        if (isGoal) {
+                            opponentScoreVal++;
+                            if (isHome) {
+                                document.getElementById('aclAwayScore').innerText = opponentScoreVal;
+                            } else {
+                                document.getElementById('aclHomeScore').innerText = opponentScoreVal;
+                            }
+                            if (typeof playGoalSound === 'function') {
+                                try { playGoalSound(); } catch (e) {}
+                            }
+                            let oppGoalData = { scorerName: null, assisterName: null };
+                            if (typeof determineOpponentScorerAndAssister === 'function') {
+                                oppGoalData = determineOpponentScorerAndAssister(opponent.id);
+                            }
+                            addAclPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, oppGoalData.scorerName, oppGoalData.assisterName);
+                            let pkCommentaryText = specialEvent.eventGoal;
+                            if (oppGoalData.scorerName) {
+                                pkCommentaryText = `⚽ <strong>[PK 실점]</strong> 상대 키커 <strong>${oppGoalData.scorerName}</strong>의 강력한 슛이 그대로 그물을 출렁입니다! 골키퍼가 방향을 읽지 못했습니다.`;
+                            }
+                            addCommentary(currentMin, pkCommentaryText, 'normal');
+                        } else {
+                            addCommentary(currentMin, specialEvent.eventFail, 'normal');
+                        }
+                    }, 400);
                 } else if (specialEvent.type === "red_opponent") {
-                    activeDiff += specialEvent.ovrChange; // +5
-                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
-                    addCommentary(currentMin, specialEvent.eventFail, 'normal');
+                    activeDiff += specialEvent.ovrChange;
+                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus - (isHardMode ? 0.05 : 0)));
+                    setTimeout(() => {
+                        addCommentary(currentMin, specialEvent.eventFail, 'normal');
+                    }, 400);
                 } else if (specialEvent.type === "red_player") {
-                    activeDiff += specialEvent.ovrChange; // -5
-                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
-                    addCommentary(currentMin, specialEvent.eventFail, 'normal');
+                    activeDiff += specialEvent.ovrChange;
+                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus - (isHardMode ? 0.05 : 0)));
+                    setTimeout(() => {
+                        addCommentary(currentMin, specialEvent.eventFail, 'normal');
+                    }, 400);
                 }
             } else {
-                // 일반 경기 찬스 시뮬레이션
-                const isPlayerTurn = Math.random() < activePlayerAttackProb;
-                if (isPlayerTurn) {
-                    const attackOptions = [0, 1, 2];
+                const isPlayerAttack = Math.random() < activePlayerAttackProb;
+                
+                if (isPlayerAttack) {
+                    let attackOptions = [0, 1, 2];
                     if (currentFormation === '4-2-3-1') attackOptions.push(5);
-                    const option = attackOptions[Math.floor(Math.random() * attackOptions.length)];
                     
+                    const selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
                     let chancePlayerStat = 75;
-                    if (option === 0) {
+                    
+                    if (selectedOption === 0) {
                         const lwCardId = squadFormation['LW'];
-                        if (lwCardId && CARDS_DATABASE[lwCardId]) {
-                            const card = getAwakenedCard(lwCardId);
-                            chancePlayerStat = getWingerChanceStat('LW', card);
-                        }
-                    } else if (option === 1) {
+                        if (lwCardId && CARDS_DATABASE[lwCardId]) chancePlayerStat = getWingerChanceStat('LW', getAwakenedCard(lwCardId));
+                    } else if (selectedOption === 1) {
                         const stCardId = squadFormation['ST'];
-                        if (stCardId && CARDS_DATABASE[stCardId]) {
-                            const card = getAwakenedCard(stCardId);
-                            chancePlayerStat = getStrikerChanceStat('ST', card, strikerStyles);
-                        }
-                    } else if (option === 2) {
+                        if (stCardId && CARDS_DATABASE[stCardId]) chancePlayerStat = getStrikerChanceStat('ST', getAwakenedCard(stCardId), strikerStyles);
+                    } else if (selectedOption === 2) {
                         const rwCardId = squadFormation['RW'];
-                        if (rwCardId && CARDS_DATABASE[rwCardId]) {
-                            const card = getAwakenedCard(rwCardId);
-                            chancePlayerStat = getWingerChanceStat('RW', card);
-                        }
-                    } else if (option === 5) {
+                        if (rwCardId && CARDS_DATABASE[rwCardId]) chancePlayerStat = getWingerChanceStat('RW', getAwakenedCard(rwCardId));
+                    } else if (selectedOption === 5) {
                         const cmCardId = squadFormation['CM'];
-                        if (cmCardId && CARDS_DATABASE[cmCardId]) {
-                            const card = getAwakenedCard(cmCardId);
-                            chancePlayerStat = card.stats.dri || 75;
-                        }
+                        if (cmCardId && CARDS_DATABASE[cmCardId]) chancePlayerStat = getAwakenedCard(cmCardId).stats.dri || 75;
                     }
                     
                     const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentOvr, formationScoreBoost, suitabilityBonus);
                     const isGoal = Math.random() < scoreProb;
                     
-                    const commDataLocal = { ...commentaryData, ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName };
-                    const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(option, currentFormation, isDetailedActive, commDataLocal, squadFormation, playerDeck, wingerStyles, strikerStyles);
+                    const activePlayers = { ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName };
+                    const isTacticActive = detailedTacticBonus > 0;
+                    const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers, squadFormation, playerDeck, wingerStyles, strikerStyles);
                     
-                    addCommentary(currentMin, eventDesc, 'normal');
+                    addCommentary(currentMin, eventDesc, 'attack');
                     
                     if (isGoal) {
                         playerScoreVal++;
-                        const goalData = determineScorerAndAssister(option);
+                        if (isHome) {
+                            document.getElementById('aclHomeScore').innerText = playerScoreVal;
+                        } else {
+                            document.getElementById('aclAwayScore').innerText = playerScoreVal;
+                        }
+                        if (typeof playGoalSound === 'function') {
+                            try { playGoalSound(); } catch (e) {}
+                        }
+                        const goalData = determineScorerAndAssister(selectedOption);
                         addAclPlayerStatRecord(isHome ? playerMatch.team1 : playerMatch.team2, goalData.scorerName, goalData.assisterName);
                         
                         setTimeout(() => {
                             addCommentary(currentMin, eventGoal, 'goal');
-                        }, 200);
+                        }, 400);
                     } else {
-                        addCommentary(currentMin, eventFail, 'normal');
+                        setTimeout(() => {
+                            addCommentary(currentMin, eventFail, 'normal');
+                        }, 400);
                     }
                 } else {
                     let playerGkStat = 70;
                     const gkCardId = squadFormation['GK'];
                     if (gkCardId && CARDS_DATABASE[gkCardId]) {
-                        const card = getAwakenedCard(gkCardId);
-                        playerGkStat = card.stats.def || card.rating || 70;
+                        playerGkStat = getAwakenedCard(gkCardId).stats.def || getAwakenedCard(gkCardId).rating || 70;
                     }
+                    
                     const oppScoreProb = calculateOpponentScoreProb(activeDiff, opponentOvr, playerGkStat);
                     const isGoal = Math.random() < oppScoreProb;
                     
-                    const oppGoalData = determineOpponentScorerAndAssister(opponent.id);
-                    const commDataLocal = { ...commentaryData, opponentScorerName: oppGoalData.scorerName, opponentAssisterName: oppGoalData.assisterName };
-                    
-                    addCommentary(currentMin, getMatchEventCommentary('OPP_ATTACK', commDataLocal, false), 'normal');
+                    addCommentary(currentMin, getMatchEventCommentary('OPP_ATTACK', commentaryData, false), 'attack');
                     
                     if (isGoal) {
                         opponentScoreVal++;
+                        if (isHome) {
+                            document.getElementById('aclAwayScore').innerText = opponentScoreVal;
+                        } else {
+                            document.getElementById('aclHomeScore').innerText = opponentScoreVal;
+                        }
+                        if (typeof playGoalSound === 'function') {
+                            try { playGoalSound(); } catch (e) {}
+                        }
+                        let oppGoalData = { scorerName: null, assisterName: null };
+                        if (typeof determineOpponentScorerAndAssister === 'function') {
+                            oppGoalData = determineOpponentScorerAndAssister(opponent.id);
+                        }
                         addAclPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, oppGoalData.scorerName, oppGoalData.assisterName);
                         
                         setTimeout(() => {
-                            addCommentary(currentMin, getMatchEventCommentary('OPP_GOAL', commDataLocal, false), 'goal');
-                        }, 200);
+                            const goalCommentaryData = { ...commentaryData, opponentScorerName: oppGoalData.scorerName, opponentAssisterName: oppGoalData.assisterName };
+                            addCommentary(currentMin, getMatchEventCommentary('OPP_GOAL', goalCommentaryData, false), 'normal');
+                        }, 400);
                     } else {
                         setTimeout(() => {
-                            addCommentary(currentMin, getMatchEventCommentary('GK_SAVE', commDataLocal, false), 'normal');
-                        }, 200);
+                            addCommentary(currentMin, getMatchEventCommentary('GK_SAVE', commentaryData, false), 'normal');
+                        }, 400);
                     }
                 }
             }
-            
-            if (isHome) {
-                document.getElementById('aclHomeScore').textContent = playerScoreVal;
-                document.getElementById('aclAwayScore').textContent = opponentScoreVal;
-            } else {
-                document.getElementById('aclHomeScore').textContent = opponentScoreVal;
-                document.getElementById('aclAwayScore').textContent = playerScoreVal;
-            }
         } else if (currentMin === 45) {
-            addCommentary('HT', `[하프타임] 전반전이 종료되었습니다. 스코어 ${playerScoreVal}:${opponentScoreVal}. 잠시 휴식 후 후반전이 시작됩니다.`, 'system');
-        } else if (currentMin === 90) {
-            addCommentary(90, `[정규시간 종료] 주심이 시계를 보며 경기 종료 휘슬을 불 준비를 합니다.`, 'normal');
+            commentaryData.playerScoreVal = isHome ? playerScoreVal : opponentScoreVal;
+            commentaryData.opponentScoreVal = isHome ? opponentScoreVal : playerScoreVal;
+            addCommentary('HT', getMatchEventCommentary('HALFTIME', commentaryData, false), 'system');
         }
 
         tickIdx++;
+
+        if (tickIdx >= matchMinutes.length) {
+            clearInterval(matchTimer);
+            
+            commentaryData.playerScoreVal = isHome ? playerScoreVal : opponentScoreVal;
+            commentaryData.opponentScoreVal = isHome ? opponentScoreVal : playerScoreVal;
+            addCommentary('FT', getMatchEventCommentary('FULLTIME', commentaryData, false), 'system');
+
+            if (playerScoreVal === opponentScoreVal) {
+                addCommentary('SYSTEM', "⚖️ 정규 시간 90분 무승부! 토너먼트 규정에 따라 연장전으로 돌입합니다.", "system");
+                setTimeout(() => {
+                    runActualAclExtraTime(playerScoreVal, opponentScoreVal, playerMatch, playerOvr, opponent.rating, playerScorerName, playerAssisterName, isHome);
+                }, 1500);
+            } else {
+                finalizeAclMatch(isHome ? playerScoreVal : opponentScoreVal, isHome ? opponentScoreVal : playerScoreVal, playerMatch);
+            }
+        }
     }, 1200);
 }
 
-function simulateAclOvertimeOrPenalties(score1, score2, playerMatch, playerScorerName, playerAssisterName, opponent) {
-    const isHome = playerMatch.team1.id === 'jeonbuk';
+// 연장전 실제 경기 루틴 (공통 엔진 연동)
+function runActualAclExtraTime(score1, score2, playerMatch, playerOvr, opponentOvr, playerScorerName, playerAssisterName, isHome) {
     const timeDisplay = document.getElementById('aclSbTimeDisplay');
+    const commBox = document.getElementById('aclCommentaryScroll');
+    const playerTeamName = getActiveAclUserTeamName();
     
     const addCommentary = (min, text, type = 'normal') => {
-        const commBox = document.getElementById('aclCommentaryScroll');
         const item = document.createElement('div');
         item.className = `comm-item comm-${type}`;
-        const timestamp = min === 'SYSTEM' || min === 'FT' || min === 'HT' || min === '종료' || min === 'PK' || String(min).startsWith('PK') ? '' : `<strong style="color:#00ff87; margin-right: 6px;">${min}</strong>`;
+        const timestamp = min === 'SYSTEM' || min === 'FT' || min === 'HT' || min === '종료' || min === 'PK' || String(min).startsWith('PK') ? '' : `<strong style="color:#00ff87; margin-right: 6px;">${min}'</strong>`;
         item.innerHTML = `${timestamp}${text}`;
         if (commBox) {
             commBox.appendChild(item);
@@ -1208,135 +1440,192 @@ function simulateAclOvertimeOrPenalties(score1, score2, playerMatch, playerScore
         }
     };
 
+    let attackOptions = [0, 1, 2];
+    if (typeof currentFormation !== 'undefined' && currentFormation === '4-2-3-1') attackOptions.push(5);
+    const selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
+    const etGoalData = determineScorerAndAssister(selectedOption);
+    const activeScorerName = etGoalData.scorerName;
+    const activeAssisterName = etGoalData.assisterName;
+
     const etData = {
-        team1Name: playerMatch.team1.name,
-        team2Name: playerMatch.team2.name,
-        rating1: playerMatch.team1.rating,
-        rating2: playerMatch.team2.rating,
+        team1Name: isHome ? playerTeamName : playerMatch.team1.name,
+        team2Name: isHome ? playerMatch.team2.name : playerTeamName,
+        rating1: isHome ? playerOvr : playerMatch.team1.rating,
+        rating2: isHome ? playerMatch.team2.rating : playerOvr,
         score1: isHome ? score1 : score2,
         score2: isHome ? score2 : score1,
-        playerScorerName: playerScorerName,
-        playerAssisterName: playerAssisterName,
+        playerScorerName: activeScorerName,
+        playerAssisterName: activeAssisterName,
         isTeam1Jeonbuk: isHome,
-        opponentTeamId: opponent.id
+        opponentTeamId: isHome ? playerMatch.team2.id : playerMatch.team1.id
     };
 
     const etResult = simulateExtraTimeEngine(etData);
-
-    const runActualAclPenaltyShootout = (etScore1, etScore2) => {
-        if (timeDisplay) {
-            timeDisplay.textContent = "PK";
-            timeDisplay.classList.remove('live-ticking');
-        }
-        
-        const pkData = {
-            team1Name: playerMatch.team1.name,
-            team2Name: playerMatch.team2.name,
-            rating1: playerMatch.team1.rating,
-            rating2: playerMatch.team2.rating,
-            isTeam1Jeonbuk: isHome
-        };
-        
-        const pkResult = simulatePenaltyShootoutEngine(pkData);
-        if (isDeveloperMode) {
-            pkResult.events.forEach(ev => {
-                addCommentary(ev.round === 0 ? 'PK' : `PK ${ev.round}`, ev.text, ev.success ? "goal" : "normal");
-                
-                // 점수 실시간 반영
-                document.getElementById('aclHomeScore').textContent = `${etScore1} (${ev.score1})`;
-                document.getElementById('aclAwayScore').textContent = `${etScore2} (${ev.score2})`;
-            });
-            
-            finalizeAclMatch(etScore1, etScore2, playerMatch, pkResult.pkScore1, pkResult.pkScore2);
-            return;
-        }
-        
-        let pkIdx = 0;
-        const pkTimer = setInterval(() => {
-            if (pkIdx < pkResult.events.length) {
-                const ev = pkResult.events[pkIdx];
-                addCommentary(ev.round === 0 ? 'PK' : `PK ${ev.round}`, ev.text, ev.success ? "goal" : "normal");
-                
-                if (ev.success && typeof playGoalSound === 'function') {
-                    try { playGoalSound(); } catch (e) {}
-                }
-                
-                // 점수 실시간 반영
-                document.getElementById('aclHomeScore').textContent = `${etScore1} (${ev.score1})`;
-                document.getElementById('aclAwayScore').textContent = `${etScore2} (${ev.score2})`;
-                
-                pkIdx++;
-            } else {
-                clearInterval(pkTimer);
-                finalizeAclMatch(etScore1, etScore2, playerMatch, pkResult.pkScore1, pkResult.pkScore2);
-            }
-        }, 1200);
-    };
-
+    
     if (isDeveloperMode) {
         if (timeDisplay) {
-            timeDisplay.textContent = "종료";
+            timeDisplay.innerText = "종료";
             timeDisplay.classList.remove('live-ticking');
         }
         
         etResult.events.forEach(ev => {
-            if (ev.type === 'goal') {
-                document.getElementById('aclHomeScore').textContent = ev.score1;
-                document.getElementById('aclAwayScore').textContent = ev.score2;
-                
-                const isGoalByPlayer = (ev.side === 'team1' && isHome) || (ev.side === 'team2' && !isHome);
-                if (isGoalByPlayer) {
-                    addAclPlayerStatRecord(isHome ? playerMatch.team1 : playerMatch.team2, playerScorerName, playerAssisterName);
-                } else {
-                    addAclPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, ev.scorerName, ev.assisterName);
-                }
-            }
-            addCommentary(ev.min, ev.text, ev.type === 'goal' ? 'goal' : (ev.type === 'system' ? 'system' : 'normal'));
+            addCommentary(ev.min, ev.text, ev.type);
         });
 
-        if (etResult.score1 === etResult.score2) {
-            addCommentary('SYSTEM', "⚖️ 연장 120분 혈투 끝에도 승부가 나지 않았습니다! 최후의 승부차기로 돌입합니다.", "system");
-            runActualAclPenaltyShootout(etResult.score1, etResult.score2);
+        const finalScore1 = isHome ? etResult.finalScore1 : etResult.finalScore2;
+        const finalScore2 = isHome ? etResult.finalScore2 : etResult.finalScore1;
+        document.getElementById('aclHomeScore').innerText = finalScore1;
+        document.getElementById('aclAwayScore').innerText = finalScore2;
+
+        if (etResult.hasGoal) {
+            if (isHome) {
+                if (etResult.finalScore1 > score1) {
+                    addAclPlayerStatRecord(playerMatch.team1, activeScorerName, activeAssisterName);
+                }
+                if (etResult.finalScore2 > score2) {
+                    const oppGoalData = determineOpponentScorerAndAssister(playerMatch.team2.id);
+                    addAclPlayerStatRecord(playerMatch.team2, oppGoalData.scorerName, oppGoalData.assisterName);
+                }
+            } else {
+                if (etResult.finalScore2 > score2) {
+                    addAclPlayerStatRecord(playerMatch.team2, activeScorerName, activeAssisterName);
+                }
+                if (etResult.finalScore1 > score1) {
+                    const oppGoalData = determineOpponentScorerAndAssister(playerMatch.team1.id);
+                    addAclPlayerStatRecord(playerMatch.team1, oppGoalData.scorerName, oppGoalData.assisterName);
+                }
+            }
+        }
+
+        if (finalScore1 === finalScore2) {
+            addCommentary('SYSTEM', "⚖️ 120분 혈투 끝 무승부! 승부차기로 돌입합니다.", "system");
+            runActualAclPenaltyShootout(finalScore1, finalScore2, playerMatch, isHome, isHome ? playerMatch.team2 : playerMatch.team1);
         } else {
-            finalizeAclMatch(etResult.score1, etResult.score2, playerMatch);
+            finalizeAclMatch(finalScore1, finalScore2, playerMatch);
         }
         return;
     }
 
-    let etTick = 0;
+    let etIdx = 0;
     const etTimer = setInterval(() => {
-        if (etTick < etResult.events.length) {
-            const ev = etResult.events[etTick];
-            if (timeDisplay) timeDisplay.textContent = ev.min;
-            
-            if (ev.type === 'goal') {
-                if (typeof playGoalSound === 'function') {
-                    try { playGoalSound(); } catch (e) {}
-                }
-                document.getElementById('aclHomeScore').textContent = ev.score1;
-                document.getElementById('aclAwayScore').textContent = ev.score2;
-                
-                const isGoalByPlayer = (ev.side === 'team1' && isHome) || (ev.side === 'team2' && !isHome);
-                if (isGoalByPlayer) {
-                    addAclPlayerStatRecord(isHome ? playerMatch.team1 : playerMatch.team2, playerScorerName, playerAssisterName);
-                } else {
-                    addAclPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, ev.scorerName, ev.assisterName);
-                }
-            }
-            
-            addCommentary(ev.min, ev.text, ev.type === 'goal' ? 'goal' : (ev.type === 'system' ? 'system' : 'normal'));
-            etTick++;
-        } else {
+        const ev = etResult.events[etIdx];
+        if (ev) {
+            addCommentary(ev.min, ev.text, ev.type);
+            if (timeDisplay) timeDisplay.innerText = ev.min;
+        }
+
+        etIdx++;
+
+        if (etIdx >= etResult.events.length) {
             clearInterval(etTimer);
             
-            if (etResult.score1 === etResult.score2) {
-                addCommentary('SYSTEM', "⚖️ 연장 120분 혈투 끝에도 승부가 나지 않았습니다! 최후의 승부차기로 돌입합니다.", "system");
-                setTimeout(() => {
-                    runActualAclPenaltyShootout(etResult.score1, etResult.score2);
-                }, 1200);
-            } else {
-                finalizeAclMatch(etResult.score1, etResult.score2, playerMatch);
+            const finalScore1 = isHome ? etResult.finalScore1 : etResult.finalScore2;
+            const finalScore2 = isHome ? etResult.finalScore2 : etResult.finalScore1;
+            document.getElementById('aclHomeScore').innerText = finalScore1;
+            document.getElementById('aclAwayScore').innerText = finalScore2;
+
+            if (etResult.hasGoal) {
+                if (isHome) {
+                    if (etResult.finalScore1 > score1) {
+                        addAclPlayerStatRecord(playerMatch.team1, activeScorerName, activeAssisterName);
+                    }
+                    if (etResult.finalScore2 > score2) {
+                        const oppGoalData = determineOpponentScorerAndAssister(playerMatch.team2.id);
+                        addAclPlayerStatRecord(playerMatch.team2, oppGoalData.scorerName, oppGoalData.assisterName);
+                    }
+                } else {
+                    if (etResult.finalScore2 > score2) {
+                        addAclPlayerStatRecord(playerMatch.team2, activeScorerName, activeAssisterName);
+                    }
+                    if (etResult.finalScore1 > score1) {
+                        const oppGoalData = determineOpponentScorerAndAssister(playerMatch.team1.id);
+                        addAclPlayerStatRecord(playerMatch.team1, oppGoalData.scorerName, oppGoalData.assisterName);
+                    }
+                }
             }
+
+            if (finalScore1 === finalScore2) {
+                addCommentary('SYSTEM', "⚖️ 120분 혈투 끝 무승부! 승부차기로 돌입합니다.", "system");
+                setTimeout(() => {
+                    runActualAclPenaltyShootout(finalScore1, finalScore2, playerMatch, isHome, isHome ? playerMatch.team2 : playerMatch.team1);
+                }, 1500);
+            } else {
+                finalizeAclMatch(finalScore1, finalScore2, playerMatch);
+            }
+        }
+    }, 1200);
+}
+
+// 승부차기 실제 경기 루틴 (공통 엔진 연동)
+function runActualAclPenaltyShootout(etScore1, etScore2, playerMatch, isHome, opponent) {
+    const timeDisplay = document.getElementById('aclSbTimeDisplay');
+    const commBox = document.getElementById('aclCommentaryScroll');
+    const playerTeamName = getActiveAclUserTeamName();
+    
+    const addCommentary = (min, text, type = 'normal') => {
+        const item = document.createElement('div');
+        item.className = `comm-item comm-${type}`;
+        const timestamp = min === 'SYSTEM' || min === 'FT' || min === 'HT' || min === '종료' || min === 'PK' || String(min).startsWith('PK') ? '' : `<strong style="color:#00ff87; margin-right: 6px;">${min}'</strong>`;
+        item.innerHTML = `${timestamp}${text}`;
+        if (commBox) {
+            commBox.appendChild(item);
+            commBox.scrollTop = commBox.scrollHeight;
+        }
+    };
+
+    const pkData = {
+        team1Name: isHome ? playerTeamName : opponent.name,
+        team2Name: isHome ? opponent.name : playerTeamName,
+        isTeam1Jeonbuk: isHome,
+        opponentTeamId: opponent.id
+    };
+
+    const pkResult = (typeof simulatePenaltyShootoutEngine === 'function') 
+        ? simulatePenaltyShootoutEngine(pkData)
+        : simulateActualAclPenaltyShootout(isHome, opponent.name);
+
+    if (isDeveloperMode) {
+        if (timeDisplay) {
+            timeDisplay.innerText = "종료";
+            timeDisplay.classList.remove('live-ticking');
+        }
+        
+        pkResult.events.forEach(ev => {
+            addCommentary(ev.round === 0 ? 'PK' : `PK ${ev.round}`, ev.text, ev.success ? "goal" : "normal");
+        });
+
+        const pkScore1 = isHome ? pkResult.pkScore1 : pkResult.pkScore2;
+        const pkScore2 = isHome ? pkResult.pkScore2 : pkResult.pkScore1;
+        document.getElementById('aclHomeScore').innerText = `${etScore1} (${pkScore1})`;
+        document.getElementById('aclAwayScore').innerText = `${etScore2} (${pkScore2})`;
+
+        finalizeAclMatch(etScore1, etScore2, playerMatch, pkScore1, pkScore2);
+        return;
+    }
+
+    let pkIdx = 0;
+    const pkTimer = setInterval(() => {
+        const ev = pkResult.events[pkIdx];
+        if (ev) {
+            addCommentary(ev.round === 0 ? 'PK' : `PK ${ev.round}`, ev.text, ev.success ? "goal" : "normal");
+            if (ev.success && typeof playGoalSound === 'function') {
+                try { playGoalSound(); } catch (e) {}
+            }
+            if (timeDisplay) timeDisplay.innerText = "PK";
+            
+            const curPk1 = isHome ? ev.score1 : ev.score2;
+            const curPk2 = isHome ? ev.score2 : ev.score1;
+            document.getElementById('aclHomeScore').innerText = `${etScore1} (${curPk1})`;
+            document.getElementById('aclAwayScore').innerText = `${etScore2} (${curPk2})`;
+        }
+
+        pkIdx++;
+
+        if (pkIdx >= pkResult.events.length) {
+            clearInterval(pkTimer);
+            const pkScore1 = isHome ? pkResult.pkScore1 : pkResult.pkScore2;
+            const pkScore2 = isHome ? pkResult.pkScore2 : pkResult.pkScore1;
+            finalizeAclMatch(etScore1, etScore2, playerMatch, pkScore1, pkScore2);
         }
     }, 1200);
 }
@@ -1345,8 +1634,9 @@ function simulateAclOvertimeOrPenalties(score1, score2, playerMatch, playerScore
 function addAclPlayerStatRecord(team, scorerName, assisterName) {
     if (!team) return;
     
-    const isPlayer = team.id === 'jeonbuk';
-    const sName = scorerName ? scorerName : (isPlayer ? "무명 선수" : `${team.name} 에이스`);
+    const playerTeamId = getActiveAclUserTeamId();
+    const isPlayer = team.id === playerTeamId;
+    const sName = scorerName ? scorerName : (isPlayer ? "에이스 선수" : `${team.name} 에이스`);
     const existScorer = aclState.stats.scorers.find(s => s.name === sName && s.teamId === team.id);
     if (existScorer) {
         existScorer.goals += 1;
@@ -1355,7 +1645,6 @@ function addAclPlayerStatRecord(team, scorerName, assisterName) {
     }
 
     if (isPlayer && scorerName) {
-        // 통산 누적 득점 기록에 연동
         let scorerId = null;
         if (typeof CARDS_DATABASE !== 'undefined') {
             scorerId = Object.keys(CARDS_DATABASE).find(key => CARDS_DATABASE[key].name === scorerName);
@@ -1400,6 +1689,10 @@ function finalizeAclMatch(score1, score2, playerMatch, pkScore1 = undefined, pkS
     const timeDisplay = document.getElementById('aclSbTimeDisplay');
     if (timeDisplay) timeDisplay.classList.remove('live-ticking');
 
+    const playerTeamId = getActiveAclUserTeamId();
+    const playerTeamName = getActiveAclUserTeamName();
+    const tournamentName = getActiveAclTournamentName();
+
     playerMatch.score1 = score1;
     playerMatch.score2 = score2;
     playerMatch.pkScore1 = pkScore1;
@@ -1413,8 +1706,8 @@ function finalizeAclMatch(score1, score2, playerMatch, pkScore1 = undefined, pkS
     
     playerMatch.status = 'completed';
 
-    const isPlayerWinner = (playerMatch.winner === 'team1' && playerMatch.team1.id === 'jeonbuk') ||
-                          (playerMatch.winner === 'team2' && playerMatch.team2.id === 'jeonbuk');
+    const isPlayerWinner = (playerMatch.winner === 'team1' && playerMatch.team1.id === playerTeamId) ||
+                          (playerMatch.winner === 'team2' && playerMatch.team2.id === playerTeamId);
 
     const btn = document.getElementById('btnStartAclMatch');
     const commBox = document.getElementById('aclCommentaryScroll');
@@ -1438,8 +1731,8 @@ function finalizeAclMatch(score1, score2, playerMatch, pkScore1 = undefined, pkS
         let scoreDisplayStr = `${score1} : ${score2}`;
         if (pkScore1 !== undefined) scoreDisplayStr += ` (PK ${pkScore1} : ${pkScore2})`;
         
-        addCommentary("종료", `[승리] 최종 스코어 ${scoreDisplayStr}로 전북 현대가 아챔 다음 라운드로 진출합니다!`, "goal");
-        showToast(`승리했습니다! 아챔 다음 라운드에 진출합니다.`);
+        addCommentary("종료", `[승리] 최종 스코어 ${scoreDisplayStr}로 ${playerTeamName}이 ${tournamentName} 다음 라운드로 진출합니다!`, "goal");
+        showToast(`승리했습니다! ${tournamentName} 다음 라운드에 진출합니다.`);
 
         if (btn) {
             btn.innerHTML = `<i class="fa-solid fa-forward" style="margin-right: 8px;"></i>다음 라운드 대진표 갱신`;
@@ -1452,9 +1745,8 @@ function finalizeAclMatch(score1, score2, playerMatch, pkScore1 = undefined, pkS
         let scoreDisplayStr = `${score1} : ${score2}`;
         if (pkScore1 !== undefined) scoreDisplayStr += ` (PK ${pkScore1} : ${pkScore2})`;
 
-        addCommentary("종료", `[패배] 최종 스코어 ${scoreDisplayStr}로 전북 현대의 아챔 도전이 여기서 마감됩니다.`, "system");
+        addCommentary("종료", `[패배] 최종 스코어 ${scoreDisplayStr}로 ${playerTeamName}의 ${tournamentName} 도전이 여기서 마감됩니다.`, "system");
         
-        // 탈락 보상 확인 (8강 또는 4강 탈락 시 10 FP, 결승전 탈락 시는 결승전 승패 분기에서 처리)
         let rewardPoints = 0;
         let rewardText = "";
         
@@ -1477,7 +1769,6 @@ function finalizeAclMatch(score1, score2, playerMatch, pkScore1 = undefined, pkS
             showToast(`패배하여 탈락했습니다. (16강 탈락은 보상이 없습니다)`);
         }
         
-        // AI 시뮬레이션 처리
         simulateRemainingAclRounds();
         
         if (btn) {
@@ -1497,6 +1788,9 @@ function finalizeAclMatch(score1, score2, playerMatch, pkScore1 = undefined, pkS
 // 라운드 진출 대진표 업데이트
 function advanceAclRound() {
     const curRound = aclState.round;
+    const isEpl = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl');
+    const playerTeamId = getActiveAclUserTeamId();
+    const tournamentName = getActiveAclTournamentName();
 
     simulateAclAiMatches(curRound);
 
@@ -1504,41 +1798,54 @@ function advanceAclRound() {
         const matches16 = aclState.bracket[16];
         const matches8 = aclState.bracket[8];
         
-        // 동아시아 8강 대진 (16_0 vs 16_1, 16_2 vs 16_3)
-        for (let i = 0; i < 2; i++) {
-            const m1 = matches16[i * 2];
-            const m2 = matches16[i * 2 + 1];
-            
-            matches8[i].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
-            matches8[i].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
-            matches8[i].status = "scheduled";
-        }
-        
-        // 서아시아 8강 대진 (16_4 vs 16_5, 16_6 vs 16_7)
-        for (let i = 2; i < 4; i++) {
-            const m1 = matches16[i * 2];
-            const m2 = matches16[i * 2 + 1];
-            
-            matches8[i].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
-            matches8[i].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
-            matches8[i].status = "scheduled";
+        if (isEpl) {
+            for (let i = 0; i < 4; i++) {
+                const m1 = matches16[i * 2];
+                const m2 = matches16[i * 2 + 1];
+                matches8[i].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
+                matches8[i].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
+                matches8[i].status = "scheduled";
+            }
+        } else {
+            // 동아시아 8강 대진 (16_0 vs 16_1, 16_2 vs 16_3)
+            for (let i = 0; i < 2; i++) {
+                const m1 = matches16[i * 2];
+                const m2 = matches16[i * 2 + 1];
+                matches8[i].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
+                matches8[i].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
+                matches8[i].status = "scheduled";
+            }
+            // 서아시아 8강 대진 (16_4 vs 16_5, 16_6 vs 16_7)
+            for (let i = 2; i < 4; i++) {
+                const m1 = matches16[i * 2];
+                const m2 = matches16[i * 2 + 1];
+                matches8[i].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
+                matches8[i].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
+                matches8[i].status = "scheduled";
+            }
         }
         aclState.round = 8;
     } else if (curRound === 8) {
         const matches8 = aclState.bracket[8];
         const matches4 = aclState.bracket[4];
         
-        // 4강 준결승 교차 매칭 (East 1 vs West 1, East 2 vs West 2)
-        // East: matches8[0], matches8[1]
-        // West: matches8[2], matches8[3]
-        matches4[0].team1 = matches8[0].winner === 'team1' ? matches8[0].team1 : matches8[0].team2;
-        matches4[0].team2 = matches8[2].winner === 'team1' ? matches8[2].team1 : matches8[2].team2;
-        matches4[0].status = "scheduled";
-        
-        matches4[1].team1 = matches8[1].winner === 'team1' ? matches8[1].team1 : matches8[1].team2;
-        matches4[1].team2 = matches8[3].winner === 'team1' ? matches8[3].team1 : matches8[3].team2;
-        matches4[1].status = "scheduled";
-        
+        if (isEpl) {
+            for (let i = 0; i < 2; i++) {
+                const m1 = matches8[i * 2];
+                const m2 = matches8[i * 2 + 1];
+                matches4[i].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
+                matches4[i].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
+                matches4[i].status = "scheduled";
+            }
+        } else {
+            matches4[0].team1 = matches8[0].winner === 'team1' ? matches8[0].team1 : matches8[0].team2;
+            matches4[0].team2 = matches8[2].winner === 'team1' ? matches8[2].team1 : matches8[2].team2;
+            matches4[0].status = "scheduled";
+            
+            matches4[1].team1 = matches8[1].winner === 'team1' ? matches8[1].team1 : matches8[1].team2;
+            matches4[1].team2 = matches8[3].winner === 'team1' ? matches8[3].team1 : matches8[3].team2;
+            matches4[1].status = "scheduled";
+        }
         aclState.round = 4;
     } else if (curRound === 4) {
         const matches4 = aclState.bracket[4];
@@ -1559,27 +1866,26 @@ function advanceAclRound() {
         aclState.round = 1;
         aclState.isFinished = true;
 
-        if (champion.id === 'jeonbuk') {
-            userPoints += 20; // 우승 보상 20 FP
+        if (champion.id === playerTeamId) {
+            userPoints += 20;
             try {
                 localStorage.setItem('fc_star_user_points', userPoints.toString());
             } catch(e) {}
             if (typeof renderUserPoints === 'function') renderUserPoints();
             
             setTimeout(() => {
-                showAclWinnerCelebrationModal(20, "아챔 우승!");
+                showAclWinnerCelebrationModal(20, `${tournamentName} 우승!`);
             }, 500);
         } else {
-            // 준우승 보상 지급 (결승전에 올라가서 졌을 때 15 FP)
-            const isHomeJeonbuk = finalMatch.team1 && finalMatch.team1.id === 'jeonbuk';
-            const isAwayJeonbuk = finalMatch.team2 && finalMatch.team2.id === 'jeonbuk';
-            if (isHomeJeonbuk || isAwayJeonbuk) {
-                userPoints += 15; // 준우승 보상 15 FP
+            const isHomePlayer = finalMatch.team1 && finalMatch.team1.id === playerTeamId;
+            const isAwayPlayer = finalMatch.team2 && finalMatch.team2.id === playerTeamId;
+            if (isHomePlayer || isAwayPlayer) {
+                userPoints += 15;
                 try {
                     localStorage.setItem('fc_star_user_points', userPoints.toString());
                 } catch(e) {}
                 if (typeof renderUserPoints === 'function') renderUserPoints();
-                showToast("결승전에서 패배해 준우승에 머물렀습니다. 준우승 보상 15 FP를 획득했습니다!");
+                showToast(`결승전에서 패배해 준우승에 머물렀습니다. 준우승 보상 15 FP를 획득했습니다!`);
             }
         }
     }
@@ -1589,9 +1895,12 @@ function advanceAclRound() {
 
 // AI간 매치 시뮬레이션
 function simulateAclAiMatches(round) {
+    const playerTeamId = getActiveAclUserTeamId();
+    const playersPreset = getActiveAclPlayersPreset();
     const matches = aclState.bracket[round];
+    
     matches.forEach(match => {
-        const isPlayerMatch = (match.team1 && match.team1.id === 'jeonbuk') || (match.team2 && match.team2.id === 'jeonbuk');
+        const isPlayerMatch = (match.team1 && match.team1.id === playerTeamId) || (match.team2 && match.team2.id === playerTeamId);
         if (isPlayerMatch || match.status === 'completed') return;
 
         const rateDiff = (match.team1 ? match.team1.rating : 70) - (match.team2 ? match.team2.rating : 70);
@@ -1613,12 +1922,30 @@ function simulateAclAiMatches(round) {
         match.status = 'completed';
 
         const winnerTeam = score1 > score2 ? match.team1 : match.team2;
-        if (typeof determineOpponentScorerAndAssister === 'function') {
-            const oppGoalData = determineOpponentScorerAndAssister(winnerTeam.id);
-            addAclPlayerStatRecord(winnerTeam, oppGoalData.scorerName, oppGoalData.assisterName);
-        } else {
-            addAclPlayerStatRecord(winnerTeam, null, null);
+        
+        // 득점자/도움자 프리셋에서 탐색
+        let scorerName = null;
+        let assisterName = null;
+        if (playersPreset && playersPreset.length > 0) {
+            const teamPlayers = playersPreset.filter(p => p.teamId === winnerTeam.id);
+            if (teamPlayers.length > 0) {
+                scorerName = teamPlayers[Math.floor(Math.random() * teamPlayers.length)].name;
+                if (teamPlayers.length > 1) {
+                    const remain = teamPlayers.filter(p => p.name !== scorerName);
+                    if (remain.length > 0 && Math.random() < 0.7) {
+                        assisterName = remain[Math.floor(Math.random() * remain.length)].name;
+                    }
+                }
+            }
         }
+        
+        if (!scorerName && typeof determineOpponentScorerAndAssister === 'function') {
+            const oppGoalData = determineOpponentScorerAndAssister(winnerTeam.id);
+            scorerName = oppGoalData.scorerName;
+            assisterName = oppGoalData.assisterName;
+        }
+
+        addAclPlayerStatRecord(winnerTeam, scorerName, assisterName);
     });
 }
 
@@ -1640,8 +1967,18 @@ function shuffleAclArray(array) {
     return arr;
 }
 
-// 아챔 우승 축하 모달 팝업
+// 챔피언스리그 우승 축하 모달 팝업
 function showAclWinnerCelebrationModal(pointsVal, title) {
+    const isEpl = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl');
+    const playerTeamName = getActiveAclUserTeamName();
+    const tournamentName = getActiveAclTournamentName();
+
+    const iconHtml = isEpl ? '<i class="fa-solid fa-trophy"></i>' : '<i class="fa-solid fa-earth-asia"></i>';
+    const mainTitle = isEpl ? "유럽 챔피언! (빅이어)" : "아시아 챔피언!";
+    const subDesc = isEpl 
+        ? `${playerTeamName}이 유럽 최고 권위의 UEFA 챔피언스리그 정상에 등극했습니다!<br>레알 마드리드, 바이에른 뮌헨 등 유럽 최고의 명문 구단들을 꺾고 이뤄낸 위대한 역사입니다.`
+        : `${playerTeamName}이 아시아 최정상에 등극했습니다!<br>동아시아와 서아시아의 쟁쟁한 강호들을 꺾고 이뤄낸 역사적인 순간입니다.`;
+
     const modal = document.createElement('div');
     modal.style.position = 'fixed';
     modal.style.top = '0';
@@ -1659,13 +1996,13 @@ function showAclWinnerCelebrationModal(pointsVal, title) {
     modal.innerHTML = `
         <div style="text-align: center; max-width: 500px; padding: 2rem; border-radius: 24px; background: radial-gradient(circle at top, rgba(0, 255, 135, 0.15) 0%, rgba(10, 14, 26, 0.95) 100%); border: 2px solid rgba(0, 255, 135, 0.4); box-shadow: 0 0 40px rgba(0, 255, 135, 0.3); animation: matchViewFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);">
             <div style="font-size: 5rem; color: #00ff87; filter: drop-shadow(0 0 15px rgba(0, 255, 135, 0.6)); margin-bottom: 1rem; animation: winnerPulse 2s infinite ease-in-out;">
-                <i class="fa-solid fa-earth-asia"></i>
+                ${iconHtml}
             </div>
-            <h1 style="font-size: 2.2rem; font-weight: 900; color: #fff; margin-bottom: 0.5rem; letter-spacing: 1px;">아시아 챔피언!</h1>
-            <p style="font-size: 1rem; color: #00ff87; font-weight: 800; margin-bottom: 1.5rem;">전북 현대가 아시아 최정상에 등극했습니다!</p>
+            <h1 style="font-size: 2.2rem; font-weight: 900; color: #fff; margin-bottom: 0.5rem; letter-spacing: 1px;">${mainTitle}</h1>
+            <p style="font-size: 1rem; color: #00ff87; font-weight: 800; margin-bottom: 1.5rem;">${playerTeamName} ${tournamentName} 우승 달성!</p>
             <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 2rem;">
-                동아시아와 서아시아의 쟁쟁한 강호들을 꺾고 이뤄낸 역사적인 순간입니다.<br>
-                당신은 아시아 클럽 축구 역사의 정점에 섰습니다!
+                ${subDesc}<br>
+                당신은 클럽 축구 역사의 정점에 섰습니다!
             </p>
             <div style="display: flex; flex-direction: column; gap: 10px; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); padding: 1rem; border-radius: 14px; width: 100%; margin-bottom: 2rem;">
                 <span style="font-size: 0.8rem; color: #ffd700; font-weight: 800;"><i class="fa-solid fa-gift"></i> 우승 보상</span>
@@ -1680,24 +2017,20 @@ function showAclWinnerCelebrationModal(pointsVal, title) {
     document.body.appendChild(modal);
 }
 
-function playerLwName() {
-    return (squadFormation["LW"] && CARDS_DATABASE[squadFormation["LW"]]) ? CARDS_DATABASE[squadFormation["LW"]].name : "무명 윙어";
-}
-function playerRwName() {
-    return (squadFormation["RW"] && CARDS_DATABASE[squadFormation["RW"]]) ? CARDS_DATABASE[squadFormation["RW"]].name : "무명 윙백";
-}
-
-// 개발자 모드 전용: 아챔 결승전 워프 함수
+// 개발자 모드 전용: 결승전 워프 함수
 function skipToAclFinal() {
     if (typeof aclState === 'undefined' || !aclState) {
-        console.warn("아챔 상태 데이터가 로드되지 않았습니다.");
+        console.warn("챔피언스리그 상태 데이터가 로드되지 않았습니다.");
         return;
     }
     if (aclState.isFinished) {
-        console.warn("이미 이번 시즌 아챔이 종료되었습니다. 다음 시즌 시작 후 시도하세요.");
+        console.warn("이미 이번 시즌 대회가 종료되었습니다. 다음 시즌 시작 후 시도하세요.");
         return;
     }
     
+    const playerTeamId = getActiveAclUserTeamId();
+    const isEpl = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl');
+
     while (aclState.round > 2) {
         const curRound = aclState.round;
         const matches = aclState.bracket[curRound];
@@ -1706,12 +2039,12 @@ function skipToAclFinal() {
         matches.forEach(match => {
             if (match.status === 'completed') return;
             
-            const hasPlayer = (match.team1 && match.team1.id === 'jeonbuk') || (match.team2 && match.team2.id === 'jeonbuk');
+            const hasPlayer = (match.team1 && match.team1.id === playerTeamId) || (match.team2 && match.team2.id === playerTeamId);
             if (hasPlayer) {
-                const isHomeJeonbuk = match.team1 && match.team1.id === 'jeonbuk';
-                match.score1 = isHomeJeonbuk ? 3 : 1;
-                match.score2 = isHomeJeonbuk ? 1 : 3;
-                match.winner = isHomeJeonbuk ? 'team1' : 'team2';
+                const isHomePlayer = match.team1 && match.team1.id === playerTeamId;
+                match.score1 = isHomePlayer ? 3 : 1;
+                match.score2 = isHomePlayer ? 1 : 3;
+                match.winner = isHomePlayer ? 'team1' : 'team2';
                 match.status = 'completed';
             } else {
                 const rateDiff = (match.team1 ? match.team1.rating : 70) - (match.team2 ? match.team2.rating : 70);
@@ -1733,32 +2066,51 @@ function skipToAclFinal() {
         if (curRound === 16) {
             const matches16 = aclState.bracket[16];
             const matches8 = aclState.bracket[8];
-            for (let i = 0; i < 2; i++) {
-                const m1 = matches16[i * 2];
-                const m2 = matches16[i * 2 + 1];
-                matches8[i].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
-                matches8[i].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
-                matches8[i].status = "scheduled";
-            }
-            for (let i = 2; i < 4; i++) {
-                const m1 = matches16[i * 2];
-                const m2 = matches16[i * 2 + 1];
-                matches8[i].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
-                matches8[i].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
-                matches8[i].status = "scheduled";
+            if (isEpl) {
+                for (let i = 0; i < 4; i++) {
+                    const m1 = matches16[i * 2];
+                    const m2 = matches16[i * 2 + 1];
+                    matches8[i].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
+                    matches8[i].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
+                    matches8[i].status = "scheduled";
+                }
+            } else {
+                for (let i = 0; i < 2; i++) {
+                    const m1 = matches16[i * 2];
+                    const m2 = matches16[i * 2 + 1];
+                    matches8[i].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
+                    matches8[i].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
+                    matches8[i].status = "scheduled";
+                }
+                for (let i = 2; i < 4; i++) {
+                    const m1 = matches16[i * 2];
+                    const m2 = matches16[i * 2 + 1];
+                    matches8[i].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
+                    matches8[i].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
+                    matches8[i].status = "scheduled";
+                }
             }
             aclState.round = 8;
         } else if (curRound === 8) {
             const matches8 = aclState.bracket[8];
             const matches4 = aclState.bracket[4];
-            matches4[0].team1 = matches8[0].winner === 'team1' ? matches8[0].team1 : matches8[0].team2;
-            matches4[0].team2 = matches8[2].winner === 'team1' ? matches8[2].team1 : matches8[2].team2;
-            matches4[0].status = "scheduled";
-            
-            matches4[1].team1 = matches8[1].winner === 'team1' ? matches8[1].team1 : matches8[1].team2;
-            matches4[1].team2 = matches8[3].winner === 'team1' ? matches8[3].team1 : matches8[3].team2;
-            matches4[1].status = "scheduled";
-            
+            if (isEpl) {
+                for (let i = 0; i < 2; i++) {
+                    const m1 = matches8[i * 2];
+                    const m2 = matches8[i * 2 + 1];
+                    matches4[i].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
+                    matches4[i].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
+                    matches4[i].status = "scheduled";
+                }
+            } else {
+                matches4[0].team1 = matches8[0].winner === 'team1' ? matches8[0].team1 : matches8[0].team2;
+                matches4[0].team2 = matches8[2].winner === 'team1' ? matches8[2].team1 : matches8[2].team2;
+                matches4[0].status = "scheduled";
+                
+                matches4[1].team1 = matches8[1].winner === 'team1' ? matches8[1].team1 : matches8[1].team2;
+                matches4[1].team2 = matches8[3].winner === 'team1' ? matches8[3].team1 : matches8[3].team2;
+                matches4[1].status = "scheduled";
+            }
             aclState.round = 4;
         } else if (curRound === 4) {
             const matches4 = aclState.bracket[4];
@@ -1774,12 +2126,14 @@ function skipToAclFinal() {
     
     saveAclState();
     initAclTab();
-    console.log("🏆 플레이어팀(전북 현대)이 아챔 결승전(Round 2) 대진으로 바로 진출 완료되었습니다!");
+    console.log(`🏆 플레이어팀(${getActiveAclUserTeamName()})이 결승전(Round 2) 대진으로 바로 진출 완료되었습니다!`);
 }
 
 function resetAclSeasonWithFP() {
+    const tournamentName = getActiveAclTournamentName();
+
     if (aclState.hasResetThisSeason) {
-        alert("AFC 챔피언스리그 초기화는 한 시즌에 한 번만 가능합니다!");
+        alert(`${tournamentName} 초기화는 한 시즌에 한 번만 가능합니다!`);
         return;
     }
     
@@ -1788,7 +2142,7 @@ function resetAclSeasonWithFP() {
         return;
     }
     
-    if (!confirm("5 FP를 소모하여 AFC 챔피언스리그 대회를 리셋하고 16강 첫 경기부터 새로 시작하시겠습니까?\n(현재 진행 정보 및 스탯이 모두 초기화됩니다)")) {
+    if (!confirm(`5 FP를 소모하여 ${tournamentName} 대회를 리셋하고 16강 첫 경기부터 새로 시작하시겠습니까?\n(현재 진행 정보 및 스탯이 모두 초기화됩니다)`)) {
         return;
     }
     
@@ -1796,7 +2150,6 @@ function resetAclSeasonWithFP() {
         try { playClickSound(); } catch (e) {}
     }
     
-    // Deduct 5 FP
     userPoints -= 5;
     localStorage.setItem('fc_star_user_points', userPoints.toString());
     if (typeof renderUserPoints === 'function') {
@@ -1811,8 +2164,8 @@ function resetAclSeasonWithFP() {
     
     const commBox = document.getElementById('aclCommentaryScroll');
     if (commBox) {
-        commBox.innerHTML = '<div class="comm-item comm-system">5 FP를 사용하여 AFC 챔피언스리그가 리셋되었습니다. 아래 경기 시작 버튼을 클릭하면 16강 대회가 진행됩니다.</div>';
+        commBox.innerHTML = `<div class="comm-item comm-system">5 FP를 사용하여 ${tournamentName}가 리셋되었습니다. 아래 경기 시작 버튼을 클릭하면 16강 대회가 진행됩니다.</div>`;
     }
     
-    alert("AFC 챔피언스리그가 성공적으로 초기화되었습니다! (5 FP 차감)");
+    alert(`${tournamentName}가 성공적으로 초기화되었습니다! (5 FP 차감)`);
 }

@@ -1111,3 +1111,62 @@ graph TD
     - `index.html` 내 `league.js` 버전을 `v=3.2`, `cup.js` 버전을 `v=2.7`, `other_teams_data_epl.js` 버전을 `v=1.2`, `update_data.js` 버전을 `v=2.70`으로 갱신.
     - 서비스 워커 PWA 캐시 버전을 `'fc-star-v271'`로 갱신.
 
+---
+
+### 🏆 95) 프리미어리그 모드 'UEFA 챔피언스리그(UCL)' 정식 출시 및 멀티 리그 토너먼트 시스템 완성 (2026-08-23, v2.8.0)
+* **개발 배경 및 목표**:
+  - 프리미어리그(리버풀 FC) 모드에서 대륙 최상위 클럽 대항전인 'UEFA 챔피언스리그(UCL)' 16강 토너먼트 시스템을 구축.
+  - 바이에른 뮌헨에 **김민재**, 아틀레티코 마드리드에 **이강인** 선수를 포함한 유럽 12대 명문 구단 및 스타 플레이어 프리셋 완비.
+  - K리그(AFC 챔피언스리그)와 EPL(UEFA 챔피언스리그) 간의 완전한 데이터 격리 및 리그 순위표 안전 보존, 클라우드 영구 동기화, 명예의 전당 빅이어 트로피 연동 달성.
+* **주요 반영 사항**:
+  - **유럽 12대 명문 구단 및 스타 선수 데이터베이스 구축 (`other_teams_data_epl.js`, `other_teams_data.js`)**:
+    - `UCL_TEAMS_PRESET_EPL`: 레알 마드리드, 바이에른 뮌헨, 바르셀로나, 파리 생제르맹(PSG), 인터 밀란, 바이엘 레버쿠젠, 아틀레티코 마드리드, 도르트문트, 유벤투스, AC 밀란, 스포르팅 CP, 벤피카 12개 구단 등록.
+    - `UCL_PLAYERS_PRESET_EPL`: 바이에른 뮌헨(**김민재**, 케인, 무시알라), 아틀레티코 마드리드(**이강인**, 그리즈만, 알바레스), 레알 마드리드(음바페, 비니시우스, 벨링엄), 바르셀로나(야말, 레반도프스키), PSG(뎀벨레, 바르콜라), 인터 밀란(라우타로, 튀랑), 레버쿠젠(비르츠) 등 공식 스탯 등록.
+    - `TEAM_FORMATIONS_PRESET`에 UCL 12개 구단 공식 포메이션 매핑 완료.
+  - **멀티 리그 토너먼트 엔진 구축 (`js/acl.js`)**:
+    - `getActiveAclTournamentName()`, `getActiveAclUserTeamId()`, `getActiveAclTeamsPreset()`, `getAclStorageKey()` 헬퍼 함수 탑재.
+    - `resetAclStateData()`: EPL 모드 시 EPL 상위 3팀 선발(리버풀 제외) + 리버풀 + 유럽 12개 구단 = 16강 4개 구역 균등 분산 대진표 자동 생성.
+    - `updateAclScoreboard()`, `renderAclBracket()`, `renderAclStats()`: 유럽 명문 구단 엠블럼, 팀명, 선수 득점/도움 순위표 동적 렌더링.
+    - `startAclMatchSimulation()`, `finalizeAclMatch()`: 홈/원정 동적 판정 및 유럽 스타 선수 라이브 해설 출력.
+    - UCL 전용 우승 모달(빅이어 및 20 FP 지급) 및 5 FP 대회 리셋 기능 탑재.
+  - **서브 탭 UI 및 라우팅 연동 (`app.js`)**:
+    - `updateMatchSubTabsUI()`: EPL 모드 진입 시 `챔스` 버튼 활성화 및 개발중 뱃지 제거.
+    - `switchMatchSubTab()`: EPL 모드에서 챔스 탭 진입 허용.
+  - **리그 연동 및 명예의 전당 트로피 룸 연동 (`js/league.js`)**:
+    - `transferToLeague()`: 감독 이적 시 `initAcl()` 및 `initAclTab()` 자동 호출.
+    - `startMatchSimulation()`: EPL 38라운드 최종전 직전 카라바오컵 및 UEFA 챔피언스리그 완료 검증 연동.
+    - `recordSeasonProgressToFame()`: 시즌 정산 시 `aclRecordText` 브라켓 기반 정밀 산출.
+    - `renderHallOfFameSub()`: EPL 모드 트로피 룸에 'UEFA 챔피언스리그 (빅이어)' 트로피 배지 추가 및 성적 카드에 `챔스 성적` 표시.
+  - **클라우드 세이브 및 로드 분리 (`js/auth.js`)**:
+    - `aclStateEpl`(`fc_star_acl_state_epl`)과 `aclStateKLeague`(`fc_star_acl_state_kleague1`) 필드 분리 저장 및 복원 연동.
+  - **PWA 캐시 및 릴리즈 노트 최신화 (`sw.js`, `js/update_data.js`)**:
+    - PWA 캐시 버전을 `'fc-star-v280'`으로 갱신하고 `js/update_data.js`에 `v2.8.0` 정식 릴리즈 노트 등록.
+
+---
+
+### 🛡️ 96) 챔피언스리그/컵대회 진행 후 리그 순위표 0 초기화 버그 원천 해결 및 리그별 전적 격리 시스템 구축 (2026-08-23, v2.8.1)
+* **문제 증상 및 원인 분석**:
+  - **문제 증상**: 챔피언스리그(UCL/ACL) 또는 리그컵(카라바오컵/코리아컵) 경기를 진행하고 완료한 뒤 리그 탭으로 돌아왔을 때, 리그 순위표의 모든 팀 경기수/승무패/득실차/승점이 모두 '0'으로 초기화되는 현상이 발생함.
+  - **근본 원인**:
+    1. 기존 시스템에서 `leagueTeams`, `leagueRound`, `leaguePlayerStats`가 리그별로 분리되지 않고 단일 로컬 스토리지 키(`fc_star_league_teams`) 및 단일 클라우드 필드로 저장되고 있었음.
+    2. 챔스/컵 경기 완료 시 `saveUserProgress()`가 호출되어 동기화되는 과정이나 `checkAndMigrateLeagueTeams()`가 실행될 때, `leagueTeams`와 현재 리그 프리셋(`teamsPreset`) 간의 불일치가 감지되면 기존 전적이 온전히 매핑되지 못하고 초기값(0)으로 덮어써져 버리던 구조적 취약점 존재.
+* **반영 사항**:
+  - **`js/league.js`**:
+    - `checkAndMigrateLeagueTeams()` 전면 고도화:
+      - 리그 불일치 감지 시 이전 리그의 데이터를 상대 리그 전용 스토리지(`fc_star_league_teams_${otherLeagueId}`)에 안전하게 자동 백업.
+      - 현재 리그 전용 스토리지에 보관된 이전 전적을 찾아 복원 후보로 지정하여 새 프리셋에 기존 전적(`p, w, d, l, gf, ga, gd, pts, rating`)을 100% 온전하게 주입.
+    - `initLeague()`, `resetLeagueSeasonState()`, `startMatchSimulation()`, `startLeagueAutoSimulation()`:
+      - `fc_star_league_teams_${config.id}`, `fc_star_league_round_${config.id}`, `fc_star_league_stats_${config.id}` 전용 키 동시 저장/로드 체계 구축.
+  - **`js/auth.js`**:
+    - `saveAllToLocalStorage()` & `saveUserProgress()`:
+      - 로컬 스토리지에 현재 리그 전용 키 및 레거시 키를 동시 저장.
+      - 클라우드 전송 데이터(`progressData`)에 `leagueTeamsEpl`, `leagueTeamsKLeague`, `leagueRoundEpl`, `leagueRoundKLeague`, `leaguePlayerStatsEpl`, `leaguePlayerStatsKLeague` 필드를 분리 추가하여 독립 전송.
+    - `syncUserDataOnLogin()`:
+      - 클라우드에서 수신한 `leagueTeamsEpl`과 `leagueTeamsKLeague`를 각각의 리그 전용 로컬 키에 즉시 안전 저장.
+      - 현재 활성 리그에 맞는 전적과 라운드를 정확히 선별 로드하여 초기화 방지.
+  - **캐시 및 스크립트 버전 최신화 (`index.html`, `sw.js`)**:
+    - `index.html` 내 `league.js` 버전을 `v=3.4`, `acl.js` 버전을 `v=2.9`, `auth.js` 버전을 `v=2.48`로 갱신.
+    - `sw.js` 캐시 버전을 `'fc-star-v281'`로 갱신.
+
+
+

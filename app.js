@@ -97,7 +97,7 @@ function updateAppLogo() {
     }
 }
 
-// 리그에 따른 경기 서브 탭 텍스트 및 UI 갱신 (EPL 모드 시 카라바오컵 활성화 & 챔스 개발중 뱃지)
+// 리그에 따른 경기 서브 탭 텍스트 및 UI 갱신 (EPL 모드 시 카라바오컵 & 챔스 활성화)
 function updateMatchSubTabsUI() {
     const btnCup = document.getElementById('matchSubTabCup');
     const btnAcl = document.getElementById('matchSubTabAcl');
@@ -107,8 +107,8 @@ function updateMatchSubTabsUI() {
         btnCup.innerHTML = `<i class="fa-solid fa-gem"></i><span>카라바오컵</span>`;
         btnCup.style.opacity = '1';
         
-        btnAcl.innerHTML = `<i class="fa-solid fa-star"></i><span>챔스</span><span style="font-size: 0.65rem; color: #94a3b8; background: rgba(255,255,255,0.08); padding: 1px 4px; border-radius: 4px; margin-left: 2px;">개발중</span>`;
-        btnAcl.style.opacity = '0.75';
+        btnAcl.innerHTML = `<i class="fa-solid fa-star"></i><span>챔스</span>`;
+        btnAcl.style.opacity = '1';
     } else {
         btnCup.innerHTML = `<i class="fa-solid fa-gem"></i><span>코리아컵</span>`;
         btnCup.style.opacity = '1';
@@ -120,19 +120,6 @@ function updateMatchSubTabsUI() {
 
 // 경기진행 하위 탭 전환 함수
 function switchMatchSubTab(tabId) {
-    // 프리미어리그 모드일 경우 챔스(아챔) 진입 차단 (개발 중)
-    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
-        if (tabId === 'acl') {
-            if (typeof showToast === 'function') {
-                showToast("🚧 프리미어리그 UEFA 챔피언스리그는 현재 개발 중입니다.");
-            }
-            if (typeof playClickSound === 'function') {
-                try { playClickSound(); } catch (e) {}
-            }
-            return;
-        }
-    }
-
     const subTabs = {
         'league': {
             btn: document.getElementById('matchSubTabLeague'),
