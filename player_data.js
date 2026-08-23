@@ -2168,7 +2168,7 @@ const CARDS_DATABASE = {
         id: "casemiro",
         name: "카세미루",
         rating: 90,
-        position: "CM",
+        position: "CB",
         nation: "Brazil",
         nationFlag: "https://flagcdn.com/w40/br.png",
         club: "MANCHESTER UTD",
