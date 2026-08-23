@@ -442,7 +442,7 @@ const CARDS_DATABASE = {
     "kang_sang_yoon": {
         id: "kang_sang_yoon",
         name: "강상윤",
-        rating: 81,
+        rating: 84,
         position: "CM",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
@@ -452,16 +452,16 @@ const CARDS_DATABASE = {
         description: "넘치는 에너지와 적극적인 활동량을 바탕으로 넓은 중원을 누비는 유망주 미드필더입니다. 뛰어난 기동력과 지치지 않는 체력으로 공수 양면에서 헌신적인 엔진 역할을 수행합니다.",
         theme: {
             primary: "#005a3c",
-            secondary: "#ffffff",
-            glow: "#00d2ff"
+            secondary: "#ffd700",
+            glow: "#00ff87"
         },
         stats: {
-            pac: 80,
-            sho: 73,
-            pas: 83,
-            dri: 85,
-            def: 75,
-            phy: 73
+            pac: 83,
+            sho: 76,
+            pas: 86,
+            dri: 88,
+            def: 78,
+            phy: 76
         }
     },
     "kim_tae_hyeon": {
@@ -2112,6 +2112,106 @@ const CARDS_DATABASE = {
             dri: 95,
             def: 46,
             phy: 74
+        }
+    },
+    "kim_jin_gyu_S": {
+        id: "kim_jin_gyu_S",
+        name: "김진규",
+        rating: 86,
+        position: "CM",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "JEONBUK",
+        image: "player/김진규.png",
+        rarity: "special",
+        description: "정교한 탈압박과 자로 잰 듯한 전진 패스로 중원을 완벽하게 지휘하는 전북 현대의 스페셜 플레이메이커 김진규입니다. 넓은 시야와 침착한 경기 운영, 그리고 공수의 연결고리 역할을 훌륭히 수행하는 마에스트로입니다.",
+        theme: {
+            primary: "#005a3c",
+            secondary: "#ffd700",
+            glow: "#00ff87"
+        },
+        stats: {
+            pac: 80,
+            sho: 78,
+            pas: 88,
+            dri: 85,
+            def: 76,
+            phy: 79
+        }
+    },
+    "micky_van_de_ven": {
+        id: "micky_van_de_ven",
+        name: "미키 반더벤",
+        rating: 89,
+        position: "CB",
+        nation: "Netherlands",
+        nationFlag: "https://flagcdn.com/w40/nl.png",
+        club: "TOTTENHAM",
+        image: "player2/미키반더벤.png",
+        rarity: "legend",
+        description: "프리미어리그 역사상 최고 순간 속도를 기록한 압도적인 초스피드 센터백 미키 판 더 펜입니다. 193cm의 거구에도 폭발적인 주력으로 수비 뒷공간을 완벽히 지워내며, 정확한 태클과 피지컬로 토트넘과 네덜란드의 후방을 든든하게 책임지는 전설적인 수비수입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 92,
+            sho: 45,
+            pas: 75,
+            dri: 76,
+            def: 89,
+            phy: 87
+        }
+    },
+    "casemiro": {
+        id: "casemiro",
+        name: "카세미루",
+        rating: 90,
+        position: "CM",
+        nation: "Brazil",
+        nationFlag: "https://flagcdn.com/w40/br.png",
+        club: "MANCHESTER UTD",
+        image: "player2/카세미루.png",
+        rarity: "legend",
+        description: "UEFA 챔피언스리그 5회 우승에 빛나는 세계 최고의 수비형 미드필더 카세미루입니다. 압도적인 피지컬과 빈틈없는 태클, 탁월한 인터셉트 능력으로 상대의 공격 흐름을 완벽히 차단하는 중원의 탱크이자 불멸의 전설입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 72,
+            sho: 78,
+            pas: 84,
+            dri: 80,
+            def: 91,
+            phy: 91
+        }
+    },
+    "szoboszlai": {
+        id: "szoboszlai",
+        name: "소보슬라이",
+        rating: 89,
+        position: "CM",
+        nation: "Hungary",
+        nationFlag: "https://flagcdn.com/w40/hu.png",
+        club: "LIVERPOOL",
+        image: "player2/소보슬라이.png",
+        rarity: "legend",
+        description: "폭발적인 오른발 킥력과 환상적인 중거리 슈팅으로 안필드를 열광시키는 리버풀과 헝가리의 에이스 소보슬라이입니다. 지치지 않는 기동력과 전방 압박, 자로 잰 듯한 킬패스와 탈압박으로 중원을 지휘하는 전설적인 플레이메이커입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 85,
+            sho: 87,
+            pas: 89,
+            dri: 88,
+            def: 72,
+            phy: 82
         }
     }
 };
