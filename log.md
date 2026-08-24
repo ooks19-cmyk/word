@@ -1168,5 +1168,72 @@ graph TD
     - `index.html` 내 `league.js` 버전을 `v=3.4`, `acl.js` 버전을 `v=2.9`, `auth.js` 버전을 `v=2.48`로 갱신.
     - `sw.js` 캐시 버전을 `'fc-star-v281'`로 갱신.
 
+---
+
+### 🎨 97) UEFA 챔피언스리그(UCL) 유럽 12대 명문 구단 공식 엠블럼 다운로드 및 팀 데이터 연동 완료 (2026-08-24, v2.8.2)
+* **개발 배경 및 목표**:
+  - 프리미어리그 모드 챔피언스리그(UCL)에 출전하는 유럽 12대 명문 구단(아틀레티코 마드리드, 레알 마드리드, 바이에른 뮌헨, 바르셀로나 등)의 공식 고화질 투명 엠블럼 이미지를 확보하고, 게임 내 대진표, 매치 프리뷰, 스코어보드 전반에 완벽히 출력되도록 연동.
+* **주요 반영 사항**:
+  - **UCL 12개 구단 공식 엠블럼 다운로드 (`img/`)**:
+    - `mark_real_madrid.png` (레알 마드리드)
+    - `mark_bayern.png` (바이에른 뮌헨)
+    - `mark_barcelona.png` (FC 바르셀로나)
+    - `mark_psg.png` (파리 생제르맹)
+    - `mark_inter.png` (인테르)
+    - `mark_leverkusen.png` (바이어 레버쿠젠)
+    - `mark_atletico.png` (아틀레티코 마드리드)
+    - `mark_dortmund.png` (보루시아 도르트문트)
+    - `mark_juventus.png` (유벤투스)
+    - `mark_acmilan.png` (AC 밀란)
+    - `mark_sporting.png` (스포르팅 CP)
+    - `mark_benfica.png` (SL 벤피카)
+  - **팀 데이터 엠블럼 경로 매핑 고도화 (`other_teams_data_epl.js`, `js/league.js`)**:
+    - `UCL_TEAMS_PRESET_EPL` 각 구단 `emblem` 속성에 다운로드된 고화질 이미지 경로 바인딩.
+    - `js/league.js` 내 `getTeamEmblemPath(teamId)`에 UCL 12개 팀 엠블럼 매핑을 추가하여 매치 및 토너먼트 렌더링 전반에서 안전하게 로드되도록 지원.
+  - **캐시 및 스크립트 버전 최신화 (`index.html`, `sw.js`)**:
+    - `index.html` 내 `other_teams_data_epl.js?v=1.3`, `league.js?v=3.5` 갱신.
+    - `sw.js` 서비스 워커 캐시 버전 `'fc-star-v282'`로 갱신.
+
+---
+
+### ⚡ 98) 친선경기 포메이션 전술 완성 보너스(+2 OVR) 미반영 버그 원천 해결 (2026-08-24, v2.8.3)
+* **문제 증상 및 원인 분석**:
+  - **문제 증상**: 포메이션 전술 완성 조건(핵심 선수 + 팀 요구 스탯)을 달성하여 +2 전술 보너스가 활성화되어 있음에도, 친선경기 탭의 매치 프리뷰 및 실제 매치 시뮬레이션 계산 시 전술 완성 보너스(+2)가 누락되어 순수 OVR로만 계산 및 출력되던 문제.
+  - **근본 원인**:
+    1. `js/match_algorithm.js` 내 `calculateFinalMatchOvrs()`에서 `if (!isFriendlyMode)` 조건문으로 인해 친선경기(`isFriendlyMode = true`) 시 `formTactic.formationBonus` 가산이 의도치 않게 제외되어 있었음.
+    2. `js/friendly.js` 내 `updateFriendlyMatchPreview()`에서 홈 구단 OVR에 `getPlayerPureOvr()`만 직접 바인딩하여 프리뷰 스코어보드에 전술 보너스가 더해지지 않은 수치가 노출되었음.
+* **반영 사항**:
+  - **`js/match_algorithm.js`**:
+    - `calculateFinalMatchOvrs()`: 친선경기를 포함한 모든 모드(리그/컵/친선/챔스)에서 플레이어의 포메이션 전술 완성 보너스(`formTactic.formationBonus`)가 일관되게 적용되도록 수정.
+  - **`js/friendly.js`**:
+    - `updateFriendlyMatchPreview()`: 친선경기 프리뷰 스코어보드의 홈 구단 OVR에 포메이션 전술 보너스(`formationBonus`)가 합산된 최종 OVR(`userTotalOvr`)이 정상 반영되도록 수정.
+    - `generateVirtualFriendlyOpponents()`: 가상 AI 상대팀 OVR 밸런스 산출 시에도 플레이어의 전술 완성 보너스가 포함된 최종 OVR을 기준으로 +-2 범위 오프셋이 적용되도록 고도화.
+  - **캐시 및 스크립트 버전 최신화 (`index.html`, `sw.js`)**:
+    - `index.html` 내 `match_algorithm.js?v=2.5`, `friendly.js?v=2.3` 갱신.
+    - `sw.js` 서비스 워커 캐시 버전 `'fc-star-v283'`으로 갱신.
+
+---
+
+### 🛡️ 99) 친선경기 일일 3회 제한 미진행 시 '대결 완료(3회)' 오인식 버그 해결 및 날짜 리셋 정밀화 (2026-08-24, v2.8.4)
+* **문제 증상 및 원인 분석**:
+  - **문제 증상**: 당일 친선경기를 한 번도 진행하지 않았음에도 '오늘의 대결 3회 / 대결 종료'로 인식되어 친선경기 개시 버튼이 비활성화되는 현상 발생.
+  - **근본 원인**:
+    1. `js/friendly.js` 내 `updateFriendlyMatchPreview()`에서 상대 구단 리스트가 아직 로드되지 않았거나 비어있는 시점(`friendlyOpponentsList.length === 0`)에 무조건 `friendlyCurrentOpponentIndex >= 3 || friendlyOpponentsList.length === 0` 완료 분기로 진입하여 잔여 횟수를 '3'으로 덮어쓰고 대결 종료로 처리하던 심각한 조건문 버그 존재.
+    2. 로컬 날짜 검증 시 `toLocaleDateString('ko-KR')` 포맷이 브라우저/OS 환경에 따라 달라져 날짜 불일치 검증에 오류가 생기거나, 로그인(`syncUserDataOnLogin`) 시 클라우드에서 이전 날짜의 3회 진행 상태가 복원되었을 때 즉시 일일 리셋 검사를 거치지 않고 남아있던 현상.
+    3. `index.html` 기본 템플릿의 `friendlyTodayCountVal` 텍스트가 '3'으로 하드코딩되어 초기 로딩 시 혼선 유발.
+* **반영 사항**:
+  - **`js/friendly.js`**:
+    - `ensureFriendlyOpponentsList()` 도입: 프리뷰 및 매치 렌더링 시 상대 리스트가 비어있으면 즉시 가상 상대 3팀을 자동 생성하여 보장하도록 개선.
+    - `updateFriendlyMatchPreview()`: 대결 완료 분기를 오직 당일 3경기를 모두 마친 경우(`friendlyCurrentOpponentIndex >= 3`)에만 진입하도록 조건문 정상화.
+    - `getFriendlyTodayDateString()`: `YYYY-MM-DD` 표준 날짜 형식을 도입하여 OS/브라우저 환경에 구애받지 않고 자정 날짜 변경 시 100% 신뢰성 있는 0회 자동 리셋 보장.
+  - **`js/auth.js`**:
+    - `syncUserDataOnLogin()`: 클라우드에서 친선경기 전적 데이터를 복원한 직후 `initFriendlyMatchState()`를 즉시 실행하여, 복원된 데이터가 어제/이전 날짜 기록일 경우 즉시 당일 0회로 자동 초기화되도록 동기화 보강.
+  - **`index.html` & `sw.js`**:
+    - `index.html` 내 `friendlyTodayCountVal` 초기값을 `0`으로 수정.
+    - `friendly.js?v=2.4`, `auth.js?v=2.49` 갱신 및 서비스 워커 캐시 버전 `'fc-star-v284'`로 업데이트.
+
+
+
+
 
 

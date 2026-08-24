@@ -6,29 +6,45 @@ let friendlyMatchLastDate = "";
 let selectedFriendlyOpponent = null;
 let preloadedFriendlyUsers = [];
 
+// 표준화된 오늘 날짜 문자열 반환 (YYYY-MM-DD)
+function getFriendlyTodayDateString() {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 // Initialize Friendly Match State from LocalStorage
 function initFriendlyMatchState() {
     const myId = typeof currentUser === 'string' && currentUser ? currentUser : "ooks";
     const keyLastDate = `fc_star_friendly_match_last_date_${myId}`;
     const keyMatchesToday = `fc_star_friendly_matches_today_${myId}`;
+    const keyIndex = `fc_star_friendly_current_index_${myId}`;
     
-    const todayStr = new Date().toLocaleDateString('ko-KR');
+    const todayStr = getFriendlyTodayDateString();
+    const legacyTodayStr = new Date().toLocaleDateString('ko-KR');
     const savedDate = localStorage.getItem(keyLastDate);
     const savedCount = localStorage.getItem(keyMatchesToday);
+    const savedIndex = localStorage.getItem(keyIndex);
     
-    if (savedDate === todayStr) {
+    // 오늘 날짜와 일치하는 경우에만 진행 횟수 유지
+    if (savedDate === todayStr || savedDate === legacyTodayStr) {
         friendlyMatchesToday = savedCount ? parseInt(savedCount) : 0;
-        friendlyMatchLastDate = savedDate;
+        friendlyCurrentOpponentIndex = savedIndex ? parseInt(savedIndex) : friendlyMatchesToday;
+        // 값 범위 안전 가드 (0 ~ 3)
+        friendlyMatchesToday = Math.min(3, Math.max(0, friendlyMatchesToday));
+        friendlyCurrentOpponentIndex = Math.min(3, Math.max(0, friendlyCurrentOpponentIndex));
+        friendlyMatchLastDate = todayStr;
+        localStorage.setItem(keyLastDate, todayStr);
     } else {
+        // 날짜가 지났거나 새로운 날짜인 경우 무조건 0으로 리셋
         friendlyMatchesToday = 0;
+        friendlyCurrentOpponentIndex = 0;
         friendlyMatchLastDate = todayStr;
         localStorage.setItem(keyLastDate, todayStr);
         localStorage.setItem(keyMatchesToday, '0');
-        
-        // 날짜 리셋 시 인덱스도 초기화
-        const keyIndex = `fc_star_friendly_current_index_${myId}`;
         localStorage.setItem(keyIndex, '0');
-        friendlyCurrentOpponentIndex = 0;
         
         // 새로운 날짜이므로 클라우드 상태도 함께 초기화 백업
         if (typeof saveUserProgress === 'function') {
@@ -51,7 +67,9 @@ function generateVirtualFriendlyOpponents() {
     const shuffled = [...virtualTeamsPreset].sort(() => 0.5 - Math.random());
     const selected = shuffled.slice(0, 3);
     
-    const playerOvr = getPlayerPureOvr();
+    const pureOvr = getPlayerPureOvr();
+    const formTactic = (typeof getPlayerFormationTacticBonuses === 'function') ? getPlayerFormationTacticBonuses() : { formationBonus: 0 };
+    const playerOvr = pureOvr + (formTactic.formationBonus || 0);
     const offsets = [-2, -1, 0, 1, 2];
     
     return selected.map((team, idx) => {
@@ -382,9 +400,33 @@ function saveFriendlyMatchesState() {
     localStorage.setItem(keyMatchesToday, friendlyMatchesToday.toString());
 }
 
+// 상대 구단 리스트 즉시 확보 헬퍼 함수
+function ensureFriendlyOpponentsList() {
+    if (!friendlyOpponentsList || friendlyOpponentsList.length === 0) {
+        const cachedOpps = localStorage.getItem('fc_star_friendly_cached_opponents');
+        if (cachedOpps) {
+            try {
+                const parsed = JSON.parse(cachedOpps);
+                if (parsed && parsed.length > 0) {
+                    friendlyOpponentsList = parsed.sort((a, b) => a.rating - b.rating);
+                }
+            } catch(e) {}
+        }
+        if (!friendlyOpponentsList || friendlyOpponentsList.length === 0) {
+            friendlyOpponentsList = generateVirtualFriendlyOpponents();
+            try {
+                localStorage.setItem('fc_star_friendly_cached_opponents', JSON.stringify(friendlyOpponentsList));
+                localStorage.setItem('fc_star_friendly_opponents_cache_time', Date.now().toString());
+            } catch(e) {}
+        }
+    }
+    return friendlyOpponentsList;
+}
+
 // 친선경기 매칭 프리뷰 UI 업데이트
 function updateFriendlyMatchPreview() {
-    const todayStr = new Date().toLocaleDateString('ko-KR');
+    initFriendlyMatchState();
+    ensureFriendlyOpponentsList();
     
     const countValEl = document.getElementById('friendlyTodayCountVal');
     if (countValEl) {
@@ -443,7 +485,7 @@ function updateFriendlyMatchPreview() {
         statusBadge.innerHTML = `<i class="fa-solid fa-globe"></i> 해외 리그 매칭 (GLOBAL)`;
     }
 
-    if (friendlyCurrentOpponentIndex >= 3 || friendlyOpponentsList.length === 0) {
+    if (friendlyCurrentOpponentIndex >= 3) {
         // 모든 릴레이 매칭 완료
         const friendlyTodayCountValEl = document.getElementById('friendlyTodayCountVal');
         if (friendlyTodayCountValEl) friendlyTodayCountValEl.innerText = "3";
@@ -489,7 +531,9 @@ function updateFriendlyMatchPreview() {
     }
 
     const opponent = friendlyOpponentsList[friendlyCurrentOpponentIndex];
-    const jeonbukOvr = getPlayerPureOvr();
+    const pureOvr = getPlayerPureOvr();
+    const formTactic = (typeof getPlayerFormationTacticBonuses === 'function') ? getPlayerFormationTacticBonuses() : { formationBonus: 0 };
+    const userTotalOvr = pureOvr + (formTactic.formationBonus || 0);
 
     // 친선 스코어보드 바인딩
     const friendlyTimeDisp = document.getElementById('friendlySbTimeDisplay');
@@ -509,7 +553,7 @@ function updateFriendlyMatchPreview() {
     if (fHomeName) fHomeName.innerText = `나의 구단 (${userShortName})`;
     
     const fHomeOvr = document.getElementById('friendlyHomeTeamOvr');
-    if (fHomeOvr) fHomeOvr.innerText = jeonbukOvr;
+    if (fHomeOvr) fHomeOvr.innerText = userTotalOvr;
     
     const fHomeEmblem = document.getElementById('friendlyHomeEmblem');
     if (fHomeEmblem) {

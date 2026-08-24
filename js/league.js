@@ -780,7 +780,20 @@ function getTeamEmblemPath(teamId) {
         "everton": "img/mark_everton.png",
         "leicester": "img/mark_leicester.png",
         "ipswich": "img/mark_ipswich.png",
-        "southampton": "img/mark_southampton.png"
+        "southampton": "img/mark_southampton.png",
+        // UEFA 챔피언스리그 (UCL)
+        "real_madrid": "img/mark_real_madrid.png",
+        "bayern_munchen": "img/mark_bayern.png",
+        "barcelona": "img/mark_barcelona.png",
+        "psg": "img/mark_psg.png",
+        "inter_milan": "img/mark_inter.png",
+        "leverkusen": "img/mark_leverkusen.png",
+        "atletico_madrid": "img/mark_atletico.png",
+        "dortmund": "img/mark_dortmund.png",
+        "juventus": "img/mark_juventus.png",
+        "ac_milan": "img/mark_acmilan.png",
+        "sporting_cp": "img/mark_sporting.png",
+        "benfica": "img/mark_benfica.png"
     };
     return mapping[teamId] || "img/mark_jb.svg";
 }

@@ -716,6 +716,9 @@ function syncUserDataOnLogin(userData, forceLoad = false) {
         if (userData.friendlySeasonStartDate) {
             localStorage.setItem(`fc_star_friendly_season_start_date_${myId}`, userData.friendlySeasonStartDate);
         }
+        if (typeof initFriendlyMatchState === 'function') {
+            initFriendlyMatchState();
+        }
         
         // Sync local storage so it serves as offline cache
         localStorage.setItem('fc_star_user_points', userPoints.toString());

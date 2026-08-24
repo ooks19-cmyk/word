@@ -551,11 +551,9 @@ function calculateFinalMatchOvrs(venueType, isPlayerHome, opponentBaseOvr, isFri
         lastOpponentMood = null;
     }
     
-    if (!isFriendlyMode) {
-        // 리그와 컵 모드는 포메이션 OVR 완성 보너스 적용
-        const formTactic = getPlayerFormationTacticBonuses();
-        playerOvr += formTactic.formationBonus;
-    }
+    // 포메이션 전술 완성 보너스 (+1~+2)는 리그/컵/친선경기 모든 모드에서 플레이어 팀에 일관되게 적용
+    const formTactic = getPlayerFormationTacticBonuses();
+    playerOvr += formTactic.formationBonus;
     
     if (venueType === 'league') {
         if (isPlayerHome) {
