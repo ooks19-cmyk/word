@@ -75,7 +75,7 @@ function generateVirtualFriendlyOpponents() {
     return selected.map((team, idx) => {
         // OVR +-2 오프셋 결정
         const offset = offsets[Math.floor(Math.random() * offsets.length)];
-        const rating = Math.min(Math.max(60, playerOvr + offset), 92);
+        const rating = Math.min(Math.max(60, playerOvr + offset), 95);
         
         return {
             id: `virtual_${team.name.replace(/\s+/g, '_').toLowerCase()}`,
@@ -171,7 +171,7 @@ function getOpponentTotalOvr(opponentData) {
     const formationBonus = getOpponentFormationTacticStatus(opponentData);
     const totalOvr = avgOvr + formationBonus;
     if (opponentData && opponentData.id !== 'jeonbuk') {
-        return Math.min(totalOvr, 92);
+        return Math.min(totalOvr, 95);
     }
     return totalOvr;
 }
@@ -761,7 +761,7 @@ function processAndRenderStandings(allUsers, myId) {
         
         let displayRating = u.rating || calculatedOvr;
         if (u.id !== 'jeonbuk' && u.id !== myId) {
-            displayRating = Math.min(displayRating, 92);
+            displayRating = Math.min(displayRating, 95);
         }
         
         return {

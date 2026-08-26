@@ -1232,6 +1232,23 @@ graph TD
     - `index.html` 내 `friendlyTodayCountVal` 초기값을 `0`으로 수정.
     - `friendly.js?v=2.4`, `auth.js?v=2.49` 갱신 및 서비스 워커 캐시 버전 `'fc-star-v284'`로 업데이트.
 
+---
+
+### 📈 100) 상대팀(AI 및 타 구단) 최대 OVR 상한선 95로 상향 조정 (2026-08-26, v2.8.5)
+* **개발 배경 및 목표**:
+  - 플레이어의 카드 수집 및 각성 강화 성장에 맞춰, 시즌 재시작 및 각종 매치 모드(리그, 컵, 챔스, 친선전)에서 상대팀 OVR 스케일링 최대 한계값(Cap)을 기존 92에서 95로 상향 조정하여 상위권 매치 밸런스를 고도화.
+* **주요 반영 사항**:
+  - **`js/match_algorithm.js`**:
+    - `getPlayerTop20Ovr()`: 플레이어 상위 카드 평균 OVR의 상한선 리턴값을 `Math.min(avg, 92)`에서 `Math.min(avg, 95)`로 상향.
+    - 이에 따라 `js/league.js`(시즌 재시작 OVR 스케일링), `js/cup.js`(컵대회 상대 OVR), `js/acl.js`(UCL/ACL 명문 구단 OVR) 전반의 상한선이 95 기준으로 자동 연동.
+  - **`js/friendly.js`**:
+    - `generateVirtualFriendlyOpponents()`: 가상 AI 상대팀 OVR 최대 상한값을 92에서 95로 수정.
+    - `getOpponentTotalOvr()` & `processAndRenderStandings()`: 친선경기 상대 구단 OVR 캡을 92에서 95로 수정.
+  - **캐시 및 스크립트 버전 최신화 (`index.html`, `sw.js`)**:
+    - `index.html` 내 `match_algorithm.js?v=2.6`, `friendly.js?v=2.5` 갱신.
+    - `sw.js` 서비스 워커 캐시 버전 `'fc-star-v285'`로 갱신.
+
+
 
 
 

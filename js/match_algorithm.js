@@ -56,7 +56,7 @@ function getPlayerPureOvr() {
     return Math.round(totalOvr / 11);
 }
 
-// 1-2. 플레이어 덱 상위 카드의 평균 OVR 계산 (최대 92 제한)
+// 1-2. 플레이어 덱 상위 카드의 평균 OVR 계산 (최대 95 제한)
 // ※ 함수명은 getPlayerTop20Ovr로 유지하되, 실제 기준은 상위 11개 카드 평균을 사용합니다.
 function getPlayerTop20Ovr() {
     if (typeof playerDeck === 'undefined' || !playerDeck) return 70;
@@ -75,7 +75,7 @@ function getPlayerTop20Ovr() {
     const top20 = cardRatings.slice(0, 11); // 실제 기준: 상위 11개 (함수명은 하위 호환성을 위해 유지)
     const sum = top20.reduce((acc, rating) => acc + rating, 0);
     const avg = Math.round(sum / top20.length);
-    return Math.min(avg, 92);
+    return Math.min(avg, 95);
 }
 
 
@@ -563,8 +563,8 @@ function calculateFinalMatchOvrs(venueType, isPlayerHome, opponentBaseOvr, isFri
         }
     }
     
-    // 최종 매치 상대팀 OVR 최대 92 제한 제거 (top20ovr 자체에 최대 92 캡 적용)
-    // opponentOvr = Math.min(opponentOvr, 92);
+    // 최종 매치 상대팀 OVR 최대 95 제한 제거 (top20ovr 자체에 최대 95 캡 적용)
+    // opponentOvr = Math.min(opponentOvr, 95);
     
     return { playerOvr, opponentOvr };
 }
