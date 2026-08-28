@@ -2238,6 +2238,31 @@ const CARDS_DATABASE = {
             def: 48,
             phy: 68
         }
+    },
+    "lee_jae_sung_L": {
+        id: "lee_jae_sung_L",
+        name: "이재성",
+        rating: 87,
+        position: "CM",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "KOREA",
+        image: "player/이재성.png",
+        rarity: "legend",
+        description: "독일 분데스리가와 대한민국 축구 국가대표팀의 핵심이자 지치지 않는 심장 이재성입니다. 독보적인 활동량과 영리한 축구 지능, 날카로운 공간 침투와 킬패스, 그리고 상대의 빌드업을 차단하는 헌신적인 전방 압박으로 공수 양면에서 경기를 지배하는 전설적인 마에스트로입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 84,
+            sho: 82,
+            pas: 89,
+            dri: 87,
+            def: 76,
+            phy: 80
+        }
     }
 };
 

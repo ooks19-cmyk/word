@@ -1274,6 +1274,33 @@ graph TD
   - **`player_data.js`**: `CARDS_DATABASE`에 `takefusa_kubo` 전설 카드 데이터 등록 완료.
   - **`선수데이터.csv`**: `convert_js_to_csv.py` 변환 스크립트를 통해 총 89명의 선수 데이터로 CSV 자동 갱신 완료.
 
+---
+
+### 🌟 102) 이재성(Lee Jae-sung) 전설 카드 데이터 신규 생성 (2026-08-28, v2.8.7)
+* **개발 배경 및 내용**:
+  - 대한민국 축구 국가대표팀의 핵심이자 분데스리가에서 맹활약하는 중원의 엔진 **이재성(Lee Jae-sung)** 선수를 전설 등급(OVR 87) 카드로 신규 추가.
+* **선수 카드 세부 스펙**:
+  - **ID**: `lee_jae_sung_L`
+  - **이름**: 이재성 (Lee Jae-sung)
+  - **등급 (Rarity)**: 전설 (`legend`)
+  - **오버롤 (OVR / Rating)**: `87`
+  - **포지션**: `CM` (중앙 미드필더)
+  - **소속 클럽**: `KOREA`
+  - **국적**: `South Korea` (🇰🇷 대한민국 / 국기 URL 연동)
+  - **이미지**: `player/이재성.png`
+  - **테마**: 전설 등급 골드/블랙 테마 (Primary: `#000000`, Secondary: `#c39e5c`, Glow: `#ffd700`)
+  - **세부 능력치**:
+    - 속도 (PAC): `84`
+    - 슈팅 (SHO): `82`
+    - 패스 (PAS): `89`
+    - 드리블 (DRI): `87`
+    - 수비 (DEF): `76`
+    - 피지컬 (PHY): `80`
+* **주요 반영 사항**:
+  - **`player_data.js`**: `CARDS_DATABASE`에 `lee_jae_sung_L` 전설 카드 데이터 등록 완료.
+  - **`선수데이터.csv`**: `convert_js_to_csv.py` 변환 스크립트를 통해 총 90명의 선수 데이터로 CSV 자동 갱신 완료.
+
+
 
 
 
