@@ -1248,6 +1248,32 @@ graph TD
     - `index.html` 내 `match_algorithm.js?v=2.6`, `friendly.js?v=2.5` 갱신.
     - `sw.js` 서비스 워커 캐시 버전 `'fc-star-v285'`로 갱신.
 
+---
+
+### 🌟 101) 쿠보(Takefusa Kubo) 전설 카드 데이터 신규 생성 (2026-08-28, v2.8.6)
+* **개발 배경 및 내용**:
+  - 라리가 레알 소시에다드의 핵심 공격형 미드필더이자 일본 축구의 천재 플레이메이커 **쿠보(Takefusa Kubo)** 선수를 전설 등급 카드로 신규 추가.
+* **선수 카드 세부 스펙**:
+  - **ID**: `takefusa_kubo`
+  - **이름**: 쿠보 (Takefusa Kubo)
+  - **등급 (Rarity)**: 전설 (`legend`)
+  - **오버롤 (OVR / Rating)**: `90`
+  - **포지션**: `CAM` (공격형 미드필더)
+  - **소속 클럽**: `REAL SOCIEDAD`
+  - **국적**: `Japan` (🇯🇵 일본 / 국기 URL 연동)
+  - **이미지**: `player2/쿠보.webp`
+  - **테마**: 전설 등급 골드/블랙 테마 (Primary: `#000000`, Secondary: `#c39e5c`, Glow: `#ffd700`)
+  - **세부 능력치**:
+    - 속도 (PAC): `89`
+    - 슈팅 (SHO): `85`
+    - 패스 (PAS): `89`
+    - 드리블 (DRI): `93`
+    - 수비 (DEF): `48`
+    - 피지컬 (PHY): `68`
+* **주요 반영 사항**:
+  - **`player_data.js`**: `CARDS_DATABASE`에 `takefusa_kubo` 전설 카드 데이터 등록 완료.
+  - **`선수데이터.csv`**: `convert_js_to_csv.py` 변환 스크립트를 통해 총 89명의 선수 데이터로 CSV 자동 갱신 완료.
+
 
 
 

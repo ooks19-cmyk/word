@@ -2213,6 +2213,31 @@ const CARDS_DATABASE = {
             def: 72,
             phy: 82
         }
+    },
+    "takefusa_kubo": {
+        id: "takefusa_kubo",
+        name: "쿠보",
+        rating: 90,
+        position: "CAM",
+        nation: "Japan",
+        nationFlag: "https://flagcdn.com/w40/jp.png",
+        club: "REAL SOCIEDAD",
+        image: "player2/쿠보.webp",
+        rarity: "legend",
+        description: "정교한 왼발 볼 컨트롤과 번뜩이는 축구 지능으로 라리가를 매료시킨 일본의 천재 플레이메이커 쿠보 다케후사입니다. 민첩한 탈압박 드리블과 허를 찌르는 킬패스, 그리고 상대 골망을 흔드는 날카로운 슈팅력을 겸비하여 팀의 공격을 진두지휘하는 전설적인 공격형 미드필더입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 89,
+            sho: 85,
+            pas: 89,
+            dri: 93,
+            def: 48,
+            phy: 68
+        }
     }
 };
 
