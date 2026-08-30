@@ -11,7 +11,7 @@
 * `index.html` / `style.css` (UI 및 반응형 3D 연출)
 * `app.js` (전체 생명주기 및 탭 스위칭, PWA 등록)
 * `quiz.js` / `quiz_data.js` (날짜별 스케줄러 기반 5문항 퀴즈 출제, 목·금 복습 데이 및 스마트 유사 채점 엔진)
-* `quiz_vocabulary_schedule.md` (단어 데이터베이스 스케줄러 및 일정 가이드)
+* `.agents/skills/add-quiz-words/quiz_vocabulary_schedule.md` (단어 데이터베이스 스케줄러 및 일정 가이드)
 * `js/state.js` (유저 재화 `userPoints`, `userLevel`, `playerDeck`, `careerStats` 전역 전송 상태)
 * `js/match_algorithm.js` / `player_data.js` / `other_teams_data.js` / `other_teams_data_epl.js` (매치 시뮬레이터 핵심 알고리즘 & 선수 데이터)
 * `js/league.js` / `js/cup.js` / `js/acl.js` / `js/friendly.js` (각 대회별 경기 진행 루프 및 연출 제어)

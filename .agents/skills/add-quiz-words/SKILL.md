@@ -42,7 +42,7 @@ description: WORD 폴더의 교재 단어 이미지나 신규 단어 목록을 �
    ...
    ```
 
-### Step 3: 가이드 문서 최신화 (`quiz_vocabulary_schedule.md`)
+### Step 3: 가이드 문서 최신화 (`.agents/skills/add-quiz-words/quiz_vocabulary_schedule.md`)
 - `QUIZ_WORDS_BY_DATE` 섹션에 신규 날짜 키, 가동 기간, 학습 주제 및 단어 예시 등록.
 - 문서 상단의 총 수록 단어 수(`QUIZ_WORDS.length`) 수치 갱신.
 
