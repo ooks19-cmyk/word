@@ -2217,7 +2217,7 @@ const CARDS_DATABASE = {
     "takefusa_kubo": {
         id: "takefusa_kubo",
         name: "쿠보",
-        rating: 90,
+        rating: 91,
         position: "CAM",
         nation: "Japan",
         nationFlag: "https://flagcdn.com/w40/jp.png",
@@ -2231,12 +2231,12 @@ const CARDS_DATABASE = {
             glow: "#ffd700"
         },
         stats: {
-            pac: 89,
-            sho: 85,
-            pas: 89,
-            dri: 93,
+            pac: 90,
+            sho: 86,
+            pas: 90,
+            dri: 94,
             def: 48,
-            phy: 68
+            phy: 69
         }
     },
     "lee_jae_sung_L": {

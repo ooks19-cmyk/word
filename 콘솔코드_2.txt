@@ -76,3 +76,69 @@ showToast("33라운드로 이동했습니다!");
 
 // 오늘 경기 초기화 코드
 matchTodayCount = 0; matchLastDate = new Date().toLocaleDateString('ko-KR'); localStorage.setItem('fc_star_match_today_count', '0'); localStorage.setItem('fc_star_match_last_date', matchLastDate); updateMatchPreviewBoard(); if (typeof saveUserProgress === 'function') saveUserProgress(); showToast("🔓 오늘 경기 초기화 완료 (0/10)");
+
+
+// ==========================================
+// 🧪 [단어 퀴즈] 날짜/요일 테스트 콘솔 코드
+// ==========================================
+
+// 1. [수요일 테스트] 2026년 9월 2일 (수요일, 일반 스케줄 단어 풀 / 주관식 모드 테스트)
+(function() {
+    if (!window._OriginalDate) window._OriginalDate = window.Date;
+    const targetDate = new window._OriginalDate(2026, 8, 2, 12, 0, 0); // 2026-09-02 (수)
+    window.Date = class extends window._OriginalDate {
+        constructor(...args) {
+            if (args.length === 0) return new window._OriginalDate(targetDate.getTime());
+            return new window._OriginalDate(...args);
+        }
+        static now() { return targetDate.getTime(); }
+    };
+    initQuizRound();
+    console.log("🧪 [수요일 테스트 활성화]");
+    console.log("- 가상 날짜: 2026-09-02 (수요일)");
+    console.log("- 요일 번호 (getDay):", new Date().getDay(), "(3 = 수요일)");
+    console.log("- YYMMDD 포맷:", getTodayYYMMDD());
+    console.log("- 복습일 여부 (isReviewDay):", isReviewDay(), "(false)");
+    console.log("- 활성 세트:", getActiveQuizSetName());
+    console.log("- 문제 모드:", (isReviewDay() || isTodayQuizSchedule()) ? "🔘 객관식" : "✏️ 주관식 (한글 직접 입력)");
+    if (typeof showToast === 'function') showToast("🧪 [수요일 테스트] 260902 수요일(주관식 모드)로 설정되었습니다!");
+})();
+
+
+// 2. [목요일 테스트] 2026년 9월 3일 (목요일, 과거 단어 5개 랜덤 / 4지선다 객관식 모드 테스트)
+(function() {
+    if (!window._OriginalDate) window._OriginalDate = window.Date;
+    const targetDate = new window._OriginalDate(2026, 8, 3, 12, 0, 0); // 2026-09-03 (목)
+    window.Date = class extends window._OriginalDate {
+        constructor(...args) {
+            if (args.length === 0) return new window._OriginalDate(targetDate.getTime());
+            return new window._OriginalDate(...args);
+        }
+        static now() { return targetDate.getTime(); }
+    };
+    initQuizRound();
+    console.log("🧪 [목요일 복습 데이 테스트 활성화]");
+    console.log("- 가상 날짜: 2026-09-03 (목요일)");
+    console.log("- 요일 번호 (getDay):", new Date().getDay(), "(4 = 목요일)");
+    console.log("- YYMMDD 포맷:", getTodayYYMMDD());
+    console.log("- 복습일 여부 (isReviewDay):", isReviewDay(), "(true)");
+    console.log("- 활성 세트:", getActiveQuizSetName());
+    console.log("- 문제 모드:", (isReviewDay() || isTodayQuizSchedule()) ? "🔘 객관식 (4지선다)" : "✏️ 주관식");
+    if (typeof showToast === 'function') showToast("🧪 [목요일 복습 데이] 과거 단어 5개 / 객관식으로 설정되었습니다!");
+})();
+
+
+// 3. [원상 복구] 실제 현재 시스템 날짜/시간으로 복원
+(function() {
+    if (window._OriginalDate) {
+        window.Date = window._OriginalDate;
+        delete window._OriginalDate;
+    }
+    initQuizRound();
+    console.log("🔄 [원상 복구 완료] 실제 시스템 날짜로 복구되었습니다.");
+    console.log("- 현재 실제 날짜:", new Date().toLocaleDateString('ko-KR'));
+    console.log("- 요일 번호 (getDay):", new Date().getDay());
+    console.log("- 활성 세트:", getActiveQuizSetName());
+    if (typeof showToast === 'function') showToast("🔄 실제 시스템 날짜로 복원되었습니다!");
+})();
+

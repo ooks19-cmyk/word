@@ -172,6 +172,35 @@ function getTodayYYMMDD() {
     return yy + mm + dd; // 예: "260531"
 }
 
+// 목요일(4) 또는 금요일(5) 복습일 판별 함수
+function isReviewDay() {
+    const day = new Date().getDay();
+    return day === 4 || day === 5; // 4: 목요일, 5: 금요일
+}
+
+// 과거 누적 단어 풀 추출 함수 (오늘 날짜 이전 스케줄 단어 취합)
+function getPastWordPool() {
+    if (typeof QUIZ_WORDS_BY_DATE === 'undefined' || !QUIZ_WORDS_BY_DATE || Object.keys(QUIZ_WORDS_BY_DATE).length === 0) {
+        return typeof QUIZ_WORDS !== 'undefined' ? QUIZ_WORDS : [];
+    }
+    const today = getTodayYYMMDD();
+    const scheduleDates = Object.keys(QUIZ_WORDS_BY_DATE).sort();
+    
+    let pastWords = [];
+    for (let i = 0; i < scheduleDates.length; i++) {
+        if (scheduleDates[i] < today && QUIZ_WORDS_BY_DATE[scheduleDates[i]]) {
+            pastWords = pastWords.concat(QUIZ_WORDS_BY_DATE[scheduleDates[i]]);
+        }
+    }
+    
+    // 만약 과거 날짜 단어가 부족할 경우 QUIZ_WORDS 전체 풀 활용
+    if (pastWords.length < 5 && typeof QUIZ_WORDS !== 'undefined') {
+        console.log("⚠️ [과거 풀 보충] 등록된 과거 단어 수가 적어 전체 풀(QUIZ_WORDS)을 제공합니다.");
+        return QUIZ_WORDS;
+    }
+    return pastWords;
+}
+
 // 현재 로드된 퀴즈 세트가 오늘 날짜의 스케줄 세트인지 확인하는 함수
 function isTodayQuizSchedule() {
     if (typeof QUIZ_WORDS_BY_DATE === 'undefined' || !QUIZ_WORDS_BY_DATE || Object.keys(QUIZ_WORDS_BY_DATE).length === 0) {
@@ -194,6 +223,14 @@ function isTodayQuizSchedule() {
 
 // 현재 날짜에 맞는 최적의 단어 풀을 실시간 판단하여 가져오는 함수
 function getScheduledWordPool() {
+    // 1. 목요일/금요일(복습일)인 경우: 과거 누적 단어 풀에서 출제
+    if (isReviewDay()) {
+        const pastPool = getPastWordPool();
+        console.log(`📅 [목·금 복습 데이] 과거 누적 단어 풀에서 출제됩니다. (단어 수: ${pastPool.length}개)`);
+        return pastPool;
+    }
+
+    // 2. 일반 요일: 기존 스케줄 단어 풀 출제
     if (typeof QUIZ_WORDS_BY_DATE === 'undefined' || !QUIZ_WORDS_BY_DATE || Object.keys(QUIZ_WORDS_BY_DATE).length === 0) {
         console.log("⚠️ [기본 풀 활성] 스케줄러 데이터베이스(QUIZ_WORDS_BY_DATE)가 없어 기본 전체 풀을 제공합니다.");
         const poolSize = Math.min(25, QUIZ_WORDS.length);
@@ -364,8 +401,8 @@ function renderQuizCurrent() {
             qBarEl.style.width = `${pct}%`;
         }
 
-        // Mode Switching: Multiple Choice (당일 스케줄인 경우) vs Short Answer (그 외)
-        const isMultipleChoice = isTodayQuizSchedule();
+        // Mode Switching: Multiple Choice (목/금 복습일이거나 새 스케줄 시작 당일인 경우) vs Short Answer (그 외 일반 유지 기간)
+        const isMultipleChoice = isReviewDay() || isTodayQuizSchedule();
         const quizChoicesWrapper = document.getElementById('quizChoicesWrapper');
         const quizInputWrapper = document.querySelector('.quiz-input-wrapper');
         const btnQuizSubmit = document.getElementById('btnQuizSubmit');
@@ -418,13 +455,17 @@ function generateQuizChoices(currentItem, wrapperEl) {
         wrapperEl.innerHTML = '';
         
         const activePool = getScheduledWordPool();
-        // 현재 단어를 제외한 활성 풀의 단어 후보군
-        let wrongCandidates = activePool.filter(w => w.word !== currentItem.word);
+        // 현재 단어의 뜻과 다른 오답 후보군 필터링
+        let wrongCandidates = activePool.filter(w => w.word !== currentItem.word && w.meaning !== currentItem.meaning);
         
         // 만약 후보군이 3개 미만이면 전체 풀에서 수급
         if (wrongCandidates.length < 3 && typeof QUIZ_WORDS !== 'undefined') {
-            wrongCandidates = QUIZ_WORDS.filter(w => w.word !== currentItem.word);
+            wrongCandidates = QUIZ_WORDS.filter(w => w.word !== currentItem.word && w.meaning !== currentItem.meaning);
         }
+        
+        // 중복 뜻 제거
+        const uniqueWrongMeanings = [];
+        const seenMeanings = new Set([currentItem.meaning]);
         
         // 후보군 셔플 후 오답 3개 뜻 추출
         const shuffledWrongs = [...wrongCandidates];
@@ -432,10 +473,28 @@ function generateQuizChoices(currentItem, wrapperEl) {
             const j = Math.floor(Math.random() * (i + 1));
             [shuffledWrongs[i], shuffledWrongs[j]] = [shuffledWrongs[j], shuffledWrongs[i]];
         }
-        const wrongMeanings = shuffledWrongs.slice(0, 3).map(w => w.meaning);
+        
+        for (let cand of shuffledWrongs) {
+            if (!seenMeanings.has(cand.meaning)) {
+                seenMeanings.add(cand.meaning);
+                uniqueWrongMeanings.push(cand.meaning);
+                if (uniqueWrongMeanings.length === 3) break;
+            }
+        }
+        
+        // 만약 오답 뜻이 3개 미만이면 QUIZ_WORDS 전체에서 보충
+        if (uniqueWrongMeanings.length < 3 && typeof QUIZ_WORDS !== 'undefined') {
+            for (let cand of QUIZ_WORDS) {
+                if (!seenMeanings.has(cand.meaning)) {
+                    seenMeanings.add(cand.meaning);
+                    uniqueWrongMeanings.push(cand.meaning);
+                    if (uniqueWrongMeanings.length === 3) break;
+                }
+            }
+        }
         
         // 정답과 오답 병합
-        const allChoices = [currentItem.meaning, ...wrongMeanings];
+        const allChoices = [currentItem.meaning, ...uniqueWrongMeanings];
         
         // 보기 전체 셔플
         for (let i = allChoices.length - 1; i > 0; i--) {
@@ -849,6 +908,10 @@ function toggleQuizAutoplay(isChecked) {
 
 // 현재 활성화된 퀴즈 세트명을 가져오는 함수
 function getActiveQuizSetName() {
+    if (isReviewDay()) {
+        return "과거 단어 복습 (목·금)";
+    }
+
     if (typeof QUIZ_WORDS_BY_DATE === 'undefined' || !QUIZ_WORDS_BY_DATE || Object.keys(QUIZ_WORDS_BY_DATE).length === 0) {
         return "기본 단어 풀";
     }
