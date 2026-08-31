@@ -1358,6 +1358,22 @@ graph TD
   - **`선수데이터.csv`**: 쿠보 데이터 동기화 갱신.
   - **`index.html` & `sw.js`**: `player_data.js?v=1.50`, `CACHE_NAME = 'fc-star-v290'` 배포.
 
+---
+
+### ⚙️ 106) Firestore 클라우드 로그인 및 동기화 캐시 Fallback 안정화 긴급 패치 (2026-08-31)
+* **문제점 및 원인 분석**:
+  - 모바일(LTE/5G) 또는 일시적 네트워크 통신 지연/오프라인 환경에서 사용자가 로그인 시도시 `Failed to get document from server. (However, this document does exist in the local cache. Run again without setting source to "server" to retrieve the cached document.)` 에러 팝업이 발생하며 로그인이 중단되는 현상 발생.
+  - 원인: Firestore `enablePersistence`가 활성화된 상태에서 `docRef.get({ source: 'server' })`를 강제 호출하면, 서버 응답이 지연되거나 일시 단절될 때 로컬 캐시가 있음에도 불구하고 SDK에서 예외를 던지기 때문.
+* **해결 및 개선 작업**:
+  - **안전 조회 헬퍼(`_safeGetDoc`) 신설 및 적용 (`db.js`)**:
+    - 1차적으로 `{ source: 'server' }`를 통해 최신 원격 서버 문서를 조회를 시도.
+    - 서버 통신 오류 또는 타임아웃 발생 시, 로컬 캐시를 포함하는 기본 `get()`으로 자동 Fallback 전환하여 로컬에 저장된 계정 정보로 원활하게 로그인이 완료되도록 설계.
+  - **`login`, `register`, `saveProgress`, `getUserData` 전면 보호**:
+    - 모든 Firestore 문서 조회 로직에 `_safeGetDoc`을 일괄 적용하고 `enableNetwork()` 호출 시 발생하는 예외도 안전하게 방어.
+  - **PWA 캐시 및 스크립트 버전 갱신**:
+    - `db.js?v=2.2`, `js/auth.js?v=2.50`, `js/update_data.js?v=2.70`
+    - 서비스 워커 `CACHE_NAME = 'fc-star-v291'` 갱신.
+
 
 
 

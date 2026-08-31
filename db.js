@@ -102,6 +102,23 @@ const dbService = {
         }
     },
 
+    // Firestore 문서를 안전하게 조회 (서버 우선 시도 후 실패 시 로컬 캐시/기본 fallback)
+    async _safeGetDoc(docRef) {
+        try {
+            // 1순위: 서버에서 최신 문서 조회 시도
+            return await docRef.get({ source: 'server' });
+        } catch (serverError) {
+            console.warn("⚠️ Firestore 서버 조회 실패 (네트워크/타임아웃), 로컬 캐시 fallback 조회를 시도합니다:", serverError);
+            try {
+                // 2순위: 로컬 캐시/기본 모드로 fallback 조회
+                return await docRef.get();
+            } catch (fallbackError) {
+                console.error("🔴 Firestore 서버 및 캐시 조회 모두 실패:", fallbackError);
+                throw serverError || fallbackError;
+            }
+        }
+    },
+
     // 로그인 처리
     async login(id, password) {
         const normalizedId = id.trim().toLowerCase();
@@ -109,10 +126,14 @@ const dbService = {
 
         if (this.isFirebase) {
             try {
-                // 오프라인 상태 고정을 강제로 해제하고 즉시 백엔드 연결 활성화
-                await this.firestore.enableNetwork();
-                // Force server fetch to prevent stale local cache overwriting newer server data.
-                const doc = await this.firestore.collection('fc_star_users').doc(normalizedId).get({ source: 'server' });
+                // 오프라인 상태 고정을 강제로 해제하고 즉시 백엔드 연결 활성화 시도
+                try {
+                    await this.firestore.enableNetwork();
+                } catch (netErr) {
+                    console.warn("⚠️ Firestore enableNetwork 실패 (현재 오프라인/지연 상태 유지):", netErr);
+                }
+                const docRef = this.firestore.collection('fc_star_users').doc(normalizedId);
+                const doc = await this._safeGetDoc(docRef);
                 if (!doc.exists) {
                     throw new Error("존재하지 않는 아이디입니다.");
                 }
@@ -175,12 +196,20 @@ const dbService = {
 
         if (this.isFirebase) {
             try {
-                // 오프라인 상태 고정을 강제로 해제하고 즉시 백엔드 연결 활성화
-                await this.firestore.enableNetwork();
+                // 오프라인 상태 고정을 강제로 해제하고 즉시 백엔드 연결 활성화 시도
+                try {
+                    await this.firestore.enableNetwork();
+                } catch (netErr) {
+                    console.warn("⚠️ Firestore enableNetwork 실패:", netErr);
+                }
                 const docRef = this.firestore.collection('fc_star_users').doc(normalizedId);
-                // Force server fetch to prevent stale local cache overwriting newer server data.
-                const doc = await docRef.get({ source: 'server' });
-                if (doc.exists) {
+                let doc = null;
+                try {
+                    doc = await this._safeGetDoc(docRef);
+                } catch (getErr) {
+                    console.warn("⚠️ 회원가입 전 중복 계정 조회 실패 (신규 가입 시도 진행):", getErr);
+                }
+                if (doc && doc.exists) {
                     throw new Error("이미 존재하는 아이디입니다.");
                 }
                 await docRef.set(defaultData);
@@ -219,18 +248,25 @@ const dbService = {
                 const docRef = this.firestore.collection('fc_star_users').doc(normalizedId);
                 
                 // 낙관적 락 버전 검증: 서버의 최신 updatedAt과 클라이언트의 lastSyncedUpdatedAt 비교
-                const doc = await docRef.get({ source: 'server' });
-                if (doc.exists) {
-                    const serverData = doc.data();
-                    if (serverData && serverData.updatedAt) {
-                        const clientSyncTime = progressData.lastSyncedUpdatedAt || "";
-                        if (!clientSyncTime || serverData.updatedAt !== clientSyncTime) {
-                            console.warn("⚠️ [Sync Mismatch] Server updatedAt:", serverData.updatedAt, "Client lastSynced:", clientSyncTime);
-                            const err = new Error("version_conflict");
-                            err.serverData = serverData;
-                            throw err;
+                try {
+                    const doc = await this._safeGetDoc(docRef);
+                    if (doc && doc.exists) {
+                        const serverData = doc.data();
+                        if (serverData && serverData.updatedAt) {
+                            const clientSyncTime = progressData.lastSyncedUpdatedAt || "";
+                            if (clientSyncTime && serverData.updatedAt !== clientSyncTime) {
+                                console.warn("⚠️ [Sync Mismatch] Server updatedAt:", serverData.updatedAt, "Client lastSynced:", clientSyncTime);
+                                const err = new Error("version_conflict");
+                                err.serverData = serverData;
+                                throw err;
+                            }
                         }
                     }
+                } catch (getErr) {
+                    if (getErr.message === "version_conflict") {
+                        throw getErr;
+                    }
+                    console.warn("⚠️ saveProgress 버전 체크 중 조회 예외 (저장 진행):", getErr);
                 }
                 
                 const newTimestamp = new Date().toISOString();
@@ -273,8 +309,8 @@ const dbService = {
 
         if (this.isFirebase) {
             try {
-                // Force server fetch to prevent stale local cache overwriting newer server data.
-                const doc = await this.firestore.collection('fc_star_users').doc(normalizedId).get({ source: 'server' });
+                const docRef = this.firestore.collection('fc_star_users').doc(normalizedId);
+                const doc = await this._safeGetDoc(docRef);
                 return doc.exists ? doc.data() : null;
             } catch (error) {
                 console.error("Firebase 유저 조회 실패:", error);

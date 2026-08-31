@@ -2,9 +2,20 @@
 
 const UPDATE_LOGS = [
     {
+        version: "v2.8.1",
+        date: "2026.08.31",
+        latest: true,
+        borderColor: "#00d2fc",
+        titleColor: "#00d2fc",
+        badgeText: "HOTFIX",
+        items: [
+            "<strong>Firestore 클라우드 로그인 & 동기화 캐시 fallback 안정화 패치</strong>: 모바일(LTE/5G) 또는 일시적인 네트워크 지연 환경에서 로그인 및 데이터 동기화 시도시 발생하던 <code>Failed to get document from server</code> 에러를 완벽히 해결했습니다.<br>• <strong>안전 조회 메커니즘(_safeGetDoc) 구축</strong>: 원격 서버로부터 최신 문서 조회를 우선 시도하되, 일시적 네트워크 통신 장애나 오프라인 발생 시 로컬 캐시로 즉시 안전하게 fallback 전환하여 로그인이 원활하게 처리되도록 개선<br>• <strong>회원가입 및 클라우드 세이브 안정성 강화</strong>: 회원가입 시 중복 검사 및 <code>saveProgress</code> 버전 충돌 검증 시에도 네트워크 상태에 구애받지 않고 유연하게 동기화가 유지되도록 예외 방어 로직 전면 보강"
+        ]
+    },
+    {
         version: "v2.8.0",
         date: "2026.08.23",
-        latest: true,
+        latest: false,
         borderColor: "#ffd700",
         titleColor: "#ffd700",
         badgeText: "MAJOR UPDATE",
