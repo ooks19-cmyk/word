@@ -8,16 +8,17 @@ function openPack() {
         return;
     }
 
-    let keys = Object.keys(CARDS_DATABASE).filter(k => !(playerDeck[k] && playerDeck[k].awakening >= 5));
+    // 슈퍼(super) 등급은 도전모드 시즌 우승 등 특별 보상 전용으로 일반 카드 팩 뽑기 풀에서 제외
+    let keys = Object.keys(CARDS_DATABASE).filter(k => CARDS_DATABASE[k].rarity !== 'super' && !(playerDeck[k] && playerDeck[k].awakening >= 5));
     
     // 월드 클래스 등급은 어려움 모드 이상에서만 출현하도록 제한
     if (typeof isHardMode === 'undefined' || !isHardMode) {
         keys = keys.filter(k => CARDS_DATABASE[k].rarity !== 'worldclass');
     }
     
-    // 만약 모든 카드가 5각성이어서 뽑을 카드가 없다면 폴백으로 전체 카드 허용
+    // 만약 모든 카드가 5각성이어서 뽑을 카드가 없다면 폴백으로 전체 카드 허용 (슈퍼 등급 제외)
     if (keys.length === 0) {
-        keys = Object.keys(CARDS_DATABASE);
+        keys = Object.keys(CARDS_DATABASE).filter(k => CARDS_DATABASE[k].rarity !== 'super');
         if (typeof isHardMode === 'undefined' || !isHardMode) {
             keys = keys.filter(k => CARDS_DATABASE[k].rarity !== 'worldclass');
         }
