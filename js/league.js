@@ -1110,7 +1110,8 @@ function startLeagueAutoSimulation() {
         const activeAttacker = squadFormation["ST"] ? CARDS_DATABASE[squadFormation["ST"]].name : "무명 스트라이커";
         const activeLw = squadFormation["LW"] ? CARDS_DATABASE[squadFormation["LW"]].name : "무명 윙어";
         const activeRw = squadFormation["RW"] ? CARDS_DATABASE[squadFormation["RW"]].name : "무명 윙백";
-        const activeCm = squadFormation["CM"] ? CARDS_DATABASE[squadFormation["CM"]].name : "무명 미드필더";
+        const activeMfs = (typeof getFormationMidfielders === 'function') ? getFormationMidfielders(currentFormation, squadFormation, playerDeck) : [];
+        const activeCm = activeMfs.length > 0 ? activeMfs[0].name : (squadFormation["CM"] ? CARDS_DATABASE[squadFormation["CM"]].name : "무명 미드필더");
         const activeGk = squadFormation["GK"] ? CARDS_DATABASE[squadFormation["GK"]].name : "무명 골키퍼";
         
         const maxProb = 0.80;
@@ -1184,10 +1185,13 @@ function startLeagueAutoSimulation() {
                             chancePlayerStat = getWingerChanceStat('RW', card);
                         }
                     } else if (selectedOption === 3) {
-                        const cmCardId = squadFormation['CM'] || squadFormation['LCM'] || squadFormation['RCM'];
-                        if (cmCardId && CARDS_DATABASE[cmCardId]) {
-                            const card = getAwakenedCard(cmCardId);
-                            chancePlayerStat = (card.stats && card.stats.sho) ? card.stats.sho : (card.rating || 75);
+                        const mfList = (typeof getFormationMidfielders === 'function')
+                            ? getFormationMidfielders(currentFormation, squadFormation, playerDeck)
+                            : [];
+                        if (mfList.length > 0) {
+                            chancePlayerStat = Math.max(...mfList.map(m => m.sho));
+                        } else {
+                            chancePlayerStat = 75;
                         }
                     } else if (selectedOption === 5) {
                         const cmCardId = squadFormation['CM'];
@@ -1566,10 +1570,13 @@ function startMatchSimulation() {
                                 chancePlayerStat = getWingerChanceStat('RW', card);
                             }
                         } else if (selectedOption === 3) {
-                            const cmCardId = squadFormation['CM'] || squadFormation['LCM'] || squadFormation['RCM'];
-                            if (cmCardId && CARDS_DATABASE[cmCardId]) {
-                                const card = getAwakenedCard(cmCardId);
-                                chancePlayerStat = (card.stats && card.stats.sho) ? card.stats.sho : (card.rating || 75);
+                            const mfList = (typeof getFormationMidfielders === 'function')
+                                ? getFormationMidfielders(currentFormation, squadFormation, playerDeck)
+                                : [];
+                            if (mfList.length > 0) {
+                                chancePlayerStat = Math.max(...mfList.map(m => m.sho));
+                            } else {
+                                chancePlayerStat = 75;
                             }
                         } else if (selectedOption === 5) { // 4-2-3-1 점유율 연출 (CM 드리블 비례)
                             const cmCardId = squadFormation['CM'];
@@ -1838,10 +1845,13 @@ function startMatchSimulation() {
                             chancePlayerStat = getWingerChanceStat('RW', card);
                         }
                     } else if (selectedOption === 3) {
-                        const cmCardId = squadFormation['CM'] || squadFormation['LCM'] || squadFormation['RCM'];
-                        if (cmCardId && CARDS_DATABASE[cmCardId]) {
-                            const card = getAwakenedCard(cmCardId);
-                            chancePlayerStat = (card.stats && card.stats.sho) ? card.stats.sho : (card.rating || 75);
+                        const mfList = (typeof getFormationMidfielders === 'function')
+                            ? getFormationMidfielders(currentFormation, squadFormation, playerDeck)
+                            : [];
+                        if (mfList.length > 0) {
+                            chancePlayerStat = Math.max(...mfList.map(m => m.sho));
+                        } else {
+                            chancePlayerStat = 75;
                         }
                     } else if (selectedOption === 5) { // 4-2-3-1 점유율 연출 (CM 드리블 비례)
                         const cmCardId = squadFormation['CM'];

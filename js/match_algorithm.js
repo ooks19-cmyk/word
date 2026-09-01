@@ -1120,8 +1120,55 @@ function simulatePenaltyShootoutEngine(data) {
 
 let lastTacticGoalData = null;
 
+/**
+ * 현재 포메이션에서 실제 '미드필더' 역할을 수행하는 선수 카드 목록을 반환합니다.
+ * (5-4-1의 CM 슬롯은 CB이므로 제외, 3-4-3의 LCM 슬롯은 CB이므로 제외 등 완벽 필터링)
+ */
+function getFormationMidfielders(formation = '4-3-3', squad = squadFormation, deck = playerDeck) {
+    let mfSlots = [];
+    if (formation === '4-3-3') {
+        mfSlots = ['CM', 'LCM', 'RCM'];
+    } else if (formation === '5-4-1') {
+        mfSlots = ['LCM', 'RCM']; // 5-4-1의 CM 슬롯은 중앙 수비수(CB)이므로 완벽 제외!
+    } else if (formation === '3-4-3') {
+        mfSlots = ['CM', 'RCM']; // 3-4-3의 LCM 슬롯은 중앙 수비수(CB)이므로 제외!
+    } else if (formation === '4-2-3-1') {
+        mfSlots = ['CM', 'LCM', 'RCM'];
+    } else { // 4-4-2 등 기본
+        mfSlots = ['LCM', 'RCM', 'CM'];
+    }
+
+    const list = [];
+    mfSlots.forEach(slot => {
+        const cardId = squad[slot];
+        if (cardId && CARDS_DATABASE[cardId]) {
+            const card = (typeof getAwakenedCard === 'function') ? getAwakenedCard(cardId, deck) : CARDS_DATABASE[cardId];
+            // 실제 수비수 포지션(CB, GK)으로 잘못 배치된 카드는 미드필더 슈팅 풀에서 방어 필터링
+            if (!['CB', 'GK'].includes(card.position)) {
+                list.push({
+                    slot: slot,
+                    cardId: cardId,
+                    card: card,
+                    name: card.name,
+                    sho: (card.stats && card.stats.sho) ? card.stats.sho : (card.rating || 75)
+                });
+            } else if (formation !== '5-4-1' && slot !== 'CM') {
+                list.push({
+                    slot: slot,
+                    cardId: cardId,
+                    card: card,
+                    name: card.name,
+                    sho: (card.stats && card.stats.sho) ? card.stats.sho : (card.rating || 75)
+                });
+            }
+        }
+    });
+
+    return list;
+}
+
 // 7. 공격 옵션별 동적 득점자/도움자 판정 함수
-function determineScorerAndAssister(selectedOption, squad = squadFormation) {
+function determineScorerAndAssister(selectedOption, squad = squadFormation, formation = null) {
     if (lastTacticGoalData && lastTacticGoalData.option === selectedOption) {
         const data = {
             scorerId: lastTacticGoalData.scorerId,
@@ -1136,7 +1183,11 @@ function determineScorerAndAssister(selectedOption, squad = squadFormation) {
     const activeST = (typeof squad !== 'undefined' && squad["ST"] && CARDS_DATABASE[squad["ST"]]) ? CARDS_DATABASE[squad["ST"]].name : "무명 스트라이커";
     const activeLW = (typeof squad !== 'undefined' && squad["LW"] && CARDS_DATABASE[squad["LW"]]) ? CARDS_DATABASE[squad["LW"]].name : "무명 윙어";
     const activeRW = (typeof squad !== 'undefined' && squad["RW"] && CARDS_DATABASE[squad["RW"]]) ? CARDS_DATABASE[squad["RW"]].name : "무명 윙백";
-    const activeCM = (typeof squad !== 'undefined' && squad["CM"] && CARDS_DATABASE[squad["CM"]]) ? CARDS_DATABASE[squad["CM"]].name : "무명 미드필더";
+    
+    // 포메이션별 실제 미드필더 이름 추출 (5-4-1의 CB 김민재 배제)
+    const currentForm = formation || ((typeof currentFormation !== 'undefined') ? currentFormation : '4-3-3');
+    const realMfs = getFormationMidfielders(currentForm, squad);
+    const activeCM = realMfs.length > 0 ? realMfs[0].name : ((typeof squad !== 'undefined' && squad["CM"] && CARDS_DATABASE[squad["CM"]]) ? CARDS_DATABASE[squad["CM"]].name : "무명 미드필더");
     const activeLCM = (typeof squad !== 'undefined' && squad["LCM"] && CARDS_DATABASE[squad["LCM"]]) ? CARDS_DATABASE[squad["LCM"]].name : "무명 미드필더";
     const activeRCM = (typeof squad !== 'undefined' && squad["RCM"] && CARDS_DATABASE[squad["RCM"]]) ? CARDS_DATABASE[squad["RCM"]].name : "무명 미드필더";
 
@@ -1153,7 +1204,7 @@ function determineScorerAndAssister(selectedOption, squad = squadFormation) {
             assisterId = squad["ST"];
             assisterName = activeST;
         } else if (rand < 0.6) {
-            assisterId = squad["CM"];
+            assisterId = realMfs.length > 0 ? realMfs[0].cardId : squad["CM"];
             assisterName = activeCM;
         } else if (rand < 0.8) {
             assisterId = squad["RW"];
@@ -1170,7 +1221,7 @@ function determineScorerAndAssister(selectedOption, squad = squadFormation) {
             assisterId = squad["RW"];
             assisterName = activeRW;
         } else if (rand < 0.8) {
-            assisterId = squad["CM"];
+            assisterId = realMfs.length > 0 ? realMfs[0].cardId : squad["CM"];
             assisterName = activeCM;
         }
     } else if (selectedOption === 2) { // RW 돌파
@@ -1181,15 +1232,31 @@ function determineScorerAndAssister(selectedOption, squad = squadFormation) {
             assisterId = squad["ST"];
             assisterName = activeST;
         } else if (rand < 0.6) {
-            assisterId = squad["CM"];
+            assisterId = realMfs.length > 0 ? realMfs[0].cardId : squad["CM"];
             assisterName = activeCM;
         } else if (rand < 0.8) {
             assisterId = squad["LW"];
             assisterName = activeLW;
         }
-    } else if (selectedOption === 3) { // 🚀 CM 대포알 중거리슛
-        scorerId = squad["CM"] || squad["LCM"] || squad["RCM"];
-        scorerName = activeCM;
+    } else if (selectedOption === 3) { // 🚀 CM 대포알 중거리슛 (실제 미드필더 중 슈팅 능력치 가중치 추첨)
+        if (realMfs.length > 0) {
+            const totalSho = realMfs.reduce((sum, item) => sum + item.sho, 0);
+            let randSho = Math.random() * totalSho;
+            let chosenMf = realMfs[0];
+            for (const mf of realMfs) {
+                if (randSho <= mf.sho) {
+                    chosenMf = mf;
+                    break;
+                }
+                randSho -= mf.sho;
+            }
+            scorerId = chosenMf.cardId;
+            scorerName = chosenMf.name;
+        } else {
+            scorerId = squad["LCM"] || squad["RCM"] || squad["CM"];
+            scorerName = activeCM;
+        }
+
         const rand = Math.random();
         if (rand < 0.4) {
             assisterId = squad["ST"];
@@ -1217,7 +1284,7 @@ function determineScorerAndAssister(selectedOption, squad = squadFormation) {
             scorerId = squad["RW"];
             scorerName = activeRW;
         }
-        assisterId = squad["CM"];
+        assisterId = realMfs.length > 0 ? realMfs[0].cardId : squad["CM"];
         assisterName = activeCM;
     }
 
