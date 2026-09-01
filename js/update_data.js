@@ -2,9 +2,20 @@
 
 const UPDATE_LOGS = [
     {
+        version: "v2.9.0",
+        date: "2026.09.01",
+        latest: true,
+        borderColor: "#ffd700",
+        titleColor: "#ffd700",
+        badgeText: "CHALLENGE MODE",
+        items: [
+            "<strong>친선모드 ➡️ 10단계 스테이지 '도전모드(Challenge Mode)' 전면 개편!</strong>: 매일 유럽/세계 최강의 명문 구단들과 격돌하는 10단계 스테이지 도전모드가 정식 출시되었습니다.<br>• <strong>10개 스테이지 명문 구단 라인업 (OVR 90~98)</strong>: 셀틱 FC(90), 아약스(91), SL 벤피카(92), AS 로마(93), 아틀레티코 마드리드(94), 아스날 FC(95), 바이에른 뮌헨(96), 맨체스터 시티(97), 파리 생제르맹(97), 레알 마드리드(98 FINAL BOSS)<br>• <strong>진행 및 5P 재도전 시스템</strong>: 하루 1경기 무료 도전 가능하며 승리 시 다음 스테이지로 진출. 실패(무승부/패배) 시 당일 1회에 한해 5 FP를 소모하여 즉시 재도전 가능<br>• <strong>시즌 1 우승 보상 '⚡ 슈퍼 리오넬 메시 (6각성)' 카드 지급</strong>: 10개 스테이지를 모두 승리(전승 우승) 시 기존 메시보다 오버롤 +1, 슈팅 +2 및 기본 6각성(실질 OVR 100)이 적용된 전용 특별 카드 즉시 덱 지급!<br>• <strong>슈퍼 카드 전용 블링블링 & 오로라 홀로그램 이펙트</strong>: 슈퍼(SUPER) 등급 카드에 빛나는 오로라 쉬머와 스파클링 반짝임 애니메이션 탑재<br>• <strong>클라우드 동기화</strong>: 도전모드 시즌, 스테이지, 경기 기록이 로컬 및 Firestore 클라우드 서버에 안전하게 자동 백업"
+        ]
+    },
+    {
         version: "v2.8.1",
         date: "2026.08.31",
-        latest: true,
+        latest: false,
         borderColor: "#00d2fc",
         titleColor: "#00d2fc",
         badgeText: "HOTFIX",

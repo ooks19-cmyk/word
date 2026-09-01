@@ -367,6 +367,78 @@ try {
     console.warn("컨디션 업데이트 실패:", e);
 }
 
+// ==========================================
+// 🏆 CHALLENGE MODE STATE (도전모드 스테이지 시스템)
+// ==========================================
+let challengeSeason = 1;
+let challengeStage = 1;
+let challengeLastDate = "";
+let challengeDailyFreeUsed = false;
+let challengeDailyRetryUsed = false;
+let challengeHistory = { w: 0, d: 0, l: 0, totalGames: 0 };
 
+function getChallengeTodayDateString() {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
 
+function loadChallengeState() {
+    const myId = (typeof currentUser === 'string' && currentUser) ? currentUser : "ooks";
+    try {
+        const savedSeason = localStorage.getItem(`fc_star_challenge_season_${myId}`);
+        const savedStage = localStorage.getItem(`fc_star_challenge_stage_${myId}`);
+        const savedDate = localStorage.getItem(`fc_star_challenge_last_date_${myId}`);
+        const savedFreeUsed = localStorage.getItem(`fc_star_challenge_free_used_${myId}`);
+        const savedRetryUsed = localStorage.getItem(`fc_star_challenge_retry_used_${myId}`);
+        const savedHistory = localStorage.getItem(`fc_star_challenge_history_${myId}`);
 
+        challengeSeason = savedSeason ? parseInt(savedSeason) : 1;
+        challengeStage = savedStage ? parseInt(savedStage) : 1;
+        if (isNaN(challengeSeason) || challengeSeason < 1) challengeSeason = 1;
+        if (isNaN(challengeStage) || challengeStage < 1 || challengeStage > 10) challengeStage = 1;
+
+        const todayStr = getChallengeTodayDateString();
+        challengeLastDate = savedDate || todayStr;
+
+        if (savedDate === todayStr) {
+            challengeDailyFreeUsed = savedFreeUsed === 'true';
+            challengeDailyRetryUsed = savedRetryUsed === 'true';
+        } else {
+            // 새 날짜인 경우 일일 사용량 리셋
+            challengeDailyFreeUsed = false;
+            challengeDailyRetryUsed = false;
+            challengeLastDate = todayStr;
+            saveChallengeState();
+        }
+
+        if (savedHistory) {
+            challengeHistory = JSON.parse(savedHistory);
+        } else {
+            challengeHistory = { w: 0, d: 0, l: 0, totalGames: 0 };
+        }
+    } catch (e) {
+        console.warn("도전모드 로드 에러:", e);
+    }
+}
+
+function saveChallengeState() {
+    const myId = (typeof currentUser === 'string' && currentUser) ? currentUser : "ooks";
+    try {
+        localStorage.setItem(`fc_star_challenge_season_${myId}`, challengeSeason.toString());
+        localStorage.setItem(`fc_star_challenge_stage_${myId}`, challengeStage.toString());
+        localStorage.setItem(`fc_star_challenge_last_date_${myId}`, challengeLastDate || getChallengeTodayDateString());
+        localStorage.setItem(`fc_star_challenge_free_used_${myId}`, challengeDailyFreeUsed ? 'true' : 'false');
+        localStorage.setItem(`fc_star_challenge_retry_used_${myId}`, challengeDailyRetryUsed ? 'true' : 'false');
+        localStorage.setItem(`fc_star_challenge_history_${myId}`, JSON.stringify(challengeHistory));
+        localStorage.setItem('fc_star_local_last_updated', Date.now().toString());
+    } catch (e) {
+        console.warn("도전모드 저장 에러:", e);
+    }
+}
+
+try {
+    loadChallengeState();
+} catch (e) {}

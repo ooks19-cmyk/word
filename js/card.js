@@ -86,7 +86,16 @@ function generateCardHTML(cardData) {
         badgeShadow = '0 0 12px rgba(0, 242, 254, 0.8), 0 2px 4px rgba(0,0,0,0.5)';
         badgeBorder = '1px solid rgba(0, 242, 254, 0.5)';
         imageGradeClass = 'grade-worldclass';
+    } else if (rarity === 'super') {
+        badgeBg = 'linear-gradient(135deg, #ff007f 0%, #7928ca 50%, #00f2fe 100%)'; // 슈퍼 등급 오로라 네온 테마
+        badgeColor = '#fff';
+        badgeText = '⚡ SUPER';
+        badgeShadow = '0 0 16px rgba(255, 0, 127, 0.9), 0 0 25px rgba(0, 242, 254, 0.8)';
+        badgeBorder = '1px solid rgba(255, 255, 255, 0.8)';
+        imageGradeClass = 'grade-super';
     }
+
+    const superSparkleLayer = (rarity === 'super') ? '<div class="card-super-sparkle-layer"></div>' : '';
 
     const rarityBadgeHTML = `
         <div class="card-rarity-badge" style="
@@ -154,6 +163,7 @@ function generateCardHTML(cardData) {
 
     return `
         <div class="card-shine"></div>
+        ${superSparkleLayer}
         ${awkBadgeHTML}
         ${rarityBadgeHTML}
         ${condBadgeHTML}

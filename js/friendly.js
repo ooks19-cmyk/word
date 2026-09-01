@@ -1,12 +1,155 @@
 // ==========================================
-// 🤝 FRIENDLY MATCH (친선 경기) ENGINE & SYSTEM
+// 🏆 CHALLENGE MODE (도전모드 10단계 스테이지 시스템)
 // ==========================================
-let friendlyMatchesToday = 0;
-let friendlyMatchLastDate = "";
-let selectedFriendlyOpponent = null;
-let preloadedFriendlyUsers = [];
 
-// 표준화된 오늘 날짜 문자열 반환 (YYYY-MM-DD)
+// 10개 스테이지 유럽/세계 명문 구단 프리셋 (Stage 1: OVR 90 ~ Stage 10: OVR 98)
+const CHALLENGE_STAGES_PRESET = [
+    {
+        stage: 1,
+        id: "celtic_fc",
+        name: "셀틱 FC",
+        nation: "Scotland",
+        rating: 90,
+        bestPlayerName: "후루하시 (ST)",
+        activeFormation: "4-3-3",
+        initials: "CEL",
+        bg: "#016534",
+        fg: "#ffffff",
+        border: "#fefefe",
+        description: "스코틀랜드 최강자 셀틱 FC입니다. 빠른 전방 압박과 기동력 높은 측면 공격이 돋보이는 구단입니다."
+    },
+    {
+        stage: 2,
+        id: "afc_ajax",
+        name: "아약스",
+        nation: "Netherlands",
+        rating: 91,
+        bestPlayerName: "베르하위스 (RW)",
+        activeFormation: "4-3-3",
+        initials: "AJX",
+        bg: "#d2122e",
+        fg: "#ffffff",
+        border: "#ffffff",
+        description: "네덜란드 전통의 명문 아약스입니다. 유기적인 패스워크와 창의적인 토털 풋볼을 구사합니다."
+    },
+    {
+        stage: 3,
+        id: "sl_benfica",
+        name: "SL 벤피카",
+        nation: "Portugal",
+        rating: 92,
+        bestPlayerName: "디 마리아 (RW)",
+        activeFormation: "4-2-3-1",
+        initials: "SLB",
+        bg: "#e41b23",
+        fg: "#ffffff",
+        border: "#ffffff",
+        description: "포르투갈의 거함 SL 벤피카입니다. 디 마리아의 노련한 경기 조율과 날카로운 크로스가 위협적입니다."
+    },
+    {
+        stage: 4,
+        id: "as_roma",
+        name: "AS 로마",
+        nation: "Italy",
+        rating: 93,
+        bestPlayerName: "디발라 (CF)",
+        activeFormation: "3-4-2-1",
+        initials: "ROM",
+        bg: "#8e1f2f",
+        fg: "#f0bc42",
+        border: "#f0bc42",
+        description: "이탈리아 세리에A 명문 AS 로마입니다. 디발라를 중심으로 한 정교한 역습과 단단한 수비 라인을 갖추고 있습니다."
+    },
+    {
+        stage: 5,
+        id: "atletico_madrid",
+        name: "아틀레티코 마드리드",
+        nation: "Spain",
+        rating: 94,
+        bestPlayerName: "그리즈만 (ST)",
+        activeFormation: "5-3-2",
+        initials: "ATM",
+        bg: "#cb3524",
+        fg: "#ffffff",
+        border: "#182c54",
+        description: "스페인 라리가의 철벽 군단 아틀레티코 마드리드입니다. 그리즈만의 번뜩이는 침투와 견고한 질식 수비가 강점입니다."
+    },
+    {
+        stage: 6,
+        id: "arsenal_fc",
+        name: "아스날 FC",
+        nation: "England",
+        rating: 95,
+        bestPlayerName: "사카 (RW)",
+        activeFormation: "4-3-3",
+        initials: "ARS",
+        bg: "#ef0107",
+        fg: "#ffffff",
+        border: "#063672",
+        description: "잉글랜드 프리미어리그의 강자 아스날 FC입니다. 사카의 폭발적인 드리블과 높은 템포의 점유율 축구를 선보입니다."
+    },
+    {
+        stage: 7,
+        id: "bayern_munich",
+        name: "바이에른 뮌헨",
+        nation: "Germany",
+        rating: 96,
+        bestPlayerName: "해리 케인 (ST)",
+        activeFormation: "4-2-3-1",
+        initials: "FCB",
+        bg: "#dc052d",
+        fg: "#ffffff",
+        border: "#0066b2",
+        description: "독일 분데스리가의 절대 강자 바이에른 뮌헨입니다. 세계 최고의 골잡이 해리 케인을 필두로 압도적인 화력을 과시합니다."
+    },
+    {
+        stage: 8,
+        id: "man_city",
+        name: "맨체스터 시티",
+        nation: "England",
+        rating: 97,
+        bestPlayerName: "엘링 홀란 (ST)",
+        activeFormation: "4-3-3",
+        initials: "MCI",
+        bg: "#6cabdd",
+        fg: "#1c2c5b",
+        border: "#ffffff",
+        description: "세계 최정상 클럽 맨체스터 시티입니다. 괴물 공격수 홀란과 정밀한 패스 네트워크로 상대 진영을 맹폭합니다."
+    },
+    {
+        stage: 9,
+        id: "psg",
+        name: "파리 생제르맹",
+        nation: "France",
+        rating: 97,
+        bestPlayerName: "뎀벨레 (RW)",
+        activeFormation: "4-3-3",
+        initials: "PSG",
+        bg: "#001c55",
+        fg: "#ffffff",
+        border: "#da0812",
+        description: "프랑스 리그1 챔피언 PSG입니다. 화려한 스타 플레이어 군단과 번개 같은 측면 스피드로 골문을 위협합니다."
+    },
+    {
+        stage: 10,
+        id: "real_madrid",
+        name: "레알 마드리드",
+        nation: "Spain",
+        rating: 98,
+        bestPlayerName: "킬리안 음바페 (ST)",
+        activeFormation: "4-3-3",
+        initials: "RMA",
+        bg: "#ffffff",
+        fg: "#00529f",
+        border: "#eeaf22",
+        isFinalBoss: true,
+        description: "유럽 챔피언스리그 최다 우승에 빛나는 절대 보스 레알 마드리드입니다. 슈퍼스타 음바페가 이끄는 최강의 스쿼드입니다."
+    }
+];
+
+let selectedFriendlyOpponent = null;
+
+// 오늘 날짜 문자열 반환 (YYYY-MM-DD)
 function getFriendlyTodayDateString() {
     const d = new Date();
     const year = d.getFullYear();
@@ -15,538 +158,47 @@ function getFriendlyTodayDateString() {
     return `${year}-${month}-${day}`;
 }
 
-// Initialize Friendly Match State from LocalStorage
+// 도전모드 상태 초기화 및 날짜 동기화
+function initChallengeState() {
+    if (typeof loadChallengeState === 'function') {
+        loadChallengeState();
+    }
+    
+    // 현재 스테이지 상대팀 자동 선택
+    const stageIdx = Math.max(1, Math.min(10, challengeStage)) - 1;
+    selectedFriendlyOpponent = CHALLENGE_STAGES_PRESET[stageIdx] || CHALLENGE_STAGES_PRESET[0];
+
+    updateChallengeMatchPreview();
+    renderChallengeRoadmap();
+}
+
+// 하위 호환 별칭
 function initFriendlyMatchState() {
-    const myId = typeof currentUser === 'string' && currentUser ? currentUser : "ooks";
-    const keyLastDate = `fc_star_friendly_match_last_date_${myId}`;
-    const keyMatchesToday = `fc_star_friendly_matches_today_${myId}`;
-    const keyIndex = `fc_star_friendly_current_index_${myId}`;
-    
-    const todayStr = getFriendlyTodayDateString();
-    const legacyTodayStr = new Date().toLocaleDateString('ko-KR');
-    const savedDate = localStorage.getItem(keyLastDate);
-    const savedCount = localStorage.getItem(keyMatchesToday);
-    const savedIndex = localStorage.getItem(keyIndex);
-    
-    // 오늘 날짜와 일치하는 경우에만 진행 횟수 유지
-    if (savedDate === todayStr || savedDate === legacyTodayStr) {
-        friendlyMatchesToday = savedCount ? parseInt(savedCount) : 0;
-        friendlyCurrentOpponentIndex = savedIndex ? parseInt(savedIndex) : friendlyMatchesToday;
-        // 값 범위 안전 가드 (0 ~ 3)
-        friendlyMatchesToday = Math.min(3, Math.max(0, friendlyMatchesToday));
-        friendlyCurrentOpponentIndex = Math.min(3, Math.max(0, friendlyCurrentOpponentIndex));
-        friendlyMatchLastDate = todayStr;
-        localStorage.setItem(keyLastDate, todayStr);
-    } else {
-        // 날짜가 지났거나 새로운 날짜인 경우 무조건 0으로 리셋
-        friendlyMatchesToday = 0;
-        friendlyCurrentOpponentIndex = 0;
-        friendlyMatchLastDate = todayStr;
-        localStorage.setItem(keyLastDate, todayStr);
-        localStorage.setItem(keyMatchesToday, '0');
-        localStorage.setItem(keyIndex, '0');
-        
-        // 새로운 날짜이므로 클라우드 상태도 함께 초기화 백업
-        if (typeof saveUserProgress === 'function') {
-            saveUserProgress();
-        }
-    }
+    initChallengeState();
 }
 
-// 가상의 해외 리그 팀 중 3팀을 무작위 선택하여 전술과 OVR (+-2) 부여
-function generateVirtualFriendlyOpponents() {
-    const virtualTeamsPreset = [
-        { name: "LA FC", bestPlayerName: "손흥민 (LW)", activeFormation: "4-3-3", initials: "LA", bg: "#000000", fg: "#c39e5c", border: "#c39e5c" },
-        { name: "PSG", bestPlayerName: "이강인 (RW)", activeFormation: "4-2-3-1", initials: "PSG", bg: "#001c55", fg: "#ffffff", border: "#da0812" },
-        { name: "아스날", bestPlayerName: "사카 (RW)", activeFormation: "4-3-3", initials: "ARS", bg: "#ef0107", fg: "#ffffff", border: "#063672" },
-        { name: "레알마드리드", bestPlayerName: "음바페 (ST)", activeFormation: "4-3-3", initials: "RMA", bg: "#ffffff", fg: "#00529f", border: "#eeaf22" },
-        { name: "토쿄FC", bestPlayerName: "마츠키 (CM)", activeFormation: "4-4-2", initials: "TOK", bg: "#001c55", fg: "#ffffff", border: "#e60012" }
-    ];
-    
-    // 5개 팀 무작위 셔플 후 3개 팀 선택
-    const shuffled = [...virtualTeamsPreset].sort(() => 0.5 - Math.random());
-    const selected = shuffled.slice(0, 3);
-    
-    const pureOvr = getPlayerPureOvr();
-    const formTactic = (typeof getPlayerFormationTacticBonuses === 'function') ? getPlayerFormationTacticBonuses() : { formationBonus: 0 };
-    const playerOvr = pureOvr + (formTactic.formationBonus || 0);
-    const offsets = [-2, -1, 0, 1, 2];
-    
-    return selected.map((team, idx) => {
-        // OVR +-2 오프셋 결정
-        const offset = offsets[Math.floor(Math.random() * offsets.length)];
-        const rating = Math.min(Math.max(60, playerOvr + offset), 95);
-        
-        return {
-            id: `virtual_${team.name.replace(/\s+/g, '_').toLowerCase()}`,
-            name: team.name,
-            rating: rating,
-            bestPlayerName: team.bestPlayerName,
-            activeFormation: team.activeFormation,
-            initials: team.initials,
-            bg: team.bg,
-            fg: team.fg,
-            border: team.border,
-            squadFormation: { ST: "cards_default", GK: "cards_default" }, // 더미 데이터
-            friendlyMatchesHistory: { w: 0, d: 0, l: 0, pts: 0 },
-            isMock: true, // 가상 AI 봇 아이콘 연동용
-            updatedAt: new Date().toISOString()
-        };
-    });
+function initFriendlyMatchTab() {
+    initChallengeState();
 }
 
-// Calculate Opponent's Pure OVR based on their squadFormation and playerDeck
-function getOpponentPureOvr(opponentData) {
-    let totalOvr = 0;
-    const TACTICAL_POSITIONS = ["ST", "LW", "RW", "CM", "LCM", "RCM", "LB", "LCB", "RCB", "RB", "GK"];
-    
-    const formation = opponentData.squadFormation || {};
-    const deck = opponentData.playerDeck || {};
-    
-    TACTICAL_POSITIONS.forEach(pos => {
-        const cardId = formation[pos];
-        if (cardId && CARDS_DATABASE[cardId]) {
-            let rating = CARDS_DATABASE[cardId].rating;
-            if (deck[cardId]) {
-                const isAwakened = deck[cardId].awake || deck[cardId].awakeLevel > 0;
-                if (isAwakened) {
-                    const level = deck[cardId].awakeLevel || 1;
-                    rating += level;
-                }
-            }
-            totalOvr += rating;
-        } else {
-            totalOvr += 70; // default silver fallback
-        }
-    });
-    return Math.round(totalOvr / 11);
+// 현재 도전 상대팀 데이터 반환
+function getCurrentChallengeOpponent() {
+    const stageIdx = Math.max(1, Math.min(10, challengeStage)) - 1;
+    return CHALLENGE_STAGES_PRESET[stageIdx] || CHALLENGE_STAGES_PRESET[0];
 }
 
-// Get Opponent's Awakened Card (similar to getAwakenedCard but uses opponent's deck)
-function getOpponentAwakenedCard(cardId, opponentDeck) {
-    if (!CARDS_DATABASE[cardId]) return null;
-    const baseCard = CARDS_DATABASE[cardId];
-    const userCard = opponentDeck ? opponentDeck[cardId] : null;
-    
-    if (!userCard) return JSON.parse(JSON.stringify(baseCard));
-    
-    const cardCopy = JSON.parse(JSON.stringify(baseCard));
-    const isAwakened = userCard.awake || userCard.awakeLevel > 0;
-    if (isAwakened) {
-        const level = userCard.awakeLevel || 1;
-        cardCopy.rating += level;
-        if (cardCopy.stats) {
-            Object.keys(cardCopy.stats).forEach(statKey => {
-                cardCopy.stats[statKey] += level;
-            });
-        }
-    }
-    return cardCopy;
-}
+// 도전모드 매치 프리뷰 보드 갱신
+function updateChallengeMatchPreview() {
+    const opponent = getCurrentChallengeOpponent();
+    selectedFriendlyOpponent = opponent;
 
-// Get Opponent's Team Average Stat (similar to getTeamAverageStat but uses opponent's squad and deck)
-function getOpponentTeamAverageStat(opponentData, statKey) {
-    let total = 0;
-    let count = 0;
-    const TACTICAL_POSITIONS = ["ST", "LW", "RW", "CM", "LCM", "RCM", "LB", "LCB", "RCB", "RB", "GK"];
-    const formation = opponentData.squadFormation || {};
-    const deck = opponentData.playerDeck || {};
-    
-    TACTICAL_POSITIONS.forEach(pos => {
-        const cardId = formation[pos];
-        if (cardId) {
-            const awakened = getOpponentAwakenedCard(cardId, deck);
-            if (awakened && awakened.stats && typeof awakened.stats[statKey] === 'number') {
-                total += awakened.stats[statKey];
-                count++;
-            }
-        }
-    });
-    return count > 0 ? Math.round(total / count) : 0;
-}
-
-// Calculate Opponent's Total OVR including Formation Tactic OVR bonuses
-function getOpponentTotalOvr(opponentData) {
-    let avgOvr = getOpponentPureOvr(opponentData);
-    const formationBonus = getOpponentFormationTacticStatus(opponentData);
-    const totalOvr = avgOvr + formationBonus;
-    if (opponentData && opponentData.id !== 'jeonbuk') {
-        return Math.min(totalOvr, 95);
-    }
-    return totalOvr;
-}
-
-// Open Friendly Match modal and render other users list (excluding self and ooks12)
-async function openFriendlyMatchModal() {
-    initFriendlyMatchState();
-    
-    const modal = document.getElementById('friendlyMatchModal');
-    if (!modal) return;
-    
-    modal.style.display = 'flex';
-    
-    // Update count display
-    const countEl = document.getElementById('friendlyMatchesTodayCount');
-    if (countEl) {
-        countEl.innerText = `잔여 횟수: ${3 - friendlyMatchesToday}/3`;
-        if (3 - friendlyMatchesToday <= 0) {
-            countEl.style.color = '#ff3e6c';
-        } else {
-            countEl.style.color = '#a55eea';
-        }
-    }
-    
-    // Reset selection card
-    const selectedCard = document.getElementById('friendlySelectedCard');
-    if (selectedCard) selectedCard.style.display = 'none';
-    
-    const startBtn = document.getElementById('btnStartFriendlyChallenge');
-    if (startBtn) {
-        startBtn.style.opacity = '0.5';
-        startBtn.style.pointerEvents = 'none';
-    }
-    
-    selectedFriendlyOpponent = null;
-    
-    const listEl = document.getElementById('friendlyUserList');
-    if (!listEl) return;
-    
-    listEl.innerHTML = `
-        <div style="text-align: center; color: #64748b; padding: 2rem 0; font-size: 0.82rem;">
-            <i class="fa-solid fa-spinner fa-spin" style="margin-right: 6px; color: #a55eea;"></i> 가입된 유저 목록을 불러오는 중...
-        </div>
-    `;
-    
-    // 24시간 로컬 캐시 유효성 체크
-    const cachedUsers = localStorage.getItem('fc_star_friendly_users_cache');
-    const cachedUsersTime = localStorage.getItem('fc_star_friendly_users_cache_time');
-    const isUsersCacheValid = cachedUsers && cachedUsersTime && (Date.now() - parseInt(cachedUsersTime) < 24 * 60 * 60 * 1000);
-    
-    if (isUsersCacheValid) {
-        try {
-            const users = JSON.parse(cachedUsers);
-            if (users && users.length > 0) {
-                console.log("🟢 24시간 내 캐시된 친선경기 매칭 목록 사용 완료!");
-                renderFriendlyUserList(users, listEl);
-                return;
-            }
-        } catch (e) {
-            console.warn("매칭용 로컬 캐시 파싱 에러:", e);
-        }
-    }
-    
-    try {
-        // 5초 타임아웃 프로미스 레이스 설정
-        const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error("Timeout")), 5000);
-        });
-
-        const users = await Promise.race([
-            window.dbService.fetchRankings(),
-            timeoutPromise
-        ]);
-
-        // 원격 데이터 로드 성공 시 로컬 캐시에 즉시 세이브
-        try {
-            localStorage.setItem('fc_star_friendly_users_cache', JSON.stringify(users));
-            localStorage.setItem('fc_star_friendly_users_cache_time', Date.now().toString());
-        } catch (e) {
-            console.warn("친선 매치 데이터 캐싱 실패:", e);
-        }
-
-        renderFriendlyUserList(users, listEl);
-        
-    } catch (error) {
-        console.warn("친선 경기 매칭 유저 로드 실패 또는 5초 초과 타임아웃, 로컬 오프라인 캐시 폴백 적용:", error);
-        
-        let cachedUsersFallback = null;
-        try {
-            const cacheData = localStorage.getItem('fc_star_friendly_users_cache');
-            if (cacheData) {
-                cachedUsersFallback = JSON.parse(cacheData);
-            }
-        } catch (e) {
-            console.warn("친선 매치 로컬 캐시 로드 실패:", e);
-        }
-
-        if (cachedUsersFallback && cachedUsersFallback.length > 0) {
-            renderFriendlyUserList(cachedUsersFallback, listEl);
-            showToast("⚠️ 네트워크 지연으로 오프라인 캐시 데이터를 로드했습니다.");
-        } else {
-            listEl.innerHTML = `
-                <div style="text-align: center; color: #ff3e6c; padding: 2rem 0; font-size: 0.82rem; line-height: 1.45;">
-                    <i class="fa-solid fa-triangle-exclamation" style="margin-right: 6px;"></i> 네트워크 연결이 불안정하며, 저장된 오프라인 캐시 데이터가 없습니다.
-                </div>
-            `;
-        }
-    }
-}
-
-// 친선 경기 유저 로스터 렌더링 헬퍼 함수
-function renderFriendlyUserList(users, listEl) {
-    preloadedFriendlyUsers = users;
-    
-    // Filter out logged in user and 'ooks12'
-    const currentUserId = typeof currentUser === 'string' && currentUser ? currentUser.toLowerCase() : "";
-    const filteredUsers = users.filter(u => {
-        const uid = u.id.toLowerCase();
-        return uid !== 'ooks12' && uid !== currentUserId;
-    });
-    
-    listEl.innerHTML = '';
-    
-    if (filteredUsers.length === 0) {
-        listEl.innerHTML = `
-            <div style="text-align: center; color: #64748b; padding: 2rem 0; font-size: 0.82rem;">
-                도전 가능한 다른 유저가 존재하지 않습니다.
-            </div>
-        `;
-        return;
-    }
-    
-    filteredUsers.forEach(u => {
-        const pureOvr = getOpponentPureOvr(u);
-        const opponentOvr = getOpponentTotalOvr(u);
-        const tacticBonus = opponentOvr - pureOvr;
-        
-        let bonusBadgeHtml = "";
-        if (tacticBonus > 0) {
-            bonusBadgeHtml = `<span style="font-size: 0.62rem; background: rgba(0, 255, 135, 0.12); padding: 1px 5px; border-radius: 4px; color: #00ff87; border: 1px solid rgba(0, 255, 135, 0.25); font-weight: 800; margin-left: 5px;">+${tacticBonus}⚡</span>`;
-        }
-        
-        const userCard = document.createElement('div');
-        userCard.style.cssText = `
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.6rem 0.8rem;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-        `;
-        userCard.className = 'friendly-user-item';
-        userCard.id = `friendly-user-${u.id}`;
-        userCard.onclick = () => selectFriendlyOpponent(u.id);
-        
-        userCard.onmouseenter = () => {
-            userCard.style.background = 'rgba(165, 94, 234, 0.08)';
-            userCard.style.borderColor = 'rgba(165, 94, 234, 0.3)';
-        };
-        userCard.onmouseleave = () => {
-            if (selectedFriendlyOpponent && selectedFriendlyOpponent.id === u.id) {
-                userCard.style.background = 'rgba(165, 94, 234, 0.12)';
-                userCard.style.borderColor = '#a55eea';
-            } else {
-                userCard.style.background = 'rgba(255, 255, 255, 0.03)';
-                userCard.style.borderColor = 'rgba(255, 255, 255, 0.06)';
-            }
-        };
-        
-        userCard.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <i class="fa-solid fa-user" style="color: #94a3b8; font-size: 0.85rem;"></i>
-                <span style="font-size: 0.85rem; font-weight: 700; color: #f1f5f9;">${u.id}</span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 0.72rem; background: rgba(255, 255, 255, 0.06); padding: 2px 6px; border-radius: 6px; color: #94a3b8; display: flex; align-items: center;">OVR ${opponentOvr}${bonusBadgeHtml}</span>
-                <i class="fa-solid fa-chevron-right" style="color: #64748b; font-size: 0.75rem;"></i>
-            </div>
-        `;
-        
-        listEl.appendChild(userCard);
-    });
-}
-
-// 친선 대결 상태 및 순위표 글로벌 변수
-let friendlyOpponentsList = [];
-let friendlyGlobalStandingsList = []; // 친선경기를 한 번이라도 플레이한 이력이 있는 전체 유저 목록
-let friendlyCurrentOpponentIndex = 0;
-let friendlyMatchesHistory = { w: 0, d: 0, l: 0, pts: 0 };
-
-// 친선경기 전적 상태 로드
-function loadFriendlyMatchesState() {
-    initFriendlyMatchState();
-    
-    const myId = typeof currentUser === 'string' && currentUser ? currentUser : "ooks";
-    const keyIndex = `fc_star_friendly_current_index_${myId}`;
-    const keyHistory = `fc_star_friendly_history_${myId}`;
-    
-    const savedIndex = localStorage.getItem(keyIndex);
-    friendlyCurrentOpponentIndex = savedIndex ? parseInt(savedIndex) : 0;
-    
-    const savedHistory = localStorage.getItem(keyHistory);
-    if (savedHistory) {
-        try {
-            friendlyMatchesHistory = JSON.parse(savedHistory);
-        } catch (e) {
-            friendlyMatchesHistory = { w: 0, d: 0, l: 0, pts: 0 };
-        }
-    } else {
-        friendlyMatchesHistory = { w: 0, d: 0, l: 0, pts: 0 };
-    }
-}
-
-// 친선경기 전적 상태 저장
-function saveFriendlyMatchesState() {
-    const myId = typeof currentUser === 'string' && currentUser ? currentUser : "ooks";
-    const keyIndex = `fc_star_friendly_current_index_${myId}`;
-    const keyHistory = `fc_star_friendly_history_${myId}`;
-    const keyMatchesToday = `fc_star_friendly_matches_today_${myId}`;
-
-    localStorage.setItem(keyIndex, friendlyCurrentOpponentIndex.toString());
-    localStorage.setItem(keyHistory, JSON.stringify(friendlyMatchesHistory));
-    localStorage.setItem(keyMatchesToday, friendlyMatchesToday.toString());
-}
-
-// 상대 구단 리스트 즉시 확보 헬퍼 함수
-function ensureFriendlyOpponentsList() {
-    if (!friendlyOpponentsList || friendlyOpponentsList.length === 0) {
-        const cachedOpps = localStorage.getItem('fc_star_friendly_cached_opponents');
-        if (cachedOpps) {
-            try {
-                const parsed = JSON.parse(cachedOpps);
-                if (parsed && parsed.length > 0) {
-                    friendlyOpponentsList = parsed.sort((a, b) => a.rating - b.rating);
-                }
-            } catch(e) {}
-        }
-        if (!friendlyOpponentsList || friendlyOpponentsList.length === 0) {
-            friendlyOpponentsList = generateVirtualFriendlyOpponents();
-            try {
-                localStorage.setItem('fc_star_friendly_cached_opponents', JSON.stringify(friendlyOpponentsList));
-                localStorage.setItem('fc_star_friendly_opponents_cache_time', Date.now().toString());
-            } catch(e) {}
-        }
-    }
-    return friendlyOpponentsList;
-}
-
-// 친선경기 매칭 프리뷰 UI 업데이트
-function updateFriendlyMatchPreview() {
-    initFriendlyMatchState();
-    ensureFriendlyOpponentsList();
-    
-    const countValEl = document.getElementById('friendlyTodayCountVal');
-    if (countValEl) {
-        countValEl.innerText = friendlyMatchesToday;
-    }
-
-    // 주간 시즌 마감 D-Day 동적 갱신 (매주 금요일 자정 23:59:59 기준 마감)
-    const myId = typeof currentUser === 'string' && currentUser ? currentUser : "ooks";
-    const keyStartDate = `fc_star_friendly_season_start_date_${myId}`;
-    let startDateStr = localStorage.getItem(keyStartDate);
-    if (!startDateStr) {
-        const now = new Date();
-        const lastFriday = new Date();
-        const day = lastFriday.getDay();
-        const diff = (day >= 5) ? (day - 5) : (day + 2);
-        lastFriday.setDate(lastFriday.getDate() - diff);
-        lastFriday.setHours(0, 0, 0, 0);
-        startDateStr = lastFriday.toISOString();
-        localStorage.setItem(keyStartDate, startDateStr);
-    }
-    
-    const startDate = new Date(startDateStr);
-    const day = startDate.getDay();
-    let diffToFriday = (5 - day + 7) % 7;
-    if (diffToFriday === 0) diffToFriday = 7;
-    
-    const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + diffToFriday);
-    endDate.setHours(23, 59, 59, 999);
-    
-    const now = new Date();
-    const diffMs = endDate.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffMs / (24 * 60 * 60 * 1000));
-    
-    const dDayBadge = document.getElementById('friendlyDDayBadge');
-    if (dDayBadge) {
-        if (diffDays > 0) {
-            dDayBadge.innerText = `마감 D-${diffDays}`;
-            dDayBadge.style.background = 'rgba(165, 94, 234, 0.15)';
-            dDayBadge.style.borderColor = 'rgba(165, 94, 234, 0.3)';
-            dDayBadge.style.color = '#a55eea';
-        } else {
-            dDayBadge.innerText = `마감 임박`;
-            dDayBadge.style.background = 'rgba(239, 68, 68, 0.15)';
-            dDayBadge.style.borderColor = 'rgba(239, 68, 68, 0.3)';
-            dDayBadge.style.color = '#ef4444';
-        }
-    }
-
-    // 상태 배지 업데이트 (해외 리그 매칭 상태 고정)
-    const statusBadge = document.getElementById('friendlyDataStatusBadge');
-    if (statusBadge) {
-        statusBadge.style.background = 'rgba(165, 94, 234, 0.12)';
-        statusBadge.style.borderColor = 'rgba(165, 94, 234, 0.25)';
-        statusBadge.style.color = '#a55eea';
-        statusBadge.innerHTML = `<i class="fa-solid fa-globe"></i> 해외 리그 매칭 (GLOBAL)`;
-    }
-
-    if (friendlyCurrentOpponentIndex >= 3) {
-        // 모든 릴레이 매칭 완료
-        const friendlyTodayCountValEl = document.getElementById('friendlyTodayCountVal');
-        if (friendlyTodayCountValEl) friendlyTodayCountValEl.innerText = "3";
-        
-        const friendlyTimeDisp = document.getElementById('friendlySbTimeDisplay');
-        if (friendlyTimeDisp) friendlyTimeDisp.innerText = "완료";
-        
-        const fHomeScore = document.getElementById('friendlyHomeScore');
-        const fAwayScore = document.getElementById('friendlyAwayScore');
-        if (fHomeScore) fHomeScore.innerText = "-";
-        if (fAwayScore) fAwayScore.innerText = "-";
-        
-        const fHomeName = document.getElementById('friendlyHomeTeamName');
-        if (fHomeName) fHomeName.innerText = "오늘의";
-        
-        const fAwayName = document.getElementById('friendlyAwayTeamName');
-        if (fAwayName) fAwayName.innerText = "대결 종료";
-        
-        const fVenueDisp = document.getElementById('friendlyMatchVenueDisplay');
-        if (fVenueDisp) fVenueDisp.innerText = "오늘의 친선경기를 모두 마쳤습니다. 매일 3개 팀과 릴레이 매칭이 리셋됩니다!";
-        
-        // 친선경기 개시 버튼 비활성화
-        const startBtn = document.getElementById('btnStartFriendlyMatch');
-        if (startBtn) {
-            startBtn.disabled = true;
-            startBtn.innerText = "대결 완료 🏆";
-            startBtn.style.background = 'rgba(255, 255, 255, 0.05)';
-            startBtn.style.color = 'var(--text-muted)';
-            startBtn.style.cursor = 'not-allowed';
-        }
-
-        // 친선 중계창 완료 안내 (기존 중계 기록 덮어쓰기 방지)
-        const commBox = document.getElementById('friendlyCommentaryScroll');
-        if (commBox) {
-            const isInitialState = commBox.innerHTML.includes("친선 경기를 시작하려면 아래");
-            if (commBox.innerHTML === '' || isInitialState) {
-                commBox.innerHTML = '<div class="comm-item comm-system">🏆 오늘의 친선 릴레이 매칭을 모두 완료했습니다! 새로운 상대 팀은 내일 다시 갱신됩니다.</div>';
-            }
-        }
-        const analysisCard = document.getElementById('friendlyOpponentAnalysisCard');
-        if (analysisCard) analysisCard.style.display = 'none';
-        return;
-    }
-
-    const opponent = friendlyOpponentsList[friendlyCurrentOpponentIndex];
+    // 플레이어 구단 정보
     const pureOvr = getPlayerPureOvr();
     const formTactic = (typeof getPlayerFormationTacticBonuses === 'function') ? getPlayerFormationTacticBonuses() : { formationBonus: 0 };
     const userTotalOvr = pureOvr + (formTactic.formationBonus || 0);
 
-    // 친선 스코어보드 바인딩
-    const friendlyTimeDisp = document.getElementById('friendlySbTimeDisplay');
-    if (friendlyTimeDisp) friendlyTimeDisp.innerText = "VS";
-    
-    const fHomeScore = document.getElementById('friendlyHomeScore');
-    const fAwayScore = document.getElementById('friendlyAwayScore');
-    if (fHomeScore) fHomeScore.innerText = "0";
-    if (fAwayScore) fAwayScore.innerText = "0";
-
-    // 나 자신 (홈)
     const userTeamName = (typeof getActiveUserTeamName === 'function') ? getActiveUserTeamName() : ((typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') ? '리버풀 FC' : '전북 현대');
-    const userShortName = (typeof getActiveUserShortName === 'function') ? getActiveUserShortName() : ((typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') ? '리버풀' : '전북');
+    const userShortName = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') ? '리버풀' : '전북';
     const userEmblem = (typeof getActiveUserEmblem === 'function') ? getActiveUserEmblem() : ((typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') ? 'img/mark_liverpool.png' : 'img/mark_jb.svg');
 
     const fHomeName = document.getElementById('friendlyHomeTeamName');
@@ -562,11 +214,11 @@ function updateFriendlyMatchPreview() {
         fHomeEmblem.classList.add('jeonbuk-emblem-box');
     }
 
-    // 상대팀 (원정) - Mock 데이터인 경우 이름에 로봇 아이콘 표시
+    // 상대팀 (원정) 엠블럼 및 정보
     const fAwayName = document.getElementById('friendlyAwayTeamName');
     if (fAwayName) {
-        fAwayName.innerHTML = opponent.isMock 
-            ? `<span style="display: flex; align-items: center; justify-content: center; gap: 6px;"><i class="fa-solid fa-robot" style="color: #ff3e6c;"></i> ${opponent.name}</span>`
+        fAwayName.innerHTML = opponent.isFinalBoss
+            ? `<span style="display: flex; align-items: center; justify-content: center; gap: 6px; color: #ffd700;"><i class="fa-solid fa-crown"></i> ${opponent.name}</span>`
             : opponent.name;
     }
     
@@ -575,29 +227,53 @@ function updateFriendlyMatchPreview() {
     
     const fAwayEmblem = document.getElementById('friendlyAwayEmblem');
     if (fAwayEmblem) {
-        if (opponent.initials) {
-            fAwayEmblem.innerHTML = `
-                <div style="width: 48px; height: 48px; background: ${opponent.bg}; border: 2.5px solid ${opponent.border}; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; font-weight: 900; color: ${opponent.fg}; box-shadow: 0 0 10px ${opponent.border}66; text-shadow: 1px 1px 2px rgba(0,0,0,0.6);">
-                    ${opponent.initials}
-                </div>
-            `;
-        } else {
-            fAwayEmblem.innerHTML = `<div style="width: 48px; height: 48px; background: rgba(165, 94, 234, 0.15); border: 1.5px solid rgba(165, 94, 234, 0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #a55eea; box-shadow: 0 0 10px rgba(165, 94, 234, 0.3);"><i class="fa-solid fa-crown"></i></div>`;
-        }
+        fAwayEmblem.innerHTML = `
+            <div style="width: 48px; height: 48px; background: ${opponent.bg}; border: 2.5px solid ${opponent.border}; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; font-weight: 900; color: ${opponent.fg}; box-shadow: 0 0 12px ${opponent.border}88; text-shadow: 1px 1px 2px rgba(0,0,0,0.6);">
+                ${opponent.initials}
+            </div>
+        `;
+    }
+
+    const fTimeDisplay = document.getElementById('friendlySbTimeDisplay');
+    if (fTimeDisplay) {
+        fTimeDisplay.innerText = `시즌 ${challengeSeason} · STAGE ${challengeStage}`;
     }
 
     const fVenueDisp = document.getElementById('friendlyMatchVenueDisplay');
-    if (fVenueDisp) fVenueDisp.innerText = `원정팀 전술: ${opponent.activeFormation} | OVR 보정 없음 (홈어드밴티지: 0)`;
+    if (fVenueDisp) {
+        fVenueDisp.innerText = `원정팀 전술: ${opponent.activeFormation} | 상대 국적: ${opponent.nation}`;
+    }
+
+    // 상단 스테이터스 및 카운트 배지 갱신
+    const statusBadge = document.getElementById('friendlyDataStatusBadge');
+    if (statusBadge) {
+        if (opponent.isFinalBoss) {
+            statusBadge.innerHTML = `<i class="fa-solid fa-fire"></i> FINAL BOSS (10R)`;
+            statusBadge.style.background = 'rgba(255, 215, 0, 0.15)';
+            statusBadge.style.borderColor = 'rgba(255, 215, 0, 0.4)';
+            statusBadge.style.color = '#ffd700';
+        } else {
+            statusBadge.innerHTML = `<i class="fa-solid fa-shield-halved"></i> STAGE ${challengeStage} / 10`;
+            statusBadge.style.background = 'rgba(165, 94, 234, 0.15)';
+            statusBadge.style.borderColor = 'rgba(165, 94, 234, 0.4)';
+            statusBadge.style.color = '#a55eea';
+        }
+    }
+
+    const todayCountVal = document.getElementById('friendlyTodayCountVal');
+    if (todayCountVal) {
+        todayCountVal.innerText = `${challengeStage}/10`;
+    }
 
     // 상대팀 정보 요약 프레임 연동
-    const oppFormation = opponent.activeFormation || "4-4-2";
+    const oppFormation = opponent.activeFormation || "4-3-3";
     const compBonus = getFormationCompatibilityBonus(currentFormation, oppFormation);
     
     const analysisCard = document.getElementById('friendlyOpponentAnalysisCard');
     if (analysisCard) {
         analysisCard.style.display = 'block';
-        document.getElementById('friendlyOpponentFormationText').innerText = oppFormation;
-        document.getElementById('friendlyOpponentMoodText').innerHTML = `보통 😐`; // 친선전 컨디션 보통 고정
+        const oppFormText = document.getElementById('friendlyOpponentFormationText');
+        if (oppFormText) oppFormText.innerText = oppFormation;
         
         const compTextEl = document.getElementById('friendlyOpponentCompatibilityText');
         if (compTextEl) {
@@ -611,7 +287,6 @@ function updateFriendlyMatchPreview() {
                 compTextEl.classList.add('tactic-disadvantage');
                 compTextEl.innerHTML = `상대의 <strong>${oppFormation}</strong> 전술이 ${userTeamName}의 <strong>${currentFormation}</strong> 전술에 상성상 우세합니다. (공격 찬스 확률 -5.0% ⚠️)`;
             } else {
-                // 피드백 반영: 상성이 비겼을 때(보너스 0)는 설명 숨김
                 compTextEl.style.display = 'none';
             }
         }
@@ -630,1027 +305,799 @@ function updateFriendlyMatchPreview() {
                 <span style="font-weight: 700; color: #ffd700;"><i class="fa-solid fa-crown"></i> ${opponent.bestPlayerName}</span>
             </div>
             <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
-                <span style="color: var(--text-muted);">대결 순서:</span>
-                <span style="font-weight: 700; color: #a55eea;">오늘의 대결 (${friendlyCurrentOpponentIndex + 1} / 3번째)</span>
+                <span style="color: var(--text-muted);">도전 스테이지:</span>
+                <span style="font-weight: 700; color: #a55eea;">시즌 ${challengeSeason} · Stage ${challengeStage} (${opponent.name})</span>
             </div>
         `;
     }
 
-    // 친선 경기 개시 버튼 상태 갱신
+    // 도전모드 버튼 상태 갱신
+    updateChallengeButtonState();
+}
+
+// 하위 호환 별칭
+function updateFriendlyMatchPreview() {
+    updateChallengeMatchPreview();
+}
+
+// 도전모드 버튼 상태 제어 함수
+function updateChallengeButtonState() {
     const startBtn = document.getElementById('btnStartFriendlyMatch');
-    if (startBtn) {
+    if (!startBtn) return;
+
+    // Case 1: 오늘 무료 도전 미사용 -> 무료 도전 가능
+    if (!challengeDailyFreeUsed) {
         startBtn.disabled = false;
-        startBtn.innerHTML = `<i class="fa-solid fa-play" style="margin-right: 8px;"></i>친선 경기 개시 (상대: ${opponent.name})`;
-        startBtn.style.background = '';
-        startBtn.style.color = '';
+        startBtn.onclick = () => startChallengeMatchSimulation(false);
+        startBtn.innerHTML = `<i class="fa-solid fa-play" style="margin-right: 8px;"></i>무료 도전 시작 (Stage ${challengeStage})`;
+        startBtn.style.background = 'linear-gradient(135deg, #a55eea, #4b7bec)';
+        startBtn.style.color = '#fff';
         startBtn.style.cursor = 'pointer';
+        startBtn.style.opacity = '1';
+    } 
+    // Case 2: 오늘 무료 도전 실패 후 재도전 미사용 -> 5P 소모 재도전 가능
+    else if (!challengeDailyRetryUsed) {
+        startBtn.disabled = false;
+        startBtn.onclick = () => startChallengeMatchSimulation(true);
+        startBtn.innerHTML = `<i class="fa-solid fa-fire" style="margin-right: 8px; color: #ffd700;"></i>5P 소모하고 재도전하기 (현재: ${userPoints} FP)`;
+        startBtn.style.background = 'linear-gradient(135deg, #ff416c, #ff4b2b)';
+        startBtn.style.color = '#fff';
+        startBtn.style.cursor = 'pointer';
+        startBtn.style.opacity = '1';
+    } 
+    // Case 3: 오늘 완료 (승리하여 다음 스테이지 진출 또는 재도전까지 소진)
+    else {
+        startBtn.disabled = true;
+        startBtn.onclick = null;
+        startBtn.innerHTML = `<i class="fa-solid fa-check-circle" style="margin-right: 8px; color: #00ff87;"></i>오늘의 도전 완료 (내일 다음 경기 가능)`;
+        startBtn.style.background = 'rgba(255, 255, 255, 0.08)';
+        startBtn.style.color = 'var(--text-muted)';
+        startBtn.style.cursor = 'not-allowed';
+        startBtn.style.opacity = '0.7';
     }
 }
 
-// 친선경기 주간 순위표 렌더링
-function renderFriendlyTable() {
-    const tbody = document.querySelector('#matchLayoutFriendly .friendly-table tbody');
-    if (!tbody) return;
+// 우측 패널: 1~10 스테이지 로드맵 & 시즌 우승 보상 쇼케이스 렌더링
+function renderChallengeRoadmap() {
+    const tablePanel = document.querySelector('#matchLayoutFriendly .league-table-panel');
+    if (!tablePanel) return;
 
-    tbody.innerHTML = '';
+    // 보상 카드 정보 (시즌 1: 슈퍼 리오넬 메시)
+    const rewardCardId = "super_messi";
+    const rewardCard = (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE[rewardCardId]) ? CARDS_DATABASE[rewardCardId] : null;
 
-    const userShortName = (typeof getActiveUserShortName === 'function') ? getActiveUserShortName() : ((typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') ? '리버풀' : '전북');
-    const myRowData = {
-        name: `나의 구단 (${userShortName})`,
-        pts: friendlyMatchesHistory.pts || 0,
-        record: `${friendlyMatchesHistory.w || 0}승 ${friendlyMatchesHistory.d || 0}무 ${friendlyMatchesHistory.l || 0}패`,
-        rate: getFriendlyWinRate(friendlyMatchesHistory),
-        isMe: true
-    };
+    let stagesHtml = '';
+    CHALLENGE_STAGES_PRESET.forEach((team) => {
+        const isCurrent = (team.stage === challengeStage);
+        const isCleared = (team.stage < challengeStage);
+        const isLocked = (team.stage > challengeStage);
 
-    const rows = [myRowData];
-    
-    // 순위표에는 전적이 한 번이라도 존재하는 전체 DB 유저 리스트만 렌더링!
-    friendlyGlobalStandingsList.forEach(opp => {
-        const oppWins = opp.friendlyMatchesHistory.w || 0;
-        const oppDraws = opp.friendlyMatchesHistory.d || 0;
-        const oppLosses = opp.friendlyMatchesHistory.l || 0;
-        const oppPts = opp.friendlyMatchesHistory.pts || 0;
-        const total = oppWins + oppDraws + oppLosses;
-        const oppRate = total === 0 ? "0%" : Math.round((oppWins / total) * 100) + "%";
+        let rowStyle = 'background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);';
+        let statusBadgeHtml = '';
 
-        rows.push({
-            name: opp.name,
-            pts: oppPts,
-            record: `${oppWins}승 ${oppDraws}무 ${oppLosses}패`,
-            rate: oppRate,
-            isMe: false,
-            isMock: opp.isMock
-        });
-    });
-
-    // 승점 높은 순으로 정렬
-    rows.sort((a, b) => b.pts - a.pts);
-
-    rows.forEach((row, idx) => {
-        const rank = idx + 1;
-        const tr = document.createElement('tr');
-        
-        if (row.isMe) {
-            tr.className = 'league-row-jeonbuk';
-            tr.style.cssText = "background: linear-gradient(90deg, rgba(165, 94, 234, 0.12) 0%, rgba(165, 94, 234, 0.03) 100%) !important; border-color: rgba(165, 94, 234, 0.25) !important;";
-        }
-
-        const mockTag = row.isMock ? ` <span style="font-size: 0.65rem; color: #ff3e6c; background: rgba(255, 62, 108, 0.12); padding: 1px 5px; border-radius: 4px; font-weight: 800; border: 1px solid rgba(255, 62, 108, 0.25);"><i class="fa-solid fa-robot"></i> AI</span>` : '';
-
-        tr.innerHTML = `
-            <td class="league-row-rank" style="${row.isMe ? 'color: #a55eea !important;' : ''}">${rank}</td>
-            <td class="league-team-col" style="${row.isMe ? 'color: #a55eea !important; font-weight: 800;' : ''}">
-                <i class="${row.isMe ? 'fa-solid fa-shield-halved' : 'fa-regular fa-circle-user'}" style="${row.isMe ? 'color: #a55eea;' : 'color: var(--text-muted);'}"></i>
-                <span>${row.name}${mockTag}</span>
-            </td>
-            <td class="league-row-pts">${row.pts}</td>
-            <td>${row.record}</td>
-            <td style="font-weight: 800; color: #00ff87;">${row.rate}</td>
-        `;
-
-        tbody.appendChild(tr);
-    });
-}
-
-function getFriendlyWinRate(history) {
-    const total = (history.w || 0) + (history.d || 0) + (history.l || 0);
-    if (total === 0) return "0%";
-    return Math.round(((history.w || 0) / total) * 100) + "%";
-}
-
-// 친선경기 탭 클릭 시 격발되는 정보 초기화 및 로드 함수
-// 친선경기 순위표 가공 및 렌더링 헬퍼
-function processAndRenderStandings(allUsers, myId) {
-    friendlyGlobalStandingsList = allUsers.filter(u => {
-        const userId = (u.id || "").trim().toLowerCase();
-        if (userId === myId.trim().toLowerCase()) return false;
-        if (userId === "ooks12") return false; // 개발자 계정 제외
-        
-        // 전적이 한 번이라도 있는 유저만 필터링!
-        return u.friendlyMatchesHistory && 
-               (u.friendlyMatchesHistory.w > 0 || 
-                u.friendlyMatchesHistory.d > 0 || 
-                u.friendlyMatchesHistory.l > 0);
-    }).map(u => {
-        let calculatedOvr = 70;
-        if (u.squadFormation && typeof u.squadFormation === 'object' && Object.keys(u.squadFormation).length > 0) {
-            let totalOvr = 0;
-            let count = 0;
-            const positions = ["ST", "LW", "RW", "CM", "LCM", "RCM", "LB", "LCB", "RCB", "RB", "GK"];
-            positions.forEach(pos => {
-                const cardId = u.squadFormation[pos];
-                if (cardId) {
-                    let cardRating = 70;
-                    if (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE && CARDS_DATABASE[cardId]) {
-                        cardRating = CARDS_DATABASE[cardId].rating;
-                        if (u.playerDeck && u.playerDeck[cardId] && typeof u.playerDeck[cardId].awakening === 'number') {
-                            cardRating += u.playerDeck[cardId].awakening;
-                        }
-                    }
-                    totalOvr += cardRating;
-                    count++;
-                }
-            });
-            if (count > 0) {
-                calculatedOvr = Math.round(totalOvr / count);
-            }
+        if (isCleared) {
+            rowStyle = 'background: rgba(0, 255, 135, 0.06); border: 1px solid rgba(0, 255, 135, 0.25);';
+            statusBadgeHtml = `<span style="color: #00ff87; font-weight: 800; font-size: 0.72rem;"><i class="fa-solid fa-circle-check"></i> 클리어</span>`;
+        } else if (isCurrent) {
+            rowStyle = 'background: linear-gradient(90deg, rgba(165, 94, 234, 0.2) 0%, rgba(255, 0, 127, 0.1) 100%); border: 1.5px solid #a55eea; box-shadow: 0 0 12px rgba(165, 94, 234, 0.35);';
+            statusBadgeHtml = `<span style="color: #ffd700; font-weight: 900; font-size: 0.72rem; animation: pulseGlow 1.5s infinite;"><i class="fa-solid fa-swords"></i> 도전 중</span>`;
         } else {
-            calculatedOvr = u.userLevel ? 70 + parseInt(u.userLevel) : 72;
+            statusBadgeHtml = `<span style="color: var(--text-muted); font-size: 0.7rem;"><i class="fa-solid fa-lock"></i> 잠김</span>`;
         }
-        
-        let displayRating = u.rating || calculatedOvr;
-        if (u.id !== 'jeonbuk' && u.id !== myId) {
-            displayRating = Math.min(displayRating, 95);
-        }
-        
-        return {
-            id: u.id,
-            name: u.id.toUpperCase(),
-            rating: displayRating,
-            friendlyMatchesHistory: u.friendlyMatchesHistory,
-            isMock: false
-        };
+
+        stagesHtml += `
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0.8rem; border-radius: 10px; margin-bottom: 6px; ${rowStyle}">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="font-weight: 900; font-size: 0.75rem; color: ${isCurrent ? '#ffd700' : isCleared ? '#00ff87' : 'var(--text-muted)'}; min-width: 22px;">
+                        ${team.stage}R
+                    </div>
+                    <div style="width: 28px; height: 28px; background: ${team.bg}; border: 1.5px solid ${team.border}; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 900; color: ${team.fg};">
+                        ${team.initials}
+                    </div>
+                    <div>
+                        <div style="font-size: 0.82rem; font-weight: 800; color: ${isCurrent ? '#fff' : isCleared ? '#dcdde1' : 'var(--text-muted)'};">
+                            ${team.name} ${team.isFinalBoss ? '<i class="fa-solid fa-crown" style="color: #ffd700; margin-left: 2px;"></i>' : ''}
+                        </div>
+                        <div style="font-size: 0.68rem; color: var(--text-muted);">
+                            대표: ${team.bestPlayerName}
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span class="sb-ovr-tag" style="font-size: 0.7rem; padding: 2px 6px; ${isCurrent ? 'color: #ffd700; border-color: rgba(255,215,0,0.3);' : 'color: #cbd5e1; border-color: rgba(255,255,255,0.1);'}">
+                        OVR <strong>${team.rating}</strong>
+                    </span>
+                    <div style="min-width: 60px; text-align: right;">
+                        ${statusBadgeHtml}
+                    </div>
+                </div>
+            </div>
+        `;
     });
-    renderFriendlyTable();
-}
 
-// 친선경기 탭 클릭 시 격발되는 정보 초기화 및 로드 함수
-async function initFriendlyMatchTab() {
-    loadFriendlyMatchesState();
+    tablePanel.innerHTML = `
+        <div class="squad-header" style="border-bottom: 1px solid var(--glass-border); padding-bottom: 0.8rem; margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center;">
+            <h3 class="deck-title" style="font-size: 1.1rem; color: #fff; margin: 0;">
+                <i class="fa-solid fa-trophy" style="margin-right: 8px; color: #ffd700;"></i>도전모드 스테이지 로드맵
+            </h3>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span id="challengeSeasonBadge" style="font-size: 0.68rem; color: #ffd700; background: rgba(255, 215, 0, 0.15); border: 1px solid rgba(255, 215, 0, 0.35); padding: 2px 8px; border-radius: 12px; font-weight: 800;">
+                    시즌 ${challengeSeason} 진행 중
+                </span>
+            </div>
+        </div>
 
-    // 주간 자동 시즌 마감 체크
-    if (typeof checkFriendlySeasonClose === 'function') {
-        const isClosed = checkFriendlySeasonClose();
-        if (isClosed) return; // 마감 정산 팝업이 활성화되었으므로 탭 초기화 정지
-    }
+        <!-- 10개 스테이지 스크롤 리스트 -->
+        <div style="max-height: 280px; overflow-y: auto; padding-right: 4px; margin-bottom: 1rem;">
+            ${stagesHtml}
+        </div>
 
-    const myId = typeof currentUser === 'string' && currentUser ? currentUser : "ooks";
-
-    // 1. 전체 유저 순위표용 캐시 체크 (24시간 규격)
-    const cachedUsers = localStorage.getItem('fc_star_friendly_users_cache');
-    const cachedUsersTime = localStorage.getItem('fc_star_friendly_users_cache_time');
-    const isUsersCacheValid = cachedUsers && cachedUsersTime && (Date.now() - parseInt(cachedUsersTime) < 24 * 60 * 60 * 1000);
-
-    let standingsLoaded = false;
-    if (isUsersCacheValid) {
-        try {
-            const allUsers = JSON.parse(cachedUsers);
-            if (allUsers && allUsers.length > 0) {
-                console.log("🟢 24시간 내 캐시된 전체 유저 데이터를 로컬에서 불러왔습니다.");
-                processAndRenderStandings(allUsers, myId);
-                standingsLoaded = true;
-            }
-        } catch (e) {
-            console.warn("전체 유저 캐시 파싱 실패:", e);
-        }
-    }
-
-    if (!standingsLoaded) {
-        try {
-            const allUsers = await window.dbService.fetchRankings();
-            if (allUsers && allUsers.length > 0) {
-                // 캐시 업데이트
-                localStorage.setItem('fc_star_friendly_users_cache', JSON.stringify(allUsers));
-                localStorage.setItem('fc_star_friendly_users_cache_time', Date.now().toString());
-                processAndRenderStandings(allUsers, myId);
-            }
-        } catch (err) {
-            console.warn("순위표용 전체 가입자 전적 조회 실패:", err);
-            // 만료되었지만 존재하는 캐시가 있다면 마지막 수단으로 로드
-            if (cachedUsers) {
-                try {
-                    const allUsers = JSON.parse(cachedUsers);
-                    processAndRenderStandings(allUsers, myId);
-                } catch (e) {}
-            }
-        }
-    }
-
-    // 2. 대결 상대 3인 리스트 캐시 체크 (24시간 규격)
-    const cachedOpps = localStorage.getItem('fc_star_friendly_cached_opponents');
-    const cachedOppsTime = localStorage.getItem('fc_star_friendly_opponents_cache_time');
-    const isOppsCacheValid = cachedOpps && cachedOppsTime && (Date.now() - parseInt(cachedOppsTime) < 24 * 60 * 60 * 1000);
-
-    let opponentsLoaded = false;
-    if (isOppsCacheValid) {
-        try {
-            const opponents = JSON.parse(cachedOpps);
-            if (opponents && opponents.length > 0) {
-                console.log("🟢 24시간 내 캐시된 친선경기 상대 리스트를 로컬에서 불러왔습니다.");
-                friendlyOpponentsList = opponents.sort((a, b) => a.rating - b.rating);
-                renderFriendlyTable();
-                updateFriendlyMatchPreview();
-                opponentsLoaded = true;
-            }
-        } catch (e) {
-            console.warn("상대 캐시 파싱 실패:", e);
-        }
-    }
-
-    if (!opponentsLoaded) {
-        try {
-            const opponents = generateVirtualFriendlyOpponents();
-            // 캐시 업데이트
-            localStorage.setItem('fc_star_friendly_cached_opponents', JSON.stringify(opponents));
-            localStorage.setItem('fc_star_friendly_opponents_cache_time', Date.now().toString());
+        <!-- 시즌 우승 특별 보상 쇼케이스 카드 -->
+        <div style="background: linear-gradient(135deg, rgba(255, 0, 127, 0.12) 0%, rgba(0, 242, 254, 0.08) 100%); border: 1.5px solid rgba(255, 0, 127, 0.35); border-radius: 14px; padding: 0.9rem; position: relative; overflow: hidden;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                <div style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 900; color: #fff;">
+                    <i class="fa-solid fa-gift" style="color: #ffd700;"></i>
+                    <span>시즌 ${challengeSeason} 우승 보상</span>
+                </div>
+                <span style="font-size: 0.65rem; font-weight: 900; background: linear-gradient(135deg, #ff007f, #00f2fe); color: #fff; padding: 2px 6px; border-radius: 10px; box-shadow: 0 0 8px rgba(255,0,127,0.5);">
+                    ⚡ SUPER 6각성
+                </span>
+            </div>
             
-            friendlyOpponentsList = opponents.sort((a, b) => a.rating - b.rating);
-            renderFriendlyTable();
-            updateFriendlyMatchPreview();
-        } catch (e) {
-            console.error("가상 친선 상대 생성 실패:", e);
-        }
-    }
+            <div style="display: flex; align-items: center; gap: 12px; margin-top: 6px;">
+                <div style="position: relative; width: 50px; height: 50px; border-radius: 50%; overflow: hidden; border: 2px solid #00f2fe; box-shadow: 0 0 10px rgba(0, 242, 254, 0.6); flex-shrink: 0;">
+                    <img src="${rewardCard ? rewardCard.image : 'player2/슈퍼 메시.png'}" alt="슈퍼 리오넬 메시" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div style="flex: 1;">
+                    <div style="font-size: 0.92rem; font-weight: 900; color: #fff; text-shadow: 0 0 8px rgba(255,0,127,0.6);">
+                        ${rewardCard ? rewardCard.name : '슈퍼 리오넬 메시'}
+                    </div>
+                    <div style="font-size: 0.72rem; color: #ffd700; font-weight: 700; margin-top: 2px;">
+                        ★6 각성 완료 (실질 OVR 100 / 슈팅 93)
+                    </div>
+                    <div style="font-size: 0.68rem; color: #cbd5e1; margin-top: 2px;">
+                        10경기 전승 우승 시 내 덱에 즉시 지급!
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
-// 친선경기 릴레이 매칭 시뮬레이터 격발
-function startFriendlyMatchSimulation() {
-    if (isMatchRunning) return;
-    if (friendlyCurrentOpponentIndex >= 3 || friendlyOpponentsList.length === 0) {
-        showToast("오늘의 친선 릴레이 매칭을 모두 완료했습니다!");
+// 하위 호환 별칭
+function renderFriendlyTable() {
+    renderChallengeRoadmap();
+}
+
+// 데이터 강제 리프레시
+function refreshFriendlyOpponentsForce() {
+    initChallengeState();
+    showToast("🔄 도전모드 상태 및 스테이지 로드맵을 새로고침했습니다.");
+}
+
+// 도전 매치 시뮬레이션 개시 (isRetry: boolean)
+function startChallengeMatchSimulation(isRetry = false) {
+    if (isMatchRunning) {
+        showToast("이미 경기가 진행 중입니다!");
         return;
     }
 
-    isMatchRunning = true;
+    // 일일 제한 검사
+    if (!isRetry) {
+        if (challengeDailyFreeUsed) {
+            showToast("오늘의 무료 도전은 이미 사용하셨습니다! 재도전(5P) 버튼을 이용해주세요.");
+            return;
+        }
+    } else {
+        if (!challengeDailyFreeUsed) {
+            showToast("먼저 오늘의 무료 1경기를 진행해주세요!");
+            return;
+        }
+        if (challengeDailyRetryUsed) {
+            showToast("오늘의 재도전 기회(1회)를 이미 모두 사용하셨습니다. 내일 다시 도전해주세요!");
+            return;
+        }
+        if (userPoints < 5) {
+            showToast(`⚠️ 포인트(FP)가 부족합니다! (현재: ${userPoints} FP / 필요: 5 FP)`);
+            return;
+        }
 
-    const startBtn = document.getElementById('btnStartFriendlyMatch');
-    if (startBtn) {
-        startBtn.disabled = true;
-        startBtn.style.background = 'rgba(255, 255, 255, 0.05)';
-        startBtn.style.color = 'var(--text-muted)';
-        startBtn.style.cursor = 'not-allowed';
-        startBtn.innerText = "경기 시뮬레이션 중...";
+        // 5 포인트 소모
+        userPoints = Math.max(0, userPoints - 5);
+        try {
+            localStorage.setItem('fc_star_user_points', userPoints.toString());
+        } catch(e) {}
+        if (typeof renderUserPoints === 'function') renderUserPoints();
+        challengeDailyRetryUsed = true;
+        saveChallengeState();
+        showToast("🔥 5 FP를 소모하여 당일 1회 재도전을 시작합니다!");
     }
 
-    const opponent = friendlyOpponentsList[friendlyCurrentOpponentIndex];
-    const myId = typeof currentUser === 'string' && currentUser ? currentUser : "ooks";
-    const jeonbukOvr = getPlayerPureOvr();
+    const opponent = getCurrentChallengeOpponent();
+    if (!opponent) return;
 
-    // 홈어드밴티지는 0 보정!
-    const finalOvrs = calculateFinalMatchOvrs('neutral', true, opponent.rating, true);
+    isMatchRunning = true;
+    updateChallengeButtonState();
+
+    // 중계창 초기화
+    const commBox = document.getElementById('friendlyCommentaryScroll');
+    if (commBox) {
+        commBox.innerHTML = '';
+    }
+
+    const liveIndicator = document.getElementById('friendlyLivePulseIndicator');
+    if (liveIndicator) liveIndicator.style.display = 'inline-block';
+
+    const fHomeScore = document.getElementById('friendlyHomeScore');
+    const fAwayScore = document.getElementById('friendlyAwayScore');
+    if (fHomeScore) fHomeScore.innerText = '0';
+    if (fAwayScore) fAwayScore.innerText = '0';
+
+    const timeDisplay = document.getElementById('friendlySbTimeDisplay');
+    if (timeDisplay) {
+        timeDisplay.textContent = "0'";
+        timeDisplay.classList.add('live-ticking');
+    }
+
+    if (typeof playSound === 'function') {
+        try { playSound('reveal'); } catch(e) {}
+    }
+
+    // 선수 이름 헬퍼
+    let playerScorerName = "스트라이커";
+    let playerAssisterName = "미드필더";
+    try {
+        if (typeof squadFormation !== 'undefined' && squadFormation["ST"] && CARDS_DATABASE[squadFormation["ST"]]) {
+            playerScorerName = CARDS_DATABASE[squadFormation["ST"]].name;
+        }
+        if (typeof squadFormation !== 'undefined' && squadFormation["CM"] && CARDS_DATABASE[squadFormation["CM"]]) {
+            playerAssisterName = CARDS_DATABASE[squadFormation["CM"]].name;
+        }
+    } catch(e) {}
+
+    const playerLwName = () => (squadFormation && squadFormation["LW"] && CARDS_DATABASE[squadFormation["LW"]]) ? CARDS_DATABASE[squadFormation["LW"]].name : "윙어";
+    const playerRwName = () => (squadFormation && squadFormation["RW"] && CARDS_DATABASE[squadFormation["RW"]]) ? CARDS_DATABASE[squadFormation["RW"]].name : "윙어";
+    const playerGkName = () => (squadFormation && squadFormation["GK"] && CARDS_DATABASE[squadFormation["GK"]]) ? CARDS_DATABASE[squadFormation["GK"]].name : "골키퍼";
+
+    // 전술 및 상성 보너스 계산
+    const formTactic = (typeof getPlayerFormationTacticBonuses === 'function') ? getPlayerFormationTacticBonuses() : { formationBonus: 0, formationAttackBoost: 0, formationScoreBoost: 0 };
+    const formationAttackBoost = formTactic.formationAttackBoost || 0;
+    const formationScoreBoost = formTactic.formationScoreBoost || 0;
+    const formationTacticDetailsHtml = formTactic.formationTacticDetailsHtml || '';
+
+    const detailedTactic = (typeof getPlayerDetailedTacticBonuses === 'function') ? getPlayerDetailedTacticBonuses() : { detailedTacticBonus: 0, suitabilityBonus: 0, detailedTacticLabel: '', suitabilityLabel: '' };
+    const detailedTacticBonus = detailedTactic.detailedTacticBonus || 0;
+    const suitabilityBonus = detailedTactic.suitabilityBonus || 0;
+    const detailedTacticLabel = detailedTactic.detailedTacticLabel || '';
+    const suitabilityLabel = detailedTactic.suitabilityLabel || '';
+
+    const isHome = true; // 도전모드는 내 구단이 홈
+    const finalOvrs = (typeof calculateFinalMatchOvrs === 'function') 
+        ? calculateFinalMatchOvrs('neutral', isHome, opponent.rating, false)
+        : { playerOvr: getPlayerPureOvr() + (formTactic.formationBonus || 0), opponentOvr: opponent.rating };
+    
     const playerOvr = finalOvrs.playerOvr;
-    const oppOvr = finalOvrs.opponentOvr;
-    const diff = playerOvr - oppOvr;
+    const opponentOvr = finalOvrs.opponentOvr;
+    const diff = playerOvr - opponentOvr;
+
+    const maxProb = 0.80;
+    const minProb = 0.20;
+
+    const oppFormation = opponent.activeFormation || "4-3-3";
+    const compBonus = (typeof getFormationCompatibilityBonus === 'function') ? getFormationCompatibilityBonus(currentFormation, oppFormation) : 0;
+    const compatibilityBonus = compBonus * 0.05;
+    const playerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (diff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
+
+    let activeDiff = diff;
+    let activePlayerAttackProb = playerAttackProb;
+
+    const userTeamName = (typeof getActiveUserTeamName === 'function') ? getActiveUserTeamName() : '나의 구단';
+
+    const commentaryData = {
+        playerTeamName: userTeamName,
+        playerOvr: playerOvr,
+        opponentName: opponent.name,
+        opponentOvr: opponentOvr,
+        isPlayerHome: isHome,
+        playerScoreVal: 0,
+        opponentScoreVal: 0,
+        activeGk: playerGkName(),
+        detailedTacticLabel: detailedTacticLabel,
+        suitabilityLabel: suitabilityLabel,
+        playerAttackProb: playerAttackProb,
+        compatibilityBonus: compatibilityBonus,
+        currentFormation: currentFormation,
+        userTotalOvr: playerOvr,
+        oppOvr: opponentOvr
+    };
 
     let playerScoreVal = 0;
     let opponentScoreVal = 0;
-
-    playSound('reveal');
-
-    const livePulse = document.getElementById('friendlyLivePulseIndicator');
-    if (livePulse) {
-        livePulse.style.display = 'inline-block';
-    }
-
-    const commBox = document.getElementById('friendlyCommentaryScroll');
-    if (commBox) commBox.innerHTML = '';
 
     const addCommentary = (min, text, type = 'normal') => {
         if (!commBox) return;
         const item = document.createElement('div');
         item.className = `comm-item comm-${type}`;
-        const timestamp = min === 'SYSTEM' || min === 'FT' ? '' : `<strong style="color:#ffd700; margin-right: 6px;">${min}'</strong>`;
+        const timestamp = (min === 'SYSTEM' || min === 'FT' || min === 'HT' || min === '종료' || min === 'PK' || String(min).startsWith('PK')) 
+            ? '' 
+            : `<strong style="color:#ffd700; margin-right: 6px;">${min}'</strong>`;
         item.innerHTML = `${timestamp}${text}`;
         commBox.appendChild(item);
         commBox.scrollTop = commBox.scrollHeight;
     };
 
-    const activeAttacker = squadFormation["ST"] ? CARDS_DATABASE[squadFormation["ST"]].name : "무명 스트라이커";
-    const activeLw = squadFormation["LW"] ? CARDS_DATABASE[squadFormation["LW"]].name : "무명 윙어";
-    const activeRw = squadFormation["RW"] ? CARDS_DATABASE[squadFormation["RW"]].name : "무명 윙백";
-    const activeCm = squadFormation["CM"] ? CARDS_DATABASE[squadFormation["CM"]].name : "무명 미드필더";
-    const activeGk = squadFormation["GK"] ? CARDS_DATABASE[squadFormation["GK"]].name : "무명 골키퍼";
-
-    const maxProb = 0.80;
-    const minProb = 0.20;
-    
-    // 1. 포메이션별 직접/비례 확률 보너스 연동 (K리그 엔진과 완전 동일)
-    const formTactic = getPlayerFormationTacticBonuses();
-    const formationAttackBoost = formTactic.formationAttackBoost;
-    const formationScoreBoost = formTactic.formationScoreBoost;
-    const formationTacticDetailsHtml = formTactic.formationTacticDetailsHtml;
-
-    // 2. 세부전술 및 전술 적합 보너스 계산 (K리그와 100% 동일하게 순수 OVR 해설 출력)
-    const detailedTactic = getPlayerDetailedTacticBonuses();
-    const detailedTacticBonus = detailedTactic.detailedTacticBonus;
-    const suitabilityBonus = detailedTactic.suitabilityBonus;
-    const detailedTacticLabel = detailedTactic.detailedTacticLabel;
-    const suitabilityLabel = detailedTactic.suitabilityLabel;
-    const isDetailedActive = detailedTacticBonus > 0;
-
-    const oppFormation = opponent.activeFormation || "4-4-2";
-    const compatibilityBonus = getFormationCompatibilityBonus(currentFormation, oppFormation);
-    const playerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (diff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
-    
-    let activeDiff = diff;
-    let activePlayerAttackProb = playerAttackProb;
-
-    // 공통 코멘터리 데이터 정의
-    const commentaryData = {
-        playerOvr: playerOvr,
-        opponentName: opponent.name,
-        opponentOvr: oppOvr,
-        playerScoreVal: playerScoreVal,
-        opponentScoreVal: opponentScoreVal,
-        activeGk: activeGk,
-        detailedTacticLabel: detailedTacticLabel,
-        suitabilityLabel: suitabilityLabel,
-        playerAttackProb: playerAttackProb,
-        compatibilityBonus: compatibilityBonus
-    };
-
-    addCommentary('SYSTEM', getMatchEventCommentary('PRE_ANALYZE', commentaryData, true), 'system');
-
-    if (formationTacticDetailsHtml) {
-        addCommentary('SYSTEM', formationTacticDetailsHtml, 'attack');
+    // 경기 시작 전 전술 분석 코멘터리 출력 (리그/컵/챔스와 100% 동일)
+    if (typeof getMatchEventCommentary === 'function') {
+        addCommentary('SYSTEM', getMatchEventCommentary('PRE_ANALYZE', commentaryData, false), 'system');
+        if (formationTacticDetailsHtml) addCommentary('SYSTEM', formationTacticDetailsHtml, 'attack');
+        if (detailedTacticLabel || suitabilityLabel) {
+            addCommentary('SYSTEM', getMatchEventCommentary('TACTIC_ANALYZE', commentaryData, false), 'attack');
+        }
     }
-
-    if (detailedTacticLabel || suitabilityLabel) {
-        addCommentary('SYSTEM', getMatchEventCommentary('TACTIC_ANALYZE', commentaryData, true), 'attack');
-    }
-
-    const sbTimeDisplay = document.getElementById('friendlySbTimeDisplay');
-    if (sbTimeDisplay) sbTimeDisplay.classList.add('live-ticking');
 
     const matchMinutes = [0, 15, 30, 45, 52, 63, 74, 82, 88, 90];
     const eventMins = [15, 45, 63, 82, 88];
-    let tickIdx = 0;
 
-    const finishFriendlyMatch = () => {
-        if (sbTimeDisplay) {
-            sbTimeDisplay.classList.remove('live-ticking');
-            sbTimeDisplay.innerText = "종료";
+    // 승부차기(PK) 실제 경기 루틴 (컵대회/공통 엔진 연동)
+    const runChallengePenaltyShootout = (regularScore1, regularScore2) => {
+        if (timeDisplay) {
+            timeDisplay.textContent = "PK";
+            timeDisplay.classList.remove('live-ticking');
         }
 
-        const livePulse = document.getElementById('friendlyLivePulseIndicator');
-        if (livePulse) {
-            livePulse.style.display = 'none';
+        const pkData = {
+            team1Name: userTeamName,
+            team2Name: opponent.name,
+            rating1: playerOvr,
+            rating2: opponentOvr,
+            isTeam1Jeonbuk: true
+        };
+
+        const pkResult = (typeof simulatePenaltyShootoutEngine === 'function')
+            ? simulatePenaltyShootoutEngine(pkData)
+            : { pkScore1: 4, pkScore2: 3, winner: 'team1', events: [] };
+
+        const finalizePkMatch = () => {
+            const isPkWinner = pkResult.winner === 'team1';
+            finalizeChallengeResult(isPkWinner, pkResult.pkScore1, pkResult.pkScore2, regularScore1, regularScore2);
+        };
+
+        if (isDeveloperMode) {
+            pkResult.events.forEach(ev => {
+                if (ev.round > 0) {
+                    if (fHomeScore) fHomeScore.innerText = `${regularScore1} (${ev.score1})`;
+                    if (fAwayScore) fAwayScore.innerText = `${regularScore2} (${ev.score2})`;
+                }
+                addCommentary('PK', ev.text, ev.type === 'system' ? 'system' : (ev.success ? 'goal' : 'normal'));
+            });
+            finalizePkMatch();
+            return;
         }
 
+        let pkTick = 0;
+        const pkTimer = setInterval(() => {
+            if (pkTick < pkResult.events.length) {
+                const ev = pkResult.events[pkTick];
+                if (ev.round > 0) {
+                    if (fHomeScore) fHomeScore.innerText = `${regularScore1} (${ev.score1})`;
+                    if (fAwayScore) fAwayScore.innerText = `${regularScore2} (${ev.score2})`;
+                }
+
+                if (ev.success && typeof playSound === 'function') {
+                    try { playSound('goal'); } catch(e) {}
+                }
+
+                addCommentary('PK', ev.text, ev.type === 'system' ? 'system' : (ev.success ? 'goal' : 'normal'));
+                pkTick++;
+            } else {
+                clearInterval(pkTimer);
+                finalizePkMatch();
+            }
+        }, 1100);
+    };
+
+    // 최종 결과 확정 처리
+    const finalizeChallengeResult = (isWinner, pkScore1 = null, pkScore2 = null, reg1 = 0, reg2 = 0) => {
+        if (liveIndicator) liveIndicator.style.display = 'none';
+        if (timeDisplay) {
+            timeDisplay.classList.remove('live-ticking');
+            timeDisplay.innerText = "FT";
+        }
+
+        if (isWinner) {
+            if (pkScore1 !== null && pkScore2 !== null) {
+                addCommentary('FT', `🏆 <strong>[승부차기 승리!]</strong> ${userTeamName}이 승부차기 스코어 ${pkScore1} - ${pkScore2}로 ${opponent.name}을 꺾고 승리했습니다!`, 'goal');
+            } else {
+                if (typeof getMatchEventCommentary === 'function') {
+                    addCommentary('FT', getMatchEventCommentary('FULLTIME', commentaryData, false), 'goal');
+                } else {
+                    addCommentary('FT', `🎉 [경기 종료] ${userTeamName} ${reg1} - ${reg2} ${opponent.name} (승리!)`, 'goal');
+                }
+            }
+
+            challengeHistory.w += 1;
+            challengeHistory.totalGames += 1;
+            
+            if (!isRetry) challengeDailyFreeUsed = true;
+            else challengeDailyRetryUsed = true;
+
+            // 10스테이지 전승 달성 시 시즌 우승
+            if (challengeStage === 10) {
+                setTimeout(() => {
+                    triggerChallengeSeasonVictory(challengeSeason);
+                }, 1000);
+            } else {
+                challengeStage += 1;
+                saveChallengeState();
+                if (typeof saveUserProgress === 'function') saveUserProgress();
+                showToast(`🎉 Stage ${challengeStage - 1} 클리어! 다음 스테이지로 진출했습니다. (내일 다음 경기 가능)`);
+            }
+        } else {
+            if (pkScore1 !== null && pkScore2 !== null) {
+                addCommentary('FT', `😢 <strong>[승부차기 패배]</strong> ${userTeamName}이 승부차기 스코어 ${pkScore1} - ${pkScore2}로 아쉽게 석패했습니다.`, 'normal');
+            } else {
+                if (typeof getMatchEventCommentary === 'function') {
+                    addCommentary('FT', getMatchEventCommentary('FULLTIME', commentaryData, false), 'normal');
+                } else {
+                    addCommentary('FT', `😢 [경기 종료] ${userTeamName} ${reg1} - ${reg2} ${opponent.name} (패배)`, 'normal');
+                }
+            }
+
+            challengeHistory.l += 1;
+            challengeHistory.totalGames += 1;
+            
+            if (!isRetry) challengeDailyFreeUsed = true;
+            else challengeDailyRetryUsed = true;
+            
+            saveChallengeState();
+            if (typeof saveUserProgress === 'function') saveUserProgress();
+            
+            if (!isRetry && !challengeDailyRetryUsed) {
+                showToast(`패배하여 스테이지 클리어에 실패했습니다. 당일 1회 5P로 재도전할 수 있습니다!`);
+            } else {
+                showToast(`아쉽게 패배했습니다. 내일 무료 기회로 다시 도전해주세요!`);
+            }
+        }
+
+        isMatchRunning = false;
+        updateChallengeMatchPreview();
+        renderChallengeRoadmap();
+    };
+
+    // 정규 90분 경기 종료 처리
+    const finishMatch = () => {
         const isWinner = playerScoreVal > opponentScoreVal;
         const isDraw = playerScoreVal === opponentScoreVal;
 
-        // 최종 성적 동기화용 스코어 데이터 갱신
         commentaryData.playerScoreVal = playerScoreVal;
         commentaryData.opponentScoreVal = opponentScoreVal;
 
-        addCommentary('FT', getMatchEventCommentary('FULLTIME', commentaryData, true), 'system');
-
-        if (isWinner) {
-            addCommentary('FT', getMatchEventCommentary('RESULT', commentaryData, true), 'goal');
-            friendlyMatchesHistory.w += 1;
-            friendlyMatchesHistory.pts += 3;
-        } else if (isDraw) {
-            addCommentary('FT', getMatchEventCommentary('RESULT', commentaryData, true), 'system');
-            friendlyMatchesHistory.d += 1;
-            friendlyMatchesHistory.pts += 1;
-        } else {
-            addCommentary('FT', getMatchEventCommentary('RESULT', commentaryData, true), 'normal');
-            friendlyMatchesHistory.l += 1;
+        if (isDraw) {
+            addCommentary('SYSTEM', "⚖️ 정규시간 90분 혈투 끝 무승부! 다음 스테이지 진출을 가리기 위한 운명의 승부차기(PK)로 돌입합니다.", "system");
+            setTimeout(() => {
+                runChallengePenaltyShootout(playerScoreVal, opponentScoreVal);
+            }, isDeveloperMode ? 0 : 1200);
+            return;
         }
 
-        friendlyCurrentOpponentIndex += 1;
-        friendlyMatchesToday += 1;
-
-        saveFriendlyMatchesState();
-
-        renderFriendlyTable();
-        updateFriendlyMatchPreview();
-
-        isMatchRunning = false;
-
-        if (typeof saveUserProgress === 'function') {
-            saveUserProgress();
-        }
-
-        showToast(`⚡ 친선 매치 결과가 순위표에 반영되었습니다!`);
+        finalizeChallengeResult(isWinner, null, null, playerScoreVal, opponentScoreVal);
     };
 
-    if (isDeveloperMode) {
-        matchMinutes.forEach(currentMin => {
-            if (currentMin === 0) {
-                addCommentary(0, getMatchEventCommentary('KICKOFF', commentaryData, true, true), 'normal');
-            } else if (eventMins.includes(currentMin)) {
-                // 특별 돌발 변수 체크
-                const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm, GK: activeGk };
-                const specialEvent = rollSpecialMatchEvent(activePlayers, opponent.name);
-                
-                if (specialEvent) {
-                    addCommentary(currentMin, specialEvent.eventDesc, 'system');
-                    if (specialEvent.type === "pk_player") {
-                        if (specialEvent.isGoal) {
-                            playerScoreVal++;
-                            addCommentary(currentMin, specialEvent.eventGoal, 'goal');
-                        } else {
-                            addCommentary(currentMin, specialEvent.eventFail, 'normal');
-                        }
-                    } else if (specialEvent.type === "pk_opponent") {
-                        if (specialEvent.isGoal) {
-                            opponentScoreVal++;
-                            const oppGoalData = determineOpponentScorerAndAssister(opponent.id);
-                            let pkCommentaryText = specialEvent.eventGoal;
-                            if (oppGoalData.scorerName) {
-                                pkCommentaryText = `⚽ <strong>[PK 실점]</strong> 상대 키커 <strong>${oppGoalData.scorerName}</strong>의 강력한 슛이 그대로 그물을 출렁입니다! 골키퍼가 방향을 읽지 못했습니다.`;
-                            }
-                            addCommentary(currentMin, pkCommentaryText, 'normal');
-                        } else {
-                            addCommentary(currentMin, specialEvent.eventFail, 'normal');
-                        }
-                    } else if (specialEvent.type === "red_opponent") {
-                        activeDiff += specialEvent.ovrChange; // +5
-                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
-                        addCommentary(currentMin, specialEvent.eventFail, 'normal');
-                    } else if (specialEvent.type === "red_player") {
-                        activeDiff += specialEvent.ovrChange; // -5
-                        activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
-                        addCommentary(currentMin, specialEvent.eventFail, 'normal');
-                    }
-                } else {
-                    const isPlayerAttack = Math.random() < activePlayerAttackProb;
-                    if (isPlayerAttack) {
-                        let attackOptions = [0, 1, 2];
-                        if (currentFormation === '4-2-3-1') attackOptions.push(5);
-                        const selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
-                        
-                        let chancePlayerStat = 75;
-                        if (selectedOption === 0) {
-                            const lwCardId = squadFormation['LW'];
-                            if (lwCardId && CARDS_DATABASE[lwCardId]) {
-                                const card = getAwakenedCard(lwCardId);
-                                chancePlayerStat = getWingerChanceStat('LW', card);
-                            }
-                        } else if (selectedOption === 1) {
-                            const stCardId = squadFormation['ST'];
-                            if (stCardId && CARDS_DATABASE[stCardId]) {
-                                const card = getAwakenedCard(stCardId);
-                                chancePlayerStat = getStrikerChanceStat('ST', card, strikerStyles);
-                            }
-                        } else if (selectedOption === 2) {
-                            const rwCardId = squadFormation['RW'];
-                            if (rwCardId && CARDS_DATABASE[rwCardId]) {
-                                const card = getAwakenedCard(rwCardId);
-                                chancePlayerStat = getWingerChanceStat('RW', card);
-                            }
-                        } else if (selectedOption === 5) {
-                            const cmCardId = squadFormation['CM'];
-                            if (cmCardId && CARDS_DATABASE[cmCardId]) {
-                                const card = getAwakenedCard(cmCardId);
-                                chancePlayerStat = card.stats.dri || 75;
-                            }
-                        }
-
-                        const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, oppOvr, formationScoreBoost, suitabilityBonus);
-                        const isGoal = Math.random() < scoreProb;
-
-                        const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm };
-                        const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isDetailedActive, activePlayers, squadFormation, playerDeck, wingerStyles, strikerStyles);
-
-                        addCommentary(currentMin, eventDesc, 'attack');
-                        if (isGoal) {
-                            playerScoreVal++;
-                            addCommentary(currentMin, eventGoal, 'goal');
-                        } else {
-                            addCommentary(currentMin, eventFail, 'normal');
-                        }
-                    } else {
-                        let playerGkStat = 70;
-                        const gkCardId = squadFormation['GK'];
-                        if (gkCardId && CARDS_DATABASE[gkCardId]) {
-                            const card = getAwakenedCard(gkCardId);
-                            playerGkStat = card.stats.def || card.rating || 70;
-                        }
-                        
-                        const oppScoreProb = calculateOpponentScoreProb(activeDiff, oppOvr, playerGkStat);
-                        const isGoal = Math.random() < oppScoreProb;
-                        
-                        addCommentary(currentMin, getMatchEventCommentary('OPP_ATTACK', commentaryData, true), 'attack');
-                        if (isGoal) {
-                            opponentScoreVal++;
-                            const oppGoalData = determineOpponentScorerAndAssister(opponent.id);
-                            const goalCommentaryData = { ...commentaryData, opponentScorerName: oppGoalData.scorerName, opponentAssisterName: oppGoalData.assisterName };
-                            addCommentary(currentMin, getMatchEventCommentary('OPP_GOAL', goalCommentaryData, true), 'normal');
-                        } else {
-                            addCommentary(currentMin, getMatchEventCommentary('GK_SAVE', commentaryData, true), 'normal');
-                        }
-                    }
-                }
-            } else if (currentMin === 45) {
-                commentaryData.playerScoreVal = playerScoreVal;
-                commentaryData.opponentScoreVal = opponentScoreVal;
-                addCommentary('HT', getMatchEventCommentary('HALFTIME', commentaryData, true, true), 'system');
-            }
-        });
-
-        const fHomeScore = document.getElementById('friendlyHomeScore');
-        const fAwayScore = document.getElementById('friendlyAwayScore');
-        if (fHomeScore) fHomeScore.innerText = playerScoreVal;
-        if (fAwayScore) fAwayScore.innerText = opponentScoreVal;
-        finishFriendlyMatch();
-        return;
-    }
-
-    const matchTimer = setInterval(() => {
-        const currentMin = matchMinutes[tickIdx];
-        if (sbTimeDisplay) sbTimeDisplay.innerText = `${currentMin}'`;
-
+    // 개별 틱 이벤트 실행 엔진
+    const processTick = (currentMin) => {
         if (currentMin === 0) {
-            addCommentary(0, getMatchEventCommentary('KICKOFF', commentaryData, true, false), 'normal');
+            if (typeof getMatchEventCommentary === 'function') {
+                addCommentary(0, getMatchEventCommentary('KICKOFF', commentaryData, false), 'normal');
+            } else {
+                addCommentary(0, `⚽ 주심의 휘슬과 함께 ${userTeamName} vs ${opponent.name} 경기가 킥오프되었습니다!`, 'normal');
+            }
         } else if (eventMins.includes(currentMin)) {
-            // 특별 돌발 변수 체크
-            const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm, GK: activeGk };
-            const specialEvent = rollSpecialMatchEvent(activePlayers, opponent.name);
-            
+            // 돌발 변수 체크 (PK, 레드카드 등)
+            const activePlayers = { ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName, GK: playerGkName() };
+            const specialEvent = (typeof rollSpecialMatchEvent === 'function') ? rollSpecialMatchEvent(activePlayers, opponent.name) : null;
+
             if (specialEvent) {
                 addCommentary(currentMin, specialEvent.eventDesc, 'system');
                 if (specialEvent.type === "pk_player") {
-                    const isGoal = specialEvent.isGoal;
+                    const isGoal = (window.forceChallengeWin === true) ? true : specialEvent.isGoal;
                     if (isGoal) {
                         playerScoreVal++;
-                        playSound('reveal');
-                        const fHomeScore = document.getElementById('friendlyHomeScore');
                         if (fHomeScore) fHomeScore.innerText = playerScoreVal;
-                        
-                        setTimeout(() => {
-                            addCommentary(currentMin, specialEvent.eventGoal, 'goal');
-                        }, 450);
+                        addCommentary(currentMin, specialEvent.eventGoal, 'goal');
+                        if (typeof playSound === 'function') try { playSound('goal'); } catch(e) {}
                     } else {
-                        setTimeout(() => {
-                            addCommentary(currentMin, specialEvent.eventFail, 'normal');
-                        }, 450);
+                        addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     }
                 } else if (specialEvent.type === "pk_opponent") {
-                    const isGoal = specialEvent.isGoal;
+                    const isGoal = (window.forceChallengeWin === true) ? false : specialEvent.isGoal;
                     if (isGoal) {
                         opponentScoreVal++;
-                        const fAwayScore = document.getElementById('friendlyAwayScore');
                         if (fAwayScore) fAwayScore.innerText = opponentScoreVal;
-                        
-                        const oppGoalData = determineOpponentScorerAndAssister(opponent.id);
-                        
-                        setTimeout(() => {
-                            let pkCommentaryText = specialEvent.eventGoal;
-                            if (oppGoalData.scorerName) {
-                                pkCommentaryText = `⚽ <strong>[PK 실점]</strong> 상대 키커 <strong>${oppGoalData.scorerName}</strong>의 강력한 슛이 그대로 그물을 출렁입니다! 골키퍼가 방향을 읽지 못했습니다.`;
-                            }
-                            addCommentary(currentMin, pkCommentaryText, 'normal');
-                        }, 450);
+                        let pkCommentaryText = specialEvent.eventGoal;
+                        if (opponent.bestPlayerName) {
+                            pkCommentaryText = `⚽ <strong>[PK 실점]</strong> 상대 키커 <strong>${opponent.bestPlayerName}</strong>의 강력한 슛이 그대로 그물을 출렁입니다!`;
+                        }
+                        addCommentary(currentMin, pkCommentaryText, 'normal');
                     } else {
-                        setTimeout(() => {
-                            addCommentary(currentMin, specialEvent.eventFail, 'normal');
-                        }, 450);
+                        addCommentary(currentMin, specialEvent.eventFail, 'normal');
                     }
                 } else if (specialEvent.type === "red_opponent") {
                     activeDiff += specialEvent.ovrChange; // +5
-                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
-                    setTimeout(() => {
-                        addCommentary(currentMin, specialEvent.eventFail, 'normal');
-                    }, 450);
+                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus - (isHardMode ? 0.05 : 0)));
+                    addCommentary(currentMin, specialEvent.eventFail, 'normal');
                 } else if (specialEvent.type === "red_player") {
                     activeDiff += specialEvent.ovrChange; // -5
-                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
-                    setTimeout(() => {
-                        addCommentary(currentMin, specialEvent.eventFail, 'normal');
-                    }, 450);
+                    activePlayerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (activeDiff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus - (isHardMode ? 0.05 : 0)));
+                    addCommentary(currentMin, specialEvent.eventFail, 'normal');
                 }
             } else {
-                const isPlayerAttack = Math.random() < activePlayerAttackProb;
+                const isPlayerAttack = (window.forceChallengeWin === true) ? true : (Math.random() < activePlayerAttackProb);
                 if (isPlayerAttack) {
                     let attackOptions = [0, 1, 2];
                     if (currentFormation === '4-2-3-1') attackOptions.push(5);
+
                     const selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
-                    
                     let chancePlayerStat = 75;
+
                     if (selectedOption === 0) {
                         const lwCardId = squadFormation['LW'];
-                        if (lwCardId && CARDS_DATABASE[lwCardId]) {
-                            const card = getAwakenedCard(lwCardId);
-                            chancePlayerStat = getWingerChanceStat('LW', card);
+                        if (lwCardId && CARDS_DATABASE[lwCardId] && typeof getWingerChanceStat === 'function') {
+                            chancePlayerStat = getWingerChanceStat('LW', (typeof getAwakenedCard === 'function') ? getAwakenedCard(lwCardId) : CARDS_DATABASE[lwCardId]);
                         }
                     } else if (selectedOption === 1) {
                         const stCardId = squadFormation['ST'];
-                        if (stCardId && CARDS_DATABASE[stCardId]) {
-                            const card = getAwakenedCard(stCardId);
-                            chancePlayerStat = getStrikerChanceStat('ST', card, strikerStyles);
+                        if (stCardId && CARDS_DATABASE[stCardId] && typeof getStrikerChanceStat === 'function') {
+                            chancePlayerStat = getStrikerChanceStat('ST', (typeof getAwakenedCard === 'function') ? getAwakenedCard(stCardId) : CARDS_DATABASE[stCardId], (typeof strikerStyles !== 'undefined') ? strikerStyles : {});
                         }
                     } else if (selectedOption === 2) {
                         const rwCardId = squadFormation['RW'];
-                        if (rwCardId && CARDS_DATABASE[rwCardId]) {
-                            const card = getAwakenedCard(rwCardId);
-                            chancePlayerStat = getWingerChanceStat('RW', card);
+                        if (rwCardId && CARDS_DATABASE[rwCardId] && typeof getWingerChanceStat === 'function') {
+                            chancePlayerStat = getWingerChanceStat('RW', (typeof getAwakenedCard === 'function') ? getAwakenedCard(rwCardId) : CARDS_DATABASE[rwCardId]);
                         }
                     } else if (selectedOption === 5) {
                         const cmCardId = squadFormation['CM'];
                         if (cmCardId && CARDS_DATABASE[cmCardId]) {
-                            const card = getAwakenedCard(cmCardId);
-                            chancePlayerStat = card.stats.dri || 75;
+                            const awakened = (typeof getAwakenedCard === 'function') ? getAwakenedCard(cmCardId) : CARDS_DATABASE[cmCardId];
+                            chancePlayerStat = (awakened.stats && awakened.stats.dri) ? awakened.stats.dri : 75;
                         }
                     }
 
-                    const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, oppOvr, formationScoreBoost, suitabilityBonus);
-                    const isGoal = Math.random() < scoreProb;
+                    const scoreProb = (typeof calculatePlayerScoreProb === 'function')
+                        ? calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentOvr, formationScoreBoost, suitabilityBonus)
+                        : (0.45 + (activeDiff * 0.01));
+                    
+                    const isGoal = (window.forceChallengeWin === true) ? true : (Math.random() < scoreProb);
 
-                    const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm };
-                    const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isDetailedActive, activePlayers, squadFormation, playerDeck, wingerStyles, strikerStyles);
-
-                    addCommentary(currentMin, eventDesc, 'attack');
-                    if (isGoal) {
-                        playerScoreVal++;
-                        playSound('reveal');
-                        const fHomeScore = document.getElementById('friendlyHomeScore');
-                        if (fHomeScore) fHomeScore.innerText = playerScoreVal;
+                    if (typeof getDetailedTacticCommentary === 'function') {
+                        const isTacticActive = detailedTacticBonus > 0;
+                        const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers, squadFormation, playerDeck, (typeof wingerStyles !== 'undefined' ? wingerStyles : {}), (typeof strikerStyles !== 'undefined' ? strikerStyles : {}));
                         
-                        setTimeout(() => {
+                        addCommentary(currentMin, eventDesc, 'attack');
+                        if (isGoal) {
+                            playerScoreVal++;
+                            if (fHomeScore) fHomeScore.innerText = playerScoreVal;
                             addCommentary(currentMin, eventGoal, 'goal');
-                        }, 450);
+                            if (typeof playSound === 'function') try { playSound('goal'); } catch(e) {}
+                        } else {
+                            addCommentary(currentMin, eventFail, 'normal');
+                        }
                     } else {
-                        addCommentary(currentMin, eventFail, 'normal');
+                        if (isGoal) {
+                            playerScoreVal++;
+                            if (fHomeScore) fHomeScore.innerText = playerScoreVal;
+                            addCommentary(currentMin, `⚽ <strong>[득점!]</strong> ${playerScorerName}의 환상적인 슈팅이 골망을 가릅니다! (${playerScoreVal}-${opponentScoreVal})`, 'goal');
+                            if (typeof playSound === 'function') try { playSound('goal'); } catch(e) {}
+                        } else {
+                            addCommentary(currentMin, `⚡ ${playerScorerName}의 날카로운 슛이 아쉽게 골대를 벗어납니다.`, 'normal');
+                        }
                     }
                 } else {
                     let playerGkStat = 70;
                     const gkCardId = squadFormation['GK'];
                     if (gkCardId && CARDS_DATABASE[gkCardId]) {
-                        const card = getAwakenedCard(gkCardId);
-                        playerGkStat = card.stats.def || card.rating || 70;
+                        const awakened = (typeof getAwakenedCard === 'function') ? getAwakenedCard(gkCardId) : CARDS_DATABASE[gkCardId];
+                        playerGkStat = (awakened.stats && awakened.stats.def) ? awakened.stats.def : (awakened.rating || 70);
                     }
+
+                    const oppScoreProb = (typeof calculateOpponentScoreProb === 'function')
+                        ? calculateOpponentScoreProb(activeDiff, opponentOvr, playerGkStat)
+                        : (0.35 - (activeDiff * 0.01));
                     
-                    const oppScoreProb = calculateOpponentScoreProb(activeDiff, oppOvr, playerGkStat);
-                    const isGoal = Math.random() < oppScoreProb;
-                    
-                    addCommentary(currentMin, getMatchEventCommentary('OPP_ATTACK', commentaryData, true), 'attack');
-                    if (isGoal) {
-                        opponentScoreVal++;
-                        const fAwayScore = document.getElementById('friendlyAwayScore');
-                        if (fAwayScore) fAwayScore.innerText = opponentScoreVal;
-                        
-                        const oppGoalData = determineOpponentScorerAndAssister(opponent.id);
-                        
-                        setTimeout(() => {
-                            const goalCommentaryData = { ...commentaryData, opponentScorerName: oppGoalData.scorerName, opponentAssisterName: oppGoalData.assisterName };
-                            addCommentary(currentMin, getMatchEventCommentary('OPP_GOAL', goalCommentaryData, true), 'normal');
-                        }, 450);
+                    const isGoal = (window.forceChallengeWin === true) ? false : (Math.random() < oppScoreProb);
+
+                    if (typeof getMatchEventCommentary === 'function') {
+                        addCommentary(currentMin, getMatchEventCommentary('OPP_ATTACK', commentaryData, false), 'attack');
+                        if (isGoal) {
+                            opponentScoreVal++;
+                            if (fAwayScore) fAwayScore.innerText = opponentScoreVal;
+                            const goalCommentaryData = { ...commentaryData, opponentScorerName: opponent.bestPlayerName, opponentAssisterName: opponent.name };
+                            addCommentary(currentMin, getMatchEventCommentary('OPP_GOAL', goalCommentaryData, false), 'normal');
+                        } else {
+                            addCommentary(currentMin, getMatchEventCommentary('GK_SAVE', commentaryData, false), 'normal');
+                        }
                     } else {
-                        const saveText = getMatchEventCommentary('GK_SAVE', commentaryData, true);
-                        addCommentary(currentMin, saveText, 'normal');
+                        if (isGoal) {
+                            opponentScoreVal++;
+                            if (fAwayScore) fAwayScore.innerText = opponentScoreVal;
+                            addCommentary(currentMin, `⚠️ <strong>[실점]</strong> ${opponent.name}의 ${opponent.bestPlayerName}에게 실점을 허용합니다. (${playerScoreVal}-${opponentScoreVal})`, 'normal');
+                        } else {
+                            addCommentary(currentMin, `🛡️ 골키퍼 ${playerGkName()}의 슈퍼세이브로 위기를 넘깁니다!`, 'normal');
+                        }
                     }
                 }
             }
         } else if (currentMin === 45) {
             commentaryData.playerScoreVal = playerScoreVal;
             commentaryData.opponentScoreVal = opponentScoreVal;
-            addCommentary('HT', getMatchEventCommentary('HALFTIME', commentaryData, true, false), 'system');
-        }
-
-        tickIdx++;
-        if (tickIdx >= matchMinutes.length) {
-            clearInterval(matchTimer);
-            finishFriendlyMatch();
-        }
-    }, isDeveloperMode ? 0 : 1500);
-}
-
-// 친선경기 강제 데이터 리프레시 (원격 DB 재동기화 및 릴레이 재도전)
-async function refreshFriendlyOpponentsForce() {
-    if (isMatchRunning) {
-        showToast("⚠️ 경기가 진행 중일 때는 데이터 새로고침이 불가능합니다.");
-        return;
-    }
-    
-    const refreshBtn = document.getElementById('btnRefreshFriendly');
-    let originalHtml = "";
-    if (refreshBtn) {
-        originalHtml = refreshBtn.innerHTML;
-        refreshBtn.disabled = true;
-        refreshBtn.style.cursor = 'not-allowed';
-        refreshBtn.innerHTML = `<i class="fa-solid fa-arrows-rotate fa-spin"></i> 동기화 중...`;
-    }
-
-    showToast("🔄 최신 Firebase DB에서 친선 구단 데이터를 새로 동기화하고 있습니다...");
-    
-    // 강제 동기화를 위해 기존 로컬 캐시를 파괴하고 원격 Fetch 유도
-    localStorage.removeItem('fc_star_friendly_cached_opponents');
-    localStorage.removeItem('fc_star_friendly_opponents_cache_time');
-    localStorage.removeItem('fc_star_friendly_users_cache');
-    localStorage.removeItem('fc_star_friendly_users_cache_time');
-    
-    const myId = typeof currentUser === 'string' && currentUser ? currentUser : "ooks";
-    
-    try {
-        const opponents = generateVirtualFriendlyOpponents();
-        
-        // 전체 유저 순위표 실시간 최신 정보로 재동기화 (이 부분은 순위표 유지를 위해 fetchRankings 호출을 그대로 유지)
-        try {
-            const allUsers = await window.dbService.fetchRankings();
-            if (allUsers && allUsers.length > 0) {
-                // 캐시 세이브 및 타임스탬프 업데이트
-                localStorage.setItem('fc_star_friendly_users_cache', JSON.stringify(allUsers));
-                localStorage.setItem('fc_star_friendly_users_cache_time', Date.now().toString());
-
-                friendlyGlobalStandingsList = allUsers.filter(u => {
-                    const userId = (u.id || "").trim().toLowerCase();
-                    if (userId === myId.trim().toLowerCase()) return false;
-                    if (userId === "ooks12") return false;
-                    
-                    return u.friendlyMatchesHistory && 
-                           (u.friendlyMatchesHistory.w > 0 || 
-                            u.friendlyMatchesHistory.d > 0 || 
-                            u.friendlyMatchesHistory.l > 0);
-                }).map(u => {
-                    let calculatedOvr = 70;
-                    if (u.squadFormation && typeof u.squadFormation === 'object' && Object.keys(u.squadFormation).length > 0) {
-                        let totalOvr = 0;
-                        let count = 0;
-                        const positions = ["ST", "LW", "RW", "CM", "LCM", "RCM", "LB", "LCB", "RCB", "RB", "GK"];
-                        positions.forEach(pos => {
-                            const cardId = u.squadFormation[pos];
-                            if (cardId) {
-                                let cardRating = 70;
-                                if (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE && CARDS_DATABASE[cardId]) {
-                                    cardRating = CARDS_DATABASE[cardId].rating;
-                                    if (u.playerDeck && u.playerDeck[cardId] && typeof u.playerDeck[cardId].awakening === 'number') {
-                                        cardRating += u.playerDeck[cardId].awakening;
-                                    }
-                                }
-                                totalOvr += cardRating;
-                                count++;
-                            }
-                        });
-                        if (count > 0) calculatedOvr = Math.round(totalOvr / count);
-                    } else {
-                        calculatedOvr = u.userLevel ? 70 + parseInt(u.userLevel) : 72;
-                    }
-                    
-                    return {
-                        id: u.id,
-                        name: u.id.toUpperCase(),
-                        rating: u.rating || calculatedOvr,
-                        friendlyMatchesHistory: u.friendlyMatchesHistory,
-                        isMock: false
-                    };
-                });
-            }
-        } catch (allErr) {
-            console.warn("리프레시 중 전체 유저 로드 실패:", allErr);
-        }
-
-        if (opponents && opponents.length > 0) {
-            // 캐시 세이브 및 타임스탬프 업데이트
-            localStorage.setItem('fc_star_friendly_cached_opponents', JSON.stringify(opponents));
-            localStorage.setItem('fc_star_friendly_opponents_cache_time', Date.now().toString());
-
-            // OVR 오름차순으로 정렬
-            friendlyOpponentsList = opponents.sort((a, b) => a.rating - b.rating);
-            
-            // 릴레이 진행 상태 유지 (데이터 새로고침 시에도 대결 횟수 및 3회 제한 온전히 유지!)
-            saveFriendlyMatchesState();
-            
-            // 중계창은 첫 경기를 시작하기 전(Index가 0일 때)에만 대기 문구로 리셋
-            if (friendlyCurrentOpponentIndex === 0) {
-                const commBox = document.getElementById('friendlyCommentaryScroll');
-                if (commBox) {
-                    commBox.innerHTML = '<div class="comm-item comm-system">친선 경기를 시작하려면 아래 \'친선 경기 개시\' 버튼을 누르세요.</div>';
-                }
-            }
-            
-            renderFriendlyTable();
-            updateFriendlyMatchPreview();
-            
-            showToast("🌎 가상의 해외 리그 대결 상대 3팀이 성공적으로 매칭 및 동기화되었습니다!");
-        }
-    } catch (e) {
-        console.error("강제 동기화 실패:", e);
-        showToast("⚠️ 동기화 실패! 가상 봇 모드(MOCK)로 전환되었습니다.");
-    } finally {
-        if (refreshBtn) {
-            refreshBtn.disabled = false;
-            refreshBtn.style.cursor = 'pointer';
-            refreshBtn.innerHTML = originalHtml;
-        }
-    }
-}
-
-// ==========================================================================
-// 17. 친선경기 주간 마감 알고리즘 (WEEKLY DEADLINE & CLOSE SEASON SYSTEM)
-// ==========================================================================
-
-// 주간 시즌 마감 여부 정밀 체크 (매주 금요일 밤 23:59:59 기준 마감)
-function checkFriendlySeasonClose() {
-    const myId = typeof currentUser === 'string' && currentUser ? currentUser : "ooks";
-    const keyStartDate = `fc_star_friendly_season_start_date_${myId}`;
-    let startDateStr = localStorage.getItem(keyStartDate);
-    if (!startDateStr) {
-        const now = new Date();
-        const lastFriday = new Date();
-        const day = lastFriday.getDay();
-        const diff = (day >= 5) ? (day - 5) : (day + 2);
-        lastFriday.setDate(lastFriday.getDate() - diff);
-        lastFriday.setHours(0, 0, 0, 0);
-        startDateStr = lastFriday.toISOString();
-        localStorage.setItem(keyStartDate, startDateStr);
-        return false;
-    }
-    
-    const startDate = new Date(startDateStr);
-    const day = startDate.getDay();
-    let diffToFriday = (5 - day + 7) % 7;
-    if (diffToFriday === 0) diffToFriday = 7;
-    
-    const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + diffToFriday);
-    endDate.setHours(23, 59, 59, 999); // 금요일 밤 23:59:59
-    
-    const now = new Date();
-    if (now > endDate) {
-        triggerFriendlySeasonClose(false); // 시즌 마감 자동 격발
-        return true;
-    }
-    return false;
-}
-
-// 주간 친선경기 결산 보상 지급 및 순위 정산 격발
-function triggerFriendlySeasonClose(isForce = false) {
-    const myId = typeof currentUser === 'string' && currentUser ? currentUser : "ooks";
-    
-    // 1. 현재 순위표 DOM을 역추적하여 최종 랭킹 및 전적 파싱
-    const tbody = document.querySelector('#matchLayoutFriendly .friendly-table tbody');
-    if (!tbody) {
-        showToast("순위표 정보를 찾을 수 없어 주간 정산을 진행할 수 없습니다.");
-        return;
-    }
-    
-    const rows = Array.from(tbody.querySelectorAll('tr'));
-    let myRank = 4; // 기본 4위 이하 배정
-    let myRecord = "0승 0무 0패 (승점 0)";
-    
-    rows.forEach((tr, index) => {
-        const teamCol = tr.querySelector('.league-team-col span');
-        const isMyTeam = teamNameText.includes("나의 구단") || 
-                         teamNameText.includes("전북") || 
-                         teamNameText.includes("리버풀") || 
-                         (tr.classList && tr.classList.contains('league-row-jeonbuk'));
-        if (isMyTeam) {
-            myRank = index + 1;
-            const ptsText = tr.querySelector('.league-row-pts') ? tr.querySelector('.league-row-pts').innerText : "0";
-            const recordTd = tr.querySelectorAll('td')[3];
-            const recordText = recordTd ? recordTd.innerText : "0승 0무 0패";
-            myRecord = `${recordText} (승점 ${ptsText})`;
-        }
-    });
-
-    // 2. 최종 순위별 보상 연산 및 HTML 구조화 (매주 금요일 마감 보상)
-    let rewardHtml = "";
-    
-    if (myRank <= 3) {
-        // [TOP 3 우승/준우승 보상] 스쿼드 캡틴(주장) 카드 각성 +1 강화!
-        if (squadCaptain && playerDeck[squadCaptain]) {
-            if (typeof playerDeck[squadCaptain].awakening !== 'number') {
-                playerDeck[squadCaptain].awakening = 0;
-            }
-            
-            const captainCard = CARDS_DATABASE[squadCaptain];
-            const oldAwk = playerDeck[squadCaptain].awakening;
-            
-            if (playerDeck[squadCaptain].awakening < 5) {
-                playerDeck[squadCaptain].awakening += 1;
-                const newAwk = playerDeck[squadCaptain].awakening;
-                
-                rewardHtml = `
-                    <div style="font-size: 0.95rem; color: #00ff87; font-weight: bold; margin-bottom: 6px;">
-                        👑 주간 릴레이 랭킹 TOP 3 달성! 👑
-                    </div>
-                    <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 12px; word-break: keep-all;">
-                        친선경기 주간 순위표에서 당당히 <strong>${myRank}위</strong>로 시즌을 마쳤습니다!<br>
-                        약속대로 우리 구단의 자랑스러운 캡틴이 영구적으로 강화됩니다.
-                    </div>
-                    <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(165, 94, 234, 0.3); border-radius: 18px; padding: 1rem; width: 100%; display: flex; align-items: center; gap: 14px; box-shadow: 0 0 15px rgba(165, 94, 234, 0.15);">
-                        <img src="${captainCard.image}" style="height: 64px; width: 64px; border-radius: 50%; border: 2.5px solid #ffd700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.65);" onerror="this.src='https://placehold.co/120x120/005a3c/ffd700?text=${encodeURIComponent(captainCard.name)}'">
-                        <div style="text-align: left; display: flex; flex-direction: column; gap: 2px;">
-                            <div style="font-size: 1rem; font-weight: 800; color: #fff;">${captainCard.name}</div>
-                            <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 700;">주장 카드 특별 강화 보상</div>
-                            <div style="font-size: 0.72rem; color: #ffd700; font-weight: 900; margin-top: 3px; display: flex; align-items: center; gap: 4px;">
-                                ★${oldAwk} 각성 &rarr; <span style="font-size: 0.82rem; text-shadow: 0 0 5px #ffd700;">★${newAwk} 각성 (+1 강화 완료!)</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
+            if (typeof getMatchEventCommentary === 'function') {
+                addCommentary('HT', getMatchEventCommentary('HALFTIME', commentaryData, false), 'system');
             } else {
-                // 이미 주장 카드가 5성(최대 각성/풀강) 상태일 시 대체 보상 FP 5포인트 지급
-                userPoints += 5;
-                rewardHtml = `
-                    <div style="font-size: 0.95rem; color: #00ff87; font-weight: bold; margin-bottom: 6px;">
-                        👑 주간 릴레이 랭킹 TOP 3 달성! 👑
-                    </div>
-                    <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 12px; word-break: keep-all;">
-                        구단의 주장 <strong>${captainCard.name}</strong> 선수는 이미 <span style="color:#ffd700;">★5 최강 각성 상태</span>입니다!<br>
-                        주장이 이미 풀강화(★5)되어 있어 대체 강화 포인트가 지급되었습니다!
-                    </div>
-                    <div style="background: rgba(255, 215, 0, 0.08); border: 1.5px solid rgba(255, 215, 0, 0.35); border-radius: 18px; padding: 1.1rem; width: 100%; box-shadow: 0 0 15px rgba(255, 215, 0, 0.15);">
-                        <div style="font-size: 1.25rem; font-weight: 900; color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); display: flex; align-items: center; justify-content: center; gap: 6px;">
-                            <i class="fa-solid fa-circle-dollar-to-slot"></i> +5 FP 대체 보상 지급!
-                        </div>
-                    </div>
-                `;
+                addCommentary('HT', `⏱️ 전반전 종료 (${playerScoreVal} - ${opponentScoreVal})`, 'system');
             }
-        } else {
-            // 주장 카드가 공백(미설정)일 경우 보상 미지급
-            rewardHtml = `
-                <div style="font-size: 0.95rem; color: #ff8888; font-weight: bold; margin-bottom: 6px;">
-                    👑 주간 릴레이 랭킹 TOP 3 달성! 👑
-                </div>
-                <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 12px; word-break: keep-all;">
-                    친선 주간 릴레이에서 당당히 <strong>${myRank}위</strong>를 달성했으나,<br>
-                    현재 <span style="color:#ff6b6b; font-weight:800;">스쿼드 주장(캡틴)이 지정되어 있지 않아</span> 우승 강화 보상을 수령하지 못했습니다.<br>
-                    <span style="font-size: 0.72rem; color: #94a3b8; display: block; margin-top: 6px;">💡 스쿼드 관리 화면에서 주장을 임명해 두시면 다음 금요일 마감 때 주장 선수가 즉시 강화됩니다!</span>
-                </div>
-            `;
         }
-    } else {
-        // [4위 이하 참가 보상] 4위 이하인 경우 보상 없음
-        rewardHtml = `
-            <div style="font-size: 0.95rem; color: #a55eea; font-weight: bold; margin-bottom: 6px;">
-                🍀 주간 마감 완료! 🍀
-            </div>
-            <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 12px; word-break: keep-all;">
-                주간 친선 릴레이 매치에서 <strong>${myRank}위</strong>로 치열한 레이스를 무사히 마쳤습니다.<br>
-                아쉽게 우승권(1~3위)에 진입하지 못해 보상 획득을 실패하였습니다.<br>
-                다음 금요일 마감 전까지 전술 OVR을 끌어올려 주장 카드 특별 강화권에 꼭 도전해 보세요!
-            </div>
-        `;
+    };
+
+    // 개발자 모드 시 즉시 처리
+    if (isDeveloperMode) {
+        matchMinutes.forEach(currentMin => {
+            processTick(currentMin);
+        });
+
+        if (fHomeScore) fHomeScore.innerText = playerScoreVal;
+        if (fAwayScore) fAwayScore.innerText = opponentScoreVal;
+        finishMatch();
+        return;
     }
 
-    // 3. 모달 요약 데이터 렌더링 및 모달 호출
-    const modal = document.getElementById('friendlyCloseModal');
-    const rankText = document.getElementById('friendlyCloseRankText');
-    const recText = document.getElementById('friendlyCloseRecordText');
-    const rewardPanel = document.getElementById('friendlyCloseRewardDetail');
+    // 일반 라이브 중계 타이머 (10개 틱 단계별 렌더링)
+    let stepIndex = 0;
+    const intervalId = setInterval(() => {
+        if (stepIndex >= matchMinutes.length) {
+            clearInterval(intervalId);
+            finishMatch();
+            return;
+        }
+
+        const currentMin = matchMinutes[stepIndex];
+        if (timeDisplay && currentMin > 0 && currentMin < 90) {
+            timeDisplay.innerText = currentMin === 45 ? "HT" : `${currentMin}'`;
+        }
+
+        processTick(currentMin);
+        stepIndex++;
+    }, 1200);
+}
+
+// 하위 호환 별칭
+function startFriendlyMatchSimulation() {
+    startChallengeMatchSimulation(false);
+}
+
+// 도전모드 시즌 우승 처리 (슈퍼 6각성 특별 선수 지급)
+function triggerChallengeSeasonVictory(season) {
+    const todayStr = getFriendlyTodayDateString();
     
-    if (rankText) {
-        rankText.innerText = `${myRank}위`;
-        if (myRank === 1) rankText.style.color = '#ffd700';
-        else if (myRank === 2) rankText.style.color = '#e2e8f0';
-        else if (myRank === 3) rankText.style.color = '#cd7f32';
-        else rankText.style.color = '#cbd5e1';
-    }
-    if (recText) recText.innerText = myRecord;
-    if (rewardPanel) rewardPanel.innerHTML = rewardHtml;
-    
-    if (modal) {
-        modal.style.display = 'flex';
-        playSound('rank_up');
+    // 시즌 1 우승 보상: 슈퍼 리오넬 메시 (super_messi) 6각성
+    const rewardCardId = "super_messi";
+    const rewardCardObj = (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE[rewardCardId]) ? CARDS_DATABASE[rewardCardId] : null;
+
+    if (rewardCardObj) {
+        // 덱에 6각성 카드로 자동 지급
+        playerDeck[rewardCardId] = {
+            card: rewardCardObj,
+            quantity: 1,
+            awakening: 6,
+            awakeLevel: 6,
+            condition: 0,
+            conditionDate: todayStr,
+            isStored: false
+        };
+
+        try {
+            localStorage.setItem('fc_star_player_deck', JSON.stringify(playerDeck));
+        } catch(e) {}
+        
+        if (typeof renderDeck === 'function') renderDeck();
+        if (typeof updateTotalCardCount === 'function') updateTotalCardCount();
     }
 
-    // 4. 주간 친선경기 전적 전면 초기화 (전술 훈련 및 신주간 레이스 개막)
-    friendlyMatchesHistory = { w: 0, d: 0, l: 0, pts: 0 };
-    friendlyCurrentOpponentIndex = 0;
-    friendlyMatchesToday = 0;
+    // 시즌 갱신 (다음 시즌 리셋)
+    challengeSeason += 1;
+    challengeStage = 1;
+    challengeDailyFreeUsed = true; // 오늘 우승 완료
+    challengeDailyRetryUsed = true;
+    saveChallengeState();
     
-    // 신규 시즌 마감 타임라인 리셋
-    localStorage.setItem(`fc_star_friendly_season_start_date_${myId}`, new Date().toISOString());
-    
-    // 로컬 스토리지에 결과 전적 및 카드 상태 저장
-    try {
-        localStorage.setItem('fc_star_player_deck', JSON.stringify(playerDeck));
-        localStorage.setItem('fc_star_user_points', userPoints.toString());
-    } catch(e) {}
-    
-    saveFriendlyMatchesState();
-    
-    // 최신 정보 Firestore에 클라우드 자동 동기화 백업
     if (typeof saveUserProgress === 'function') {
         saveUserProgress();
     }
-    
-    // UI 전역 갱신
-    if (typeof renderUserPoints === 'function') renderUserPoints();
-    if (typeof renderDeck === 'function') renderDeck();
-    if (typeof renderSquadFormation === 'function') renderSquadFormation();
-    if (typeof syncJeonbukOvr === 'function') syncJeonbukOvr();
+
+    // 우승 축하 모달 표시
+    showChallengeVictoryModal(season, rewardCardObj);
 }
 
-// 마감 결산 완료 및 새로운 시즌 대결 탭 세팅
+// 시즌 우승 축하 모달 팝업
+function showChallengeVictoryModal(season, cardObj) {
+    let modal = document.getElementById('challengeSeasonCloseModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'challengeSeasonCloseModal';
+        document.body.appendChild(modal);
+    }
+
+    // 화면 정중앙 고정 오버레이 스타일
+    modal.className = 'challenge-victory-modal-overlay';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100000;
+        padding: 1rem;
+        box-sizing: border-box;
+    `;
+
+    const cardName = cardObj ? cardObj.name : "슈퍼 리오넬 메시";
+    const cardImg = cardObj ? cardObj.image : "player2/슈퍼 메시.png";
+
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 440px; width: 100%; max-height: 90vh; overflow-y: auto; text-align: center; background: linear-gradient(135deg, #0b0f19 0%, #170d28 100%); border: 2px solid #ff007f; box-shadow: 0 0 40px rgba(255,0,127,0.6); border-radius: 24px; padding: 1.8rem 1.4rem; position: relative; margin: auto; animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;">
+            <div style="font-size: 3.2rem; margin-bottom: 0.4rem; animation: bounceIn 1s ease;">🏆</div>
+            <h2 style="color: #ffd700; font-size: 1.55rem; font-weight: 900; margin: 0 0 0.5rem 0; text-shadow: 0 0 12px rgba(255,215,0,0.6); letter-spacing: -0.5px;">
+                도전모드 시즌 ${season} 전승 우승!
+            </h2>
+            <p style="color: #cbd5e1; font-size: 0.86rem; line-height: 1.5; margin: 0 0 1.3rem 0; word-break: keep-all;">
+                10개 스테이지의 유럽 최강 구단들을 모두 격파하고<br>
+                영광스러운 <strong>시즌 ${season} 챔피언</strong>에 등극하셨습니다!
+            </p>
+
+            <!-- 특별 보상 카드 쇼케이스 -->
+            <div style="background: rgba(255, 0, 127, 0.12); border: 1.5px solid #00f2fe; border-radius: 18px; padding: 1.2rem; margin-bottom: 1.3rem; box-shadow: 0 0 25px rgba(0, 242, 254, 0.25);">
+                <span style="font-size: 0.72rem; font-weight: 900; background: linear-gradient(135deg, #ff007f, #00f2fe); color: #fff; padding: 3px 12px; border-radius: 20px; letter-spacing: 1px; display: inline-block; margin-bottom: 0.8rem;">
+                    ⚡ 슈퍼(SUPER) 등급 ★6각성 카드 획득!
+                </span>
+                <div style="width: 105px; height: 105px; border-radius: 50%; overflow: hidden; margin: 0 auto 0.8rem auto; border: 3px solid #ff007f; box-shadow: 0 0 25px rgba(255,0,127,0.8);">
+                    <img src="${cardImg}" alt="${cardName}" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div style="font-size: 1.3rem; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,215,0,0.8);">
+                    ${cardName}
+                </div>
+                <div style="font-size: 0.85rem; color: #00ff87; font-weight: 800; margin-top: 4px;">
+                    ★6각성 기본 적용 (실질 OVR 100 / 슈팅 93)
+                </div>
+                <div style="font-size: 0.74rem; color: #94a3b8; margin-top: 6px;">
+                    내 선수 덱(컬렉션)에 안전하게 영입 완료되었습니다!
+                </div>
+            </div>
+
+            <button onclick="closeChallengeSeasonModal()" style="width: 100%; padding: 0.95rem; border-radius: 14px; border: none; background: linear-gradient(135deg, #ff007f, #7928ca); color: #fff; font-size: 1rem; font-weight: 900; cursor: pointer; box-shadow: 0 0 20px rgba(255,0,127,0.6); transition: transform 0.2s ease;">
+                🎉 보상 수령 & 시즌 ${season + 1} 준비하기
+            </button>
+        </div>
+    `;
+
+    modal.style.display = 'flex';
+    if (typeof playSound === 'function') playSound('rank_up');
+}
+
+// 시즌 우승 모달 닫기
+function closeChallengeSeasonModal() {
+    const modal = document.getElementById('challengeSeasonCloseModal');
+    if (modal) modal.style.display = 'none';
+
+    updateChallengeMatchPreview();
+    renderChallengeRoadmap();
+    showToast(`🎉 새로운 시즌 ${challengeSeason}이 시작되었습니다!`);
+}
+
+// 하위 호환 별칭
 function closeFriendlyCloseModal() {
-    const modal = document.getElementById('friendlyCloseModal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-    
-    // 탭 정보 즉시 새로고침
-    renderFriendlyTable();
-    updateFriendlyMatchPreview();
-    
-    // 중계창 최초 대기 화면으로 초기화
-    const commBox = document.getElementById('friendlyCommentaryScroll');
-    if (commBox) {
-        commBox.innerHTML = '<div class="comm-item comm-system">친선 경기를 시작하려면 아래 \'친선 경기 개시\' 버튼을 누르세요.</div>';
-    }
-    
-    showToast("🎉 새로운 주간 친선 릴레이 매치 시즌이 성황리에 개막했습니다! 지금 바로 상대팀 OVR에 도전해보세요!");
-}
-
-// 친선 경기 매칭 모달 닫기
-function closeFriendlyMatchModal() {
-    const modal = document.getElementById('friendlyMatchModal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
+    closeChallengeSeasonModal();
 }

@@ -328,6 +328,14 @@ function saveUserProgress() {
             wingerStyles: typeof wingerStyles !== 'undefined' ? wingerStyles : { LW: 'dribble', RW: 'sprint' },
             strikerStyles: typeof strikerStyles !== 'undefined' ? strikerStyles : { ST: 'targetman' },
             
+            // 도전모드(Challenge Mode) 동기화 필드
+            challengeSeason: typeof challengeSeason !== 'undefined' ? challengeSeason : 1,
+            challengeStage: typeof challengeStage !== 'undefined' ? challengeStage : 1,
+            challengeLastDate: typeof challengeLastDate !== 'undefined' ? challengeLastDate : "",
+            challengeDailyFreeUsed: typeof challengeDailyFreeUsed !== 'undefined' ? challengeDailyFreeUsed : false,
+            challengeDailyRetryUsed: typeof challengeDailyRetryUsed !== 'undefined' ? challengeDailyRetryUsed : false,
+            challengeHistory: typeof challengeHistory !== 'undefined' ? challengeHistory : { w: 0, d: 0, l: 0, totalGames: 0 },
+            
             // 친선경기 ID별 실시간 클라우드 전적 연동 필드
             friendlyMatchesHistory: typeof friendlyMatchesHistory !== 'undefined' ? friendlyMatchesHistory : { w: 0, d: 0, l: 0, pts: 0 },
             friendlyCurrentOpponentIndex: typeof friendlyCurrentOpponentIndex !== 'undefined' ? friendlyCurrentOpponentIndex : 0,
@@ -377,8 +385,26 @@ function saveUserProgress() {
 function showSyncConflictModal(progressData, serverData) {
     const modal = document.getElementById('syncConflictModal');
     if (!modal) return;
-    if (modal.style.display === 'flex') return; // 이미 모달이 표시 중이면 무시
     
+    // 로컬 vs 클라우드 비교 정보 바인딩
+    const localPtsEl = document.getElementById('conflictLocalPoints');
+    const localCardsEl = document.getElementById('conflictLocalCards');
+    const cloudPtsEl = document.getElementById('conflictCloudPoints');
+    const cloudCardsEl = document.getElementById('conflictCloudCards');
+
+    const localPts = (progressData && progressData.userPoints !== undefined) ? progressData.userPoints : userPoints;
+    const localDeck = (progressData && progressData.playerDeck) ? progressData.playerDeck : playerDeck;
+    const localCardCount = Object.keys(localDeck || {}).length;
+
+    const cloudPts = (serverData && serverData.userPoints !== undefined) ? serverData.userPoints : 0;
+    const cloudDeck = (serverData && serverData.playerDeck) ? serverData.playerDeck : {};
+    const cloudCardCount = Object.keys(cloudDeck || {}).length;
+
+    if (localPtsEl) localPtsEl.innerText = localPts;
+    if (localCardsEl) localCardsEl.innerText = localCardCount;
+    if (cloudPtsEl) cloudPtsEl.innerText = cloudPts;
+    if (cloudCardsEl) cloudCardsEl.innerText = cloudCardCount;
+
     modal.style.display = 'flex';
     modal.classList.add('active');
     
@@ -391,13 +417,14 @@ function showSyncConflictModal(progressData, serverData) {
             modal.classList.remove('active');
             
             // 1. 서버 데이터 반영 및 로컬스토리지 갱신 (forceLoad = true)
+            isCloudDataSynced = true;
             syncUserDataOnLogin(serverData, true);
             
             // 2. 화면 반영을 위해 안전하게 새로고침
-            showToast("클라우드 데이터를 성공적으로 동기화하여 불러옵니다...");
+            showToast("☁️ 클라우드 데이터를 성공적으로 동기화하여 불러옵니다...");
             setTimeout(() => {
                 window.location.reload();
-            }, 1000);
+            }, 800);
         };
     }
     
@@ -412,7 +439,10 @@ function showSyncConflictModal(progressData, serverData) {
                 localStorage.setItem('fc_star_last_synced_updated_at', window.lastSyncedUpdatedAt);
             } catch (e) {}
             
-            showToast("로컬 데이터로 강제 업데이트를 진행합니다...");
+            isCloudDataSynced = true;
+            lastUploadedPoints = null; // 강제 업로드 트리거를 위해 초기화
+            lastUploadedDeckJson = null;
+            showToast("💾 로컬 데이터로 클라우드 백업을 진행합니다...");
             // 즉시 저장을 실행하여 강제 업로드
             saveUserProgress();
         };
@@ -456,16 +486,21 @@ function syncUserDataOnLogin(userData, forceLoad = false) {
         const localLastUpdated = parseInt(localStorage.getItem('fc_star_local_last_updated') || '0') || 0;
         const cloudLastUpdated = userData.localLastUpdated || 0;
         
+        // 로컬 진행 내역과 클라우드 데이터 시점이 다르고 강제 로드가 아닐 시 -> 사용자에게 선택 모달 표시
         if (!forceLoad && localLastUpdated > cloudLastUpdated) {
-            console.log("⚠️ [Sync Info] 로컬 장치에 업로드되지 않은 최신 게임 진행 내역이 있습니다. 클라우드 데이터로 덮어쓰지 않고 로컬 데이터를 유지하며, 백업을 대기합니다.");
-            isCloudDataSynced = true;
+            console.log("⚠️ [Sync Info] 로컬 장치에 업로드되지 않은 최신 게임 진행 내역이 감지되었습니다. 사용자 선택을 대기합니다.");
+            isCloudDataSynced = false; // 사용자가 선택하기 전까지 자동 클라우드 업로드 전면 차단
+            window.isSyncingData = false;
             refreshAllScreens();
-            // 2초 후 즉시 클라우드 백업 전송
-            setTimeout(() => {
-                if (typeof saveUserProgress === 'function') {
-                    saveUserProgress();
-                }
-            }, 2000);
+            
+            // 로컬 현재 데이터 구성
+            const localDataObj = {
+                userPoints: userPoints,
+                playerDeck: playerDeck
+            };
+            
+            // 사용자에게 [클라우드 불러오기] vs [로컬로 덮어쓰기] 선택 모달 즉시 표시
+            showSyncConflictModal(localDataObj, userData);
             return;
         }
 
@@ -702,8 +737,26 @@ function syncUserDataOnLogin(userData, forceLoad = false) {
             initAcl();
         }
         
-        // 클라우드에서 친선경기 전적 및 릴레이 인덱스 상태 복원
+        // 클라우드에서 도전모드(Challenge Mode) 상태 복원
         const myId = currentUser;
+        challengeSeason = userData.challengeSeason || 1;
+        challengeStage = userData.challengeStage || 1;
+        challengeLastDate = userData.challengeLastDate || "";
+        challengeDailyFreeUsed = userData.challengeDailyFreeUsed || false;
+        challengeDailyRetryUsed = userData.challengeDailyRetryUsed || false;
+        challengeHistory = userData.challengeHistory || { w: 0, d: 0, l: 0, totalGames: 0 };
+        
+        localStorage.setItem(`fc_star_challenge_season_${myId}`, challengeSeason.toString());
+        localStorage.setItem(`fc_star_challenge_stage_${myId}`, challengeStage.toString());
+        localStorage.setItem(`fc_star_challenge_last_date_${myId}`, challengeLastDate);
+        localStorage.setItem(`fc_star_challenge_free_used_${myId}`, challengeDailyFreeUsed ? 'true' : 'false');
+        localStorage.setItem(`fc_star_challenge_retry_used_${myId}`, challengeDailyRetryUsed ? 'true' : 'false');
+        localStorage.setItem(`fc_star_challenge_history_${myId}`, JSON.stringify(challengeHistory));
+        if (typeof initChallengeState === 'function') {
+            initChallengeState();
+        }
+
+        // 클라우드에서 친선경기 전적 및 릴레이 인덱스 상태 복원
         friendlyMatchesHistory = userData.friendlyMatchesHistory || { w: 0, d: 0, l: 0, pts: 0 };
         friendlyCurrentOpponentIndex = userData.friendlyCurrentOpponentIndex || 0;
         friendlyMatchesToday = userData.friendlyMatchesToday || 0;
@@ -1103,6 +1156,12 @@ function clearLocalGameData() {
     ];
     const myId = currentUser || localStorage.getItem('fc_star_current_user') || "";
     if (myId) {
+        keys.push(`fc_star_challenge_season_${myId}`);
+        keys.push(`fc_star_challenge_stage_${myId}`);
+        keys.push(`fc_star_challenge_last_date_${myId}`);
+        keys.push(`fc_star_challenge_free_used_${myId}`);
+        keys.push(`fc_star_challenge_retry_used_${myId}`);
+        keys.push(`fc_star_challenge_history_${myId}`);
         keys.push(`fc_star_friendly_history_${myId}`);
         keys.push(`fc_star_friendly_current_index_${myId}`);
         keys.push(`fc_star_friendly_matches_today_${myId}`);

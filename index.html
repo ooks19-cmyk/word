@@ -415,7 +415,7 @@
                     <i class="fa-solid fa-earth-asia"></i><span>아챔</span>
                 </button>
                 <button class="match-sub-btn" id="matchSubTabFriendly" onclick="switchMatchSubTab('friendly')">
-                    <i class="fa-solid fa-handshake"></i><span>친선경기</span>
+                    <i class="fa-solid fa-trophy" style="color: #ffd700;"></i><span>도전모드</span>
                 </button>
             </div>
 
@@ -849,156 +849,88 @@
                 </div>
             </div>
 
-            <!-- 친선경기 탭 뷰 -->
-            <div class="match-layout-sub" id="matchLayoutFriendly" style="display: none;">
-                <div class="match-layout friendly-teaser-layout">
-                    <!-- Left panel: Friendly Simulator Board -->
-                    <div class="match-simulator-panel friendly-panel">
-                        <div class="squad-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding-bottom: 0.5rem; flex-wrap: wrap; gap: 8px;">
-                            <div style="font-size: 0.95rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                <span style="display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-handshake" style="color: #a55eea;"></i> 친선 경기 매칭</span>
-                                <!-- Mock 데이터 구분 상태 표시 배지 (동적 제어 예정) -->
-                                <span id="friendlyDataStatusBadge" style="font-size: 0.65rem; padding: 2px 8px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px; font-weight: 800; background: rgba(255, 62, 108, 0.12); border: 1px solid rgba(255, 62, 108, 0.25); color: #ff3e6c;">
-                                    <i class="fa-solid fa-robot"></i> 가상 AI 봇 (MOCK)
-                                </span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <button id="btnRefreshFriendly" onclick="refreshFriendlyOpponentsForce()" style="background: rgba(165, 94, 234, 0.15); border: 1px solid rgba(165, 94, 234, 0.3); color: #a55eea; padding: 4px 8px; border-radius: 8px; font-size: 0.72rem; cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.background='rgba(165, 94, 234, 0.3)'" onmouseout="this.style.background='rgba(165, 94, 234, 0.15)'">
-                                    <i class="fa-solid fa-arrows-rotate"></i> 데이터 리프레시
-                                </button>
-                                <div class="deck-count" style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">
-                                    오늘의 대결: <span id="friendlyTodayCountVal" style="color: #a55eea; font-weight: 800;">0</span>팀
-                                </div>
-                            </div>
+            <!-- 도전모드(Challenge Mode) 탭 뷰 -->
+            <div class="match-layout match-layout-sub friendly-teaser-layout" id="matchLayoutFriendly" style="display: none;">
+                <!-- Left panel: Challenge Simulator Board -->
+                <div class="match-simulator-panel friendly-panel">
+                    <div class="squad-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding-bottom: 0.5rem; flex-wrap: wrap; gap: 8px;">
+                        <div style="font-size: 0.95rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <span style="display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-trophy" style="color: #ffd700;"></i> 도전모드 매칭</span>
+                            <!-- 스테이지 상태 표시 배지 -->
+                            <span id="friendlyDataStatusBadge" style="font-size: 0.65rem; padding: 2px 8px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px; font-weight: 800; background: rgba(165, 94, 234, 0.15); border: 1px solid rgba(165, 94, 234, 0.4); color: #a55eea;">
+                                <i class="fa-solid fa-shield-halved"></i> STAGE 1 / 10
+                            </span>
                         </div>
-                        
-                        <!-- friendly scoreboard -->
-                        <div class="scoreboard-container friendly-sb">
-                            <div class="team-vs-display">
-                                <div class="sb-team sb-home">
-                                    <div class="sb-emblem" id="friendlyHomeEmblem" style="border-color: #00ff87; background: rgba(0, 90, 60, 0.15);"><i class="fa-solid fa-shield-halved" style="color: #00ff87;"></i></div>
-                                    <h3 id="friendlyHomeTeamName">나의 구단</h3>
-                                    <span class="sb-ovr-tag" style="color: #00ff87; border-color: rgba(0,255,135,0.2);">OVR <strong id="friendlyHomeTeamOvr">76</strong></span>
-                                </div>
-                                <div class="sb-score-board">
-                                    <div class="sb-time" id="friendlySbTimeDisplay" style="color: #a55eea; border-color: rgba(165,94,234,0.3);">FRIENDLY</div>
-                                    <div class="sb-scores" style="font-size: 2rem;">
-                                        <span id="friendlyHomeScore">0</span> - <span id="friendlyAwayScore">0</span>
-                                    </div>
-                                    <div class="sb-match-venue" id="friendlyMatchVenueDisplay" style="color: #94a3b8; font-size: 0.6rem;">HOME / AWAY (ADV: 0)</div>
-                                </div>
-                                <div class="sb-team sb-away">
-                                    <div class="sb-emblem" id="friendlyAwayEmblem" style="border-color: #a55eea; background: rgba(165, 94, 234, 0.15);"><i class="fa-solid fa-crown" style="color: #a55eea;"></i></div>
-                                    <h3 id="friendlyAwayTeamName">OVR 1위 팀</h3>
-                                    <span class="sb-ovr-tag" style="color: #ffd700; border-color: rgba(255,215,0,0.2);">OVR <strong id="friendlyAwayTeamOvr">85</strong></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Match info detail -->
-                        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem; margin-bottom: 1.2rem; display: flex; flex-direction: column; gap: 0.6rem;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
-                                <span style="color: var(--text-muted);">상대 포메이션:</span>
-                                <span style="font-weight: 700; color: #fff;">4-3-3 (Attack)</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
-                                <span style="color: var(--text-muted);">핵심 선수:</span>
-                                <span style="font-weight: 700; color: #ffd700;"><i class="fa-solid fa-crown"></i> 20 손흥민 (LW)</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
-                                <span style="color: var(--text-muted);">대결 순서:</span>
-                                <span style="font-weight: 700; color: #a55eea;">상위 3개 팀과 순차적 릴레이 매칭</span>
-                            </div>
-                        </div>
-
-                        <!-- Live Text Broadcast Commentary Box (Friendly) -->
-                        <div class="commentary-box-wrapper" style="margin-bottom: 1.2rem;">
-                            <div class="commentary-header" style="background: rgba(165, 94, 234, 0.05); border-bottom: 1px solid rgba(165, 94, 234, 0.15);">
-                                <span><i class="fa-solid fa-radio" style="color: #a55eea; margin-right: 6px;"></i> 친선경기 문자 중계 라이브</span>
-                                <span class="live-pulse" id="friendlyLivePulseIndicator" style="display: none; background: rgba(165, 94, 234, 0.2); color: #a55eea; border-color: rgba(165, 94, 234, 0.4);">LIVE</span>
-                            </div>
-                            <div class="commentary-scroll" id="friendlyCommentaryScroll" style="height: 180px;">
-                                <div class="comm-item comm-system">친선 경기를 시작하려면 아래 '친선 경기 개시' 버튼을 누르세요.</div>
-                            </div>
-                        </div>
-
-                        <div class="match-controls">
-                            <button class="btn-open-pack" id="btnStartFriendlyMatch" onclick="startFriendlyMatchSimulation()" style="width: 100%; margin-top: 0.5rem; background: linear-gradient(135deg, #a55eea, #4b7bec);">
-                                <i class="fa-solid fa-play" style="margin-right: 8px;"></i>친선 경기 개시
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <button id="btnRefreshFriendly" onclick="refreshFriendlyOpponentsForce()" style="background: rgba(165, 94, 234, 0.15); border: 1px solid rgba(165, 94, 234, 0.3); color: #a55eea; padding: 4px 8px; border-radius: 8px; font-size: 0.72rem; cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.background='rgba(165, 94, 234, 0.3)'" onmouseout="this.style.background='rgba(165, 94, 234, 0.15)'">
+                                <i class="fa-solid fa-arrows-rotate"></i> 새로고침
                             </button>
+                            <div class="deck-count" style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">
+                                진행 단계: <span id="friendlyTodayCountVal" style="color: #ffd700; font-weight: 800;">1/10</span>
+                            </div>
                         </div>
                     </div>
                     
-                    <!-- Right panel: Friendly Standings Table -->
-                    <div class="league-table-panel friendly-panel">
-                        <div class="squad-header" style="border-bottom: 1px solid var(--glass-border); padding-bottom: 0.8rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
-                            <h3 class="deck-title" style="font-size: 1.15rem; color: #fff;"><i class="fa-solid fa-ranking-star" style="margin-right: 8px; color: #a55eea;"></i>친선경기 주간 순위표</h3>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <span id="friendlyDDayBadge" style="font-size: 0.65rem; color: #a55eea; background: rgba(165, 94, 234, 0.15); border: 1px solid rgba(165, 94, 234, 0.3); padding: 2px 8px; border-radius: 12px; font-weight: 800;">마감 D-4</span>
+                    <!-- friendly scoreboard -->
+                    <div class="scoreboard-container friendly-sb">
+                        <div class="team-vs-display">
+                            <div class="sb-team sb-home">
+                                <div class="sb-emblem" id="friendlyHomeEmblem" style="border-color: #00ff87; background: rgba(0, 90, 60, 0.15);"><i class="fa-solid fa-shield-halved" style="color: #00ff87;"></i></div>
+                                <h3 id="friendlyHomeTeamName">나의 구단</h3>
+                                <span class="sb-ovr-tag" style="color: #00ff87; border-color: rgba(0,255,135,0.2);">OVR <strong id="friendlyHomeTeamOvr">76</strong></span>
+                            </div>
+                            <div class="sb-score-board">
+                                <div class="sb-time" id="friendlySbTimeDisplay" style="color: #ffd700; border-color: rgba(255,215,0,0.3);">STAGE 1</div>
+                                <div class="sb-scores" style="font-size: 2rem;">
+                                    <span id="friendlyHomeScore">0</span> - <span id="friendlyAwayScore">0</span>
+                                </div>
+                                <div class="sb-match-venue" id="friendlyMatchVenueDisplay" style="color: #94a3b8; font-size: 0.6rem;">원정팀 전술: 4-3-3</div>
+                            </div>
+                            <div class="sb-team sb-away">
+                                <div class="sb-emblem" id="friendlyAwayEmblem" style="border-color: #a55eea; background: rgba(165, 94, 234, 0.15);"><i class="fa-solid fa-crown" style="color: #a55eea;"></i></div>
+                                <h3 id="friendlyAwayTeamName">셀틱 FC</h3>
+                                <span class="sb-ovr-tag" style="color: #ffd700; border-color: rgba(255,215,0,0.2);">OVR <strong id="friendlyAwayTeamOvr">90</strong></span>
                             </div>
                         </div>
-                        
-                        <div class="league-table-wrapper">
-                            <table class="league-table friendly-table">
-                                <thead>
-                                    <tr>
-                                        <th>순위</th>
-                                        <th style="text-align: left;">구단명</th>
-                                        <th>승점</th>
-                                        <th>승무패</th>
-                                        <th>승률</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr class="league-row-jeonbuk" style="background: linear-gradient(90deg, rgba(165, 94, 234, 0.12) 0%, rgba(165, 94, 234, 0.03) 100%) !important; border-color: rgba(165, 94, 234, 0.25) !important;">
-                                        <td class="league-row-rank" style="color: #a55eea !important;">1</td>
-                                        <td class="league-team-col" style="color: #a55eea !important; font-weight: 800;">
-                                            <i class="fa-solid fa-shield-halved" style="color: #a55eea;"></i>
-                                            <span>나의 구단 (전북)</span>
-                                        </td>
-                                        <td class="league-row-pts">12</td>
-                                        <td>4승 0무 0패</td>
-                                        <td style="font-weight: 800; color: #00ff87;">100%</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="league-row-rank">2</td>
-                                        <td class="league-team-col">
-                                            <i class="fa-regular fa-circle-user" style="color: var(--text-muted);"></i>
-                                            <span>UlsanKing_99</span>
-                                        </td>
-                                        <td class="league-row-pts">9</td>
-                                        <td>3승 0무 1패</td>
-                                        <td>75%</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="league-row-rank">3</td>
-                                        <td class="league-team-col">
-                                            <i class="fa-regular fa-circle-user" style="color: var(--text-muted);"></i>
-                                            <span>SeoulFC_Star</span>
-                                        </td>
-                                        <td class="league-row-pts">6</td>
-                                        <td>2승 0무 2패</td>
-                                        <td>50%</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="league-row-rank">4</td>
-                                        <td class="league-team-col">
-                                            <i class="fa-regular fa-circle-user" style="color: var(--text-muted);"></i>
-                                            <span>CardCollector</span>
-                                        </td>
-                                        <td class="league-row-pts">3</td>
-                                        <td>1승 0무 3패</td>
-                                        <td>25%</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    </div>
 
-                        <div style="margin-top: 1rem; padding: 0.8rem; background: rgba(165, 94, 234, 0.06); border: 1px solid rgba(165, 94, 234, 0.15); border-radius: 12px; font-size: 0.72rem; color: #dcdde1; line-height: 1.45;">
-                            <i class="fa-solid fa-gift" style="color: #ffd700; margin-right: 4px;"></i>
-                            <strong>주간 우승 혜택</strong>: 1주일 단위로 친선경기가 마감되어 상위 3개 팀에게는 특별한 선물인 <strong style="color: #ffd700;">주장 카드 +1 강화권</strong>이 지급됩니다!
+                    <!-- Match info detail -->
+                    <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem; margin-bottom: 1.2rem; display: flex; flex-direction: column; gap: 0.6rem;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+                            <span style="color: var(--text-muted);">상대 포메이션:</span>
+                            <span style="font-weight: 700; color: #fff;">4-3-3</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+                            <span style="color: var(--text-muted);">핵심 선수:</span>
+                            <span style="font-weight: 700; color: #ffd700;"><i class="fa-solid fa-crown"></i> 후루하시 (ST)</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+                            <span style="color: var(--text-muted);">도전 스테이지:</span>
+                            <span style="font-weight: 700; color: #a55eea;">시즌 1 · Stage 1 (셀틱 FC)</span>
                         </div>
                     </div>
+
+                    <!-- Live Text Broadcast Commentary Box (Challenge) -->
+                    <div class="commentary-box-wrapper" style="margin-bottom: 1.2rem;">
+                        <div class="commentary-header" style="background: rgba(165, 94, 234, 0.05); border-bottom: 1px solid rgba(165, 94, 234, 0.15);">
+                            <span><i class="fa-solid fa-radio" style="color: #a55eea; margin-right: 6px;"></i> 도전모드 문자 중계 라이브</span>
+                            <span class="live-pulse" id="friendlyLivePulseIndicator" style="display: none; background: rgba(165, 94, 234, 0.2); color: #a55eea; border-color: rgba(165, 94, 234, 0.4);">LIVE</span>
+                        </div>
+                        <div class="commentary-scroll" id="friendlyCommentaryScroll" style="height: 180px;">
+                            <div class="comm-item comm-system">도전 경기를 시작하려면 아래 '도전 시작' 버튼을 누르세요. (실패 시 당일 1회 5P로 재도전 가능)</div>
+                        </div>
+                    </div>
+
+                    <div class="match-controls">
+                        <button class="btn-open-pack" id="btnStartFriendlyMatch" onclick="startChallengeMatchSimulation(false)" style="width: 100%; margin-top: 0.5rem; background: linear-gradient(135deg, #a55eea, #4b7bec);">
+                            <i class="fa-solid fa-play" style="margin-right: 8px;"></i>무료 도전 시작 (Stage 1)
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Right panel: Challenge Roadmap Panel -->
+                <div class="league-table-panel friendly-panel">
+                    <!-- 로드맵 렌더링 영역 (js/friendly.js renderChallengeRoadmap에서 동적 렌더링) -->
                 </div>
             </div>
         </section>
@@ -1925,7 +1857,7 @@
     <script src="js/league.js?v=3.5"></script>
     <script src="js/cup.js?v=2.7"></script>
     <script src="js/acl.js?v=2.9"></script>
-    <script src="js/friendly.js?v=2.5"></script>
+    <script src="js/friendly.js?v=3.0"></script>
     <script src="js/achievements.js?v=1.0"></script>
     <!-- 수석코치 조언 플로팅 버튼 -->
     <button id="floatingAdvisorBtn" class="floating-advisor-btn" onclick="showCoachAdvice()" title="수석코치의 조언" style="display: none;">
@@ -1990,26 +1922,50 @@
         </div>
     </div>
 
-    <!-- SYNC CONFLICT MODAL -->
+    <!-- SYNC CONFLICT MODAL (사용자 선택 중심 데이터 충돌 조율) -->
     <div class="drawer-overlay" id="syncConflictModal" style="display: none; z-index: 10000;">
-        <div class="selector-drawer auth-modal-drawer" style="max-width: 440px; text-align: center; padding: 2rem 1.5rem; height: auto !important; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); border-radius: 24px;" onclick="event.stopPropagation()">
+        <div class="selector-drawer auth-modal-drawer" style="max-width: 440px; text-align: center; padding: 2rem 1.5rem; height: auto !important; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.8);" onclick="event.stopPropagation()">
             <div class="drawer-header" style="justify-content: center; border-bottom: none; padding-bottom: 0;">
-                <h3 style="font-size: 1.35rem; font-weight: 800; color: #ff4a4a; display: flex; align-items: center; gap: 8px;">
-                    <i class="fa-solid fa-triangle-exclamation"></i> 데이터 충돌 감지
+                <h3 style="font-size: 1.3rem; font-weight: 800; color: #ffd700; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-code-compare"></i> 데이터 동기화 선택
                 </h3>
             </div>
-            <div class="drawer-content" style="display: flex; flex-direction: column; gap: 1.2rem; padding: 1.5rem 0.5rem 0.5rem 0.5rem;">
-                <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; word-break: keep-all; text-align: center; margin: 0;">
-                    다른 기기 또는 브라우저 탭에서 새로운 저장 데이터가 감지되었습니다.<br>
-                    <strong>로컬 데이터로 덮어쓰시겠습니까?</strong> 아니면 <strong>클라우드의 최신 데이터를 불러오시겠습니까?</strong>
+            <div class="drawer-content" style="display: flex; flex-direction: column; gap: 1rem; padding: 1rem 0.5rem 0.5rem 0.5rem;">
+                <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.5; word-break: keep-all; text-align: center; margin: 0;">
+                    현재 기기의 진행 내역과 클라우드 저장 데이터가 일치하지 않습니다.<br>
+                    <strong>어떤 데이터를 기준으로 게임을 진행하시겠습니까?</strong>
                 </p>
-                <div style="font-size: 0.82rem; color: #ffb700; font-weight: 700; background: rgba(255, 74, 74, 0.05); padding: 0.8rem; border-radius: 12px; border: 1px solid rgba(255, 74, 74, 0.2); text-align: left; display: flex; flex-direction: column; gap: 4px; line-height: 1.4;">
-                    <div>⚠️ <strong>로컬 데이터 덮어쓰기</strong> 선택 시: 다른 기기의 데이터가 영구 유실될 수 있습니다.</div>
-                    <div>ℹ️ <strong>클라우드 데이터 불러오기</strong> 선택 시: 현재 기기의 저장되지 않은 데이터가 손실됩니다.</div>
+                
+                <!-- 로컬 vs 클라우드 데이터 실시간 비교 카드 -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 4px 0;">
+                    <div style="background: rgba(255, 62, 108, 0.08); border: 1.5px solid rgba(255, 62, 108, 0.3); border-radius: 12px; padding: 0.7rem; text-align: left;">
+                        <div style="font-size: 0.72rem; color: #ff3e6c; font-weight: 800; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+                            <i class="fa-solid fa-mobile-screen"></i> 현재 기기(로컬)
+                        </div>
+                        <div style="font-size: 0.82rem; color: #fff; font-weight: bold;">포인트: <strong id="conflictLocalPoints" style="color: #ffd700;">-</strong> FP</div>
+                        <div style="font-size: 0.72rem; color: #cbd5e1; margin-top: 2px;">보유 카드: <span id="conflictLocalCards" style="color: #fff; font-weight: bold;">-</span>장</div>
+                    </div>
+                    <div style="background: rgba(0, 210, 252, 0.08); border: 1.5px solid rgba(0, 210, 252, 0.3); border-radius: 12px; padding: 0.7rem; text-align: left;">
+                        <div style="font-size: 0.72rem; color: #00d2fc; font-weight: 800; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+                            <i class="fa-solid fa-cloud"></i> 클라우드(서버)
+                        </div>
+                        <div style="font-size: 0.82rem; color: #fff; font-weight: bold;">포인트: <strong id="conflictCloudPoints" style="color: #ffd700;">-</strong> FP</div>
+                        <div style="font-size: 0.72rem; color: #cbd5e1; margin-top: 2px;">보유 카드: <span id="conflictCloudCards" style="color: #fff; font-weight: bold;">-</span>장</div>
+                    </div>
                 </div>
-                <div style="display: flex; gap: 10px; margin-top: 1rem;">
-                    <button class="btn-open-pack" id="btnSyncLoadCloud" style="flex: 1; padding: 0.8rem; background: var(--gold-gradient); color: #000; font-weight: bold; border-radius: 12px;">클라우드 불러오기</button>
-                    <button class="btn-open-pack" id="btnSyncOverwriteCloud" style="flex: 1; padding: 0.8rem; background: rgba(255, 74, 74, 0.2); color: #ff4a4a; border: 1px solid rgba(255, 74, 74, 0.3); border-radius: 12px;">로컬로 덮어쓰기</button>
+
+                <div style="font-size: 0.78rem; color: #ffb700; background: rgba(255, 215, 0, 0.06); padding: 0.6rem 0.8rem; border-radius: 10px; border: 1px solid rgba(255, 215, 0, 0.2); text-align: left; line-height: 1.4;">
+                    <div>• <strong>클라우드 불러오기</strong>: 서버의 최신 데이터를 현재 기기에 동기화합니다.</div>
+                    <div style="margin-top: 2px;">• <strong>로컬로 덮어쓰기</strong>: 현재 기기의 데이터로 클라우드를 갱신합니다.</div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 0.6rem;">
+                    <button class="btn-open-pack" id="btnSyncLoadCloud" style="flex: 1; padding: 0.75rem; background: linear-gradient(135deg, #00d2fc, #0056b3); color: #fff; font-weight: bold; border-radius: 12px; font-size: 0.85rem;">
+                        <i class="fa-solid fa-cloud-arrow-down" style="margin-right: 4px;"></i>클라우드 불러오기
+                    </button>
+                    <button class="btn-open-pack" id="btnSyncOverwriteCloud" style="flex: 1; padding: 0.75rem; background: linear-gradient(135deg, #ff3e6c, #a55eea); color: #fff; border-radius: 12px; font-size: 0.85rem; font-weight: bold;">
+                        <i class="fa-solid fa-cloud-arrow-up" style="margin-right: 4px;"></i>로컬로 덮어쓰기
+                    </button>
                 </div>
             </div>
         </div>
@@ -2017,7 +1973,7 @@
 
     <script src="js/update_data.js?v=2.70"></script>
     <script src="js/friend.js?v=1.1"></script>
-    <script src="js/auth.js?v=2.50"></script>
+    <script src="js/auth.js?v=2.60"></script>
     <script src="js/realtime.js?v=2.1"></script>
     <script src="js/coach_advisor.js?v=1.0"></script>
     <script src="app.js?v=3.0"></script>

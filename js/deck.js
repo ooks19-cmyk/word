@@ -60,11 +60,12 @@ function filterStorageByPosition(category) {
 // 카드 DOM 요소 생성 헬퍼 함수
 function createCardDOM(key, awakened) {
     const cardEl = document.createElement('div');
-    cardEl.className = 'fut-card flipped';
+    const isSuper = awakened && awakened.rarity === 'super';
+    cardEl.className = `fut-card flipped ${isSuper ? 'is-super' : ''}`;
     
     // Card Front
     const cardFront = document.createElement('div');
-    cardFront.className = 'card-front';
+    cardFront.className = `card-front ${isSuper ? 'super-card' : ''}`;
     cardFront.innerHTML = generateCardHTML(awakened);
     cardFront.style.borderColor = awakened.theme.glow;
     cardFront.style.boxShadow = `0 0 15px ${awakened.theme.glow}22, var(--card-shadow)`;

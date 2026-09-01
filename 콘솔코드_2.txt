@@ -142,3 +142,158 @@ matchTodayCount = 0; matchLastDate = new Date().toLocaleDateString('ko-KR'); loc
     if (typeof showToast === 'function') showToast("🔄 실제 시스템 날짜로 복원되었습니다!");
 })();
 
+
+브라우저 개발자 도구(**F12** ➡️ **Console**)에 복사해서 붙여넣고 엔터를 치시면 즉시 실행되는 **도전모드 리셋 콘솔 코드**입니다!
+
+---
+
+### 1. 🔄 도전모드 완전 초기화 (시즌 1, 1단계, 오늘 도전 횟수 모두 초기화)
+
+```javascript
+(() => {
+    const myId = (typeof currentUser !== 'undefined' && currentUser) ? currentUser : 'guest';
+    challengeSeason = 1;
+    challengeStage = 1;
+    challengeLastDate = "";
+    challengeDailyFreeUsed = false;
+    challengeDailyRetryUsed = false;
+    challengeHistory = { w: 0, d: 0, l: 0, totalGames: 0 };
+
+    localStorage.setItem(`fc_star_challenge_season_${myId}`, '1');
+    localStorage.setItem(`fc_star_challenge_stage_${myId}`, '1');
+    localStorage.setItem(`fc_star_challenge_last_date_${myId}`, '');
+    localStorage.setItem(`fc_star_challenge_free_used_${myId}`, 'false');
+    localStorage.setItem(`fc_star_challenge_retry_used_${myId}`, 'false');
+    localStorage.setItem(`fc_star_challenge_history_${myId}`, JSON.stringify(challengeHistory));
+
+    localStorage.setItem('fc_star_local_last_updated', Date.now().toString());
+
+    if (typeof initChallengeState === 'function') initChallengeState();
+    if (typeof saveUserProgress === 'function') saveUserProgress();
+    console.log("✅ [완료] 도전모드가 시즌 1 · Stage 1 및 일일 도전 가능 상태로 완전히 리셋되었습니다!");
+})();
+```
+
+---
+
+### 2. ⚡ 오늘 도전 횟수만 리셋 (현재 스테이지는 유지하고 무료 경기 다시 활성화)
+
+```javascript
+(() => {
+    const myId = (typeof currentUser !== 'undefined' && currentUser) ? currentUser : 'guest';
+    challengeDailyFreeUsed = false;
+    challengeDailyRetryUsed = false;
+    challengeLastDate = "";
+
+    localStorage.setItem(`fc_star_challenge_free_used_${myId}`, 'false');
+    localStorage.setItem(`fc_star_challenge_retry_used_${myId}`, 'false');
+    localStorage.setItem(`fc_star_challenge_last_date_${myId}`, '');
+
+    localStorage.setItem('fc_star_local_last_updated', Date.now().toString());
+
+    if (typeof initChallengeState === 'function') initChallengeState();
+    if (typeof saveUserProgress === 'function') saveUserProgress();
+    console.log(`✅ [완료] 오늘의 무료 도전 및 재도전 기회가 리셋되었습니다! (현재 Stage: ${challengeStage})`);
+})();
+```
+
+---
+
+### 3. 👑 10스테이지(최종 보스: 레알 마드리드)로 즉시 점프 (우승 테스트용)
+
+```javascript
+(() => {
+    const myId = (typeof currentUser !== 'undefined' && currentUser) ? currentUser : 'guest';
+    challengeStage = 10;
+    challengeDailyFreeUsed = false;
+    challengeDailyRetryUsed = false;
+    challengeLastDate = "";
+
+    localStorage.setItem(`fc_star_challenge_stage_${myId}`, '10');
+    localStorage.setItem(`fc_star_challenge_free_used_${myId}`, 'false');
+    localStorage.setItem(`fc_star_challenge_retry_used_${myId}`, 'false');
+    localStorage.setItem(`fc_star_challenge_last_date_${myId}`, '');
+
+    localStorage.setItem('fc_star_local_last_updated', Date.now().toString());
+
+    if (typeof initChallengeState === 'function') initChallengeState();
+    if (typeof saveUserProgress === 'function') saveUserProgress();
+    console.log("🏆 [완료] Stage 10 (FINAL BOSS: 레알 마드리드)로 이동 완료! 승리 시 슈퍼 메시(6각성)가 지급됩니다.");
+})();
+```
+
+---
+
+### 4. ⚡ 10스테이지 즉시 승리 & 시즌 우승 처리 (슈퍼 리오넬 메시 ★6각성 즉시 지급 및 축하 모달)
+
+```javascript
+(() => {
+    const myId = (typeof currentUser !== 'undefined' && currentUser) ? currentUser : 'guest';
+    const curSeason = challengeSeason || 1;
+
+    challengeHistory.w += 1;
+    challengeHistory.totalGames += 1;
+
+    console.log(`👑 [우승 격발] 도전모드 시즌 ${curSeason} 10스테이지 전승 우승 처리를 진행합니다...`);
+    if (typeof triggerChallengeSeasonVictory === 'function') {
+        triggerChallengeSeasonVictory(curSeason);
+    } else {
+        const rewardCardId = "super_messi";
+        const rewardCardObj = (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE[rewardCardId]) ? CARDS_DATABASE[rewardCardId] : null;
+        if (rewardCardObj) {
+            playerDeck[rewardCardId] = {
+                card: rewardCardObj,
+                quantity: 1,
+                awakening: 6,
+                awakeLevel: 6,
+                condition: 0,
+                conditionDate: new Date().toISOString().slice(0, 10),
+                isStored: false
+            };
+            localStorage.setItem('fc_star_player_deck', JSON.stringify(playerDeck));
+            if (typeof renderDeck === 'function') renderDeck();
+            if (typeof updateTotalCardCount === 'function') updateTotalCardCount();
+        }
+        challengeSeason += 1;
+        challengeStage = 1;
+        challengeDailyFreeUsed = true;
+        challengeDailyRetryUsed = true;
+        if (typeof saveChallengeState === 'function') saveChallengeState();
+        if (typeof saveUserProgress === 'function') saveUserProgress();
+    }
+    console.log("🎉 [지급 완료] 슈퍼 리오넬 메시 (★6각성, 실질 OVR 100)가 내 덱에 지급되었으며 우승 모달이 팝업되었습니다!");
+})();
+```
+
+---
+
+### 5. 🎯 [승리 신호 주입] 10스테이지로 이동 + 100% 무조건 승리 신호 활성화 + 경기 정상 진행
+> 경기 시작 버튼을 직접 누르거나 아래 코드를 실행하면, **15초 동안 실제 중계 화면(내 팀 득점, 아군 골키퍼 슈퍼세이브 등)이 완벽히 재생**된 후 자연스럽게 **10스테이지 승리 ➡️ 시즌 1 우승 모달 팝업 ➡️ 슈퍼 메시 6각성 지급 ➡️ 시즌 2 갱신**까지 모든 인게임 루틴이 정상적으로 동작합니다.
+
+```javascript
+(() => {
+    const myId = (typeof currentUser !== 'undefined' && currentUser) ? currentUser : 'guest';
+    
+    // 1. 10스테이지 및 일일 도전 가능 상태로 세팅
+    challengeStage = 10;
+    challengeDailyFreeUsed = false;
+    challengeDailyRetryUsed = false;
+    challengeLastDate = "";
+    localStorage.setItem(`fc_star_challenge_stage_${myId}`, '10');
+    localStorage.setItem(`fc_star_challenge_free_used_${myId}`, 'false');
+    localStorage.setItem(`fc_star_challenge_retry_used_${myId}`, 'false');
+    localStorage.setItem(`fc_star_challenge_last_date_${myId}`, '');
+    if (typeof initChallengeState === 'function') initChallengeState();
+
+    // 2. 100% 무조건 승리 신호 활성화
+    window.forceChallengeWin = true;
+
+    console.log("🔥 [승리 신호 주입 완료] 10스테이지(레알 마드리드) 정규 경기를 시작합니다...");
+    console.log("📺 15초간 중계 화면이 실시간으로 흐른 뒤 정상적인 우승 프로세스가 작동합니다.");
+    
+    // 3. 경기 자동 시작
+    if (typeof startChallengeMatchSimulation === 'function') {
+        startChallengeMatchSimulation(false);
+    }
+})();
+```
