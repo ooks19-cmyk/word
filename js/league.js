@@ -1445,7 +1445,8 @@ function startMatchSimulation() {
     const activeAttacker = squadFormation["ST"] ? CARDS_DATABASE[squadFormation["ST"]].name : "무명 스트라이커";
     const activeLw = squadFormation["LW"] ? CARDS_DATABASE[squadFormation["LW"]].name : "무명 윙어";
     const activeRw = squadFormation["RW"] ? CARDS_DATABASE[squadFormation["RW"]].name : "무명 윙백";
-    const activeCm = squadFormation["CM"] ? CARDS_DATABASE[squadFormation["CM"]].name : "무명 미드필더";
+    const activeMfs = (typeof getFormationMidfielders === 'function') ? getFormationMidfielders(currentFormation, squadFormation, playerDeck) : [];
+    const activeCm = activeMfs.length > 0 ? activeMfs[0].name : (squadFormation["CM"] ? CARDS_DATABASE[squadFormation["CM"]].name : "무명 미드필더");
     const activeGk = squadFormation["GK"] ? CARDS_DATABASE[squadFormation["GK"]].name : "무명 골키퍼";
     
     // 3. CALIBRATED WIN PROBABILITY ALGORITHM (Diff = playerOvr - opponentOvr)

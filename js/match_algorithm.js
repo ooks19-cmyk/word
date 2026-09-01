@@ -573,6 +573,15 @@ function calculateFinalMatchOvrs(venueType, isPlayerHome, opponentBaseOvr, isFri
 function getDetailedTacticCommentary(option, formation, isTacticActive, activePlayers, squad = squadFormation, deck = playerDeck, customWingerStyles = null, customStrikerStyles = null) {
     lastTacticGoalData = null; // Reset for each new commentary evaluation
     const { ST, LW, RW, CM } = activePlayers;
+
+    // 포메이션별 실제 미드필더 이름 추출 (5-4-1의 CB 김민재 배제 및 100% 미드필더 보장)
+    let effectiveCM = CM;
+    if (typeof getFormationMidfielders === 'function') {
+        const mfs = getFormationMidfielders(formation, squad, deck);
+        if (mfs.length > 0) {
+            effectiveCM = mfs[0].name;
+        }
+    }
     
     let activeWingerStyles = customWingerStyles;
     if (!activeWingerStyles && typeof wingerStyles !== 'undefined') {
@@ -615,7 +624,7 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
     // 2) 치고 달리기 스타일 (스프린트 및 킬패스 침투 중심)
     const getSprintTexts = (wingerName) => {
         return {
-            desc: `${CM} 선수의 창의적인 킬패스가 배후 공간을 무력화시킵니다! 배후 공간을 향해 엄청난 속도로 치고 달리는 ${wingerName}! 슛!`,
+            desc: `${effectiveCM} 선수의 창의적인 킬패스가 배후 공간을 무력화시킵니다! 배후 공간을 향해 엄청난 속도로 치고 달리는 ${wingerName}! 슛!`,
             goal: `골!!! ${wingerName}가 몸을 날리는 멋진 발리 슛으로 골을 선사합니다! 멋진 팀워크 플레이! 🥳`,
             fail: `키퍼의 슈퍼세이브! 상대 수문장이 온몸으로 막아내며 아쉬운 득점 찬스가 무산됩니다.`
         };
@@ -660,16 +669,16 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
     } else if (option === 3) {
         // 🚀 CM 강력한 중거리 슈팅 찬스 (찬스의 10% 확률)
         const cmGoals = [
-            `골!!! ${CM}의 환상적인 대포알 중거리포가 골문 상단 구석을 완벽하게 꿰뚫습니다! 골키퍼가 꼼짝도 못 한 엄청난 원더골!! 🚀⚽`,
-            `골!!! 아크 정면에서 때린 ${CM}의 기습적인 무회전 중거리 슛이 크로스바 하단을 강타하고 그대로 골망을 흔듭니다! 💥⚽`
+            `골!!! ${effectiveCM}의 환상적인 대포알 중거리포가 골문 상단 구석을 완벽하게 꿰뚫습니다! 골키퍼가 꼼짝도 못 한 엄청난 원더골!! 🚀⚽`,
+            `골!!! 아크 정면에서 때린 ${effectiveCM}의 기습적인 무회전 중거리 슛이 크로스바 하단을 강타하고 그대로 골망을 흔듭니다! 💥⚽`
         ];
         const selectedGoal = cmGoals[Math.floor(Math.random() * cmGoals.length)];
-        eventDesc = `아크 정면에서 흘러나온 세컨볼을 포착한 미드필더 ${CM}! 수비수가 달라붙기 전 한 박자 빠른 강력한 논스톱 대포알 중거리 슈팅을 때립니다!`;
+        eventDesc = `아크 정면에서 흘러나온 세컨볼을 포착한 미드필더 ${effectiveCM}! 수비수가 달라붙기 전 한 박자 빠른 강력한 논스톱 대포알 중거리 슈팅을 때립니다!`;
         eventGoal = selectedGoal;
-        eventFail = `아아! ${CM}의 미사일 같은 중거리 슈팅이 크로스바를 살짝 스치며 관중석으로 날아갑니다. 아쉬운 찬스!`;
+        eventFail = `아아! ${effectiveCM}의 미사일 같은 중거리 슈팅이 크로스바를 살짝 스치며 관중석으로 날아갑니다. 아쉬운 찬스!`;
     } else if (option === 5) {
-        eventDesc = `[4-2-3-1 점유 지배] 플레이메이커 ${CM}(AM)가 화려한 탈압박과 시그니처 드리블로 상대 수비진 3명을 요리조리 벗겨내고 문전 앞 에이스에게 스루패스!`;
-        eventGoal = `골!!! 에이스 ${CM}의 지휘 아래 그라운드를 완전히 지배하며 뽑아낸 아름다운 조직력의 승리골입니다! ⚽`;
+        eventDesc = `[4-2-3-1 점유 지배] 플레이메이커 ${effectiveCM}(AM)가 화려한 탈압박과 시그니처 드리블로 상대 수비진 3명을 요리조리 벗겨내고 문전 앞 에이스에게 스루패스!`;
+        eventGoal = `골!!! 에이스 ${effectiveCM}의 지휘 아래 그라운드를 완전히 지배하며 뽑아낸 아름다운 조직력의 승리골입니다! ⚽`;
         eventFail = `오프사이드 판정! 골망은 흔들었으나 간발의 차이로 선심의 깃발이 올라가며 아쉬운 간접 프리킥이 선언됩니다.`;
     }
     
