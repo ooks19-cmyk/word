@@ -372,6 +372,7 @@ try {
 // ==========================================
 let challengeSeason = 1;
 let challengeStage = 1;
+let challengeBossOvr = 98; // 기본 1시즌 마지막 보스 OVR 98 (시즌 종료 시 마지막 경기 시점 OVR + 1 로 갱신)
 let challengeLastDate = "";
 let challengeDailyFreeUsed = false;
 let challengeDailyRetryUsed = false;
@@ -390,6 +391,7 @@ function loadChallengeState() {
     try {
         const savedSeason = localStorage.getItem(`fc_star_challenge_season_${myId}`);
         const savedStage = localStorage.getItem(`fc_star_challenge_stage_${myId}`);
+        const savedBossOvr = localStorage.getItem(`fc_star_challenge_boss_ovr_${myId}`);
         const savedDate = localStorage.getItem(`fc_star_challenge_last_date_${myId}`);
         const savedFreeUsed = localStorage.getItem(`fc_star_challenge_free_used_${myId}`);
         const savedRetryUsed = localStorage.getItem(`fc_star_challenge_retry_used_${myId}`);
@@ -397,8 +399,10 @@ function loadChallengeState() {
 
         challengeSeason = savedSeason ? parseInt(savedSeason) : 1;
         challengeStage = savedStage ? parseInt(savedStage) : 1;
+        challengeBossOvr = savedBossOvr ? parseInt(savedBossOvr) : 98;
         if (isNaN(challengeSeason) || challengeSeason < 1) challengeSeason = 1;
         if (isNaN(challengeStage) || challengeStage < 1 || challengeStage > 10) challengeStage = 1;
+        if (isNaN(challengeBossOvr) || challengeBossOvr < 80) challengeBossOvr = 98;
 
         const todayStr = getChallengeTodayDateString();
         challengeLastDate = savedDate || todayStr;
@@ -429,6 +433,7 @@ function saveChallengeState() {
     try {
         localStorage.setItem(`fc_star_challenge_season_${myId}`, challengeSeason.toString());
         localStorage.setItem(`fc_star_challenge_stage_${myId}`, challengeStage.toString());
+        localStorage.setItem(`fc_star_challenge_boss_ovr_${myId}`, (challengeBossOvr || 98).toString());
         localStorage.setItem(`fc_star_challenge_last_date_${myId}`, challengeLastDate || getChallengeTodayDateString());
         localStorage.setItem(`fc_star_challenge_free_used_${myId}`, challengeDailyFreeUsed ? 'true' : 'false');
         localStorage.setItem(`fc_star_challenge_retry_used_${myId}`, challengeDailyRetryUsed ? 'true' : 'false');

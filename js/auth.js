@@ -331,6 +331,7 @@ function saveUserProgress() {
             // 도전모드(Challenge Mode) 동기화 필드
             challengeSeason: typeof challengeSeason !== 'undefined' ? challengeSeason : 1,
             challengeStage: typeof challengeStage !== 'undefined' ? challengeStage : 1,
+            challengeBossOvr: typeof challengeBossOvr !== 'undefined' ? challengeBossOvr : 98,
             challengeLastDate: typeof challengeLastDate !== 'undefined' ? challengeLastDate : "",
             challengeDailyFreeUsed: typeof challengeDailyFreeUsed !== 'undefined' ? challengeDailyFreeUsed : false,
             challengeDailyRetryUsed: typeof challengeDailyRetryUsed !== 'undefined' ? challengeDailyRetryUsed : false,
@@ -741,6 +742,7 @@ function syncUserDataOnLogin(userData, forceLoad = false) {
         const myId = currentUser;
         challengeSeason = userData.challengeSeason || 1;
         challengeStage = userData.challengeStage || 1;
+        challengeBossOvr = userData.challengeBossOvr || 98;
         challengeLastDate = userData.challengeLastDate || "";
         challengeDailyFreeUsed = userData.challengeDailyFreeUsed || false;
         challengeDailyRetryUsed = userData.challengeDailyRetryUsed || false;
@@ -748,6 +750,7 @@ function syncUserDataOnLogin(userData, forceLoad = false) {
         
         localStorage.setItem(`fc_star_challenge_season_${myId}`, challengeSeason.toString());
         localStorage.setItem(`fc_star_challenge_stage_${myId}`, challengeStage.toString());
+        localStorage.setItem(`fc_star_challenge_boss_ovr_${myId}`, challengeBossOvr.toString());
         localStorage.setItem(`fc_star_challenge_last_date_${myId}`, challengeLastDate);
         localStorage.setItem(`fc_star_challenge_free_used_${myId}`, challengeDailyFreeUsed ? 'true' : 'false');
         localStorage.setItem(`fc_star_challenge_retry_used_${myId}`, challengeDailyRetryUsed ? 'true' : 'false');
@@ -1158,6 +1161,7 @@ function clearLocalGameData() {
     if (myId) {
         keys.push(`fc_star_challenge_season_${myId}`);
         keys.push(`fc_star_challenge_stage_${myId}`);
+        keys.push(`fc_star_challenge_boss_ovr_${myId}`);
         keys.push(`fc_star_challenge_last_date_${myId}`);
         keys.push(`fc_star_challenge_free_used_${myId}`);
         keys.push(`fc_star_challenge_retry_used_${myId}`);

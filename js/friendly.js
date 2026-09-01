@@ -177,14 +177,23 @@ function initFriendlyMatchState() {
     initChallengeState();
 }
 
-function initFriendlyMatchTab() {
-    initChallengeState();
+// 도전모드 특정 스테이지 상대 구단 OVR 동적 산출
+// (10R 마지막 보스 OVR: challengeBossOvr, 1R 상대: challengeBossOvr - 5, 나머지 팀 순차 배열)
+function getChallengeStageRating(stage) {
+    const bossRating = (typeof challengeBossOvr === 'number' && challengeBossOvr > 0) ? challengeBossOvr : 98;
+    const startRating = bossRating - 5;
+    if (stage === 10) return bossRating;
+    if (stage === 1) return startRating;
+    // 10개 스테이지에 걸쳐 startRating부터 bossRating까지 순차적 배열 (stage 1~2: start, 3~4: start+1, 5~6: start+2, 7~8: start+3, 9: start+4, 10: start+5)
+    return startRating + Math.floor((stage - 1) * 5 / 9);
 }
 
 // 현재 도전 상대팀 데이터 반환
 function getCurrentChallengeOpponent() {
     const stageIdx = Math.max(1, Math.min(10, challengeStage)) - 1;
-    return CHALLENGE_STAGES_PRESET[stageIdx] || CHALLENGE_STAGES_PRESET[0];
+    const base = CHALLENGE_STAGES_PRESET[stageIdx] || CHALLENGE_STAGES_PRESET[0];
+    const dynamicRating = getChallengeStageRating(base.stage);
+    return { ...base, rating: dynamicRating };
 }
 
 // 도전모드 매치 프리뷰 보드 갱신
@@ -385,6 +394,8 @@ function renderChallengeRoadmap() {
             statusBadgeHtml = `<span style="color: var(--text-muted); font-size: 0.7rem;"><i class="fa-solid fa-lock"></i> 잠김</span>`;
         }
 
+        const stageRating = getChallengeStageRating(team.stage);
+
         stagesHtml += `
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0.8rem; border-radius: 10px; margin-bottom: 6px; ${rowStyle}">
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -405,7 +416,7 @@ function renderChallengeRoadmap() {
                 </div>
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <span class="sb-ovr-tag" style="font-size: 0.7rem; padding: 2px 6px; ${isCurrent ? 'color: #ffd700; border-color: rgba(255,215,0,0.3);' : 'color: #cbd5e1; border-color: rgba(255,255,255,0.1);'}">
-                        OVR <strong>${team.rating}</strong>
+                        OVR <strong>${stageRating}</strong>
                     </span>
                     <div style="min-width: 60px; text-align: right;">
                         ${statusBadgeHtml}
@@ -485,7 +496,9 @@ function startChallengeMatchSimulation(isRetry = false) {
     // 일일 제한 검사
     if (!isRetry) {
         if (challengeDailyFreeUsed) {
-            showToast("오늘의 무료 도전은 이미 사용하셨습니다! 재도전(5P) 버튼을 이용해주세요.");
+            showToast(!challengeDailyRetryUsed 
+                ? "오늘의 무료 도전은 이미 사용하셨습니다! 5P 재도전 버튼을 이용해주세요." 
+                : "오늘의 도전은 이미 완료되었습니다. 내일 다음 경기에 도전해주세요!");
             return;
         }
     } else {
@@ -494,7 +507,7 @@ function startChallengeMatchSimulation(isRetry = false) {
             return;
         }
         if (challengeDailyRetryUsed) {
-            showToast("오늘의 재도전 기회(1회)를 이미 모두 사용하셨습니다. 내일 다시 도전해주세요!");
+            showToast("오늘 이미 승리하였거나 재도전 기회를 모두 사용하여 추가 도전이 불가능합니다. 내일 다시 도전해주세요!");
             return;
         }
         if (userPoints < 5) {
@@ -721,13 +734,14 @@ function startChallengeMatchSimulation(isRetry = false) {
             challengeHistory.w += 1;
             challengeHistory.totalGames += 1;
             
-            if (!isRetry) challengeDailyFreeUsed = true;
-            else challengeDailyRetryUsed = true;
+            // 승리 시에는 무료든 재도전이든 당일 도전이 즉시 완료됨 (패배 시에만 5 FP 추가도전 가능)
+            challengeDailyFreeUsed = true;
+            challengeDailyRetryUsed = true;
 
-            // 10스테이지 전승 달성 시 시즌 우승
+            // 10스테이지 전승 달성 시 시즌 우승 (10R 경기 시점 플레이어 OVR 전달)
             if (challengeStage === 10) {
                 setTimeout(() => {
-                    triggerChallengeSeasonVictory(challengeSeason);
+                    triggerChallengeSeasonVictory(challengeSeason, playerOvr);
                 }, 1000);
             } else {
                 challengeStage += 1;
@@ -749,6 +763,7 @@ function startChallengeMatchSimulation(isRetry = false) {
             challengeHistory.l += 1;
             challengeHistory.totalGames += 1;
             
+            // 패배 시: 무료 도전이었다면 retry 기회 보존, 재도전이었다면 소진
             if (!isRetry) challengeDailyFreeUsed = true;
             else challengeDailyRetryUsed = true;
             
@@ -990,8 +1005,8 @@ function startFriendlyMatchSimulation() {
     startChallengeMatchSimulation(false);
 }
 
-// 도전모드 시즌 우승 처리 (슈퍼 6각성 특별 선수 지급)
-function triggerChallengeSeasonVictory(season) {
+// 도전모드 시즌 우승 처리 (슈퍼 6각성 특별 선수 지급 및 다음 시즌 OVR 스케일링)
+function triggerChallengeSeasonVictory(season, lastMatchPlayerOvr) {
     const todayStr = getFriendlyTodayDateString();
     
     // 시즌 1 우승 보상: 슈퍼 리오넬 메시 (super_messi) 6각성
@@ -1018,6 +1033,18 @@ function triggerChallengeSeasonVictory(season) {
         if (typeof updateTotalCardCount === 'function') updateTotalCardCount();
     }
 
+    // 다음 시즌 마지막 보스팀 OVR = 10R 마지막 경기 시점 오버롤 + 1
+    let finalPlayerOvr = 95;
+    if (typeof lastMatchPlayerOvr === 'number' && lastMatchPlayerOvr > 0) {
+        finalPlayerOvr = lastMatchPlayerOvr;
+    } else if (typeof getPlayerPureOvr === 'function') {
+        const pureOvr = getPlayerPureOvr();
+        const formTactic = (typeof getPlayerFormationTacticBonuses === 'function') ? getPlayerFormationTacticBonuses() : { formationBonus: 0 };
+        finalPlayerOvr = pureOvr + (formTactic.formationBonus || 0);
+    }
+    
+    challengeBossOvr = finalPlayerOvr + 1;
+
     // 시즌 갱신 (다음 시즌 리셋)
     challengeSeason += 1;
     challengeStage = 1;
@@ -1030,11 +1057,11 @@ function triggerChallengeSeasonVictory(season) {
     }
 
     // 우승 축하 모달 표시
-    showChallengeVictoryModal(season, rewardCardObj);
+    showChallengeVictoryModal(season, rewardCardObj, challengeBossOvr);
 }
 
 // 시즌 우승 축하 모달 팝업
-function showChallengeVictoryModal(season, cardObj) {
+function showChallengeVictoryModal(season, cardObj, nextBossOvr = 98) {
     let modal = document.getElementById('challengeSeasonCloseModal');
     if (!modal) {
         modal = document.createElement('div');
@@ -1091,6 +1118,17 @@ function showChallengeVictoryModal(season, cardObj) {
                 </div>
                 <div style="font-size: 0.74rem; color: #94a3b8; margin-top: 6px;">
                     내 선수 덱(컬렉션)에 안전하게 영입 완료되었습니다!
+                </div>
+            </div>
+
+            <!-- 다음 시즌 난이도 스케일링 안내 -->
+            <div style="background: rgba(255, 215, 0, 0.08); border: 1px solid rgba(255, 215, 0, 0.25); border-radius: 14px; padding: 0.75rem; margin-bottom: 1.2rem; text-align: left; font-size: 0.8rem; line-height: 1.5;">
+                <div style="font-weight: 900; color: #ffd700; display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                    <i class="fa-solid fa-arrow-trend-up"></i> 다음 시즌 ${season + 1} 상대팀 OVR 스케일링
+                </div>
+                <div style="color: #fff;">
+                    • 10R 최종 보스팀 OVR: <strong style="color: #ff3e6c;">${nextBossOvr}</strong> (우승 시점 OVR +1)<br>
+                    • 1R 시작 상대팀 OVR: <strong style="color: #00ff87;">${nextBossOvr - 5}</strong> (보스 OVR -5부터 순차 배치)
                 </div>
             </div>
 

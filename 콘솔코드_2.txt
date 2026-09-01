@@ -297,3 +297,80 @@ matchTodayCount = 0; matchLastDate = new Date().toLocaleDateString('ko-KR'); loc
     }
 })();
 ```
+
+---
+
+### 6. 🃏 [모든 카드 획득 콘솔 코드] (DB 내 존재하는 모든 선수 추가)
+
+#### (1) 기본 0각성으로 모든 카드 획득 (없는 카드만 추가)
+```javascript
+(function() {
+    if (typeof CARDS_DATABASE === 'undefined') {
+        console.error("❌ CARDS_DATABASE를 찾을 수 없습니다.");
+        return;
+    }
+    if (typeof playerDeck === 'undefined') window.playerDeck = {};
+    
+    let addedCount = 0;
+    Object.keys(CARDS_DATABASE).forEach(cardId => {
+        if (!playerDeck[cardId]) {
+            playerDeck[cardId] = { count: 1, awakenLevel: 0, isStored: false };
+            addedCount++;
+        }
+    });
+
+    localStorage.setItem('fc_star_player_deck', JSON.stringify(playerDeck));
+    if (typeof renderDeck === 'function') renderDeck();
+    if (typeof renderSquadFormation === 'function') renderSquadFormation();
+    if (typeof saveUserProgress === 'function') saveUserProgress();
+    if (typeof showToast === 'function') showToast(`🎉 전체 ${Object.keys(CARDS_DATABASE).length}종 카드 획득 완료! (신규 ${addedCount}장)`);
+    console.log(`✅ 모든 카드(${Object.keys(CARDS_DATABASE).length}장) 획득 및 동기화 완료!`);
+})();
+```
+
+#### (2) ⚡ 모든 카드 5각성(★5 만렙) 상태로 일괄 획득/업그레이드
+```javascript
+(function() {
+    if (typeof CARDS_DATABASE === 'undefined') {
+        console.error("❌ CARDS_DATABASE를 찾을 수 없습니다.");
+        return;
+    }
+    if (typeof playerDeck === 'undefined') window.playerDeck = {};
+    
+    Object.keys(CARDS_DATABASE).forEach(cardId => {
+        playerDeck[cardId] = { count: 1, awakening: 5, isStored: false };
+    });
+
+    localStorage.setItem('fc_star_player_deck', JSON.stringify(playerDeck));
+    if (typeof renderDeck === 'function') renderDeck();
+    if (typeof renderSquadFormation === 'function') renderSquadFormation();
+    if (typeof saveUserProgress === 'function') saveUserProgress();
+    if (typeof showToast === 'function') showToast(`⚡ 전체 ${Object.keys(CARDS_DATABASE).length}종 카드 5각성(★5) 만렙 획득 완료!`);
+    console.log(`✅ 모든 카드(${Object.keys(CARDS_DATABASE).length}장) 5각성 만렙 획득 및 동기화 완료!`);
+})();
+```
+
+#### (3) 🌟 [보유 카드 전용] 현재 보유 중인 카드들만 일괄 5각성(★5 만렙)으로 변경
+```javascript
+(function() {
+    if (typeof playerDeck === 'undefined' || !playerDeck || Object.keys(playerDeck).length === 0) {
+        console.error("❌ 보유 중인 카드가 없습니다.");
+        return;
+    }
+    
+    let count = 0;
+    Object.keys(playerDeck).forEach(cardId => {
+        if (playerDeck[cardId]) {
+            playerDeck[cardId].awakening = 5;
+            count++;
+        }
+    });
+
+    localStorage.setItem('fc_star_player_deck', JSON.stringify(playerDeck));
+    if (typeof renderDeck === 'function') renderDeck();
+    if (typeof renderSquadFormation === 'function') renderSquadFormation();
+    if (typeof saveUserProgress === 'function') saveUserProgress();
+    if (typeof showToast === 'function') showToast(`⚡ 보유 카드 ${count}장 일괄 5각성(★5) 완료!`);
+    console.log(`✅ 보유 카드 ${count}장의 각성(awakening)을 5(만렙)로 설정 및 저장 완료!`);
+})();
+```

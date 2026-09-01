@@ -1461,6 +1461,51 @@ graph TD
 * **버전 및 배포**:
   - 스크립트 버전 최신화 및 서비스 워커 `CACHE_NAME = 'fc-star-v302'` 갱신 배포.
 
+---
+
+### 🛡️ 112) 도전모드(Challenge Mode) 패배 시에만 5 FP 추가 재도전 허용 및 승리 시 당일 도전 즉시 완료 처리 (2026-09-01, v2.9.5)
+* **개발 배경 및 목적**:
+  - 도전모드에서 경기 승리 시 당일 도전이 즉시 완료되어 다음 스테이지 진출 상태로 내일까지 대기해야 함에도 불구하고, 승리 후에도 5 FP 재도전 버튼이 활성화되어 당일 연속 진출이 가능하던 버그를 해결.
+  - 하루 1회 무료 도전에서 **패배했을 때만** 당일 1회에 한해 5 FP를 소모하여 재도전할 수 있도록 규칙을 명확히 제한함.
+* **주요 변경 사항**:
+  1. **승리 시 당일 도전 즉시 완료 (`js/friendly.js`)**:
+     - `finalizeChallengeResult` 내 `isWinner === true` 분기에서 `challengeDailyFreeUsed = true` 및 `challengeDailyRetryUsed = true`를 동시 설정.
+     - 승리 시 재도전 기회가 소멸되어 버튼이 즉시 `오늘의 도전 완료 (내일 다음 경기 가능)`(disabled) 상태로 전환.
+  2. **패배 시에만 재도전 기회 부여 (`js/friendly.js`)**:
+     - 무료 도전(`!isRetry`)에서 패배 시 `challengeDailyRetryUsed = false`를 유지하여 `5P 소모하고 재도전하기` 버튼이 정상 활성화.
+     - 5P 재도전 실행 시(`isRetry === true`) 승패와 무관하게 당일 모든 기회 소진(`challengeDailyRetryUsed = true`).
+  3. **검증 및 Toast 안내 메시지 고도화**:
+     - 이미 승리하였거나 재도전을 소진한 상태에서 재도전 시도시 정확한 사유 Toast 안내 제공.
+* **버전 및 배포**:
+  - `index.html` 내 `friendly.js?v=3.4` 갱신.
+  - `sw.js` PWA 서비스 워커 캐시 버전 `'fc-star-v305'` 상향 배포.
+
+---
+
+### 📈 113) 도전모드 시즌 종료 시 다음 시즌 10R 보스 OVR(우승 시점 OVR +1) 및 상대팀 OVR 순차 스케일링 시스템 구축 (2026-09-01, v2.9.6)
+* **개발 배경 및 기획 의도**:
+  - 도전모드 시즌을 제패했을 때, 다음 시즌의 난이도가 플레이어의 성장 수준에 비례하여 도전적인 목표를 제시할 수 있도록 동적 OVR 스케일링 엔진을 구축.
+  - 10스테이지 전승 우승 시점의 플레이어 팀 최종 OVR에 +1점을 가산하여 다음 시즌의 10R 최종 보스팀 OVR(`challengeBossOvr`)로 설정.
+  - 나머지 1~9스테이지 상대 구단들은 `(보스 OVR) - 5`부터 시작하여 10R 보스 OVR까지 순차적으로 등차 배치되도록 설계.
+* **주요 수학적 OVR 스케일링 공식**:
+  - **10R 최종 보스 OVR**: $OVR_{10} = \text{lastPlayerOvr} + 1$ (예: 10R 플레이어 OVR 95 $\rightarrow$ 다음 시즌 보스 OVR 96)
+  - **1R 시작 상대 OVR**: $OVR_1 = OVR_{10} - 5$ (예: 96 - 5 = 91)
+  - **스테이지별 OVR ($stage = 1 \dots 10$)**:
+    $$OVR(stage) = OVR_1 + \left\lfloor \frac{(stage - 1) \times 5}{9} \right\rfloor$$
+    *(예: 보스 96 기준 $\rightarrow$ 1R: 91, 2R: 91, 3R: 92, 4R: 92, 5R: 93, 6R: 93, 7R: 94, 8R: 94, 9R: 95, 10R: 96)*
+* **주요 반영 파일**:
+  1. **`js/state.js`**: `challengeBossOvr` 상태 변수 신설 및 `loadChallengeState`/`saveChallengeState`에 로컬 저장 연동.
+  2. **`js/auth.js`**: Firestore 클라우드 백업(`saveUserProgress`), 로그인 복원(`syncUserDataOnLogin`), 로그아웃 초기화(`clearLocalGameData`)에 `challengeBossOvr` 동기화.
+  3. **`js/friendly.js`**:
+     - `getChallengeStageRating(stage)` 함수 신설 및 `getCurrentChallengeOpponent`, `renderChallengeRoadmap`에 동적 OVR 반영.
+     - 10R 우승 시 `triggerChallengeSeasonVictory(challengeSeason, playerOvr)`를 통해 다음 시즌 `challengeBossOvr` 자동 갱신 및 저장.
+     - 시즌 우승 모달(`showChallengeVictoryModal`)에 다음 시즌 10R 보스 OVR 및 1R 시작 OVR 안내 박스 추가.
+* **버전 및 배포**:
+  - `index.html` 내 `state.js?v=2.6`, `friendly.js?v=3.5`, `auth.js?v=2.61` 갱신.
+  - `sw.js` 서비스 워커 캐시 버전 `'fc-star-v306'` 배포.
+
+
+
 
 
 
