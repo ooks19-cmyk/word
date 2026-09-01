@@ -2266,7 +2266,7 @@ const CARDS_DATABASE = {
     },
     "super_messi": {
         id: "super_messi",
-        name: "슈퍼 리오넬 메시",
+        name: "S메시",
         rating: 94,
         position: "RW",
         nation: "Argentina",
@@ -2274,7 +2274,7 @@ const CARDS_DATABASE = {
         club: "INTER MIAMI",
         image: "player2/슈퍼 메시.png",
         rarity: "super",
-        description: "도전모드 시즌 1 전승 우승의 영광으로 탄생한 전설을 초월한 궁극의 신화, 슈퍼 리오넬 메시입니다. 한층 더 진화한 파괴적인 슈팅력과 범접할 수 없는 예술적인 드리블, 신의 시야로 경기장을 지배하는 절대적인 월드 넘버원 슈퍼스타입니다.",
+        description: "도전모드 시즌 1 전승 우승의 영광으로 탄생한 전설을 초월한 궁극의 신화, 슈퍼 리오넬 메시(S메시)입니다. 한층 더 진화한 파괴적인 슈팅력과 범접할 수 없는 예술적인 드리블, 신의 시야로 경기장을 지배하는 절대적인 월드 넘버원 슈퍼스타입니다.",
         theme: {
             primary: "#14002e",
             secondary: "#ff007f",

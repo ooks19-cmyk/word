@@ -446,11 +446,11 @@ function renderChallengeRoadmap() {
             
             <div style="display: flex; align-items: center; gap: 12px; margin-top: 6px;">
                 <div style="position: relative; width: 50px; height: 50px; border-radius: 50%; overflow: hidden; border: 2px solid #00f2fe; box-shadow: 0 0 10px rgba(0, 242, 254, 0.6); flex-shrink: 0;">
-                    <img src="${rewardCard ? rewardCard.image : 'player2/슈퍼 메시.png'}" alt="슈퍼 리오넬 메시" style="width: 100%; height: 100%; object-fit: cover;">
+                    <img src="${rewardCard ? rewardCard.image : 'player2/슈퍼 메시.png'}" alt="S메시" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
                 <div style="flex: 1;">
                     <div style="font-size: 0.92rem; font-weight: 900; color: #fff; text-shadow: 0 0 8px rgba(255,0,127,0.6);">
-                        ${rewardCard ? rewardCard.name : '슈퍼 리오넬 메시'}
+                        ${rewardCard ? rewardCard.name : 'S메시'}
                     </div>
                     <div style="font-size: 0.72rem; color: #ffd700; font-weight: 700; margin-top: 2px;">
                         ★6 각성 완료 (실질 OVR 100 / 슈팅 93)
@@ -1044,7 +1044,7 @@ function showChallengeVictoryModal(season, cardObj) {
         box-sizing: border-box;
     `;
 
-    const cardName = cardObj ? cardObj.name : "슈퍼 리오넬 메시";
+    const cardName = cardObj ? cardObj.name : "S메시";
     const cardImg = cardObj ? cardObj.image : "player2/슈퍼 메시.png";
 
     modal.innerHTML = `
