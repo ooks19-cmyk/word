@@ -925,7 +925,9 @@ function startPvpMatchSimulation(roomId, roomData) {
                 
                 let option = 1;
                 const randOpt = Math.random();
-                if (attackerInfo.formation === '4-2-3-1') {
+                if (randOpt < 0.10) {
+                    option = 3; // 🚀 찬스의 10% 확률로 CM 대포알 중거리슛
+                } else if (attackerInfo.formation === '4-2-3-1') {
                     option = randOpt < 0.4 ? 5 : (randOpt < 0.7 ? 1 : (randOpt < 0.85 ? 0 : 2));
                 } else {
                     option = randOpt < 0.4 ? 1 : (randOpt < 0.7 ? 0 : 2);
@@ -1052,7 +1054,9 @@ function startPvpMatchSimulation(roomId, roomData) {
             
             let option = 1;
             const randOpt = Math.random();
-            if (attackerInfo.formation === '4-2-3-1') {
+            if (randOpt < 0.10) {
+                option = 3; // 🚀 찬스의 10% 확률로 CM 대포알 중거리슛
+            } else if (attackerInfo.formation === '4-2-3-1') {
                 option = randOpt < 0.4 ? 5 : (randOpt < 0.7 ? 1 : (randOpt < 0.85 ? 0 : 2));
             } else {
                 option = randOpt < 0.4 ? 1 : (randOpt < 0.7 ? 0 : 2);

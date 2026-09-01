@@ -833,10 +833,15 @@ function startChallengeMatchSimulation(isRetry = false) {
             } else {
                 const isPlayerAttack = (window.forceChallengeWin === true) ? true : (Math.random() < activePlayerAttackProb);
                 if (isPlayerAttack) {
-                    let attackOptions = [0, 1, 2];
-                    if (currentFormation === '4-2-3-1') attackOptions.push(5);
+                    let selectedOption = 1;
+                    if (Math.random() < 0.10) {
+                        selectedOption = 3; // 🚀 찬스의 10% 확률로 CM 대포알 중거리슛
+                    } else {
+                        let attackOptions = [0, 1, 2];
+                        if (currentFormation === '4-2-3-1') attackOptions.push(5);
+                        selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
+                    }
 
-                    const selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
                     let chancePlayerStat = 75;
 
                     if (selectedOption === 0) {
@@ -853,6 +858,12 @@ function startChallengeMatchSimulation(isRetry = false) {
                         const rwCardId = squadFormation['RW'];
                         if (rwCardId && CARDS_DATABASE[rwCardId] && typeof getWingerChanceStat === 'function') {
                             chancePlayerStat = getWingerChanceStat('RW', (typeof getAwakenedCard === 'function') ? getAwakenedCard(rwCardId) : CARDS_DATABASE[rwCardId]);
+                        }
+                    } else if (selectedOption === 3) {
+                        const cmCardId = squadFormation['CM'] || squadFormation['LCM'] || squadFormation['RCM'];
+                        if (cmCardId && CARDS_DATABASE[cmCardId]) {
+                            const awakened = (typeof getAwakenedCard === 'function') ? getAwakenedCard(cmCardId) : CARDS_DATABASE[cmCardId];
+                            chancePlayerStat = (awakened.stats && awakened.stats.sho) ? awakened.stats.sho : (awakened.rating || 75);
                         }
                     } else if (selectedOption === 5) {
                         const cmCardId = squadFormation['CM'];

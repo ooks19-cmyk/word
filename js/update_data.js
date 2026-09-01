@@ -2,9 +2,20 @@
 
 const UPDATE_LOGS = [
     {
-        version: "v2.9.3",
+        version: "v2.9.4",
         date: "2026.09.01",
         latest: true,
+        borderColor: "#00ff87",
+        titleColor: "#00ff87",
+        badgeText: "MATCH ENGINE",
+        items: [
+            "<strong>🚀 CM 포지션 대포알 중거리슛 득점 판정 및 전 대회 매칭엔진 동기화!</strong>: 공격수(ST/LW/RW) 중심의 득점 루트에서 미드필더(CM/LCM/RCM)의 시원한 중거리 슈팅 득점이 정식 추가되었습니다.<br>• <strong>찬스의 10% 확률로 중거리슛 발동</strong>: 모든 공격 찬스 발생 시 10%의 독립 확률로 아크 정면 세컨볼 대포알 중거리 슈팅 루트가 가동됩니다.<br>• <strong>CM 슈팅(SHO) 능력치 반영</strong>: 미드필더 카드의 실제 슈팅 스탯에 비례해 득점 확률이 정밀 산출됩니다.<br>• <strong>전 대회 시뮬레이터 일괄 동기화</strong>: 정규 리그, 컵대회(코리아컵/카라바오컵), 챔피언스리그(ACL/UCL), 10스테이지 도전모드, 1대1 실시간 친선전 전체에 완벽 적용 완료!"
+        ]
+    },
+    {
+        version: "v2.9.3",
+        date: "2026.09.01",
+        latest: false,
         borderColor: "#ffd700",
         titleColor: "#ffd700",
         badgeText: "CHALLENGE MODE",

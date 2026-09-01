@@ -1138,10 +1138,14 @@ function startAclMatchSimulation() {
                 } else {
                     const isPlayerAttack = Math.random() < activePlayerAttackProb;
                     if (isPlayerAttack) {
-                        let attackOptions = [0, 1, 2];
-                        if (currentFormation === '4-2-3-1') attackOptions.push(5);
-                        
-                        const selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
+                        let selectedOption = 1;
+                        if (Math.random() < 0.10) {
+                            selectedOption = 3; // 🚀 찬스의 10% 확률로 CM 대포알 중거리슛
+                        } else {
+                            let attackOptions = [0, 1, 2];
+                            if (currentFormation === '4-2-3-1') attackOptions.push(5);
+                            selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
+                        }
                         let chancePlayerStat = 75;
                         
                         if (selectedOption === 0) {
@@ -1153,6 +1157,12 @@ function startAclMatchSimulation() {
                         } else if (selectedOption === 2) {
                             const rwCardId = squadFormation['RW'];
                             if (rwCardId && CARDS_DATABASE[rwCardId]) chancePlayerStat = getWingerChanceStat('RW', getAwakenedCard(rwCardId));
+                        } else if (selectedOption === 3) {
+                            const cmCardId = squadFormation['CM'] || squadFormation['LCM'] || squadFormation['RCM'];
+                            if (cmCardId && CARDS_DATABASE[cmCardId]) {
+                                const card = getAwakenedCard(cmCardId);
+                                chancePlayerStat = (card.stats && card.stats.sho) ? card.stats.sho : (card.rating || 75);
+                            }
                         } else if (selectedOption === 5) {
                             const cmCardId = squadFormation['CM'];
                             if (cmCardId && CARDS_DATABASE[cmCardId]) chancePlayerStat = getAwakenedCard(cmCardId).stats.dri || 75;
@@ -1307,10 +1317,14 @@ function startAclMatchSimulation() {
                 const isPlayerAttack = Math.random() < activePlayerAttackProb;
                 
                 if (isPlayerAttack) {
-                    let attackOptions = [0, 1, 2];
-                    if (currentFormation === '4-2-3-1') attackOptions.push(5);
-                    
-                    const selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
+                    let selectedOption = 1;
+                    if (Math.random() < 0.10) {
+                        selectedOption = 3; // 🚀 찬스의 10% 확률로 CM 대포알 중거리슛
+                    } else {
+                        let attackOptions = [0, 1, 2];
+                        if (currentFormation === '4-2-3-1') attackOptions.push(5);
+                        selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
+                    }
                     let chancePlayerStat = 75;
                     
                     if (selectedOption === 0) {
@@ -1322,6 +1336,12 @@ function startAclMatchSimulation() {
                     } else if (selectedOption === 2) {
                         const rwCardId = squadFormation['RW'];
                         if (rwCardId && CARDS_DATABASE[rwCardId]) chancePlayerStat = getWingerChanceStat('RW', getAwakenedCard(rwCardId));
+                    } else if (selectedOption === 3) {
+                        const cmCardId = squadFormation['CM'] || squadFormation['LCM'] || squadFormation['RCM'];
+                        if (cmCardId && CARDS_DATABASE[cmCardId]) {
+                            const card = getAwakenedCard(cmCardId);
+                            chancePlayerStat = (card.stats && card.stats.sho) ? card.stats.sho : (card.rating || 75);
+                        }
                     } else if (selectedOption === 5) {
                         const cmCardId = squadFormation['CM'];
                         if (cmCardId && CARDS_DATABASE[cmCardId]) chancePlayerStat = getAwakenedCard(cmCardId).stats.dri || 75;
@@ -1440,9 +1460,14 @@ function runActualAclExtraTime(score1, score2, playerMatch, playerOvr, opponentO
         }
     };
 
-    let attackOptions = [0, 1, 2];
-    if (typeof currentFormation !== 'undefined' && currentFormation === '4-2-3-1') attackOptions.push(5);
-    const selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
+    let selectedOption = 1;
+    if (Math.random() < 0.10) {
+        selectedOption = 3; // 🚀 찬스의 10% 확률로 CM 대포알 중거리슛
+    } else {
+        let attackOptions = [0, 1, 2];
+        if (typeof currentFormation !== 'undefined' && currentFormation === '4-2-3-1') attackOptions.push(5);
+        selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
+    }
     const etGoalData = determineScorerAndAssister(selectedOption);
     const activeScorerName = etGoalData.scorerName;
     const activeAssisterName = etGoalData.assisterName;

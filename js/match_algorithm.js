@@ -657,6 +657,16 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
             eventGoal = texts.goal;
             eventFail = texts.fail;
         }
+    } else if (option === 3) {
+        // 🚀 CM 강력한 중거리 슈팅 찬스 (찬스의 10% 확률)
+        const cmGoals = [
+            `골!!! ${CM}의 환상적인 대포알 중거리포가 골문 상단 구석을 완벽하게 꿰뚫습니다! 골키퍼가 꼼짝도 못 한 엄청난 원더골!! 🚀⚽`,
+            `골!!! 아크 정면에서 때린 ${CM}의 기습적인 무회전 중거리 슛이 크로스바 하단을 강타하고 그대로 골망을 흔듭니다! 💥⚽`
+        ];
+        const selectedGoal = cmGoals[Math.floor(Math.random() * cmGoals.length)];
+        eventDesc = `아크 정면에서 흘러나온 세컨볼을 포착한 미드필더 ${CM}! 수비수가 달라붙기 전 한 박자 빠른 강력한 논스톱 대포알 중거리 슈팅을 때립니다!`;
+        eventGoal = selectedGoal;
+        eventFail = `아아! ${CM}의 미사일 같은 중거리 슈팅이 크로스바를 살짝 스치며 관중석으로 날아갑니다. 아쉬운 찬스!`;
     } else if (option === 5) {
         eventDesc = `[4-2-3-1 점유 지배] 플레이메이커 ${CM}(AM)가 화려한 탈압박과 시그니처 드리블로 상대 수비진 3명을 요리조리 벗겨내고 문전 앞 에이스에게 스루패스!`;
         eventGoal = `골!!! 에이스 ${CM}의 지휘 아래 그라운드를 완전히 지배하며 뽑아낸 아름다운 조직력의 승리골입니다! ⚽`;
@@ -1176,6 +1186,23 @@ function determineScorerAndAssister(selectedOption, squad = squadFormation) {
         } else if (rand < 0.8) {
             assisterId = squad["LW"];
             assisterName = activeLW;
+        }
+    } else if (selectedOption === 3) { // 🚀 CM 대포알 중거리슛
+        scorerId = squad["CM"] || squad["LCM"] || squad["RCM"];
+        scorerName = activeCM;
+        const rand = Math.random();
+        if (rand < 0.4) {
+            assisterId = squad["ST"];
+            assisterName = activeST;
+        } else if (rand < 0.7) {
+            assisterId = squad["LW"];
+            assisterName = activeLW;
+        } else if (rand < 0.9) {
+            assisterId = squad["RW"];
+            assisterName = activeRW;
+        } else {
+            assisterId = null;
+            assisterName = null; // 단독 세컨볼 논스톱 슈팅
         }
     } else if (selectedOption === 5) { // AM/CM 돌파 (4-2-3-1 연출)
         // AM(CM)이 스루패스 도움을 주고, 전방의 ST, LW, RW가 득점함

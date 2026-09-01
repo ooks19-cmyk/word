@@ -1155,10 +1155,14 @@ function startLeagueAutoSimulation() {
             } else {
                 const isPlayerAttack = Math.random() < activePlayerAttackProb;
                 if (isPlayerAttack) {
-                    let attackOptions = [0, 1, 2];
-                    if (currentFormation === '4-2-3-1') attackOptions.push(5);
-                    
-                    const selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
+                    let selectedOption = 1;
+                    if (Math.random() < 0.10) {
+                        selectedOption = 3; // 🚀 찬스의 10% 확률로 CM 대포알 중거리슛
+                    } else {
+                        let attackOptions = [0, 1, 2];
+                        if (currentFormation === '4-2-3-1') attackOptions.push(5);
+                        selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
+                    }
                     let chancePlayerStat = 75;
                     
                     if (selectedOption === 0) {
@@ -1178,6 +1182,12 @@ function startLeagueAutoSimulation() {
                         if (rwCardId && CARDS_DATABASE[rwCardId]) {
                             const card = getAwakenedCard(rwCardId);
                             chancePlayerStat = getWingerChanceStat('RW', card);
+                        }
+                    } else if (selectedOption === 3) {
+                        const cmCardId = squadFormation['CM'] || squadFormation['LCM'] || squadFormation['RCM'];
+                        if (cmCardId && CARDS_DATABASE[cmCardId]) {
+                            const card = getAwakenedCard(cmCardId);
+                            chancePlayerStat = (card.stats && card.stats.sho) ? card.stats.sho : (card.rating || 75);
                         }
                     } else if (selectedOption === 5) {
                         const cmCardId = squadFormation['CM'];
@@ -1526,10 +1536,15 @@ function startMatchSimulation() {
                     const isPlayerAttack = Math.random() < activePlayerAttackProb;
                     if (isPlayerAttack) {
                         // 공격 이벤트 유형 풀 구성 및 무작위 선택
-                        let attackOptions = [0, 1, 2]; // 0: LW 돌파, 1: ST 돌파, 2: RW 돌파
-                        if (currentFormation === '4-2-3-1') attackOptions.push(5); // 4-2-3-1 점유율 연출
+                        let selectedOption = 1;
+                        if (Math.random() < 0.10) {
+                            selectedOption = 3; // 🚀 찬스의 10% 확률로 CM 대포알 중거리슛
+                        } else {
+                            let attackOptions = [0, 1, 2]; // 0: LW 돌파, 1: ST 돌파, 2: RW 돌파
+                            if (currentFormation === '4-2-3-1') attackOptions.push(5); // 4-2-3-1 점유율 연출
+                            selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
+                        }
                         
-                        const selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
                         let chancePlayerStat = 75;
                         
                         if (selectedOption === 0) {
@@ -1549,6 +1564,12 @@ function startMatchSimulation() {
                             if (rwCardId && CARDS_DATABASE[rwCardId]) {
                                 const card = getAwakenedCard(rwCardId);
                                 chancePlayerStat = getWingerChanceStat('RW', card);
+                            }
+                        } else if (selectedOption === 3) {
+                            const cmCardId = squadFormation['CM'] || squadFormation['LCM'] || squadFormation['RCM'];
+                            if (cmCardId && CARDS_DATABASE[cmCardId]) {
+                                const card = getAwakenedCard(cmCardId);
+                                chancePlayerStat = (card.stats && card.stats.sho) ? card.stats.sho : (card.rating || 75);
                             }
                         } else if (selectedOption === 5) { // 4-2-3-1 점유율 연출 (CM 드리블 비례)
                             const cmCardId = squadFormation['CM'];
@@ -1787,10 +1808,15 @@ function startMatchSimulation() {
                 
                 if (isPlayerAttack) {
                     // 공격 이벤트 유형 풀 구성 및 무작위 선택
-                    let attackOptions = [0, 1, 2]; // 0: LW 돌파, 1: ST 돌파, 2: RW 돌파
-                    if (currentFormation === '4-2-3-1') attackOptions.push(5); // 4-2-3-1 점유율 연출
+                    let selectedOption = 1;
+                    if (Math.random() < 0.10) {
+                        selectedOption = 3; // 🚀 찬스의 10% 확률로 CM 대포알 중거리슛
+                    } else {
+                        let attackOptions = [0, 1, 2]; // 0: LW 돌파, 1: ST 돌파, 2: RW 돌파
+                        if (currentFormation === '4-2-3-1') attackOptions.push(5); // 4-2-3-1 점유율 연출
+                        selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
+                    }
                     
-                    const selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
                     let chancePlayerStat = 75;
                     
                     if (selectedOption === 0) {
@@ -1810,6 +1836,12 @@ function startMatchSimulation() {
                         if (rwCardId && CARDS_DATABASE[rwCardId]) {
                             const card = getAwakenedCard(rwCardId);
                             chancePlayerStat = getWingerChanceStat('RW', card);
+                        }
+                    } else if (selectedOption === 3) {
+                        const cmCardId = squadFormation['CM'] || squadFormation['LCM'] || squadFormation['RCM'];
+                        if (cmCardId && CARDS_DATABASE[cmCardId]) {
+                            const card = getAwakenedCard(cmCardId);
+                            chancePlayerStat = (card.stats && card.stats.sho) ? card.stats.sho : (card.rating || 75);
                         }
                     } else if (selectedOption === 5) { // 4-2-3-1 점유율 연출 (CM 드리블 비례)
                         const cmCardId = squadFormation['CM'];
