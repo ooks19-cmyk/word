@@ -1,4 +1,4 @@
-ID,이름,레이팅,포지션,국적,국적국기,클럽,이미지,희귀도,설명,PAC,SHO,PAS,DRI,DEF,PHY
+﻿ID,이름,레이팅,포지션,국적,국적국기,클럽,이미지,희귀도,설명,PAC,SHO,PAS,DRI,DEF,PHY
 son_heung_min,손흥민,89,LW,South Korea,https://flagcdn.com/w40/kr.png,LA FC,player/손흥민.png,legend,"대한민국 축구 역사상 최고의 전설적인 공격수입니다. 탁월한 리더십과 훌륭한 인품, 그리고 그라운드 위에서 끝까지 최선을 다하는 헌신적인 태도로 동료 선수들과 온 국민의 열렬한 사랑과 성원을 받는 이 시대 최고의 축구 선수이자 아이콘입니다.",91,89,84,87,42,72
 lee_seung_woo,이승우,82,LW,South Korea,https://flagcdn.com/w40/kr.png,JEONBUK,player/이승우.png,normal,"번뜩이는 천재성과 예측 불가능한 플레이 스타일을 지닌 대한민국 최고의 크랙형 공격수입니다. 뛰어난 테크닉, 폭발적인 드리블 스피드, 그리고 독보적인 스타성으로 경기장 분위기를 한순간에 뒤바꿔 놓는 해결사입니다.",87,80,78,85,38,62
 lee_seung_woo_kr,이승우,86,LW,South Korea,https://flagcdn.com/w40/kr.png,KOREA,player/이승우_kr.png,special,"가슴에 찬란한 태극 마크를 품고 대한민국의 붉은 함성을 이끄는 특급 국가대표 윙어 이승우입니다. 특유의 기동력과 지칠 줄 모르는 과감한 돌파력, 그리고 그라운드 위에서 번뜩이는 천재적인 플레이로 조국의 승리를 이끄는 스페셜 공격수입니다.",90,84,83,88,40,68
@@ -90,3 +90,4 @@ szoboszlai,소보슬라이,89,CM,Hungary,https://flagcdn.com/w40/hu.png,LIVERPOO
 takefusa_kubo,쿠보,91,CAM,Japan,https://flagcdn.com/w40/jp.png,REAL SOCIEDAD,player2/쿠보.webp,legend,"정교한 왼발 볼 컨트롤과 번뜩이는 축구 지능으로 라리가를 매료시킨 일본의 천재 플레이메이커 쿠보 다케후사입니다. 민첩한 탈압박 드리블과 허를 찌르는 킬패스, 그리고 상대 골망을 흔드는 날카로운 슈팅력을 겸비하여 팀의 공격을 진두지휘하는 전설적인 공격형 미드필더입니다.",90,86,90,94,48,69
 lee_jae_sung_L,이재성,87,CM,South Korea,https://flagcdn.com/w40/kr.png,KOREA,player/이재성.png,legend,"독일 분데스리가와 대한민국 축구 국가대표팀의 핵심이자 지치지 않는 심장 이재성입니다. 독보적인 활동량과 영리한 축구 지능, 날카로운 공간 침투와 킬패스, 그리고 상대의 빌드업을 차단하는 헌신적인 전방 압박으로 공수 양면에서 경기를 지배하는 전설적인 마에스트로입니다.",84,82,89,87,76,80
 super_messi,S메시,94,RW,Argentina,https://flagcdn.com/w40/ar.png,INTER MIAMI,player2/슈퍼 메시.png,super,"도전모드 시즌 1 전승 우승의 영광으로 탄생한 전설을 초월한 궁극의 신화, 슈퍼 리오넬 메시(S메시)입니다. 한층 더 진화한 파괴적인 슈팅력과 범접할 수 없는 예술적인 드리블, 신의 시야로 경기장을 지배하는 절대적인 월드 넘버원 슈퍼스타입니다.",86,93,92,94,40,70
+ronaldo_nazario,호나우두,92,ST,Brazil,https://flagcdn.com/w40/br.png,BRAZIL,player2/호나우두.png,legend,"축구 역사상 가장 경이로운 천재 스트라이커이자 '일 페노메노(El Fenómeno)'로 불린 영원한 황제 호나우두입니다. 수비수를 단숨에 무너뜨리는 폭발적인 스피드와 화려한 헛다리 드리블, 그리고 골키퍼마저 제쳐버리는 완벽한 골 결정력으로 2002 한일 월드컵 득점왕과 우승을 이끈 불멸의 전설입니다.",95,94,81,93,38,84

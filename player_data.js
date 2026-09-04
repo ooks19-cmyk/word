@@ -2288,6 +2288,31 @@ const CARDS_DATABASE = {
             def: 40,
             phy: 70
         }
+    },
+    "ronaldo_nazario": {
+        id: "ronaldo_nazario",
+        name: "호나우두",
+        rating: 92,
+        position: "ST",
+        nation: "Brazil",
+        nationFlag: "https://flagcdn.com/w40/br.png",
+        club: "BRAZIL",
+        image: "player2/호나우두.png",
+        rarity: "legend",
+        description: "축구 역사상 가장 경이로운 천재 스트라이커이자 '일 페노메노(El Fenómeno)'로 불린 영원한 황제 호나우두입니다. 수비수를 단숨에 무너뜨리는 폭발적인 스피드와 화려한 헛다리 드리블, 그리고 골키퍼마저 제쳐버리는 완벽한 골 결정력으로 2002 한일 월드컵 득점왕과 우승을 이끈 불멸의 전설입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 95,
+            sho: 94,
+            pas: 81,
+            dri: 93,
+            def: 38,
+            phy: 84
+        }
     }
 };
 
