@@ -1542,7 +1542,7 @@ const CARDS_DATABASE = {
     "wataru_endo": {
         id: "wataru_endo",
         name: "엔도 와타루",
-        rating: 85,
+        rating: 90,
         position: "CB",
         nation: "Japan",
         nationFlag: "https://flagcdn.com/w40/jp.png",
@@ -1556,12 +1556,12 @@ const CARDS_DATABASE = {
             glow: "#ff3e6c"
         },
         stats: {
-            pac: 73,
-            sho: 68,
-            pas: 80,
-            dri: 76,
-            def: 86,
-            phy: 84
+            pac: 78,
+            sho: 73,
+            pas: 85,
+            dri: 81,
+            def: 91,
+            phy: 89
         }
     },
     "erling_haaland": {
@@ -1586,7 +1586,7 @@ const CARDS_DATABASE = {
             pas: 72,
             dri: 82,
             def: 40,
-            phy: 90
+            phy: 93
         }
     },
     "takumi_minamino": {
