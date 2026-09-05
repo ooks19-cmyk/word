@@ -1566,6 +1566,30 @@ graph TD
   - `index.html`: `player_data.js?v=1.54` 캐시 버스팅 적용.
   - `sw.js`: PWA 서비스 워커 캐시 버전 `'fc-star-v309'` 갱신 배포.
 
+---
+
+### 🛡️ 117) 도전모드(Challenge Mode) 스테이지 진도 리셋 버그 해결 및 실시간 클라우드 즉시 동기화 고도화 (2026-09-05, v2.9.9)
+* **문제점 및 원인 분석**:
+  - `TOMY0304` 등 특정 계정에서 도전모드 경기 승리 후 새로고침이나 재접속 시 스테이지가 다시 1단계로 리셋되던 문제 발생.
+  - **원인 1**: 도전모드 승리 시 포인트/카드가 바뀌지 않아 `saveUserProgress`의 60초 디바운스 대기(`setTimeout`)가 걸려 클라우드 업로드가 지연되고, 지연 중에 브라우저 종료/새로고침 시 Firestore에 저장되지 않음.
+  - **원인 2**: 로그인 시 `syncUserDataOnLogin`에서 Firestore의 `challengeStage`가 1이거나 비어있을 때 로컬에 기저장된 진도(2, 3...)를 무조건 1로 덮어쓰던 결함.
+  - **원인 3**: `saveAllToLocalStorage` 내 도전모드 로컬스토리지 저장 로직 누락.
+  - **원인 4**: 유저 ID 대소문자(TOMY0304 vs tomy0304) 불일치로 로컬스토리지 키가 분리되던 문제.
+* **주요 해결 및 수정 사항**:
+  1. **`js/auth.js` `saveUserProgress(forceImmediate = true)` 도입**:
+     - `forceImmediate` 매개변수를 지원하여 도전모드 경기 종료, 재도전, 시즌 우승 시 디바운스 없이 Firestore에 즉각 동기화 백업.
+     - `saveAllToLocalStorage`에 도전모드 전체 필드(`fc_star_challenge_...`) 로컬스토리지 저장 연동.
+     - `syncUserDataOnLogin`에서 로컬 진도와 클라우드 진도를 비교하여 더 앞선 스테이지(`Math.max(localStage, cloudStage)`)를 안전하게 보존하고 즉시 클라우드에 갱신.
+     - `currentUser` 소문자 표준화 (`id.trim().toLowerCase()`).
+  2. **`js/state.js`**:
+     - `loadChallengeState` / `saveChallengeState`에서 `myId` 소문자 정규화 및 기존 대문자 키 fallback 로드 지원.
+  3. **`js/friendly.js`**:
+     - 경기 종료(`finalizeChallengeResult`), 재도전(`startChallengeMatchSimulation`), 시즌 우승(`triggerChallengeSeasonVictory`) 시 `saveUserProgress(true)` 호출로 즉시 동기화 보장.
+* **버전 및 배포**:
+  - `index.html`: `js/state.js?v=2.7`, `js/friendly.js?v=3.6`, `js/auth.js?v=2.62` 갱신.
+  - `sw.js`: 서비스 워커 캐시 버전 `'fc-star-v310'` 배포.
+
+
 
 
 

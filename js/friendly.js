@@ -523,6 +523,7 @@ function startChallengeMatchSimulation(isRetry = false) {
         if (typeof renderUserPoints === 'function') renderUserPoints();
         challengeDailyRetryUsed = true;
         saveChallengeState();
+        if (typeof saveUserProgress === 'function') saveUserProgress(true);
         showToast("🔥 5 FP를 소모하여 당일 1회 재도전을 시작합니다!");
     }
 
@@ -746,7 +747,7 @@ function startChallengeMatchSimulation(isRetry = false) {
             } else {
                 challengeStage += 1;
                 saveChallengeState();
-                if (typeof saveUserProgress === 'function') saveUserProgress();
+                if (typeof saveUserProgress === 'function') saveUserProgress(true);
                 showToast(`🎉 Stage ${challengeStage - 1} 클리어! 다음 스테이지로 진출했습니다. (내일 다음 경기 가능)`);
             }
         } else {
@@ -768,7 +769,7 @@ function startChallengeMatchSimulation(isRetry = false) {
             else challengeDailyRetryUsed = true;
             
             saveChallengeState();
-            if (typeof saveUserProgress === 'function') saveUserProgress();
+            if (typeof saveUserProgress === 'function') saveUserProgress(true);
             
             if (!isRetry && !challengeDailyRetryUsed) {
                 showToast(`패배하여 스테이지 클리어에 실패했습니다. 당일 1회 5P로 재도전할 수 있습니다!`);
@@ -1053,7 +1054,7 @@ function triggerChallengeSeasonVictory(season, lastMatchPlayerOvr) {
     saveChallengeState();
     
     if (typeof saveUserProgress === 'function') {
-        saveUserProgress();
+        saveUserProgress(true);
     }
 
     // 우승 축하 모달 표시

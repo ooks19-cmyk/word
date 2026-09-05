@@ -387,15 +387,16 @@ function getChallengeTodayDateString() {
 }
 
 function loadChallengeState() {
-    const myId = (typeof currentUser === 'string' && currentUser) ? currentUser : "ooks";
+    const rawId = (typeof currentUser === 'string' && currentUser) ? currentUser.trim() : "ooks";
+    const myId = rawId.toLowerCase();
     try {
-        const savedSeason = localStorage.getItem(`fc_star_challenge_season_${myId}`);
-        const savedStage = localStorage.getItem(`fc_star_challenge_stage_${myId}`);
-        const savedBossOvr = localStorage.getItem(`fc_star_challenge_boss_ovr_${myId}`);
-        const savedDate = localStorage.getItem(`fc_star_challenge_last_date_${myId}`);
-        const savedFreeUsed = localStorage.getItem(`fc_star_challenge_free_used_${myId}`);
-        const savedRetryUsed = localStorage.getItem(`fc_star_challenge_retry_used_${myId}`);
-        const savedHistory = localStorage.getItem(`fc_star_challenge_history_${myId}`);
+        const savedSeason = localStorage.getItem(`fc_star_challenge_season_${myId}`) || (rawId !== myId ? localStorage.getItem(`fc_star_challenge_season_${rawId}`) : null);
+        const savedStage = localStorage.getItem(`fc_star_challenge_stage_${myId}`) || (rawId !== myId ? localStorage.getItem(`fc_star_challenge_stage_${rawId}`) : null);
+        const savedBossOvr = localStorage.getItem(`fc_star_challenge_boss_ovr_${myId}`) || (rawId !== myId ? localStorage.getItem(`fc_star_challenge_boss_ovr_${rawId}`) : null);
+        const savedDate = localStorage.getItem(`fc_star_challenge_last_date_${myId}`) || (rawId !== myId ? localStorage.getItem(`fc_star_challenge_last_date_${rawId}`) : null);
+        const savedFreeUsed = localStorage.getItem(`fc_star_challenge_free_used_${myId}`) || (rawId !== myId ? localStorage.getItem(`fc_star_challenge_free_used_${rawId}`) : null);
+        const savedRetryUsed = localStorage.getItem(`fc_star_challenge_retry_used_${myId}`) || (rawId !== myId ? localStorage.getItem(`fc_star_challenge_retry_used_${rawId}`) : null);
+        const savedHistory = localStorage.getItem(`fc_star_challenge_history_${myId}`) || (rawId !== myId ? localStorage.getItem(`fc_star_challenge_history_${rawId}`) : null);
 
         challengeSeason = savedSeason ? parseInt(savedSeason) : 1;
         challengeStage = savedStage ? parseInt(savedStage) : 1;
@@ -429,7 +430,8 @@ function loadChallengeState() {
 }
 
 function saveChallengeState() {
-    const myId = (typeof currentUser === 'string' && currentUser) ? currentUser : "ooks";
+    const rawId = (typeof currentUser === 'string' && currentUser) ? currentUser.trim() : "ooks";
+    const myId = rawId.toLowerCase();
     try {
         localStorage.setItem(`fc_star_challenge_season_${myId}`, challengeSeason.toString());
         localStorage.setItem(`fc_star_challenge_stage_${myId}`, challengeStage.toString());

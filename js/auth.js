@@ -169,6 +169,21 @@ function saveAllToLocalStorage() {
             localStorage.setItem(`fc_star_friendly_match_last_date_${myId}`, friendlyMatchLastDate);
         }
         
+        // 🏆 도전모드(Challenge Mode) 로컬스토리지 안전 저장
+        if (typeof saveChallengeState === 'function') {
+            saveChallengeState();
+        } else {
+            const rawId = currentUser || "ooks";
+            const cId = rawId.toLowerCase();
+            localStorage.setItem(`fc_star_challenge_season_${cId}`, (typeof challengeSeason !== 'undefined' ? challengeSeason : 1).toString());
+            localStorage.setItem(`fc_star_challenge_stage_${cId}`, (typeof challengeStage !== 'undefined' ? challengeStage : 1).toString());
+            localStorage.setItem(`fc_star_challenge_boss_ovr_${cId}`, (typeof challengeBossOvr !== 'undefined' ? challengeBossOvr : 98).toString());
+            localStorage.setItem(`fc_star_challenge_last_date_${cId}`, (typeof challengeLastDate !== 'undefined' ? challengeLastDate : ""));
+            localStorage.setItem(`fc_star_challenge_free_used_${cId}`, (typeof challengeDailyFreeUsed !== 'undefined' && challengeDailyFreeUsed) ? 'true' : 'false');
+            localStorage.setItem(`fc_star_challenge_retry_used_${cId}`, (typeof challengeDailyRetryUsed !== 'undefined' && challengeDailyRetryUsed) ? 'true' : 'false');
+            localStorage.setItem(`fc_star_challenge_history_${cId}`, JSON.stringify(typeof challengeHistory !== 'undefined' ? challengeHistory : { w: 0, d: 0, l: 0, totalGames: 0 }));
+        }
+        
         localStorage.setItem('fc_star_local_last_updated', Date.now().toString());
         if (currentUser) {
             localStorage.setItem('fc_star_local_data_owner', currentUser);
@@ -178,7 +193,7 @@ function saveAllToLocalStorage() {
     }
 }
 
-function saveUserProgress() {
+function saveUserProgress(forceImmediate = false) {
     if (!currentUser) return;
     if (typeof window.isSyncingData !== 'undefined' && window.isSyncingData) {
         console.log("⏳ [Save Blocked] 동기화 진행 중이므로 클라우드 저장을 건너뜁니다.");
@@ -370,8 +385,10 @@ function saveUserProgress() {
         (lastUploadedPoints === null || userPoints !== lastUploadedPoints) ||
         (lastUploadedDeckJson === null || JSON.stringify(playerDeck) !== lastUploadedDeckJson);
         
-    if (hasPointsOrCardsChanged || timeSinceLastUpload >= CLOUD_SAVE_INTERVAL) {
-        if (hasPointsOrCardsChanged) {
+    if (forceImmediate || hasPointsOrCardsChanged || timeSinceLastUpload >= CLOUD_SAVE_INTERVAL) {
+        if (forceImmediate) {
+            console.log("⚡ [Cloud Save] forceImmediate 트리거 -> 지연 없이 즉시 Firestore 클라우드 백업을 실행합니다.");
+        } else if (hasPointsOrCardsChanged) {
             console.log("☁️ [Cloud Save] 포인트 또는 카드 변경 감지 -> 대기 시간 없이 즉시 동기화 백업을 실행합니다.");
         }
         uploadProgress();
@@ -739,24 +756,54 @@ function syncUserDataOnLogin(userData, forceLoad = false) {
         }
         
         // 클라우드에서 도전모드(Challenge Mode) 상태 복원
-        const myId = currentUser;
-        challengeSeason = userData.challengeSeason || 1;
-        challengeStage = userData.challengeStage || 1;
-        challengeBossOvr = userData.challengeBossOvr || 98;
-        challengeLastDate = userData.challengeLastDate || "";
-        challengeDailyFreeUsed = userData.challengeDailyFreeUsed || false;
-        challengeDailyRetryUsed = userData.challengeDailyRetryUsed || false;
-        challengeHistory = userData.challengeHistory || { w: 0, d: 0, l: 0, totalGames: 0 };
-        
-        localStorage.setItem(`fc_star_challenge_season_${myId}`, challengeSeason.toString());
-        localStorage.setItem(`fc_star_challenge_stage_${myId}`, challengeStage.toString());
-        localStorage.setItem(`fc_star_challenge_boss_ovr_${myId}`, challengeBossOvr.toString());
-        localStorage.setItem(`fc_star_challenge_last_date_${myId}`, challengeLastDate);
-        localStorage.setItem(`fc_star_challenge_free_used_${myId}`, challengeDailyFreeUsed ? 'true' : 'false');
-        localStorage.setItem(`fc_star_challenge_retry_used_${myId}`, challengeDailyRetryUsed ? 'true' : 'false');
-        localStorage.setItem(`fc_star_challenge_history_${myId}`, JSON.stringify(challengeHistory));
+        const rawChallengeId = currentUser || "ooks";
+        const myChallengeId = rawChallengeId.toLowerCase();
+
+        // 로컬에 기존 진행 데이터가 남아있는지 확인 (대소문자 둘 다 체크)
+        const localSeasonStr = localStorage.getItem(`fc_star_challenge_season_${myChallengeId}`) || (rawChallengeId !== myChallengeId ? localStorage.getItem(`fc_star_challenge_season_${rawChallengeId}`) : null);
+        const localStageStr = localStorage.getItem(`fc_star_challenge_stage_${myChallengeId}`) || (rawChallengeId !== myChallengeId ? localStorage.getItem(`fc_star_challenge_stage_${rawChallengeId}`) : null);
+        const localSeason = localSeasonStr ? parseInt(localSeasonStr) : 1;
+        const localStage = localStageStr ? parseInt(localStageStr) : 1;
+
+        const cloudSeason = (userData.challengeSeason && !isNaN(userData.challengeSeason)) ? parseInt(userData.challengeSeason) : 1;
+        const cloudStage = (userData.challengeStage && !isNaN(userData.challengeStage)) ? parseInt(userData.challengeStage) : 1;
+
+        let needsChallengeCloudSync = false;
+        if (cloudSeason > localSeason) {
+            challengeSeason = cloudSeason;
+            challengeStage = cloudStage;
+        } else if (localSeason > cloudSeason) {
+            challengeSeason = localSeason;
+            challengeStage = localStage;
+            needsChallengeCloudSync = true;
+        } else {
+            challengeSeason = cloudSeason;
+            challengeStage = Math.max(localStage, cloudStage);
+            if (localStage > cloudStage) {
+                needsChallengeCloudSync = true;
+            }
+        }
+
+        challengeBossOvr = userData.challengeBossOvr || parseInt(localStorage.getItem(`fc_star_challenge_boss_ovr_${myChallengeId}`) || '98') || 98;
+        challengeLastDate = userData.challengeLastDate || localStorage.getItem(`fc_star_challenge_last_date_${myChallengeId}`) || "";
+        challengeDailyFreeUsed = (userData.challengeDailyFreeUsed !== undefined) ? userData.challengeDailyFreeUsed : (localStorage.getItem(`fc_star_challenge_free_used_${myChallengeId}`) === 'true');
+        challengeDailyRetryUsed = (userData.challengeDailyRetryUsed !== undefined) ? userData.challengeDailyRetryUsed : (localStorage.getItem(`fc_star_challenge_retry_used_${myChallengeId}`) === 'true');
+        challengeHistory = userData.challengeHistory || (localStorage.getItem(`fc_star_challenge_history_${myChallengeId}`) ? JSON.parse(localStorage.getItem(`fc_star_challenge_history_${myChallengeId}`)) : { w: 0, d: 0, l: 0, totalGames: 0 });
+
+        localStorage.setItem(`fc_star_challenge_season_${myChallengeId}`, challengeSeason.toString());
+        localStorage.setItem(`fc_star_challenge_stage_${myChallengeId}`, challengeStage.toString());
+        localStorage.setItem(`fc_star_challenge_boss_ovr_${myChallengeId}`, challengeBossOvr.toString());
+        localStorage.setItem(`fc_star_challenge_last_date_${myChallengeId}`, challengeLastDate);
+        localStorage.setItem(`fc_star_challenge_free_used_${myChallengeId}`, challengeDailyFreeUsed ? 'true' : 'false');
+        localStorage.setItem(`fc_star_challenge_retry_used_${myChallengeId}`, challengeDailyRetryUsed ? 'true' : 'false');
+        localStorage.setItem(`fc_star_challenge_history_${myChallengeId}`, JSON.stringify(challengeHistory));
         if (typeof initChallengeState === 'function') {
             initChallengeState();
+        }
+        if (needsChallengeCloudSync) {
+            setTimeout(() => {
+                saveUserProgress(true);
+            }, 1000);
         }
 
         // 클라우드에서 친선경기 전적 및 릴레이 인덱스 상태 복원
@@ -993,7 +1040,7 @@ async function handleAuthSubmit() {
         if (authMode === 'login') {
             // LOGIN PROCESS
             const userData = await dbService.login(id, pw);
-            currentUser = userData.id;
+            currentUser = (userData.id || targetUserId).trim().toLowerCase();
             
             // Sync and refresh
             syncUserDataOnLogin(userData);
@@ -1006,13 +1053,13 @@ async function handleAuthSubmit() {
         } else {
             // REGISTER PROCESS
             const defaultData = await dbService.register(id, pw);
-            currentUser = defaultData.id;
+            currentUser = (defaultData.id || targetUserId).trim().toLowerCase();
             
             // Sync & automatically save existing local progress (if any) as first upload
             syncUserDataOnLogin(defaultData);
             
             // Backup existing local data to cloud immediately
-            saveUserProgress();
+            saveUserProgress(true);
             
             // Keep session
             localStorage.setItem('fc_star_current_user', currentUser);
