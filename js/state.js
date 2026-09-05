@@ -353,8 +353,8 @@ function updateDeckConditions() {
             localStorage.setItem('fc_star_local_last_updated', Date.now().toString());
         } catch (e) {}
         
-        // 클라우드 저장 (만약 auth.js 로드 후 시점이라면 즉시 저장)
-        if (typeof saveUserProgress === 'function') {
+        // 클라우드 저장 (동기화 중이 아니며 클라우드가 연결된 상태에서만 안전하게 저장)
+        if (typeof saveUserProgress === 'function' && typeof isCloudDataSynced !== 'undefined' && isCloudDataSynced && (!window.isSyncingData)) {
             saveUserProgress();
         }
     }
@@ -400,17 +400,21 @@ function loadChallengeState() {
         const savedHistory = localStorage.getItem(`fc_star_challenge_history_${myId}`) || (rawId !== myId ? localStorage.getItem(`fc_star_challenge_history_${rawId}`) : null);
         const savedSeasonTeams = localStorage.getItem(`fc_star_challenge_season_teams_${myId}`) || (rawId !== myId ? localStorage.getItem(`fc_star_challenge_season_teams_${rawId}`) : null);
 
-        challengeSeason = savedSeason ? parseInt(savedSeason) : 1;
-        challengeStage = savedStage ? parseInt(savedStage) : 1;
-        challengeBossOvr = savedBossOvr ? parseInt(savedBossOvr) : 98;
-        if (isNaN(challengeSeason) || challengeSeason < 1) challengeSeason = 1;
-        if (isNaN(challengeStage) || challengeStage < 1 || challengeStage > 10) challengeStage = 1;
-        if (isNaN(challengeBossOvr) || challengeBossOvr < 80) challengeBossOvr = 98;
+        if (savedSeason) {
+            const parsedSeason = parseInt(savedSeason);
+            if (!isNaN(parsedSeason) && parsedSeason >= 1) challengeSeason = parsedSeason;
+        }
+        if (savedStage) {
+            const parsedStage = parseInt(savedStage);
+            if (!isNaN(parsedStage) && parsedStage >= 1 && parsedStage <= 10) challengeStage = parsedStage;
+        }
+        if (savedBossOvr) {
+            const parsedBossOvr = parseInt(savedBossOvr);
+            if (!isNaN(parsedBossOvr) && parsedBossOvr >= 80) challengeBossOvr = parsedBossOvr;
+        }
 
         if (savedSeasonTeams) {
             try { challengeSeasonTeams = JSON.parse(savedSeasonTeams); } catch(e) { challengeSeasonTeams = null; }
-        } else {
-            challengeSeasonTeams = null;
         }
 
         const todayStr = getChallengeTodayDateString();
@@ -428,9 +432,7 @@ function loadChallengeState() {
         }
 
         if (savedHistory) {
-            challengeHistory = JSON.parse(savedHistory);
-        } else {
-            challengeHistory = { w: 0, d: 0, l: 0, totalGames: 0 };
+            try { challengeHistory = JSON.parse(savedHistory); } catch(e) {}
         }
     } catch (e) {
         console.warn("도전모드 로드 에러:", e);

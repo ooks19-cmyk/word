@@ -763,26 +763,38 @@ function syncUserDataOnLogin(userData, forceLoad = false) {
         // 로컬에 기존 진행 데이터가 남아있는지 확인 (대소문자 둘 다 체크)
         const localSeasonStr = localStorage.getItem(`fc_star_challenge_season_${myChallengeId}`) || (rawChallengeId !== myChallengeId ? localStorage.getItem(`fc_star_challenge_season_${rawChallengeId}`) : null);
         const localStageStr = localStorage.getItem(`fc_star_challenge_stage_${myChallengeId}`) || (rawChallengeId !== myChallengeId ? localStorage.getItem(`fc_star_challenge_stage_${rawChallengeId}`) : null);
-        const localSeason = localSeasonStr ? parseInt(localSeasonStr) : 1;
-        const localStage = localStageStr ? parseInt(localStageStr) : 1;
+        const localSeason = (localSeasonStr && !isNaN(localSeasonStr)) ? parseInt(localSeasonStr) : null;
+        const localStage = (localStageStr && !isNaN(localStageStr)) ? parseInt(localStageStr) : null;
 
-        const cloudSeason = (userData.challengeSeason && !isNaN(userData.challengeSeason)) ? parseInt(userData.challengeSeason) : 1;
-        const cloudStage = (userData.challengeStage && !isNaN(userData.challengeStage)) ? parseInt(userData.challengeStage) : 1;
+        const cloudSeason = (userData.challengeSeason !== undefined && userData.challengeSeason !== null && !isNaN(userData.challengeSeason)) ? parseInt(userData.challengeSeason) : null;
+        const cloudStage = (userData.challengeStage !== undefined && userData.challengeStage !== null && !isNaN(userData.challengeStage)) ? parseInt(userData.challengeStage) : null;
 
         let needsChallengeCloudSync = false;
-        if (cloudSeason > localSeason) {
+        if (cloudSeason !== null && localSeason !== null) {
+            if (cloudSeason > localSeason) {
+                challengeSeason = cloudSeason;
+                challengeStage = (cloudStage !== null) ? cloudStage : 1;
+            } else if (localSeason > cloudSeason) {
+                challengeSeason = localSeason;
+                challengeStage = (localStage !== null) ? localStage : 1;
+                needsChallengeCloudSync = true;
+            } else {
+                challengeSeason = cloudSeason;
+                challengeStage = Math.max(localStage || 1, cloudStage || 1);
+                if (localStage && cloudStage && localStage > cloudStage) {
+                    needsChallengeCloudSync = true;
+                }
+            }
+        } else if (cloudSeason !== null) {
             challengeSeason = cloudSeason;
-            challengeStage = cloudStage;
-        } else if (localSeason > cloudSeason) {
+            challengeStage = (cloudStage !== null) ? cloudStage : 1;
+        } else if (localSeason !== null) {
             challengeSeason = localSeason;
-            challengeStage = localStage;
+            challengeStage = (localStage !== null) ? localStage : 1;
             needsChallengeCloudSync = true;
         } else {
-            challengeSeason = cloudSeason;
-            challengeStage = Math.max(localStage, cloudStage);
-            if (localStage > cloudStage) {
-                needsChallengeCloudSync = true;
-            }
+            challengeSeason = 1;
+            challengeStage = 1;
         }
 
         challengeBossOvr = userData.challengeBossOvr || parseInt(localStorage.getItem(`fc_star_challenge_boss_ovr_${myChallengeId}`) || '98') || 98;
