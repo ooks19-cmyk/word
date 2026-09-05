@@ -158,6 +158,109 @@ function getFriendlyTodayDateString() {
     return `${year}-${month}-${day}`;
 }
 
+// 시즌별 1~10 스테이지 상대 구단 생성 (시즌 2부터 6~10위 구단 무작위 셔플)
+function generateChallengeSeasonTeams(season) {
+    if (season <= 1) {
+        return JSON.parse(JSON.stringify(CHALLENGE_STAGES_PRESET));
+    }
+    // 1~5 스테이지 (인덱스 0~4) 고정
+    const top5 = CHALLENGE_STAGES_PRESET.slice(0, 5).map((t, idx) => ({
+        ...t,
+        stage: idx + 1,
+        isFinalBoss: false
+    }));
+    // 6~10 스테이지 (인덱스 5~9) 5개 명문 구단 셔플
+    const bottom5 = CHALLENGE_STAGES_PRESET.slice(5, 10).map(t => ({ ...t }));
+    for (let i = bottom5.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [bottom5[i], bottom5[j]] = [bottom5[j], bottom5[i]];
+    }
+    const shuffledBottom5 = bottom5.map((t, idx) => {
+        const stageNum = 6 + idx;
+        return {
+            ...t,
+            stage: stageNum,
+            isFinalBoss: (stageNum === 10)
+        };
+    });
+    return [...top5, ...shuffledBottom5];
+}
+
+// 현재 활성 시즌 10개 스테이지 상대 구단 목록 반환
+function getChallengeStageTeams() {
+    if (challengeSeason <= 1) {
+        return CHALLENGE_STAGES_PRESET;
+    }
+    if (challengeSeasonTeams && Array.isArray(challengeSeasonTeams) && challengeSeasonTeams.length === 10) {
+        return challengeSeasonTeams;
+    }
+    challengeSeasonTeams = generateChallengeSeasonTeams(challengeSeason);
+    saveChallengeState();
+    return challengeSeasonTeams;
+}
+
+// 시즌 2 이상 10R 최종 보스전 잠금 여부 검사
+function isChallengeBossLocked() {
+    return (challengeSeason >= 2 && challengeStage === 10);
+}
+
+// 시즌 2 이상 최종 보스전(10R) 업데이트 준비 중 모달 팝업
+function showChallengeBossLockedModal() {
+    let modal = document.getElementById('challengeBossLockedModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'challengeBossLockedModal';
+        document.body.appendChild(modal);
+    }
+    modal.className = 'challenge-victory-modal-overlay';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100000;
+        padding: 1rem;
+        box-sizing: border-box;
+    `;
+
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 440px; width: 100%; text-align: center; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); border: 2px solid #a855f7; box-shadow: 0 0 40px rgba(168, 85, 247, 0.5); border-radius: 24px; padding: 1.8rem 1.4rem; position: relative; margin: auto; animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;">
+            <div style="font-size: 3.2rem; margin-bottom: 0.4rem; animation: bounceIn 1s ease;">🔒</div>
+            <h2 style="color: #ffd700; font-size: 1.45rem; font-weight: 900; margin: 0 0 0.6rem 0; text-shadow: 0 0 12px rgba(255,215,0,0.6);">
+                시즌 ${challengeSeason} 최종 보스전 준비 중
+            </h2>
+            <p style="color: #e2e8f0; font-size: 0.88rem; line-height: 1.6; margin: 0 0 1.2rem 0; word-break: keep-all;">
+                시즌 ${challengeSeason}의 <strong>최종 보스전 및 특별 우승 보상 카드</strong>가 현재 업데이트 준비 중입니다.<br><br>
+                새로운 슈퍼(SUPER) 등급 카드와 한층 더 진화한 명승부가 곧 공개될 예정입니다.<br>
+                차기 업데이트를 기대해주세요!
+            </p>
+            <div style="background: rgba(168, 85, 247, 0.12); border: 1.5px solid rgba(168, 85, 247, 0.35); border-radius: 14px; padding: 0.8rem; margin-bottom: 1.3rem; text-align: left; font-size: 0.78rem; color: #cbd5e1; line-height: 1.5;">
+                <div style="font-weight: 800; color: #c084fc; margin-bottom: 3px;">
+                    <i class="fa-solid fa-circle-info"></i> 안내 사항
+                </div>
+                • 9스테이지까지의 승리 기록과 전적은 안전하게 보존됩니다.<br>
+                • 업데이트 적용 후 10R 최종 보스전에 바로 도전하실 수 있습니다.
+            </div>
+            <button onclick="closeChallengeBossLockedModal()" style="width: 100%; padding: 0.9rem; border-radius: 14px; border: none; background: linear-gradient(135deg, #a855f7, #6366f1); color: #fff; font-size: 0.95rem; font-weight: 900; cursor: pointer; box-shadow: 0 0 20px rgba(168, 85, 247, 0.6);">
+                확인
+            </button>
+        </div>
+    `;
+    modal.style.display = 'flex';
+}
+
+function closeChallengeBossLockedModal() {
+    const modal = document.getElementById('challengeBossLockedModal');
+    if (modal) modal.style.display = 'none';
+}
+
 // 도전모드 상태 초기화 및 날짜 동기화
 function initChallengeState() {
     if (typeof loadChallengeState === 'function') {
@@ -165,8 +268,9 @@ function initChallengeState() {
     }
     
     // 현재 스테이지 상대팀 자동 선택
+    const teams = getChallengeStageTeams();
     const stageIdx = Math.max(1, Math.min(10, challengeStage)) - 1;
-    selectedFriendlyOpponent = CHALLENGE_STAGES_PRESET[stageIdx] || CHALLENGE_STAGES_PRESET[0];
+    selectedFriendlyOpponent = teams[stageIdx] || teams[0];
 
     updateChallengeMatchPreview();
     renderChallengeRoadmap();
@@ -190,8 +294,9 @@ function getChallengeStageRating(stage) {
 
 // 현재 도전 상대팀 데이터 반환
 function getCurrentChallengeOpponent() {
+    const teams = getChallengeStageTeams();
     const stageIdx = Math.max(1, Math.min(10, challengeStage)) - 1;
-    const base = CHALLENGE_STAGES_PRESET[stageIdx] || CHALLENGE_STAGES_PRESET[0];
+    const base = teams[stageIdx] || teams[0];
     const dynamicRating = getChallengeStageRating(base.stage);
     return { ...base, rating: dynamicRating };
 }
@@ -334,6 +439,21 @@ function updateChallengeButtonState() {
     const startBtn = document.getElementById('btnStartFriendlyMatch');
     if (!startBtn) return;
 
+    // Case 0: 시즌 2 이상 10R 최종 보스전 잠금 (업데이트 준비 중)
+    if (isChallengeBossLocked()) {
+        startBtn.disabled = false;
+        startBtn.onclick = () => showChallengeBossLockedModal();
+        startBtn.innerHTML = `<i class="fa-solid fa-lock" style="margin-right: 8px; color: #ffd700;"></i>시즌 ${challengeSeason} 최종 보스전 (업데이트 준비 중)`;
+        startBtn.style.background = 'linear-gradient(135deg, #475569, #334155)';
+        startBtn.style.color = '#cbd5e1';
+        startBtn.style.border = '1.5px solid rgba(255, 215, 0, 0.4)';
+        startBtn.style.cursor = 'pointer';
+        startBtn.style.opacity = '0.95';
+        return;
+    }
+
+    startBtn.style.border = 'none';
+
     // Case 1: 오늘 무료 도전 미사용 -> 무료 도전 가능
     if (!challengeDailyFreeUsed) {
         startBtn.disabled = false;
@@ -375,8 +495,9 @@ function renderChallengeRoadmap() {
     const rewardCardId = "super_messi";
     const rewardCard = (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE[rewardCardId]) ? CARDS_DATABASE[rewardCardId] : null;
 
+    const stageTeams = getChallengeStageTeams();
     let stagesHtml = '';
-    CHALLENGE_STAGES_PRESET.forEach((team) => {
+    stageTeams.forEach((team) => {
         const isCurrent = (team.stage === challengeStage);
         const isCleared = (team.stage < challengeStage);
         const isLocked = (team.stage > challengeStage);
@@ -444,32 +565,49 @@ function renderChallengeRoadmap() {
         </div>
 
         <!-- 시즌 우승 특별 보상 쇼케이스 카드 -->
-        <div style="background: linear-gradient(135deg, rgba(255, 0, 127, 0.12) 0%, rgba(0, 242, 254, 0.08) 100%); border: 1.5px solid rgba(255, 0, 127, 0.35); border-radius: 14px; padding: 0.9rem; position: relative; overflow: hidden;">
+        <div style="background: linear-gradient(135deg, rgba(255, 0, 127, 0.12) 0%, rgba(0, 242, 254, 0.08) 100%); border: 1.5px solid ${challengeSeason >= 2 ? 'rgba(168, 85, 247, 0.5)' : 'rgba(255, 0, 127, 0.35)'}; border-radius: 14px; padding: 0.9rem; position: relative; overflow: hidden;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
                 <div style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 900; color: #fff;">
                     <i class="fa-solid fa-gift" style="color: #ffd700;"></i>
                     <span>시즌 ${challengeSeason} 우승 보상</span>
                 </div>
-                <span style="font-size: 0.65rem; font-weight: 900; background: linear-gradient(135deg, #ff007f, #00f2fe); color: #fff; padding: 2px 6px; border-radius: 10px; box-shadow: 0 0 8px rgba(255,0,127,0.5);">
-                    ⚡ SUPER 6각성
+                <span style="font-size: 0.65rem; font-weight: 900; background: ${challengeSeason >= 2 ? 'linear-gradient(135deg, #a855f7, #6366f1)' : 'linear-gradient(135deg, #ff007f, #00f2fe)'}; color: #fff; padding: 2px 6px; border-radius: 10px; box-shadow: 0 0 8px rgba(168,85,247,0.5);">
+                    ${challengeSeason >= 2 ? '⚡ SUPER (미공개)' : '⚡ SUPER 6각성'}
                 </span>
             </div>
             
             <div style="display: flex; align-items: center; gap: 12px; margin-top: 6px;">
-                <div style="position: relative; width: 50px; height: 50px; border-radius: 50%; overflow: hidden; border: 2px solid #00f2fe; box-shadow: 0 0 10px rgba(0, 242, 254, 0.6); flex-shrink: 0;">
-                    <img src="${rewardCard ? rewardCard.image : 'player2/슈퍼 메시.png'}" alt="S메시" style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
-                <div style="flex: 1;">
-                    <div style="font-size: 0.92rem; font-weight: 900; color: #fff; text-shadow: 0 0 8px rgba(255,0,127,0.6);">
-                        ${rewardCard ? rewardCard.name : 'S메시'}
+                ${challengeSeason >= 2 ? `
+                    <div style="position: relative; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1e1b4b, #3b0764); border: 2px solid #a855f7; box-shadow: 0 0 15px rgba(168, 85, 247, 0.7); flex-shrink: 0;">
+                        <span style="font-size: 1.5rem; font-weight: 900; color: #ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.8); animation: pulseGlow 1.5s infinite;">?</span>
                     </div>
-                    <div style="font-size: 0.72rem; color: #ffd700; font-weight: 700; margin-top: 2px;">
-                        ★6 각성 완료 (실질 OVR 100 / 슈팅 93)
+                    <div style="flex: 1;">
+                        <div style="font-size: 0.92rem; font-weight: 900; color: #ffd700; text-shadow: 0 0 8px rgba(255,215,0,0.6);">
+                            ??? (시즌 ${challengeSeason} 특별 보상)
+                        </div>
+                        <div style="font-size: 0.72rem; color: #c084fc; font-weight: 700; margin-top: 2px;">
+                            ★6 각성 슈퍼 선수 카드 (추후 공개 예정)
+                        </div>
+                        <div style="font-size: 0.68rem; color: #cbd5e1; margin-top: 2px;">
+                            10경기 전승 우승 시 새로운 슈퍼 등급 보상 지급!
+                        </div>
                     </div>
-                    <div style="font-size: 0.68rem; color: #cbd5e1; margin-top: 2px;">
-                        10경기 전승 우승 시 내 덱에 즉시 지급!
+                ` : `
+                    <div style="position: relative; width: 50px; height: 50px; border-radius: 50%; overflow: hidden; border: 2px solid #00f2fe; box-shadow: 0 0 10px rgba(0, 242, 254, 0.6); flex-shrink: 0;">
+                        <img src="${rewardCard ? rewardCard.image : 'player2/슈퍼 메시.png'}" alt="S메시" style="width: 100%; height: 100%; object-fit: cover;">
                     </div>
-                </div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 0.92rem; font-weight: 900; color: #fff; text-shadow: 0 0 8px rgba(255,0,127,0.6);">
+                            ${rewardCard ? rewardCard.name : 'S메시'}
+                        </div>
+                        <div style="font-size: 0.72rem; color: #ffd700; font-weight: 700; margin-top: 2px;">
+                            ★6 각성 완료 (실질 OVR 100 / 슈팅 93)
+                        </div>
+                        <div style="font-size: 0.68rem; color: #cbd5e1; margin-top: 2px;">
+                            10경기 전승 우승 시 내 덱에 즉시 지급!
+                        </div>
+                    </div>
+                `}
             </div>
         </div>
     `;
@@ -490,6 +628,12 @@ function refreshFriendlyOpponentsForce() {
 function startChallengeMatchSimulation(isRetry = false) {
     if (isMatchRunning) {
         showToast("이미 경기가 진행 중입니다!");
+        return;
+    }
+
+    // 시즌 2 이상 10R 최종 보스전 잠금 검사 (업데이트 준비 중)
+    if (isChallengeBossLocked()) {
+        showChallengeBossLockedModal();
         return;
     }
 
@@ -1049,6 +1193,7 @@ function triggerChallengeSeasonVictory(season, lastMatchPlayerOvr) {
     // 시즌 갱신 (다음 시즌 리셋)
     challengeSeason += 1;
     challengeStage = 1;
+    challengeSeasonTeams = generateChallengeSeasonTeams(challengeSeason);
     challengeDailyFreeUsed = true; // 오늘 우승 완료
     challengeDailyRetryUsed = true;
     saveChallengeState();

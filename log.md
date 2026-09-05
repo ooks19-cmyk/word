@@ -1589,6 +1589,29 @@ graph TD
   - `index.html`: `js/state.js?v=2.7`, `js/friendly.js?v=3.6`, `js/auth.js?v=2.62` 갱신.
   - `sw.js`: 서비스 워커 캐시 버전 `'fc-star-v310'` 배포.
 
+---
+
+### 🎲 118) 도전모드 시즌 2 상대팀 6~10위 랜덤 셔플, 보상 물음표(?) 처리 및 10R 보스전 잠금 시스템 구축 (2026-09-05, v3.0.0)
+* **개발 배경 및 기획 내용**:
+  - 시즌 2 진입 시 게임의 신선함을 높이기 위해 **6~10위 명문 구단(아스날, 뮌헨, 맨시티, PSG, 레알 마드리드)의 대진 순서를 무작위로 셔플**하는 동적 스테이지 생성 알고리즘 도입 (10R 최종 보스도 셔플에 따라 가변 배정).
+  - 시즌 2 우승 보상 카드는 아직 미설정 상태이므로, 우측 로드맵 쇼케이스에서 **신비로운 물음표(`?`) 미공개 카드로 연출** 처리.
+  - 보상 카드 및 시즌 2 보스전 완성을 위한 업데이트 준비 기간 동안 **시즌 2 마지막 10R 최종 보스전 진행을 잠금(Lock) 처리**하고, 도전 클릭 시 친절한 업데이트 준비 중 모달 팝업을 표시하도록 구현.
+* **주요 변경 사항**:
+  1. **6~10위 구단 랜덤 셔플 알고리즘 (`js/friendly.js`, `js/state.js`)**:
+     - `generateChallengeSeasonTeams(season)`: 1~5R 구단은 유지하고 6~10R 구단 5개를 Fisher-Yates 방식으로 셔플하여 시즌 상태(`challengeSeasonTeams`)로 로컬 및 클라우드 영구 저장.
+     - `getChallengeStageTeams()`: 현재 시즌에 배정된 10개 구단 라인업을 안전하게 반환.
+  2. **시즌 2 우승 보상 쇼케이스 물음표 연출 (`js/friendly.js`)**:
+     - `challengeSeason >= 2`일 때 펄스 글로우 애니메이션이 적용된 `?` 배지 및 `??? (시즌 2 특별 보상)` 텍스트 표시.
+  3. **시즌 2 10R 최종 보스전 잠금 및 안내 팝업 (`js/friendly.js`)**:
+     - `isChallengeBossLocked()`: 시즌 2 이상 10R 도달 시 검사.
+     - 버튼을 `🔒 시즌 2 최종 보스전 (업데이트 준비 중)`으로 전환하고, 클릭 시 `showChallengeBossLockedModal()` 팝업 안내를 띄워 9R까지의 성적 보존 및 차기 업데이트 대기를 안내.
+  4. **클라우드 및 로컬 동기화 (`js/auth.js`)**:
+     - `saveAllToLocalStorage`, `saveUserProgress`, `syncUserDataOnLogin`, `clearLocalGameData`에 `challengeSeasonTeams` 필드 완전 연동.
+* **버전 및 배포**:
+  - `index.html`: `state.js?v=2.8`, `friendly.js?v=3.7`, `auth.js?v=2.63` 갱신.
+  - `sw.js`: 서비스 워커 캐시 버전 `'fc-star-v311'` 배포.
+
+
 
 
 

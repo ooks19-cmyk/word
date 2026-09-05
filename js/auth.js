@@ -351,6 +351,7 @@ function saveUserProgress(forceImmediate = false) {
             challengeDailyFreeUsed: typeof challengeDailyFreeUsed !== 'undefined' ? challengeDailyFreeUsed : false,
             challengeDailyRetryUsed: typeof challengeDailyRetryUsed !== 'undefined' ? challengeDailyRetryUsed : false,
             challengeHistory: typeof challengeHistory !== 'undefined' ? challengeHistory : { w: 0, d: 0, l: 0, totalGames: 0 },
+            challengeSeasonTeams: (typeof challengeSeasonTeams !== 'undefined' && Array.isArray(challengeSeasonTeams)) ? challengeSeasonTeams : null,
             
             // 친선경기 ID별 실시간 클라우드 전적 연동 필드
             friendlyMatchesHistory: typeof friendlyMatchesHistory !== 'undefined' ? friendlyMatchesHistory : { w: 0, d: 0, l: 0, pts: 0 },
@@ -790,6 +791,16 @@ function syncUserDataOnLogin(userData, forceLoad = false) {
         challengeDailyRetryUsed = (userData.challengeDailyRetryUsed !== undefined) ? userData.challengeDailyRetryUsed : (localStorage.getItem(`fc_star_challenge_retry_used_${myChallengeId}`) === 'true');
         challengeHistory = userData.challengeHistory || (localStorage.getItem(`fc_star_challenge_history_${myChallengeId}`) ? JSON.parse(localStorage.getItem(`fc_star_challenge_history_${myChallengeId}`)) : { w: 0, d: 0, l: 0, totalGames: 0 });
 
+        if (userData.challengeSeasonTeams && Array.isArray(userData.challengeSeasonTeams) && userData.challengeSeasonTeams.length === 10) {
+            challengeSeasonTeams = userData.challengeSeasonTeams;
+            localStorage.setItem(`fc_star_challenge_season_teams_${myChallengeId}`, JSON.stringify(challengeSeasonTeams));
+        } else {
+            const savedLocalTeams = localStorage.getItem(`fc_star_challenge_season_teams_${myChallengeId}`);
+            if (savedLocalTeams) {
+                try { challengeSeasonTeams = JSON.parse(savedLocalTeams); } catch(e) { challengeSeasonTeams = null; }
+            }
+        }
+
         localStorage.setItem(`fc_star_challenge_season_${myChallengeId}`, challengeSeason.toString());
         localStorage.setItem(`fc_star_challenge_stage_${myChallengeId}`, challengeStage.toString());
         localStorage.setItem(`fc_star_challenge_boss_ovr_${myChallengeId}`, challengeBossOvr.toString());
@@ -1213,6 +1224,7 @@ function clearLocalGameData() {
         keys.push(`fc_star_challenge_free_used_${myId}`);
         keys.push(`fc_star_challenge_retry_used_${myId}`);
         keys.push(`fc_star_challenge_history_${myId}`);
+        keys.push(`fc_star_challenge_season_teams_${myId}`);
         keys.push(`fc_star_friendly_history_${myId}`);
         keys.push(`fc_star_friendly_current_index_${myId}`);
         keys.push(`fc_star_friendly_matches_today_${myId}`);
