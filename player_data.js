@@ -2285,7 +2285,7 @@ const CARDS_DATABASE = {
             sho: 93,
             pas: 92,
             dri: 94,
-            def: 40,
+            def: 50,
             phy: 70
         }
     },
