@@ -756,13 +756,13 @@ function syncUserDataOnLogin(userData, forceLoad = false) {
             initAcl();
         }
         
-        // 클라우드에서 도전모드(Challenge Mode) 상태 복원
-        const rawChallengeId = currentUser || "ooks";
-        const myChallengeId = rawChallengeId.toLowerCase();
+        // 클라우드에서 도전모드(Challenge Mode) 및 친선경기 상태 복원
+        const rawId = (typeof currentUser === 'string' && currentUser) ? currentUser.trim() : "ooks";
+        const myId = rawId.toLowerCase();
 
         // 로컬에 기존 진행 데이터가 남아있는지 확인 (대소문자 둘 다 체크)
-        const localSeasonStr = localStorage.getItem(`fc_star_challenge_season_${myChallengeId}`) || (rawChallengeId !== myChallengeId ? localStorage.getItem(`fc_star_challenge_season_${rawChallengeId}`) : null);
-        const localStageStr = localStorage.getItem(`fc_star_challenge_stage_${myChallengeId}`) || (rawChallengeId !== myChallengeId ? localStorage.getItem(`fc_star_challenge_stage_${rawChallengeId}`) : null);
+        const localSeasonStr = localStorage.getItem(`fc_star_challenge_season_${myId}`) || (rawId !== myId ? localStorage.getItem(`fc_star_challenge_season_${rawId}`) : null);
+        const localStageStr = localStorage.getItem(`fc_star_challenge_stage_${myId}`) || (rawId !== myId ? localStorage.getItem(`fc_star_challenge_stage_${rawId}`) : null);
         const localSeason = (localSeasonStr && !isNaN(localSeasonStr)) ? parseInt(localSeasonStr) : null;
         const localStage = (localStageStr && !isNaN(localStageStr)) ? parseInt(localStageStr) : null;
 
@@ -797,29 +797,29 @@ function syncUserDataOnLogin(userData, forceLoad = false) {
             challengeStage = 1;
         }
 
-        challengeBossOvr = userData.challengeBossOvr || parseInt(localStorage.getItem(`fc_star_challenge_boss_ovr_${myChallengeId}`) || '98') || 98;
-        challengeLastDate = userData.challengeLastDate || localStorage.getItem(`fc_star_challenge_last_date_${myChallengeId}`) || "";
-        challengeDailyFreeUsed = (userData.challengeDailyFreeUsed !== undefined) ? userData.challengeDailyFreeUsed : (localStorage.getItem(`fc_star_challenge_free_used_${myChallengeId}`) === 'true');
-        challengeDailyRetryUsed = (userData.challengeDailyRetryUsed !== undefined) ? userData.challengeDailyRetryUsed : (localStorage.getItem(`fc_star_challenge_retry_used_${myChallengeId}`) === 'true');
-        challengeHistory = userData.challengeHistory || (localStorage.getItem(`fc_star_challenge_history_${myChallengeId}`) ? JSON.parse(localStorage.getItem(`fc_star_challenge_history_${myChallengeId}`)) : { w: 0, d: 0, l: 0, totalGames: 0 });
+        challengeBossOvr = userData.challengeBossOvr || parseInt(localStorage.getItem(`fc_star_challenge_boss_ovr_${myId}`) || '98') || 98;
+        challengeLastDate = userData.challengeLastDate || localStorage.getItem(`fc_star_challenge_last_date_${myId}`) || "";
+        challengeDailyFreeUsed = (userData.challengeDailyFreeUsed !== undefined) ? userData.challengeDailyFreeUsed : (localStorage.getItem(`fc_star_challenge_free_used_${myId}`) === 'true');
+        challengeDailyRetryUsed = (userData.challengeDailyRetryUsed !== undefined) ? userData.challengeDailyRetryUsed : (localStorage.getItem(`fc_star_challenge_retry_used_${myId}`) === 'true');
+        challengeHistory = userData.challengeHistory || (localStorage.getItem(`fc_star_challenge_history_${myId}`) ? JSON.parse(localStorage.getItem(`fc_star_challenge_history_${myId}`)) : { w: 0, d: 0, l: 0, totalGames: 0 });
 
         if (userData.challengeSeasonTeams && Array.isArray(userData.challengeSeasonTeams) && userData.challengeSeasonTeams.length === 10) {
             challengeSeasonTeams = userData.challengeSeasonTeams;
-            localStorage.setItem(`fc_star_challenge_season_teams_${myChallengeId}`, JSON.stringify(challengeSeasonTeams));
+            localStorage.setItem(`fc_star_challenge_season_teams_${myId}`, JSON.stringify(challengeSeasonTeams));
         } else {
-            const savedLocalTeams = localStorage.getItem(`fc_star_challenge_season_teams_${myChallengeId}`);
+            const savedLocalTeams = localStorage.getItem(`fc_star_challenge_season_teams_${myId}`);
             if (savedLocalTeams) {
                 try { challengeSeasonTeams = JSON.parse(savedLocalTeams); } catch(e) { challengeSeasonTeams = null; }
             }
         }
 
-        localStorage.setItem(`fc_star_challenge_season_${myChallengeId}`, challengeSeason.toString());
-        localStorage.setItem(`fc_star_challenge_stage_${myChallengeId}`, challengeStage.toString());
-        localStorage.setItem(`fc_star_challenge_boss_ovr_${myChallengeId}`, challengeBossOvr.toString());
-        localStorage.setItem(`fc_star_challenge_last_date_${myChallengeId}`, challengeLastDate);
-        localStorage.setItem(`fc_star_challenge_free_used_${myChallengeId}`, challengeDailyFreeUsed ? 'true' : 'false');
-        localStorage.setItem(`fc_star_challenge_retry_used_${myChallengeId}`, challengeDailyRetryUsed ? 'true' : 'false');
-        localStorage.setItem(`fc_star_challenge_history_${myChallengeId}`, JSON.stringify(challengeHistory));
+        localStorage.setItem(`fc_star_challenge_season_${myId}`, challengeSeason.toString());
+        localStorage.setItem(`fc_star_challenge_stage_${myId}`, challengeStage.toString());
+        localStorage.setItem(`fc_star_challenge_boss_ovr_${myId}`, challengeBossOvr.toString());
+        localStorage.setItem(`fc_star_challenge_last_date_${myId}`, challengeLastDate);
+        localStorage.setItem(`fc_star_challenge_free_used_${myId}`, challengeDailyFreeUsed ? 'true' : 'false');
+        localStorage.setItem(`fc_star_challenge_retry_used_${myId}`, challengeDailyRetryUsed ? 'true' : 'false');
+        localStorage.setItem(`fc_star_challenge_history_${myId}`, JSON.stringify(challengeHistory));
         if (typeof initChallengeState === 'function') {
             initChallengeState();
         }
