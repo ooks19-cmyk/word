@@ -348,12 +348,11 @@ function updateDeckConditions() {
     
     if (modified) {
         try {
-            // 로컬스토리지에 저장
+            // 로컬스토리지에 저장 (컨디션 자동 정규화는 타임스탬프를 오염시키지 않음)
             localStorage.setItem('fc_star_player_deck', JSON.stringify(playerDeck));
-            localStorage.setItem('fc_star_local_last_updated', Date.now().toString());
         } catch (e) {}
         
-        // 클라우드 저장 (동기화 중이 아니며 클라우드가 연결된 상태에서만 안전하게 저장)
+        // 클라우드 저장 (동기화 중이 아니며 클라우드가 완전히 연결된 상태에서만 안전하게 저장)
         if (typeof saveUserProgress === 'function' && typeof isCloudDataSynced !== 'undefined' && isCloudDataSynced && (!window.isSyncingData)) {
             saveUserProgress();
         }
@@ -453,7 +452,8 @@ function saveChallengeState() {
         if (challengeSeasonTeams && Array.isArray(challengeSeasonTeams)) {
             localStorage.setItem(`fc_star_challenge_season_teams_${myId}`, JSON.stringify(challengeSeasonTeams));
         }
-        localStorage.setItem('fc_star_local_last_updated', Date.now().toString());
+        // 로컬 일일 도전 상태 저장은 클라우드 버전 비교용 타임스탬프(fc_star_local_last_updated)를 오염시키지 않음
+        // (실제 도전모드 경기 결과 및 보상은 saveUserProgress()를 통해 안전하게 전체 저장됨)
     } catch (e) {
         console.warn("도전모드 저장 에러:", e);
     }
