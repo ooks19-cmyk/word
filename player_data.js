@@ -2289,6 +2289,31 @@ const CARDS_DATABASE = {
             phy: 70
         }
     },
+    "super_mbappe": {
+        id: "super_mbappe",
+        name: "S음바페",
+        rating: 94,
+        position: "ST",
+        nation: "France",
+        nationFlag: "https://flagcdn.com/w40/fr.png",
+        club: "REAL MADRID",
+        image: "player2/슈퍼 음바페.png",
+        rarity: "super",
+        description: "전설을 초월한 궁극의 스피드 스타, 슈퍼 킬리안 음바페(S음바페)입니다. 번개 같은 폭발적 가속도와 극한의 질주력, 골문 구석을 완벽하게 꿰뚫는 가공할 슈팅 결정력으로 상대 수비진을 완벽히 무너뜨리는 최강의 월드클래스 크랙입니다.",
+        theme: {
+            primary: "#14002e",
+            secondary: "#ff007f",
+            glow: "#00f2fe"
+        },
+        stats: {
+            pac: 99,
+            sho: 95,
+            pas: 82,
+            dri: 93,
+            def: 39,
+            phy: 81
+        }
+    },
     "ronaldo_nazario": {
         id: "ronaldo_nazario",
         name: "호나우두",
