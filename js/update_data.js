@@ -2,9 +2,42 @@
 
 const UPDATE_LOGS = [
     {
+        version: "v3.2.0",
+        date: "2026.09.09",
+        latest: true,
+        borderColor: "#00f2fe",
+        titleColor: "#00f2fe",
+        badgeText: "CHALLENGE & SYNC",
+        items: [
+            "<strong>🛡️ 도전모드 진행상황 공통 로컬 스토리지 일원화 및 진도 리셋 버그 근본 해결!</strong>: 도전모드 데이터가 포인트/카드 덱과 동일한 1급 공통 로컬 저장소로 통합되었습니다.<br>• <strong>브라우저 즉시 로드(Instant Load)</strong>: 브라우저가 열리는 즉시 도전모드 시즌 및 스테이지를 공통 스토리지에서 즉시 로드하여 로그인 지연에 따른 데이터 누락을 완벽 차단했습니다.<br>• <strong>동기화 충돌 모달 전/후 서버 진도 하락 방지 안전 가드(Safety Guard)</strong>: 동기화 모달이 뜨더라도 서버의 상위 진도를 사전에 확보하며, [로컬로 덮어쓰기]를 누르더라도 서버에 저장된 더 높은 시즌/스테이지를 절대 1로 강등시키지 않고 보호 유지합니다.<br>• <strong>기존 ID별 데이터 자동 마이그레이션 호환</strong>: 기존 계정별 키에 저장되어 있던 데이터도 공통 저장소로 자동 동기화 승격되어 안전하게 보존됩니다."
+        ]
+    },
+    {
+        version: "v3.1.0",
+        date: "2026.09.07",
+        latest: false,
+        borderColor: "#ff007f",
+        titleColor: "#ff007f",
+        badgeText: "SUPER CARD",
+        items: [
+            "<strong>⚡ 신규 슈퍼(SUPER) 등급 'S음바페' 선수 카드 정식 출시!</strong>: 오버롤 94의 최상위 스펙과 극한의 스피드를 자랑하는 신규 슈퍼 등급 'S음바페' 카드가 추가되었습니다.<br>• <strong>압도적인 스피드와 결정력</strong>: PAC 99, SHO 95 등 세계 최고 수준의 돌파력과 슈팅 스탯 보유<br>• <strong>슈퍼 등급 전용 비주얼 이펙트</strong>: 오로라 홀로그램 쉬머 효과 및 반짝이는 스파클링 전용 연출 탑재"
+        ]
+    },
+    {
+        version: "v3.0.0",
+        date: "2026.09.05",
+        latest: false,
+        borderColor: "#a55eea",
+        titleColor: "#a55eea",
+        badgeText: "SEASON 2",
+        items: [
+            "<strong>🎲 도전모드 시즌 2 상대팀 6~10위 랜덤 셔플 & 10R 보스전 잠금 시스템 구축!</strong><br>• <strong>유럽 명문 구단 무작위 대진</strong>: 시즌 2부터 6~10위 구단(아스날, 뮌헨, 맨시티, PSG, 레알 마드리드)의 대진 순서가 시즌마다 무작위로 셔플되어 매 시즌 새로운 도전감을 선사합니다.<br>• <strong>시즌 2 우승 보상 물음표(?) 쇼케이스</strong>: 신비로운 미공개 특별 보상 연출 적용<br>• <strong>10R 최종 보스전 잠금 및 안내 모달</strong>: 차기 업데이트 준비 기간 동안 10R 보스전이 안전하게 보호 잠금 처리됩니다."
+        ]
+    },
+    {
         version: "v2.9.4",
         date: "2026.09.01",
-        latest: true,
+        latest: false,
         borderColor: "#00ff87",
         titleColor: "#00ff87",
         badgeText: "MATCH ENGINE",

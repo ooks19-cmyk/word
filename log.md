@@ -1633,3 +1633,27 @@ graph TD
   4. **PWA 캐시 및 브라우저 즉시 갱신 (`index.html`, `sw.js`)**:
      - `index.html`: `player_data.js?v=1.55` 갱신.
      - `sw.js`: 서비스 워커 캐시 버전 `'fc-star-v316'` 판올림.
+
+---
+
+### 🛡️ 120) 도전모드 진행상황 공통 로컬 스토리지 일원화 및 진도 리셋 버그 근본 해결 (2026-09-09, v3.2.0)
+* **문제 배경 및 원인 분석**:
+  - 기존 도전모드는 포인트(`fc_star_user_points`)나 카드 덱(`fc_star_player_deck`)과 달리 ID별 분기 키(`fc_star_challenge_stage_${id}`)로 관리되어 브라우저 로딩 시점(`currentUser = null`)에 즉시 읽지 못하고 기본값(1)으로 대기하는 구조적 한계가 존재함.
+  - 로그인 시 로컬 타임스탬프와 클라우드 타임스탬프 불일치로 **[데이터 동기화 선택] 모달**이 뜰 때, 복원 로직이 중단된 상태에서 사용자가 **[로컬로 덮어쓰기]**를 누르면 메모리에 기본값으로 남아있던 `시즌 1 스테이지 1`이 Firestore에 업로드되어 기존 상위 진도가 초기화되던 버그 발생.
+* **주요 해결 사항**:
+  1. **도전모드 저장소 공통 영역 일원화 (`js/state.js`)**:
+     - 포인트, 카드 덱과 100% 동일하게 `fc_star_challenge_season`, `fc_star_challenge_stage`, `fc_star_challenge_season_teams` 등 공통 로컬스토리지 키를 1순위로 채택.
+     - 브라우저 로딩 즉시 `loadChallengeState()`를 호출하여 로그인 여부와 관계없이 저장된 시즌/스테이지를 1초의 지연도 없이 즉시 메모리에 활성화.
+     - 기존 ID별 키(`_${id}`)와의 양방향 호환 마이그레이션 적용.
+  2. **동기화 충돌 모달 전/후 서버 진도 하락 방지 안전 가드(Safety Guard) 구축 (`js/auth.js`)**:
+     - `syncUserDataOnLogin`: 충돌 모달 표출 여부와 관계없이 서버에 더 높은 도전모드 진도가 감지되면 즉시 로컬/메모리에 선반영 확보.
+     - `btnSyncOverwriteCloud` ([로컬로 덮어쓰기]): 로컬 진도가 기본값(1)이고 서버에 더 높은 진도가 있는 경우, 서버의 상위 진도(`challengeSeason`, `challengeStage`, `challengeSeasonTeams`)를 보호 유지(Math.max)하여 절대로 1로 강등되지 않도록 차단.
+     - `saveUserProgress`: 공통 스토리지 키와 메모리 변수를 이중 참조하여 데이터 무결성 보장.
+     - `clearLocalGameData`: 계정 전환/로그아웃 시 공통 키도 정리 목록에 포함하여 계정 간 간섭 차단.
+  3. **서버 데이터 원복 및 스테이지 3 반영**:
+     - `tomy0304` 계정의 Firestore 도전모드 데이터를 어제 백업 기준에서 **시즌 2, 스테이지 3**(상대팀: SL 벤피카 OVR 92, 10개 편성팀 및 전적 2승)으로 갱신 완료.
+* **버전 및 배포**:
+  - `js/update_data.js`: `v3.2.0` (도전모드 공통 스토리지 일원화 및 동기화 리셋 근본 패치), `v3.1.0`(S음바페), `v3.0.0`(시즌2 셔플) 정식 릴리즈 노트 등록.
+  - `index.html`: `js/state.js?v=2.9`, `js/auth.js?v=2.67`, `app.js?v=3.2`, `js/update_data.js?v=2.75` 갱신.
+  - `sw.js`: 서비스 워커 캐시 버전 `'fc-star-v319'` 배포 (saveUserProgress 변경 감지 변수 ReferenceError 긴급 수정).
+
