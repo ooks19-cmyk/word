@@ -2338,6 +2338,31 @@ const CARDS_DATABASE = {
             def: 38,
             phy: 84
         }
+    },
+    "super_ki_sung_yueng": {
+        id: "super_ki_sung_yueng",
+        name: "S기성용",
+        rating: 94,
+        position: "CM",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "KOREA",
+        image: "player2/슈퍼 기성용.webp",
+        rarity: "super",
+        description: "전설을 초월한 궁극의 마스터 플레이메이커, 슈퍼 기성용(S기성용)입니다. 중원을 완벽히 지배하는 컴퓨터 같은 초정밀 롱패스와 대포알 중거리 슈팅, 유려한 탈압박과 탁월한 피지컬로 경기 조율의 마법을 부리는 대한민국 최고의 사령관입니다.",
+        theme: {
+            primary: "#14002e",
+            secondary: "#ff007f",
+            glow: "#00f2fe"
+        },
+        stats: {
+            pac: 80,
+            sho: 89,
+            pas: 95,
+            dri: 90,
+            def: 84,
+            phy: 87
+        }
     }
 };
 

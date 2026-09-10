@@ -1657,3 +1657,63 @@ graph TD
   - `index.html`: `js/state.js?v=2.9`, `js/auth.js?v=2.67`, `app.js?v=3.2`, `js/update_data.js?v=2.75` 갱신.
   - `sw.js`: 서비스 워커 캐시 버전 `'fc-star-v319'` 배포 (saveUserProgress 변경 감지 변수 ReferenceError 긴급 수정).
 
+---
+
+### ⚡ 121) 도전모드 시즌 2 우승 보상 슈퍼카드 선택 시스템 구축 및 10R 최종 보스전 정식 오픈 (2026-09-10, v3.3.0)
+* **개발 배경 및 기획 내용**:
+  - 시즌 2 도전모드에서 10스테이지 전승 우승을 달성했을 때, 플레이어가 원하는 슈퍼(SUPER) 등급 카드를 직접 비교하고 선택하여 ★6각성으로 영입할 수 있는 **'슈퍼카드 선택 영입 시스템'** 구축.
+  - 향후 신규 슈퍼 카드가 데이터베이스에 계속 추가되더라도 별도의 UI 코드 수정 없이 자동으로 전체 슈퍼카드가 선택지에 동적 배치되도록 확장형 아키텍처 설계.
+  - 시즌 2 우승 보상 마련에 따라, 업데이트 준비 중으로 잠겨있던 **시즌 2 10R 최종 보스전 잠금(`isChallengeBossLocked`)을 정식 해제**하여 플레이어가 10R 보스전에 출전할 수 있도록 개방.
+  - 사용자의 요청에 따라 우측 로드맵 쇼케이스는 신비로운 미공개(`?` 물음표) 연출을 그대로 유지.
+* **주요 변경 사항**:
+  1. **시즌 2 10R 최종 보스전 잠금 해제 (`js/friendly.js`)**:
+     - `isChallengeBossLocked()`: 조건을 `challengeSeason >= 3 && challengeStage === 10`으로 조정하여, 시즌 2 플레이어가 정상적으로 10R에 출전하여 최종 챔피언에 도전할 수 있도록 개방.
+  2. **전체 슈퍼카드 동적 수집 엔진 (`js/friendly.js`)**:
+     - `getAllSuperCards()`: `CARDS_DATABASE`에서 `rarity === 'super'`인 모든 카드를 실시간 필터링하여 반환. 현재 `super_messi`(S메시), `super_mbappe`(S음바페)가 자동 반영되며, 추후 등록될 슈퍼 카드도 자동으로 연동.
+  3. **슈퍼카드 선택 모달 인터페이스 구축 (`js/friendly.js`)**:
+     - `showChallengeSuperCardSelectModal(season, lastMatchPlayerOvr)`:
+       - 반응형 그리드로 전체 슈퍼카드를 나란히 배치.
+       - 각 카드별 실질 6각성 OVR(100) 및 세부 6대 스탯(PAC, SHO, PAS, DRI, DEF, PHY) +6 강화치 반영 표시.
+       - 플레이어 덱(`playerDeck`) 보유 여부(`보유 중 (★X각성)` / `신규 영입`) 실시간 뱃지 표시. 미보유 카드를 기본 선택값으로 스마트 추천.
+       - 카드 클릭 시 골드 네온 테두리, 오로라 글로우 펄스 및 선택 완료 뱃지 전환.
+       - 하단에 동적 영입 버튼 `[ ⚡ {선수명} 영입 확정하기 (★6각성) ]` 제공.
+  4. **영입 확정 및 안전 저장 파이프라인 (`executeChallengeSuperCardReward`)**:
+     - 선택한 슈퍼 카드를 덱에 ★6각성(`awakening: 6`, `awakeLevel: 6`)으로 지급.
+     - `localStorage.setItem('fc_star_player_deck')`, `renderDeck()`, `updateTotalCardCount()` 갱신.
+     - 다음 시즌 10R 보스 OVR 스케일링 계산 및 시즌/스테이지 갱신 (`challengeSeason += 1`, `challengeStage = 1`).
+     - `saveChallengeState()` 및 `saveUserProgress(true)` 호출로 Firestore 클라우드 즉시 영구 백업.
+     - 영입된 선수의 이름과 스탯이 정확히 반영된 최종 우승 세레머니 모달(`showChallengeVictoryModal`)로 자연스럽게 연결.
+* **버전 및 배포**:
+  - `js/update_data.js`: `v3.3.0` 정식 릴리즈 노트 등록.
+  - `index.html`: `js/friendly.js?v=3.8`, `js/update_data.js?v=2.76` 갱신.
+  - `sw.js`: 서비스 워커 캐시 버전 `'fc-star-v320'` 배포.
+
+---
+
+### ⚡ 122) 신규 슈퍼(SUPER) 등급 'S기성용' 선수 카드 신설 및 동적 연동 (2026-09-10)
+* **개발 배경 및 기획 내용**:
+  - 오버롤 94의 최상위 스펙과 컴퓨터 같은 초정밀 롱패스(PAS 95), 강력한 중거리 슈팅(SHO 89) 및 완성형 피지컬을 겸비한 신규 슈퍼(SUPER) 등급 선수 카드 **'S기성용'(`super_ki_sung_yueng`)** 신설 및 전용 리소스 등록.
+* **주요 변경 사항**:
+  1. **선수 카드 데이터베이스 신규 등록 (`player_data.js`)**:
+     - ID: `super_ki_sung_yueng`
+     - 이름: `S기성용`, 포지션: `CM`, 레이팅: **`OVR 94`**, 클럽: `KOREA`, 국적: `South Korea`
+     - 등급: **`super`** (일반 팩 뽑기에서 자동 제외 및 오로라 네온 쉬머/홀로그램 전용 연출 적용)
+     - **6대 세부 능력치**:
+       - **PAC: 80**
+       - **SHO: 89** (대포알 중거리 슈팅력)
+       - **PAS: 95** (대지를 가르는 초정밀 택배 롱패스 및 세트피스)
+       - **DRI: 90** (유려한 탈압박과 볼 키핑)
+       - **DEF: 84** (안정적인 중원 수비 조율 및 인터셉트)
+       - **PHY: 87** (탄탄한 피지컬 경합력)
+     - 이미지: `player2/슈퍼 기성용.webp`
+     - 전용 테마: Primary `#14002e`, Secondary `#ff007f`, Glow `#00f2fe`
+  2. **도전모드 시즌 2 우승 보상 슈퍼카드 선택지 자동 편입 (`js/friendly.js`)**:
+     - 앞서 구현된 동적 슈퍼카드 수집 엔진(`getAllSuperCards`)에 의해 별도의 코드 수정 없이 도전모드 시즌 2 우승 모달에 S메시, S음바페와 함께 나란히 자동 배치.
+  3. **데이터베이스 동기화 (`선수데이터.csv`, `선수데이터2.csv`)**:
+     - 스프레드시트 호환 CSV 데이터베이스에 `super_ki_sung_yueng` 행 완전 동기화.
+  4. **PWA 캐시 및 브라우저 즉시 갱신 (`index.html`, `sw.js`, `js/update_data.js`)**:
+     - `index.html`: `player_data.js?v=1.56`, `js/update_data.js?v=2.77` 갱신.
+     - `sw.js`: 서비스 워커 캐시 버전 `'fc-star-v321'` 판올림.
+
+
+

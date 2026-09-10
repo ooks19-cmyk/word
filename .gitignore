@@ -22,5 +22,7 @@ fc_star_users_backup.json
 # Executables and large binary files
 *.exe
 scratch/
+# Office temp files
+~$*
 
 

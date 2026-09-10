@@ -2,9 +2,20 @@
 
 const UPDATE_LOGS = [
     {
+        version: "v3.3.0",
+        date: "2026.09.10",
+        latest: true,
+        borderColor: "#ffd700",
+        titleColor: "#ffd700",
+        badgeText: "SUPER REWARD",
+        items: [
+            "<strong>⚡ 신규 슈퍼(SUPER) 등급 'S기성용' 카드 정식 출시 & 도전모드 우승 보상 슈퍼카드 선택권 신설!</strong><br>• <strong>'S기성용' (OVR 94, CM, KOREA) 슈퍼 등급 추가</strong>: 중원을 지배하는 컴퓨터 같은 초정밀 롱패스(PAS 95)와 대포알 중거리 슈팅(SHO 89), 환상적인 탈압박과 수비 조율 능력을 겸비한 대한민국 영원한 캡틴 슈퍼 기성용 카드가 출시되었습니다.<br>• <strong>도전모드 시즌 2 우승 슈퍼카드 선택 영입</strong>: 시즌 2 이상 10스테이지 전승 우승 시, S메시, S음바페, S기성용 중 원하는 슈퍼 카드를 직접 선택하여 ★6각성(실질 OVR 100)으로 즉시 영입할 수 있습니다.<br>• <strong>시즌 2 10R 최종 보스전 정식 오픈</strong>: 준비 중으로 잠겨있던 시즌 2의 10R 최종 결전이 완전히 개방되었습니다."
+        ]
+    },
+    {
         version: "v3.2.0",
         date: "2026.09.09",
-        latest: true,
+        latest: false,
         borderColor: "#00f2fe",
         titleColor: "#00f2fe",
         badgeText: "CHALLENGE & SYNC",

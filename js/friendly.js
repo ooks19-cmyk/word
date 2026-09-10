@@ -199,9 +199,9 @@ function getChallengeStageTeams() {
     return challengeSeasonTeams;
 }
 
-// 시즌 2 이상 10R 최종 보스전 잠금 여부 검사
+// 시즌 3 이상 10R 최종 보스전 잠금 여부 검사 (업데이트 준비 중)
 function isChallengeBossLocked() {
-    return (challengeSeason >= 2 && challengeStage === 10);
+    return (challengeSeason >= 3 && challengeStage === 10);
 }
 
 // 시즌 2 이상 최종 보스전(10R) 업데이트 준비 중 모달 팝업
@@ -1150,8 +1150,23 @@ function startFriendlyMatchSimulation() {
     startChallengeMatchSimulation(false);
 }
 
-// 도전모드 시즌 우승 처리 (슈퍼 6각성 특별 선수 지급 및 다음 시즌 OVR 스케일링)
+// 전체 슈퍼(SUPER) 등급 선수 카드 목록 동적 추출 (신규 슈퍼카드 추가 시 자동 반영)
+function getAllSuperCards() {
+    if (typeof CARDS_DATABASE === 'undefined' || !CARDS_DATABASE) return [];
+    return Object.values(CARDS_DATABASE).filter(card => card && card.rarity === 'super');
+}
+
+// 도전모드 시즌 우승 처리 (시즌 1은 S메시 고정, 시즌 2 이상은 전체 슈퍼카드 선택 팝업 표출)
 function triggerChallengeSeasonVictory(season, lastMatchPlayerOvr) {
+    // 시즌 2 이상인 경우: 전체 슈퍼카드 선택 인터페이스 호출
+    if (season >= 2) {
+        const superCards = getAllSuperCards();
+        if (superCards.length > 0) {
+            showChallengeSuperCardSelectModal(season, lastMatchPlayerOvr);
+            return;
+        }
+    }
+
     const todayStr = getFriendlyTodayDateString();
     
     // 시즌 1 우승 보상: 슈퍼 리오넬 메시 (super_messi) 6각성
@@ -1206,6 +1221,344 @@ function triggerChallengeSeasonVictory(season, lastMatchPlayerOvr) {
     showChallengeVictoryModal(season, rewardCardObj, challengeBossOvr);
 }
 
+// ⚡ 슈퍼카드 선택 영입 모달 팝업 (전체 슈퍼카드 동적 배치 및 비교 선택)
+function showChallengeSuperCardSelectModal(season, lastMatchPlayerOvr) {
+    let modal = document.getElementById('challengeSuperCardSelectModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'challengeSuperCardSelectModal';
+        document.body.appendChild(modal);
+    }
+
+    modal.className = 'challenge-victory-modal-overlay';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.88);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100000;
+        padding: 1rem;
+        box-sizing: border-box;
+    `;
+
+    const superCards = getAllSuperCards();
+    if (superCards.length === 0) {
+        showToast("선택 가능한 슈퍼 카드가 존재하지 않습니다.");
+        return;
+    }
+
+    // 기본 선택: 미보유 카드 우선, 없으면 첫 번째 카드
+    let defaultCardId = superCards[0].id;
+    for (const card of superCards) {
+        const isOwned = (typeof playerDeck !== 'undefined' && playerDeck && playerDeck[card.id]);
+        if (!isOwned) {
+            defaultCardId = card.id;
+            break;
+        }
+    }
+
+    // 선택 상태 전역/윈도우 바인딩
+    window._challengeSelectedSuperCardId = defaultCardId;
+    window._challengeSeasonForReward = season;
+    window._challengeLastMatchPlayerOvr = lastMatchPlayerOvr;
+
+    // 카드 목록 HTML 동적 생성
+    const renderCardsHtml = () => {
+        return superCards.map(card => {
+            const isSelected = (card.id === window._challengeSelectedSuperCardId);
+            const deckItem = (typeof playerDeck !== 'undefined' && playerDeck) ? playerDeck[card.id] : null;
+            const isOwned = !!deckItem;
+            const currentAwk = isOwned ? (deckItem.awakening || deckItem.awakeLevel || 0) : 0;
+            const realRating = card.rating + 6; // ★6각성 기본 적용
+
+            const pac = (card.stats?.pac || 80) + 6;
+            const sho = (card.stats?.sho || 80) + 6;
+            const pas = (card.stats?.pas || 80) + 6;
+            const dri = (card.stats?.dri || 80) + 6;
+            const def = (card.stats?.def || 50) + 6;
+            const phy = (card.stats?.phy || 70) + 6;
+
+            const cardBorder = isSelected 
+                ? '2px solid #ffd700' 
+                : '1.5px solid rgba(255, 255, 255, 0.12)';
+            const cardBg = isSelected 
+                ? 'linear-gradient(145deg, rgba(255, 0, 127, 0.22) 0%, rgba(121, 40, 202, 0.25) 50%, rgba(0, 242, 254, 0.18) 100%)' 
+                : 'rgba(255, 255, 255, 0.03)';
+            const cardShadow = isSelected 
+                ? '0 0 30px rgba(255, 215, 0, 0.55), 0 0 15px rgba(255, 0, 127, 0.45)' 
+                : '0 4px 15px rgba(0,0,0,0.4)';
+            const cardTransform = isSelected ? 'translateY(-4px)' : 'none';
+
+            return `
+                <div class="super-card-select-item" onclick="onSelectChallengeSuperCard('${card.id}')" style="
+                    border-radius: 18px;
+                    border: ${cardBorder};
+                    background: ${cardBg};
+                    box-shadow: ${cardShadow};
+                    transform: ${cardTransform};
+                    padding: 1.1rem 0.9rem;
+                    cursor: pointer;
+                    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+                    position: relative;
+                    text-align: center;
+                    user-select: none;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                ">
+                    <!-- 상단 상태 배지 (국기 / 보유 현황) -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem;">
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <img src="${card.nationFlag || 'https://flagcdn.com/w40/un.png'}" alt="flag" style="width: 18px; height: 12px; object-fit: cover; border-radius: 2px;">
+                            <span style="font-size: 0.72rem; font-weight: 800; color: #cbd5e1;">${card.position}</span>
+                        </div>
+                        <div>
+                            ${isOwned ? `
+                                <span style="font-size: 0.65rem; font-weight: 800; background: rgba(0, 255, 135, 0.15); color: #00ff87; border: 1px solid rgba(0, 255, 135, 0.4); padding: 2px 8px; border-radius: 12px;">
+                                    <i class="fa-solid fa-check"></i> 보유 중 (★${currentAwk})
+                                </span>
+                            ` : `
+                                <span style="font-size: 0.65rem; font-weight: 800; background: rgba(0, 242, 254, 0.15); color: #00f2fe; border: 1px solid rgba(0, 242, 254, 0.4); padding: 2px 8px; border-radius: 12px;">
+                                    <i class="fa-solid fa-sparkles"></i> 신규 영입
+                                </span>
+                            `}
+                        </div>
+                    </div>
+
+                    <!-- 선수 썸네일 및 오로라 프레임 -->
+                    <div style="position: relative; width: 90px; height: 90px; margin: 0 auto 0.6rem auto;">
+                        <div style="
+                            width: 100%;
+                            height: 100%;
+                            border-radius: 50%;
+                            overflow: hidden;
+                            border: 2.5px solid ${isSelected ? '#ffd700' : '#ff007f'};
+                            box-shadow: 0 0 20px ${isSelected ? 'rgba(255, 215, 0, 0.8)' : 'rgba(255, 0, 127, 0.6)'};
+                            background: radial-gradient(circle, #2a0845 0%, #0c0818 100%);
+                        ">
+                            <img src="${card.image}" alt="${card.name}" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <span style="
+                            position: absolute;
+                            bottom: -5px;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            background: linear-gradient(135deg, #ff007f, #00f2fe);
+                            color: #fff;
+                            font-size: 0.62rem;
+                            font-weight: 900;
+                            padding: 1px 7px;
+                            border-radius: 10px;
+                            letter-spacing: 0.5px;
+                            white-space: nowrap;
+                            box-shadow: 0 0 8px rgba(0,0,0,0.8);
+                        ">SUPER</span>
+                    </div>
+
+                    <!-- 선수명 및 클럽 -->
+                    <div>
+                        <div style="font-size: 1.18rem; font-weight: 900; color: #fff; text-shadow: 0 0 8px rgba(255,255,255,0.4); margin-bottom: 2px;">
+                            ${card.name}
+                        </div>
+                        <div style="font-size: 0.72rem; color: #94a3b8; font-weight: 600; margin-bottom: 0.6rem;">
+                            ${card.club}
+                        </div>
+                    </div>
+
+                    <!-- 6각성 OVR 배지 -->
+                    <div style="background: rgba(255, 215, 0, 0.1); border: 1px solid rgba(255, 215, 0, 0.35); border-radius: 10px; padding: 5px 8px; margin-bottom: 0.7rem;">
+                        <div style="font-size: 0.68rem; color: #ffd700; font-weight: 800;">
+                            ★6각성 기본 적용 (기본 ${card.rating} + 6)
+                        </div>
+                        <div style="font-size: 1.15rem; font-weight: 900; color: #00ff87; text-shadow: 0 0 8px rgba(0,255,135,0.6);">
+                            실질 OVR ${realRating}
+                        </div>
+                    </div>
+
+                    <!-- 주요 6각성 스탯 그리드 -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; font-size: 0.68rem; margin-bottom: 0.8rem; background: rgba(0,0,0,0.25); padding: 6px; border-radius: 8px;">
+                        <div><span style="color: #94a3b8;">PAC</span> <strong style="color: #fff;">${pac}</strong></div>
+                        <div><span style="color: #94a3b8;">SHO</span> <strong style="color: #fff;">${sho}</strong></div>
+                        <div><span style="color: #94a3b8;">PAS</span> <strong style="color: #fff;">${pas}</strong></div>
+                        <div><span style="color: #94a3b8;">DRI</span> <strong style="color: #fff;">${dri}</strong></div>
+                        <div><span style="color: #94a3b8;">DEF</span> <strong style="color: #fff;">${def}</strong></div>
+                        <div><span style="color: #94a3b8;">PHY</span> <strong style="color: #fff;">${phy}</strong></div>
+                    </div>
+
+                    <!-- 선택 버튼/표시기 -->
+                    <div style="
+                        background: ${isSelected ? 'linear-gradient(135deg, #ffd700, #ff9f43)' : 'rgba(255, 255, 255, 0.08)'};
+                        color: ${isSelected ? '#000' : '#cbd5e1'};
+                        font-weight: 900;
+                        font-size: 0.78rem;
+                        padding: 7px;
+                        border-radius: 10px;
+                        transition: all 0.2s ease;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 5px;
+                    ">
+                        ${isSelected ? '<i class="fa-solid fa-circle-check"></i> 선택 완료' : '클릭하여 선택'}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    };
+
+    const updateModalView = () => {
+        const selectedObj = superCards.find(c => c.id === window._challengeSelectedSuperCardId) || superCards[0];
+        modal.innerHTML = `
+            <div class="modal-content" style="
+                max-width: 660px;
+                width: 100%;
+                max-height: 90vh;
+                overflow-y: auto;
+                text-align: center;
+                background: linear-gradient(135deg, #090615 0%, #170d2c 50%, #0c1229 100%);
+                border: 2px solid #a855f7;
+                box-shadow: 0 0 50px rgba(168, 85, 247, 0.45), 0 0 30px rgba(0, 242, 254, 0.35);
+                border-radius: 24px;
+                padding: 1.6rem 1.4rem;
+                position: relative;
+                margin: auto;
+                animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            ">
+                <div style="font-size: 2.8rem; margin-bottom: 0.2rem; animation: bounceIn 1s ease;">🏆</div>
+                <h2 style="color: #ffd700; font-size: 1.5rem; font-weight: 900; margin: 0 0 0.4rem 0; text-shadow: 0 0 14px rgba(255,215,0,0.6); letter-spacing: -0.5px;">
+                    도전모드 시즌 ${season} 우승 특별 보상
+                </h2>
+                <p style="color: #cbd5e1; font-size: 0.85rem; line-height: 1.5; margin: 0 0 1rem 0; word-break: keep-all;">
+                    유럽 최강 구단들을 모두 격파하고 시즌 제패를 달성하셨습니다!<br>
+                    내 구단에 영입하고 싶은 <strong>궁극의 슈퍼(SUPER) 선수 카드</strong>를 1명 선택해주세요.
+                </p>
+
+                <!-- 혜택 배지 -->
+                <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.4); padding: 5px 14px; border-radius: 20px; font-size: 0.74rem; font-weight: 800; color: #c084fc; margin-bottom: 1.2rem;">
+                    <i class="fa-solid fa-sparkles" style="color: #ffd700;"></i> 선택 즉시 ★6각성 (실질 OVR 100) 덱으로 지급
+                </div>
+
+                <!-- 전체 슈퍼카드 선택 그리드 -->
+                <div style="
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                    gap: 12px;
+                    margin-bottom: 1.3rem;
+                    text-align: left;
+                ">
+                    ${renderCardsHtml()}
+                </div>
+
+                <!-- 영입 확정 액션 버튼 -->
+                <button onclick="confirmChallengeSuperCardSelection()" style="
+                    width: 100%;
+                    padding: 1rem;
+                    border-radius: 16px;
+                    border: none;
+                    background: linear-gradient(135deg, #ff007f 0%, #7928ca 50%, #00f2fe 100%);
+                    color: #fff;
+                    font-size: 1.05rem;
+                    font-weight: 900;
+                    cursor: pointer;
+                    box-shadow: 0 0 25px rgba(255, 0, 127, 0.6);
+                    transition: transform 0.2s ease, box-shadow 0.2s ease;
+                    letter-spacing: -0.3px;
+                ">
+                    ⚡ [${selectedObj.name}] 영입 확정하기 (★6각성)
+                </button>
+            </div>
+        `;
+    };
+
+    window.onSelectChallengeSuperCard = function(cardId) {
+        window._challengeSelectedSuperCardId = cardId;
+        updateModalView();
+        if (typeof playSound === 'function') playSound('click');
+    };
+
+    window.confirmChallengeSuperCardSelection = function() {
+        const chosenCardId = window._challengeSelectedSuperCardId || defaultCardId;
+        const curSeason = window._challengeSeasonForReward || season;
+        const lastOvr = window._challengeLastMatchPlayerOvr || lastMatchPlayerOvr;
+
+        executeChallengeSuperCardReward(chosenCardId, curSeason, lastOvr);
+    };
+
+    updateModalView();
+    if (typeof playSound === 'function') playSound('rank_up');
+}
+
+// 선택된 슈퍼카드 6각성 지급 및 시즌 승급 확정
+function executeChallengeSuperCardReward(selectedCardId, season, lastMatchPlayerOvr) {
+    const todayStr = getFriendlyTodayDateString();
+    const rewardCardObj = (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE[selectedCardId]) 
+        ? CARDS_DATABASE[selectedCardId] 
+        : null;
+
+    if (rewardCardObj) {
+        // 덱에 ★6각성 카드로 안전 지급
+        playerDeck[selectedCardId] = {
+            card: rewardCardObj,
+            quantity: 1,
+            awakening: 6,
+            awakeLevel: 6,
+            condition: 0,
+            conditionDate: todayStr,
+            isStored: false
+        };
+
+        try {
+            localStorage.setItem('fc_star_player_deck', JSON.stringify(playerDeck));
+        } catch(e) {}
+        
+        if (typeof renderDeck === 'function') renderDeck();
+        if (typeof updateTotalCardCount === 'function') updateTotalCardCount();
+    }
+
+    // 다음 시즌 마지막 보스팀 OVR = 10R 마지막 경기 시점 오버롤 + 1
+    let finalPlayerOvr = 95;
+    if (typeof lastMatchPlayerOvr === 'number' && lastMatchPlayerOvr > 0) {
+        finalPlayerOvr = lastMatchPlayerOvr;
+    } else if (typeof getPlayerPureOvr === 'function') {
+        const pureOvr = getPlayerPureOvr();
+        const formTactic = (typeof getPlayerFormationTacticBonuses === 'function') ? getPlayerFormationTacticBonuses() : { formationBonus: 0 };
+        finalPlayerOvr = pureOvr + (formTactic.formationBonus || 0);
+    }
+    
+    challengeBossOvr = finalPlayerOvr + 1;
+
+    // 시즌 갱신 (다음 시즌 리셋)
+    challengeSeason += 1;
+    challengeStage = 1;
+    challengeSeasonTeams = generateChallengeSeasonTeams(challengeSeason);
+    challengeDailyFreeUsed = true; // 오늘 우승 완료
+    challengeDailyRetryUsed = true;
+    saveChallengeState();
+    
+    if (typeof saveUserProgress === 'function') {
+        saveUserProgress(true);
+    }
+
+    // 슈퍼카드 선택 모달 닫기
+    const selectModal = document.getElementById('challengeSuperCardSelectModal');
+    if (selectModal) {
+        selectModal.style.display = 'none';
+        selectModal.remove();
+    }
+
+    showToast(`🎉 ⚡ ${rewardCardObj ? rewardCardObj.name : '슈퍼 선수'} (★6각성) 영입 완료!`);
+
+    // 최종 우승 축하 모달 표시
+    showChallengeVictoryModal(season, rewardCardObj, challengeBossOvr);
+}
+
 // 시즌 우승 축하 모달 팝업
 function showChallengeVictoryModal(season, cardObj, nextBossOvr = 98) {
     let modal = document.getElementById('challengeSeasonCloseModal');
@@ -1236,6 +1589,10 @@ function showChallengeVictoryModal(season, cardObj, nextBossOvr = 98) {
 
     const cardName = cardObj ? cardObj.name : "S메시";
     const cardImg = cardObj ? cardObj.image : "player2/슈퍼 메시.png";
+    const cardRealOvr = cardObj ? (cardObj.rating + 6) : 100;
+    const statHighlight = (cardObj && cardObj.stats) 
+        ? `PAC ${cardObj.stats.pac + 6} · SHO ${cardObj.stats.sho + 6}` 
+        : '실질 OVR 100';
 
     modal.innerHTML = `
         <div class="modal-content" style="max-width: 440px; width: 100%; max-height: 90vh; overflow-y: auto; text-align: center; background: linear-gradient(135deg, #0b0f19 0%, #170d28 100%); border: 2px solid #ff007f; box-shadow: 0 0 40px rgba(255,0,127,0.6); border-radius: 24px; padding: 1.8rem 1.4rem; position: relative; margin: auto; animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;">
@@ -1251,7 +1608,7 @@ function showChallengeVictoryModal(season, cardObj, nextBossOvr = 98) {
             <!-- 특별 보상 카드 쇼케이스 -->
             <div style="background: rgba(255, 0, 127, 0.12); border: 1.5px solid #00f2fe; border-radius: 18px; padding: 1.2rem; margin-bottom: 1.3rem; box-shadow: 0 0 25px rgba(0, 242, 254, 0.25);">
                 <span style="font-size: 0.72rem; font-weight: 900; background: linear-gradient(135deg, #ff007f, #00f2fe); color: #fff; padding: 3px 12px; border-radius: 20px; letter-spacing: 1px; display: inline-block; margin-bottom: 0.8rem;">
-                    ⚡ 슈퍼(SUPER) 등급 ★6각성 카드 획득!
+                    ⚡ 슈퍼(SUPER) 등급 ★6각성 카드 영입!
                 </span>
                 <div style="width: 105px; height: 105px; border-radius: 50%; overflow: hidden; margin: 0 auto 0.8rem auto; border: 3px solid #ff007f; box-shadow: 0 0 25px rgba(255,0,127,0.8);">
                     <img src="${cardImg}" alt="${cardName}" style="width: 100%; height: 100%; object-fit: cover;">
@@ -1260,7 +1617,7 @@ function showChallengeVictoryModal(season, cardObj, nextBossOvr = 98) {
                     ${cardName}
                 </div>
                 <div style="font-size: 0.85rem; color: #00ff87; font-weight: 800; margin-top: 4px;">
-                    ★6각성 기본 적용 (실질 OVR 100 / 슈팅 93)
+                    ★6각성 기본 적용 (실질 OVR ${cardRealOvr} / ${statHighlight})
                 </div>
                 <div style="font-size: 0.74rem; color: #94a3b8; margin-top: 6px;">
                     내 선수 덱(컬렉션)에 안전하게 영입 완료되었습니다!
