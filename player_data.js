@@ -392,25 +392,25 @@ const CARDS_DATABASE = {
     "gamboa": {
         id: "gamboa",
         name: "감보아",
-        rating: 78,
+        rating: 85,
         position: "CM",
         nation: "Portugal",
         nationFlag: "https://flagcdn.com/w40/pt.png",
         club: "JEONBUK",
         image: "player/감보아.png",
-        rarity: "normal",
-        description: "포르투갈 출신의 탄탄한 기본기와 노련한 경기 조율 능력을 가진 중앙 미드필더입니다. 중원에서 침착한 볼 소유와 안정적인 전진 패스로 전체적인 공수 밸런스를 차분히 조절해 줍니다.",
+        rarity: "special",
+        description: "포르투갈 출신의 탄탄한 기본기와 압도적인 경기 조율 능력을 자랑하는 전북 현대의 스페셜 중앙 미드필더입니다. 중원에서 침착한 볼 소유와 넓은 시야의 날카로운 킬패스(PAS 85), 단단한 대인 수비력으로 공수 밸런스를 완벽히 지휘하는 마에스트로입니다.",
         theme: {
             primary: "#005a3c",
-            secondary: "#a855f7",
-            glow: "#a855f7"
+            secondary: "#ffd700",
+            glow: "#00ff87"
         },
         stats: {
-            pac: 72,
-            sho: 65,
-            pas: 75,
-            dri: 74,
-            def: 78,
+            pac: 78,
+            sho: 71,
+            pas: 85,
+            dri: 84,
+            def: 88,
             phy: 80
         }
     },
@@ -817,7 +817,7 @@ const CARDS_DATABASE = {
     "kim_min_jae": {
         id: "kim_min_jae",
         name: "김민재",
-        rating: 87,
+        rating: 88,
         position: "CB",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
@@ -831,7 +831,7 @@ const CARDS_DATABASE = {
             glow: "#ffd700"
         },
         stats: {
-            pac: 85,
+            pac: 87,
             sho: 57,
             pas: 80,
             dri: 72,
