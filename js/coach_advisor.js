@@ -256,21 +256,11 @@ function showCoachAdvice() {
     let strikerAdviceHtml = '';
     if (targetFormForStriker && FORMATION_STRIKER_HINTS[targetFormForStriker]) {
         const hintData = FORMATION_STRIKER_HINTS[targetFormForStriker];
-        let currentStStyle = 'targetman';
-        if (typeof strikerStyles !== 'undefined' && strikerStyles[playForm]) {
-            currentStStyle = strikerStyles[playForm].ST || 'targetman';
-        }
-        const isOptimal = (playForm === targetFormForStriker && currentStStyle === hintData.idealStyle);
-        
-        const synergyBadge = isOptimal
-            ? `<span style="font-size: 0.72rem; color: #ffd700; background: rgba(255, 215, 0, 0.15); border: 1px solid rgba(255, 215, 0, 0.35); padding: 2px 8px; border-radius: 10px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px;"><i class="fa-solid fa-wand-magic-sparkles"></i> 최적 조합 적용 중 (+2% 득점)</span>`
-            : `<span style="font-size: 0.72rem; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); padding: 2px 8px; border-radius: 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;"><i class="fa-solid fa-crosshairs"></i> ${hintData.idealStyleName} 설정 추천</span>`;
 
         strikerAdviceHtml = `
             <div class="advice-recommend-card" style="background: rgba(255, 215, 0, 0.03); border: 1.5px solid rgba(255, 215, 0, 0.25); border-radius: 18px; padding: 1.1rem; display: flex; flex-direction: column; gap: 0.5rem; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);">
-                <div class="rec-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+                <div class="rec-header" style="display: flex; justify-content: space-between; align-items: center;">
                     <span class="rec-title" style="font-size: 0.88rem; font-weight: 800; color: #ffd700; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-bullseye"></i> 스트라이커 전술 운용 팁</span>
-                    ${synergyBadge}
                 </div>
                 <p class="rec-description" style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.6; margin: 0; word-break: keep-all;">${hintData.hint}</p>
             </div>
