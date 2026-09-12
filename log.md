@@ -1945,3 +1945,35 @@ graph TD
      - 모든 리그/컵/ACL 진행 상태를 `_jleague` 고유 suffix 키로 분리하여 기존 K리그 및 EPL 데이터와의 100% 비간섭 보장.
   3. **구현 계획서 백업 파일 생성**:
      - 프로젝트 루트에 상세 설계 및 변경 지점을 망라한 `J리그_추가_구현_계획서.md` 백업 완료.
+
+---
+
+### ⚽ 135) J1리그 정식 도입 및 멀티 리그 엔진/컵/아챔/클라우드 동기화 100% 구현 (2026-09-12)
+* **개발 배경 및 기획 내용**:
+  - K리그1, 프리미어리그에 이은 3번째 공식 리그 **J1리그 (일본 프로축구)**를 완전한 독립형 플러그인 방식으로 성공적 구현.
+  - 플레이어 팀: **FC 도쿄 (`tokyo`)**, OVR 70 스타트.
+  - 12개 J1리그 구단 라인업 및 33라운드 홈/원정 대진표, 16개 구단 단판 토너먼트인 **FA 컵**, **AFC 챔피언스리그(ACL)** 연동 및 명예의 전당 트로피 룸 완비.
+* **주요 구현 파일 및 세부 사항**:
+  1. **독립 프리셋 파일 신규 생성 (`other_teams_data_jleague.js`)**:
+     - `J_LEAGUE_TEAMS_PRESET`: FC 도쿄(70), 비셀 고베(81), 히로시마(80), 마치다(79), 가시마(78), 감바 오사카(77), 요코하마 FM(77), 우라와(76), 세레소(75), 도쿄 베르디(74), 가와사키(73), 나고야(72) 등 12개 구단.
+     - `CUP_TEAMS_PRESET_JLEAGUE`: FA컵 16팀 (J1 12팀 + 시미즈, 이와타, 치바, 야마가타 4팀).
+     - `OTHER_TEAMS_PLAYERS_PRESET_JLEAGUE`: 오사코, 무토, 피에로스, 에릭, 스즈키 유마, 우사미, 안데르손 로페스 등 주요 선수 득점 시뮬레이터 연동.
+     - `J_LEAGUE_FIXTURES`: 33라운드 홈/원정 대진표.
+     - `J_LEAGUE_TEAM_FORMATIONS`: 구단별 기본 전술 포메이션.
+  2. **리그 및 명예의 전당 엔진 갱신 (`js/league.js`)**:
+     - `LEAGUE_CONFIGS.jleague` 등록 (`userTeamId: 'tokyo'`, `userTeamName: 'FC 도쿄'`).
+     - `checkAndMigrateLeagueTeams()`의 하드코딩 2-way 백업 로직을 `Object.keys(LEAGUE_CONFIGS)` 기반 다중 리그 동적 탐색 백업으로 개선.
+     - `getTeamEmblemPath()`에 J1리그 및 FA컵 16개 구단 엠블럼 매핑 추가.
+     - `openLeagueTransferModal()`에 3-way 리그 상태 스타일 동기화 함수화 적용.
+     - 명예의 전당 트로피 룸(J1리그, FA 컵, 아챔) 및 시즌 카드 렌더링 분기 추가.
+  3. **컵대회 및 챔피언스리그 엔진 갱신 (`js/cup.js`, `js/acl.js`)**:
+     - `js/cup.js`: 활성 리그가 `jleague`일 때 "FA 컵", FC 도쿄, J리그 팀/선수 프리셋 자동 반환.
+     - `js/acl.js`: J리그 진행 시에도 자국 리그 상위 2개 팀 선발 및 AFC 챔피언스리그 16강 동아시아 브라켓 자동 매칭.
+  4. **클라우드 세이브/로드 및 로컬 격리 갱신 (`js/auth.js`, `js/state.js`)**:
+     - `saveAllToLocalStorage()`, `uploadProgress()`, `loadUserProgressFromCloud()`에서 `jleague`를 1급 유효 리그로 완전 수용.
+     - `leagueTeamsJLeague`, `leagueRoundJLeague`, `leaguePlayerStatsJLeague`, `cupStateJLeague`, `aclStateJLeague` 등 `_jleague` 고유 키로 100% 데이터 독립 격리.
+  5. **UI 모달, 탭바 및 PWA 캐시 갱신 (`index.html`, `sw.js`, `js/update_data.js`)**:
+     - 감독 이적 모달에 🇯🇵 J1리그 부임 카드 추가.
+     - 명예의 전당 리그 탭 바에 J1리그 탭 추가.
+     - `other_teams_data_jleague.js?v=1.0` 스크립트 로드 및 `sw.js` 캐시 버전 `fc-star-v337` 판올림.
+     - `js/update_data.js`에 v3.4.0 릴리즈 노트 등록.

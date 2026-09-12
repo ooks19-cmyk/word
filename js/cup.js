@@ -2,15 +2,17 @@
 
 // 0. 활성 리그 연동 헬퍼 함수
 function getActiveCupTournamentName() {
-    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
-        return "카라바오컵";
+    if (typeof currentLeagueId !== 'undefined') {
+        if (currentLeagueId === 'epl') return "카라바오컵";
+        if (currentLeagueId === 'jleague') return "FA 컵";
     }
     return "코리아컵";
 }
 
 function getActiveCupUserTeamId() {
-    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
-        return "liverpool";
+    if (typeof currentLeagueId !== 'undefined') {
+        if (currentLeagueId === 'epl') return "liverpool";
+        if (currentLeagueId === 'jleague') return "tokyo";
     }
     return "jeonbuk";
 }
@@ -19,25 +21,38 @@ function getActiveCupUserTeamName() {
     if (typeof getActiveUserTeamName === 'function') {
         return getActiveUserTeamName();
     }
-    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
-        return "리버풀 FC";
+    if (typeof currentLeagueId !== 'undefined') {
+        if (currentLeagueId === 'epl') return "리버풀 FC";
+        if (currentLeagueId === 'jleague') return "FC 도쿄";
     }
     return "전북 현대";
 }
 
 function getActiveCupTeamsPreset() {
-    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
-        if (typeof CUP_TEAMS_PRESET_EPL !== 'undefined' && CUP_TEAMS_PRESET_EPL.length > 0) {
-            return CUP_TEAMS_PRESET_EPL;
+    if (typeof currentLeagueId !== 'undefined') {
+        if (currentLeagueId === 'epl') {
+            if (typeof CUP_TEAMS_PRESET_EPL !== 'undefined' && CUP_TEAMS_PRESET_EPL.length > 0) {
+                return CUP_TEAMS_PRESET_EPL;
+            }
+        } else if (currentLeagueId === 'jleague') {
+            if (typeof CUP_TEAMS_PRESET_JLEAGUE !== 'undefined' && CUP_TEAMS_PRESET_JLEAGUE.length > 0) {
+                return CUP_TEAMS_PRESET_JLEAGUE;
+            }
         }
     }
     return CUP_TEAMS_PRESET;
 }
 
 function getActiveCupPlayersPreset() {
-    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
-        if (typeof OTHER_TEAMS_PLAYERS_PRESET_EPL !== 'undefined' && OTHER_TEAMS_PLAYERS_PRESET_EPL.length > 0) {
-            return OTHER_TEAMS_PLAYERS_PRESET_EPL;
+    if (typeof currentLeagueId !== 'undefined') {
+        if (currentLeagueId === 'epl') {
+            if (typeof OTHER_TEAMS_PLAYERS_PRESET_EPL !== 'undefined' && OTHER_TEAMS_PLAYERS_PRESET_EPL.length > 0) {
+                return OTHER_TEAMS_PLAYERS_PRESET_EPL;
+            }
+        } else if (currentLeagueId === 'jleague') {
+            if (typeof OTHER_TEAMS_PLAYERS_PRESET_JLEAGUE !== 'undefined' && OTHER_TEAMS_PLAYERS_PRESET_JLEAGUE.length > 0) {
+                return OTHER_TEAMS_PLAYERS_PRESET_JLEAGUE;
+            }
         }
     }
     return (typeof OTHER_TEAMS_PLAYERS_PRESET !== 'undefined') ? OTHER_TEAMS_PLAYERS_PRESET : [];

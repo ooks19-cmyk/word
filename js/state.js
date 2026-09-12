@@ -92,16 +92,16 @@ try {
 
 // DEVELOPER MODE & MULTI-YEAR LEAGUE STATE VARIABLES
 let isDeveloperMode = false;
-let currentLeagueId = 'kleague1'; // 'kleague1' or 'epl'
+let currentLeagueId = 'kleague1'; // 'kleague1', 'epl', 'jleague'
 try {
     const savedLeague = localStorage.getItem('fc_star_current_league');
-    if (savedLeague && (savedLeague === 'kleague1' || savedLeague === 'epl')) {
+    if (savedLeague && (savedLeague === 'kleague1' || savedLeague === 'epl' || savedLeague === 'jleague')) {
         currentLeagueId = savedLeague;
     }
 } catch (e) {
     currentLeagueId = 'kleague1';
 }
-let currentFameLeagueTab = 'kleague1'; // 'kleague1' or 'epl'
+let currentFameLeagueTab = 'kleague1'; // 'kleague1', 'epl', 'jleague'
 
 let leagueYear = 2026;
 let hallOfFame = [];

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fc-star-v336';
+const CACHE_NAME = 'fc-star-v337';
 const ASSETS = [
   './index.html',
   './style.css',
@@ -36,6 +36,7 @@ const ASSETS = [
   './quiz_data.js',
   './other_teams_data.js',
   './other_teams_data_epl.js',
+  './other_teams_data_jleague.js',
   './img/mark_jb.svg'
 ];
 

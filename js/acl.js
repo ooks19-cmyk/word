@@ -1,5 +1,3 @@
-// js/acl.js - AFC 챔피언스리그 (아챔) & UEFA 챔피언스리그 (챔스) UI 및 토너먼트 모듈
-
 // 0. 활성 리그 연동 헬퍼 함수
 function getActiveAclTournamentName() {
     if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
@@ -9,8 +7,9 @@ function getActiveAclTournamentName() {
 }
 
 function getActiveAclUserTeamId() {
-    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
-        return "liverpool";
+    if (typeof currentLeagueId !== 'undefined') {
+        if (currentLeagueId === 'epl') return "liverpool";
+        if (currentLeagueId === 'jleague') return "tokyo";
     }
     return "jeonbuk";
 }
@@ -19,8 +18,9 @@ function getActiveAclUserTeamName() {
     if (typeof getActiveUserTeamName === 'function') {
         return getActiveUserTeamName();
     }
-    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
-        return "리버풀 FC";
+    if (typeof currentLeagueId !== 'undefined') {
+        if (currentLeagueId === 'epl') return "리버풀 FC";
+        if (currentLeagueId === 'jleague') return "FC 도쿄";
     }
     return "전북 현대";
 }
@@ -231,12 +231,13 @@ function resetAclStateData() {
 
     } else {
         // ==========================================
-        // 🇰🇷 K리그 1: AFC 챔피언스리그 (ACL 16강)
+        // 🌏 아시아: AFC 챔피언스리그 (K리그1 / J1리그 등)
         // ==========================================
-        let kLeagueQualifiers = [];
+        const isJLeague = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'jleague');
+        let domesticQualifiers = [];
         if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams) && leagueTeams.length > 0) {
             const sorted = [...leagueTeams]
-                .filter(t => t.id !== 'jeonbuk')
+                .filter(t => t.id !== playerTeamId)
                 .sort((a, b) => {
                     if (b.pts !== a.pts) return b.pts - a.pts;
                     if (b.gd !== a.gd) return b.gd - a.gd;
@@ -244,34 +245,59 @@ function resetAclStateData() {
                 });
             
             if (sorted.length >= 2) {
-                kLeagueQualifiers.push({ id: sorted[0].id, name: sorted[0].name, rating: sorted[0].rating });
-                kLeagueQualifiers.push({ id: sorted[1].id, name: sorted[1].name, rating: sorted[1].rating });
+                domesticQualifiers.push({ id: sorted[0].id, name: sorted[0].name, rating: sorted[0].rating, color: sorted[0].color || '#2563eb' });
+                domesticQualifiers.push({ id: sorted[1].id, name: sorted[1].name, rating: sorted[1].rating, color: sorted[1].color || '#2563eb' });
             }
         }
         
-        if (kLeagueQualifiers.length < 2) {
-            kLeagueQualifiers = [
-                { id: "ulsan", name: "울산 HD", rating: 80 },
-                { id: "seoul", name: "FC 서울", rating: 78 }
-            ];
+        if (domesticQualifiers.length < 2) {
+            if (isJLeague) {
+                domesticQualifiers = [
+                    { id: "kobe", name: "비셀 고베", rating: 81, color: "#800020" },
+                    { id: "hiroshima", name: "산프레체 히로시마", rating: 80, color: "#4b0082" }
+                ];
+            } else {
+                domesticQualifiers = [
+                    { id: "ulsan", name: "울산 HD", rating: 80, color: "#2563eb" },
+                    { id: "seoul", name: "FC 서울", rating: 78, color: "#e60012" }
+                ];
+            }
         }
 
         const initializedTeams = [];
         
-        // 플레이어 팀 추가 (전북)
-        initializedTeams.push({ id: 'jeonbuk', name: '전북 현대', rating: playerOvr, color: '#005a3c' });
+        // 플레이어 팀 추가
+        const playerTeamColor = isJLeague ? '#001c58' : '#005a3c';
+        initializedTeams.push({ id: playerTeamId, name: playerTeamName, rating: playerOvr, color: playerTeamColor });
         
-        // K리그 진출 구단 2팀 추가
-        kLeagueQualifiers.forEach(team => {
-            initializedTeams.push({ id: team.id, name: team.name, rating: team.rating, color: '#2563eb' });
+        // 자국 리그 진출 구단 2팀 추가
+        domesticQualifiers.forEach(team => {
+            initializedTeams.push({ id: team.id, name: team.name, rating: team.rating, color: team.color || '#2563eb' });
         });
         
-        // 해외 13개 팀 추가 (OVR을 플레이어 OVR 기준 보정)
+        // 해외 13개 팀 구성 (플레이어/진출 구단과 중복되지 않는 프리셋 풀 구성)
+        const domesticIds = [playerTeamId, ...domesticQualifiers.map(q => q.id)];
+        let foreignPool = presetTeams.filter(t => !domesticIds.includes(t.id));
+        
+        // 만약 J리그 모드여서 해외 풀이 부족하면 K리그 명문팀 추가
+        if (isJLeague && foreignPool.length < 13) {
+            const kLeaguePool = [
+                { id: "ulsan_hd", name: "울산 HD", rating: 80, color: "#2563eb" },
+                { id: "jeonbuk_hyundai", name: "전북 현대", rating: 78, color: "#005a3c" },
+                { id: "pohang_steelers", name: "포항 스틸러스", rating: 77, color: "#b22222" }
+            ];
+            kLeaguePool.forEach(kt => {
+                if (foreignPool.length < 13 && !foreignPool.some(f => f.id === kt.id)) {
+                    foreignPool.push(kt);
+                }
+            });
+        }
+        
         const westTeamIds = ["al_hilal", "al_nassr", "al_ahli", "al_itihad", "al_ain", "al_sadd", "persepolis", "pakhtakor"];
         const chosenBossWestTeamId = westTeamIds[Math.floor(Math.random() * westTeamIds.length)];
-        const strongAclTeams = ["vissel_kobe", "yokohama_marinos", "kawasaki_frontale", "al_hilal", "al_nassr", "al_ahli", "al_itihad", "al_ain", "al_sadd"];
+        const strongAclTeams = ["vissel_kobe", "yokohama_marinos", "kawasaki_frontale", "ulsan_hd", "al_hilal", "al_nassr", "al_ahli", "al_itihad", "al_ain", "al_sadd"];
 
-        presetTeams.forEach(team => {
+        foreignPool.slice(0, 13).forEach(team => {
             let adjustedRating;
             if (team.id === chosenBossWestTeamId) {
                 adjustedRating = Math.max(55, top20Ovr + 1);
@@ -286,25 +312,29 @@ function resetAclStateData() {
                 id: team.id,
                 name: team.name,
                 rating: adjustedRating,
-                color: team.color
+                color: team.color || '#333'
             });
         });
 
         // 동아시아(8팀) 및 서아시아(8팀) 브라켓 분리 및 16강 경기 배치
-        const eastTeams = initializedTeams.filter(t => ['jeonbuk', 'ulsan', 'seoul', 'pohang', 'gangwon', 'gwangju', 'gimcheon', 'bucheon_fc', 'jeju', 'daejeon', 'anyang', 'incheon', 'vissel_kobe', 'yokohama_marinos', 'kawasaki_frontale', 'shanghai_port', 'buriram_united'].includes(t.id));
+        const allEastTeamIds = [
+            'jeonbuk', 'ulsan', 'seoul', 'pohang', 'gangwon', 'gwangju', 'gimcheon', 'bucheon_fc', 'jeju', 'daejeon', 'anyang', 'incheon',
+            'tokyo', 'kobe', 'hiroshima', 'machida', 'kashima', 'gamba', 'marinos', 'urawa', 'cerezo', 'verdy', 'kawasaki', 'nagoya',
+            'vissel_kobe', 'yokohama_marinos', 'kawasaki_frontale', 'ulsan_hd', 'jeonbuk_hyundai', 'pohang_steelers', 'shanghai_port', 'buriram_united'
+        ];
+        const eastTeams = initializedTeams.filter(t => allEastTeamIds.includes(t.id));
         const westTeams = initializedTeams.filter(t => !eastTeams.some(et => et.id === t.id));
         
-        const kLeagueIds = ['jeonbuk', ...kLeagueQualifiers.map(q => q.id)];
-        const eastKLeagueTeams = eastTeams.filter(t => kLeagueIds.includes(t.id));
-        const eastForeignTeams = eastTeams.filter(t => !kLeagueIds.includes(t.id));
+        const eastDomesticTeams = eastTeams.filter(t => domesticIds.includes(t.id));
+        const eastForeignTeams = eastTeams.filter(t => !domesticIds.includes(t.id));
         
-        const shuffledKLeague = shuffleAclArray(eastKLeagueTeams);
+        const shuffledDomestic = shuffleAclArray(eastDomesticTeams);
         const shuffledForeign = shuffleAclArray(eastForeignTeams);
         
         const eastMatches = [
-            { team1: shuffledKLeague[0], team2: shuffledForeign[0] },
-            { team1: shuffledKLeague[1], team2: shuffledForeign[1] },
-            { team1: shuffledKLeague[2], team2: shuffledForeign[2] },
+            { team1: shuffledDomestic[0], team2: shuffledForeign[0] },
+            { team1: shuffledDomestic[1], team2: shuffledForeign[1] },
+            { team1: shuffledDomestic[2], team2: shuffledForeign[2] },
             { team1: shuffledForeign[3], team2: shuffledForeign[4] }
         ];
         

@@ -53,6 +53,22 @@ const LEAGUE_CONFIGS = {
         themeColor: '#c8102e',
         accentColor: '#38003c',
         strongTeams: ['mancity', 'arsenal', 'chelsea', 'tottenham', 'manutd']
+    },
+    jleague: {
+        id: 'jleague',
+        name: 'J1리그',
+        shortName: 'J1',
+        seasonPrefix: 'J1리그',
+        totalRounds: 33,
+        userTeamId: 'tokyo',
+        userTeamName: 'FC 도쿄',
+        userTeamEmblem: 'img/mark_tokyo.png',
+        get teamsPreset() { return (typeof J_LEAGUE_TEAMS_PRESET !== 'undefined') ? J_LEAGUE_TEAMS_PRESET : []; },
+        get playersPreset() { return (typeof OTHER_TEAMS_PLAYERS_PRESET_JLEAGUE !== 'undefined') ? OTHER_TEAMS_PLAYERS_PRESET_JLEAGUE : []; },
+        get fixtures() { return (typeof J_LEAGUE_FIXTURES !== 'undefined') ? J_LEAGUE_FIXTURES : []; },
+        themeColor: '#001c58',
+        accentColor: '#e60012',
+        strongTeams: ['kobe', 'hiroshima', 'machida', 'marinos']
     }
 };
 
@@ -295,16 +311,18 @@ function checkAndMigrateLeagueTeams() {
     if (!hasUserTeam || missingPresets.length > 0 || leagueTeams.length !== config.teamsPreset.length) {
         console.warn(`[League Check] 현재 리그(${config.name})와 leagueTeams 팀 목록 불일치 감지 -> 전적 보존 병합을 실행합니다.`, { hasUserTeam, missingCount: missingPresets.length });
         
-        // 만약 leagueTeams에 전혀 다른 리그 팀들이 들어있다면(예: EPL 모드인데 전북/울산이 들어있는 경우)
-        // 기존 데이터를 상대 리그 전용 스토리지에 백업 보존!
-        const otherLeagueId = (config.id === 'epl') ? 'kleague1' : 'epl';
-        const otherConfig = LEAGUE_CONFIGS[otherLeagueId];
-        const hasOtherUserTeam = otherConfig && leagueTeams.some(t => t && t.id === otherConfig.userTeamId);
-        if (hasOtherUserTeam) {
-            const otherLeagueKey = `fc_star_league_teams_${otherLeagueId}`;
+        // 만약 leagueTeams에 전혀 다른 리그 팀들이 들어있다면
+        // 기존 데이터를 해당 리그 전용 스토리지에 안전하게 백업 보존!
+        const detectedOtherLeagueId = Object.keys(LEAGUE_CONFIGS).find(lid => {
+            if (lid === config.id) return false;
+            const otherCfg = LEAGUE_CONFIGS[lid];
+            return otherCfg && leagueTeams.some(t => t && t.id === otherCfg.userTeamId);
+        });
+        if (detectedOtherLeagueId) {
+            const otherLeagueKey = `fc_star_league_teams_${detectedOtherLeagueId}`;
             try {
                 localStorage.setItem(otherLeagueKey, JSON.stringify(leagueTeams));
-                console.log(`[League Check] 이전 리그(${otherConfig.name}) 전적을 ${otherLeagueKey}에 안전하게 백업했습니다.`);
+                console.log(`[League Check] 이전 리그(${LEAGUE_CONFIGS[detectedOtherLeagueId].name}) 전적을 ${otherLeagueKey}에 안전하게 백업했습니다.`);
             } catch(e) {}
         }
         
@@ -793,7 +811,24 @@ function getTeamEmblemPath(teamId) {
         "juventus": "img/mark_juventus.png",
         "ac_milan": "img/mark_acmilan.png",
         "sporting_cp": "img/mark_sporting.png",
-        "benfica": "img/mark_benfica.png"
+        "benfica": "img/mark_benfica.png",
+        // J1리그 & FA컵
+        "tokyo": "img/mark_tokyo.png",
+        "kobe": "img/mark_kobe.png",
+        "hiroshima": "img/mark_hiroshima.png",
+        "machida": "img/mark_machida.png",
+        "kashima": "img/mark_kashima.png",
+        "gamba": "img/mark_gamba.png",
+        "marinos": "img/mark_marinos.png",
+        "urawa": "img/mark_urawa.png",
+        "cerezo": "img/mark_cerezo.png",
+        "verdy": "img/mark_verdy.png",
+        "kawasaki": "img/mark_kawasaki.png",
+        "nagoya": "img/mark_nagoya.png",
+        "shimizu": "img/mark_shimizu.png",
+        "iwata": "img/mark_iwata.png",
+        "chiba": "img/mark_chiba.png",
+        "yamagata": "img/mark_yamagata.png"
     };
     return mapping[teamId] || "img/mark_jb.svg";
 }
@@ -2478,6 +2513,33 @@ function renderHallOfFameSub(subTabId) {
                     </div>
                 </div>
             `;
+        } else if (targetLeagueId === 'jleague') {
+            trophyShelfHtml = `
+                <!-- J1 League Trophy -->
+                <div class="trophy-badge-container" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${leagueTitles > 0 ? (isHard ? 'rgba(255, 62, 108, 0.4)' : 'rgba(255, 215, 0, 0.3)') : 'rgba(255, 255, 255, 0.05)'}; padding: 0.5rem 0.8rem; border-radius: 14px; min-width: 110px; transition: all 0.3s; ${leagueTitles > 0 ? (isHard ? 'box-shadow: 0 0 15px rgba(255, 62, 108, 0.2);' : 'box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);') : ''}">
+                    <i class="fa-solid fa-crown" style="font-size: 1.6rem; color: ${leagueTitles > 0 ? (isHard ? '#ff3e6c' : '#ffd700') : '#4b5563'}; filter: ${leagueTitles > 0 ? (isHard ? 'drop-shadow(0 0 6px rgba(255, 62, 108, 0.6))' : 'drop-shadow(0 0 6px rgba(255, 215, 0, 0.6))') : 'none'};"></i>
+                    <div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">J1리그</div>
+                        <div style="font-size: 0.9rem; font-weight: 800; color: ${leagueTitles > 0 ? '#fff' : '#6b7280'};">${leagueTitles}회 우승</div>
+                    </div>
+                </div>
+                <!-- FA Cup Trophy -->
+                <div class="trophy-badge-container" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${cupTitles > 0 ? 'rgba(0, 210, 252, 0.3)' : 'rgba(255, 255, 255, 0.05)'}; padding: 0.5rem 0.8rem; border-radius: 14px; min-width: 110px; transition: all 0.3s; ${cupTitles > 0 ? 'box-shadow: 0 0 15px rgba(0, 210, 252, 0.1);' : ''}">
+                    <i class="fa-solid fa-trophy" style="font-size: 1.6rem; color: ${cupTitles > 0 ? '#00d2fc' : '#4b5563'}; filter: ${cupTitles > 0 ? 'drop-shadow(0 0 6px rgba(0, 210, 252, 0.6))' : 'none'};"></i>
+                    <div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">FA 컵</div>
+                        <div style="font-size: 0.9rem; font-weight: 800; color: ${cupTitles > 0 ? '#fff' : '#6b7280'};">${cupTitles}회 우승</div>
+                    </div>
+                </div>
+                <!-- ACL Trophy -->
+                <div class="trophy-badge-container" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${aclTitles > 0 ? 'rgba(0, 255, 135, 0.3)' : 'rgba(255, 255, 255, 0.05)'}; padding: 0.5rem 0.8rem; border-radius: 14px; min-width: 110px; transition: all 0.3s; ${aclTitles > 0 ? 'box-shadow: 0 0 15px rgba(0, 255, 135, 0.1);' : ''}">
+                    <i class="fa-solid fa-earth-asia" style="font-size: 1.6rem; color: ${aclTitles > 0 ? '#00ff87' : '#4b5563'}; filter: ${aclTitles > 0 ? 'drop-shadow(0 0 6px rgba(0, 255, 135, 0.6))' : 'none'};"></i>
+                    <div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">아챔 (ACL)</div>
+                        <div style="font-size: 0.9rem; font-weight: 800; color: ${aclTitles > 0 ? '#fff' : '#6b7280'};">${aclTitles}회 우승</div>
+                    </div>
+                </div>
+            `;
         } else {
             trophyShelfHtml = `
                 <!-- K-League Trophy -->
@@ -2530,7 +2592,8 @@ function renderHallOfFameSub(subTabId) {
         const totalRounds = record.totalRounds || 33;
         const leagueName = record.leagueName || 'K리그1';
         const isRecordEpl = (record.leagueId === 'epl');
-        const cupName = isRecordEpl ? '카라바오컵' : '코리아컵';
+        const isRecordJLeague = (record.leagueId === 'jleague');
+        const cupName = isRecordEpl ? '카라바오컵' : (isRecordJLeague ? 'FA 컵' : '코리아컵');
         const aclName = isRecordEpl ? '챔스' : '아챔';
         
         let badgeClass = 'other-medal';
@@ -2730,56 +2793,36 @@ function openLeagueTransferModal() {
     // 대상 리그 카드 및 버튼 활성화 상태 동기화
     const kleagueCard = document.getElementById('transferCardKLeague');
     const eplCard = document.getElementById('transferCardEpl');
+    const jleagueCard = document.getElementById('transferCardJLeague');
     const btnKLeague = document.getElementById('btnTransferToKLeague');
     const btnEpl = document.getElementById('btnTransferToEpl');
+    const btnJLeague = document.getElementById('btnTransferToJLeague');
     
-    if (currentLeagueId === 'kleague1') {
-        if (kleagueCard) {
-            kleagueCard.style.borderColor = '#00ff87';
-            kleagueCard.style.background = 'rgba(0, 255, 135, 0.08)';
+    // 카드 스타일 헬퍼
+    const setCardActive = (card, btn, isActive, activeColor, activeGrad) => {
+        if (!card || !btn) return;
+        if (isActive) {
+            card.style.borderColor = activeColor;
+            card.style.background = `${activeColor}14`;
+            btn.innerText = '진행 중 ⚽';
+            btn.disabled = true;
+            btn.style.background = 'rgba(255, 255, 255, 0.08)';
+            btn.style.color = '#94a3b8';
+            btn.style.cursor = 'default';
+        } else {
+            card.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+            card.style.background = 'rgba(255, 255, 255, 0.03)';
+            btn.innerText = '부임하기 🚀';
+            btn.disabled = false;
+            btn.style.background = activeGrad;
+            btn.style.color = '#051622';
+            btn.style.cursor = 'pointer';
         }
-        if (btnKLeague) {
-            btnKLeague.innerText = '진행 중 ⚽';
-            btnKLeague.disabled = true;
-            btnKLeague.style.background = 'rgba(255, 255, 255, 0.08)';
-            btnKLeague.style.color = '#94a3b8';
-            btnKLeague.style.cursor = 'default';
-        }
-        if (eplCard) {
-            eplCard.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-            eplCard.style.background = 'rgba(255, 255, 255, 0.03)';
-        }
-        if (btnEpl) {
-            btnEpl.innerText = '부임하기 🚀';
-            btnEpl.disabled = false;
-            btnEpl.style.background = 'linear-gradient(135deg, #ffd700, #ff6b6b)';
-            btnEpl.style.color = '#051622';
-            btnEpl.style.cursor = 'pointer';
-        }
-    } else {
-        if (eplCard) {
-            eplCard.style.borderColor = '#ffd700';
-            eplCard.style.background = 'rgba(255, 215, 0, 0.08)';
-        }
-        if (btnEpl) {
-            btnEpl.innerText = '진행 중 ⚽';
-            btnEpl.disabled = true;
-            btnEpl.style.background = 'rgba(255, 255, 255, 0.08)';
-            btnEpl.style.color = '#94a3b8';
-            btnEpl.style.cursor = 'default';
-        }
-        if (kleagueCard) {
-            kleagueCard.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-            kleagueCard.style.background = 'rgba(255, 255, 255, 0.03)';
-        }
-        if (btnKLeague) {
-            btnKLeague.innerText = '부임하기 🚀';
-            btnKLeague.disabled = false;
-            btnKLeague.style.background = 'linear-gradient(135deg, #00ff87, #60efff)';
-            btnKLeague.style.color = '#051622';
-            btnKLeague.style.cursor = 'pointer';
-        }
-    }
+    };
+
+    setCardActive(kleagueCard, btnKLeague, currentLeagueId === 'kleague1', '#00ff87', 'linear-gradient(135deg, #00ff87, #60efff)');
+    setCardActive(eplCard, btnEpl, currentLeagueId === 'epl', '#ffd700', 'linear-gradient(135deg, #ffd700, #ff6b6b)');
+    setCardActive(jleagueCard, btnJLeague, currentLeagueId === 'jleague', '#e60012', 'linear-gradient(135deg, #e60012, #ff8c00)');
     
     modal.style.display = 'flex';
     modal.classList.add('active');
