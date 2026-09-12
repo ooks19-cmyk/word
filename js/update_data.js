@@ -2,20 +2,9 @@
 
 const UPDATE_LOGS = [
     {
-        version: "v3.4.0",
-        date: "2026.09.12",
-        latest: true,
-        borderColor: "#e60012",
-        titleColor: "#ff6b81",
-        badgeText: "NEW LEAGUE",
-        items: [
-            "<strong>🇯🇵 신규 리그 'J1리그 (일본 프로축구)' 정식 도입 및 멀티 리그 확장!</strong><br>• <strong>새로운 도전 무대 J1리그</strong>: K리그1, 프리미어리그에 이어 12개 일본 최정상 클럽이 격돌하는 33라운드 J1리그가 공식 개막했습니다.<br>• <strong>유저팀 'FC 도쿄 (FC Tokyo)' 부임</strong>: FC 도쿄의 사령탑으로 부임하여 비셀 고베, 산프레체 히로시마, 마치다 젤비아, 요코하마 FM 등 전통의 강호들과 패권을 다툽니다.<br>• <strong>FA 컵 & AFC 챔피언스리그 연동</strong>: 16개 구단 단판 토너먼트인 FA 컵과 아시아 챔피언스리그에 출전하여 트레블에 도전할 수 있습니다.<br>• <strong>완벽한 독립 데이터 보존 아키텍처</strong>: J리그 진행 상태 및 전적은 기존 K리그/EPL과 완전히 분리된 전용 스토리지에 안전하게 보존됩니다."
-        ]
-    },
-    {
         version: "v3.3.0",
         date: "2026.09.10",
-        latest: false,
+        latest: true,
         borderColor: "#ffd700",
         titleColor: "#ffd700",
         badgeText: "SUPER REWARD",

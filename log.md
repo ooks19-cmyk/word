@@ -2029,6 +2029,10 @@ graph TD
   1. `js/cup.js`의 `runActualCupExtraTime()`, `runActualCupPenaltyShootout()` 내 `etData`/`pkData` 정의 표준화.
   2. `sw.js` (캐시 버전 **`fc-star-v344`**) 및 `index.html` 내 `js/cup.js?v=3.1` 판올림 동기화 완료.
 
-
-
-
+140. **업데이트 기록(Release Notes) v3.4.0 임시 비공개 및 최신 버전 v3.3.0 롤백 (2026.09.12 - v345)**
+- **작업 개요**:
+  - J1리그 시스템이 현재 개발/안정화 및 준비 단계에 있으므로, 인게임 업데이트 기록(Release Notes) 모달에서 `v3.4.0 (J1리그 정식 도입)` 항목을 임시 비공개 처리하고 이전 버전인 `v3.3.0 (S기성용 & 도전모드 우승 슈퍼카드 선택권)`을 최신 업데이트(`latest: true`)로 복원.
+- **수정 파일 및 변경 내역**:
+  1. `js/update_data.js`: `v3.4.0` 릴리즈 로그 블록 삭제 및 `v3.3.0`을 `latest: true`로 지정.
+  2. `index.html`: `js/update_data.js?v=2.78` 쿼리 버전 판올림.
+  3. `sw.js`: PWA 캐시 버전을 **`fc-star-v345`**로 상향 갱신.
