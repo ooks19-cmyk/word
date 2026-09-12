@@ -464,11 +464,11 @@ function updateChallengeButtonState() {
         startBtn.style.cursor = 'pointer';
         startBtn.style.opacity = '1';
     } 
-    // Case 2: 오늘 무료 도전 실패 후 재도전 미사용 -> 5P 소모 재도전 가능
+    // Case 2: 오늘 무료 도전 실패 후 재도전 미사용 -> 5P 소모 재도전 가능 (찬스확률 +5% 보너스)
     else if (!challengeDailyRetryUsed) {
         startBtn.disabled = false;
         startBtn.onclick = () => startChallengeMatchSimulation(true);
-        startBtn.innerHTML = `<i class="fa-solid fa-fire" style="margin-right: 8px; color: #ffd700;"></i>5P 소모하고 재도전하기 (현재: ${userPoints} FP)`;
+        startBtn.innerHTML = `<i class="fa-solid fa-fire" style="margin-right: 8px; color: #ffd700;"></i>5P 소모하고 재도전 (찬스 +5%🔥 / 현재: ${userPoints} FP)`;
         startBtn.style.background = 'linear-gradient(135deg, #ff416c, #ff4b2b)';
         startBtn.style.color = '#fff';
         startBtn.style.cursor = 'pointer';
@@ -668,7 +668,7 @@ function startChallengeMatchSimulation(isRetry = false) {
         challengeDailyRetryUsed = true;
         saveChallengeState();
         if (typeof saveUserProgress === 'function') saveUserProgress(true);
-        showToast("🔥 5 FP를 소모하여 당일 1회 재도전을 시작합니다!");
+        showToast("🔥 5 FP를 소모하여 찬스 확률 +5% 보너스를 받고 당일 1회 재도전을 시작합니다!");
     }
 
     const opponent = getCurrentChallengeOpponent();
@@ -747,7 +747,8 @@ function startChallengeMatchSimulation(isRetry = false) {
     const oppFormation = opponent.activeFormation || "4-3-3";
     const compBonus = (typeof getFormationCompatibilityBonus === 'function') ? getFormationCompatibilityBonus(currentFormation, oppFormation) : 0;
     const compatibilityBonus = compBonus * 0.05;
-    const playerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (diff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus - (isHardMode ? 0.05 : 0)));
+    const retryBonus = isRetry ? 0.05 : 0; // 🔥 유료 재도전 시 찬스 확률 +5% 보너스
+    const playerAttackProb = Math.min(maxProb, Math.max(minProb, 0.40 + (diff * 0.019) + formationAttackBoost + suitabilityBonus + detailedTacticBonus + compatibilityBonus + retryBonus - (isHardMode ? 0.05 : 0)));
 
     let activeDiff = diff;
     let activePlayerAttackProb = playerAttackProb;
@@ -790,6 +791,9 @@ function startChallengeMatchSimulation(isRetry = false) {
     // 경기 시작 전 전술 분석 코멘터리 출력 (리그/컵/챔스와 100% 동일)
     if (typeof getMatchEventCommentary === 'function') {
         addCommentary('SYSTEM', getMatchEventCommentary('PRE_ANALYZE', commentaryData, false), 'system');
+        if (isRetry) {
+            addCommentary('SYSTEM', '🔥 <strong>[유료 재도전 투지 보너스]</strong> 불굴의 재도전 버프로 인해 아군 공격 찬스 확률에 <strong>+5% 추가 보너스</strong>가 적용되었습니다!', 'attack');
+        }
         if (formationTacticDetailsHtml) addCommentary('SYSTEM', formationTacticDetailsHtml, 'attack');
         if (detailedTacticLabel || suitabilityLabel) {
             addCommentary('SYSTEM', getMatchEventCommentary('TACTIC_ANALYZE', commentaryData, false), 'attack');
