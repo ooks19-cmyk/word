@@ -5,7 +5,7 @@ const ACHIEVEMENTS_DB = {
         id: 'double',
         name: '더블 (Double)',
         icon: 'fa-trophy',
-        desc: '한 시즌 K리그1 우승과 코리아컵 우승을 동시 달성하세요.',
+        desc: '한 시즌 정규 리그 우승과 FA컵 우승을 동시 달성하세요.',
         checkProgress: () => {
             return userAchievements.double.unlocked ? 1 : 0;
         },
@@ -16,7 +16,7 @@ const ACHIEVEMENTS_DB = {
         id: 'treble',
         name: '트레블 (Treble)',
         icon: 'fa-crown',
-        desc: '한 시즌 K리그1 우승, 코리아컵 우승, 그리고 AFC 챔피언스리그(ACL) 우승을 동시 달성하세요.',
+        desc: '한 시즌 정규 리그 우승, FA컵 우승, 그리고 챔스 우승을 동시 달성하세요.',
         checkProgress: () => {
             return userAchievements.treble.unlocked ? 1 : 0;
         },

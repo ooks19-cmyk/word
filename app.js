@@ -97,25 +97,17 @@ function updateAppLogo() {
     }
 }
 
-// 리그에 따른 경기 서브 탭 텍스트 및 UI 갱신 (EPL 모드 시 카라바오컵 & 챔스 활성화)
+// 리그에 따른 경기 서브 탭 텍스트 및 UI 갱신 (모든 리그에서 FA컵 및 챔스로 통일)
 function updateMatchSubTabsUI() {
     const btnCup = document.getElementById('matchSubTabCup');
     const btnAcl = document.getElementById('matchSubTabAcl');
     if (!btnCup || !btnAcl) return;
     
-    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
-        btnCup.innerHTML = `<i class="fa-solid fa-gem"></i><span>카라바오컵</span>`;
-        btnCup.style.opacity = '1';
-        
-        btnAcl.innerHTML = `<i class="fa-solid fa-star"></i><span>챔스</span>`;
-        btnAcl.style.opacity = '1';
-    } else {
-        btnCup.innerHTML = `<i class="fa-solid fa-gem"></i><span>코리아컵</span>`;
-        btnCup.style.opacity = '1';
-        
-        btnAcl.innerHTML = `<i class="fa-solid fa-earth-asia"></i><span>아챔</span>`;
-        btnAcl.style.opacity = '1';
-    }
+    btnCup.innerHTML = `<i class="fa-solid fa-gem"></i><span>FA컵</span>`;
+    btnCup.style.opacity = '1';
+    
+    btnAcl.innerHTML = `<i class="fa-solid fa-star"></i><span>챔스</span>`;
+    btnAcl.style.opacity = '1';
 }
 
 // 경기진행 하위 탭 전환 함수

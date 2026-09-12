@@ -1073,7 +1073,7 @@ function startLeagueAutoSimulation() {
                 console.warn("Cup state check failed:", e);
             }
             
-            const cupName = (typeof getActiveCupTournamentName === 'function') ? getActiveCupTournamentName() : ((config.id === 'epl') ? '카라바오컵' : (config.id === 'jleague' ? 'FA 컵' : '코리아컵'));
+            const cupName = "FA컵";
             if (!isCupFinished) {
                 alert(`⚠️ ${config.name} ${config.totalRounds}라운드 최종전을 시작하기 전에 ${cupName} 결승전을 완료해야 하므로 자동진행이 중단되었습니다!\n진행된 경기: ${simulatedCount}경기 (${wins}승 ${draws}무 ${losses}패)`);
                 break;
@@ -1094,7 +1094,7 @@ function startLeagueAutoSimulation() {
                 console.warn("ACL/UCL state check failed:", e);
             }
             
-            const aclName = (typeof getActiveAclTournamentName === 'function') ? getActiveAclTournamentName() : ((config.id === 'epl') ? 'UEFA 챔피언스리그' : 'AFC 챔피언스리그');
+            const aclName = "챔스";
             if (!isAclFinished) {
                 alert(`⚠️ ${config.name} ${config.totalRounds}라운드 최종전을 시작하기 전에 ${aclName}을 완료해야 하므로 자동진행이 중단되었습니다!\n진행된 경기: ${simulatedCount}경기 (${wins}승 ${draws}무 ${losses}패)`);
                 break;
@@ -1358,9 +1358,9 @@ function startMatchSimulation() {
             console.warn("Cup state check failed:", e);
         }
         
-        const cupName = (typeof getActiveCupTournamentName === 'function') ? getActiveCupTournamentName() : ((config.id === 'epl') ? '카라바오컵' : (config.id === 'jleague' ? 'FA 컵' : '코리아컵'));
+        const cupName = "FA컵";
         if (!isCupFinished) {
-            alert(`⚠️ ${config.name} ${config.totalRounds}라운드 최종전을 시작하기 전에 ${cupName}(리그컵)을 완료해야 합니다!\n${cupName} 탭으로 이동하여 대회를 마쳐주세요.`);
+            alert(`⚠️ ${config.name} ${config.totalRounds}라운드 최종전을 시작하기 전에 ${cupName}을 완료해야 합니다!\n${cupName} 탭으로 이동하여 대회를 마쳐주세요.`);
             return;
         }
 
@@ -1377,9 +1377,9 @@ function startMatchSimulation() {
             console.warn("ACL state check failed:", e);
         }
         
-        const tournamentName = (typeof getActiveAclTournamentName === 'function') ? getActiveAclTournamentName() : ((config.id === 'epl') ? 'UEFA 챔피언스리그(챔스)' : 'AFC 챔피언스리그(아챔)');
+        const tournamentName = "챔스";
         if (!isAclFinished) {
-            alert(`⚠️ ${config.name} ${config.totalRounds}라운드 최종전을 시작하기 전에 ${tournamentName}를 완료해야 합니다!\n${config.id === 'epl' ? '챔스' : '아챔'} 탭으로 이동하여 대회를 마쳐주세요.`);
+            alert(`⚠️ ${config.name} ${config.totalRounds}라운드 최종전을 시작하기 전에 ${tournamentName}를 완료해야 합니다!\n챔스 탭으로 이동하여 대회를 마쳐주세요.`);
             return;
         }
     }
@@ -2275,8 +2275,8 @@ function checkSeasonChampion() {
         
         showToast("🏆 역사적인 트레블(3관왕) 달성! 보너스 10 FP 지급!");
         
-        const cupName = (typeof getActiveCupTournamentName === 'function') ? getActiveCupTournamentName() : ((config.id === 'epl') ? '카라바오컵' : (config.id === 'jleague' ? 'FA 컵' : '코리아컵'));
-        const aclName = (typeof getActiveAclTournamentName === 'function') ? getActiveAclTournamentName() : ((config.id === 'epl') ? 'UEFA 챔피언스리그' : 'AFC 챔피언스리그');
+        const cupName = "FA컵";
+        const aclName = "챔스";
 
         trophyContainer.style.background = 'radial-gradient(circle, rgba(0,255,135,0.25) 0%, rgba(10,14,26,0.98) 80%)';
         trophyContainer.style.border = '2.5px solid #ffd700';
@@ -2286,7 +2286,7 @@ function checkSeasonChampion() {
             <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 1.5rem;">
                 <i class="fa-solid fa-crown" style="font-size: 3.5rem; color:#ffd700; filter:drop-shadow(0 0 15px rgba(255,215,0,0.6)); animation: float 3s ease-in-out infinite;"></i>
                 <i class="fa-solid fa-trophy" style="font-size: 3.5rem; color:#00d2fc; filter:drop-shadow(0 0 15px rgba(0,210,252,0.6)); animation: float 3s ease-in-out infinite 0.5s;"></i>
-                <i class="fa-solid fa-earth-asia" style="font-size: 3.5rem; color:#00ff87; filter:drop-shadow(0 0 15px rgba(0,255,135,0.6)); animation: float 3s ease-in-out infinite 1s;"></i>
+                <i class="fa-solid fa-star" style="font-size: 3.5rem; color:#00ff87; filter:drop-shadow(0 0 15px rgba(0,255,135,0.6)); animation: float 3s ease-in-out infinite 1s;"></i>
             </div>
             <h2 style="font-size:1.80rem; font-weight:900; background: linear-gradient(135deg, #ffd700 0%, #00ff87 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:0.8rem; text-shadow: 0 0 10px rgba(0,255,135,0.25);">👑 역사적인 트레블 달성! 👑</h2>
             <p style="color:var(--text-light); font-size:1.05rem; line-height:1.6; margin-bottom:1rem;">
@@ -2500,7 +2500,7 @@ function renderHallOfFameSub(subTabId) {
                 <div class="trophy-badge-container" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${cupTitles > 0 ? 'rgba(0, 210, 252, 0.3)' : 'rgba(255, 255, 255, 0.05)'}; padding: 0.5rem 0.8rem; border-radius: 14px; min-width: 120px; transition: all 0.3s; ${cupTitles > 0 ? 'box-shadow: 0 0 15px rgba(0, 210, 252, 0.1);' : ''}">
                     <i class="fa-solid fa-trophy" style="font-size: 1.6rem; color: ${cupTitles > 0 ? '#00d2fc' : '#4b5563'}; filter: ${cupTitles > 0 ? 'drop-shadow(0 0 6px rgba(0, 210, 252, 0.6))' : 'none'};"></i>
                     <div>
-                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">카라바오컵</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">FA컵</div>
                         <div style="font-size: 0.9rem; font-weight: 800; color: ${cupTitles > 0 ? '#fff' : '#6b7280'};">${cupTitles}회 우승</div>
                     </div>
                 </div>
@@ -2508,7 +2508,7 @@ function renderHallOfFameSub(subTabId) {
                 <div class="trophy-badge-container" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${aclTitles > 0 ? 'rgba(0, 255, 135, 0.3)' : 'rgba(255, 255, 255, 0.05)'}; padding: 0.5rem 0.8rem; border-radius: 14px; min-width: 120px; transition: all 0.3s; ${aclTitles > 0 ? 'box-shadow: 0 0 15px rgba(0, 255, 135, 0.1);' : ''}">
                     <i class="fa-solid fa-star" style="font-size: 1.6rem; color: ${aclTitles > 0 ? '#00ff87' : '#4b5563'}; filter: ${aclTitles > 0 ? 'drop-shadow(0 0 6px rgba(0, 255, 135, 0.6))' : 'none'};"></i>
                     <div>
-                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">챔피언스리그</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">챔스</div>
                         <div style="font-size: 0.9rem; font-weight: 800; color: ${aclTitles > 0 ? '#fff' : '#6b7280'};">${aclTitles}회 우승</div>
                     </div>
                 </div>
@@ -2527,15 +2527,15 @@ function renderHallOfFameSub(subTabId) {
                 <div class="trophy-badge-container" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${cupTitles > 0 ? 'rgba(0, 210, 252, 0.3)' : 'rgba(255, 255, 255, 0.05)'}; padding: 0.5rem 0.8rem; border-radius: 14px; min-width: 110px; transition: all 0.3s; ${cupTitles > 0 ? 'box-shadow: 0 0 15px rgba(0, 210, 252, 0.1);' : ''}">
                     <i class="fa-solid fa-trophy" style="font-size: 1.6rem; color: ${cupTitles > 0 ? '#00d2fc' : '#4b5563'}; filter: ${cupTitles > 0 ? 'drop-shadow(0 0 6px rgba(0, 210, 252, 0.6))' : 'none'};"></i>
                     <div>
-                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">FA 컵</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">FA컵</div>
                         <div style="font-size: 0.9rem; font-weight: 800; color: ${cupTitles > 0 ? '#fff' : '#6b7280'};">${cupTitles}회 우승</div>
                     </div>
                 </div>
                 <!-- ACL Trophy -->
                 <div class="trophy-badge-container" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${aclTitles > 0 ? 'rgba(0, 255, 135, 0.3)' : 'rgba(255, 255, 255, 0.05)'}; padding: 0.5rem 0.8rem; border-radius: 14px; min-width: 110px; transition: all 0.3s; ${aclTitles > 0 ? 'box-shadow: 0 0 15px rgba(0, 255, 135, 0.1);' : ''}">
-                    <i class="fa-solid fa-earth-asia" style="font-size: 1.6rem; color: ${aclTitles > 0 ? '#00ff87' : '#4b5563'}; filter: ${aclTitles > 0 ? 'drop-shadow(0 0 6px rgba(0, 255, 135, 0.6))' : 'none'};"></i>
+                    <i class="fa-solid fa-star" style="font-size: 1.6rem; color: ${aclTitles > 0 ? '#00ff87' : '#4b5563'}; filter: ${aclTitles > 0 ? 'drop-shadow(0 0 6px rgba(0, 255, 135, 0.6))' : 'none'};"></i>
                     <div>
-                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">아챔 (ACL)</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">챔스</div>
                         <div style="font-size: 0.9rem; font-weight: 800; color: ${aclTitles > 0 ? '#fff' : '#6b7280'};">${aclTitles}회 우승</div>
                     </div>
                 </div>
@@ -2554,15 +2554,15 @@ function renderHallOfFameSub(subTabId) {
                 <div class="trophy-badge-container" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${cupTitles > 0 ? 'rgba(0, 210, 252, 0.3)' : 'rgba(255, 255, 255, 0.05)'}; padding: 0.5rem 0.8rem; border-radius: 14px; min-width: 110px; transition: all 0.3s; ${cupTitles > 0 ? 'box-shadow: 0 0 15px rgba(0, 210, 252, 0.1);' : ''}">
                     <i class="fa-solid fa-trophy" style="font-size: 1.6rem; color: ${cupTitles > 0 ? '#00d2fc' : '#4b5563'}; filter: ${cupTitles > 0 ? 'drop-shadow(0 0 6px rgba(0, 210, 252, 0.6))' : 'none'};"></i>
                     <div>
-                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">코리아컵</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">FA컵</div>
                         <div style="font-size: 0.9rem; font-weight: 800; color: ${cupTitles > 0 ? '#fff' : '#6b7280'};">${cupTitles}회 우승</div>
                     </div>
                 </div>
                 <!-- ACL Trophy -->
                 <div class="trophy-badge-container" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${aclTitles > 0 ? 'rgba(0, 255, 135, 0.3)' : 'rgba(255, 255, 255, 0.05)'}; padding: 0.5rem 0.8rem; border-radius: 14px; min-width: 110px; transition: all 0.3s; ${aclTitles > 0 ? 'box-shadow: 0 0 15px rgba(0, 255, 135, 0.1);' : ''}">
-                    <i class="fa-solid fa-earth-asia" style="font-size: 1.6rem; color: ${aclTitles > 0 ? '#00ff87' : '#4b5563'}; filter: ${aclTitles > 0 ? 'drop-shadow(0 0 6px rgba(0, 255, 135, 0.6))' : 'none'};"></i>
+                    <i class="fa-solid fa-star" style="font-size: 1.6rem; color: ${aclTitles > 0 ? '#00ff87' : '#4b5563'}; filter: ${aclTitles > 0 ? 'drop-shadow(0 0 6px rgba(0, 255, 135, 0.6))' : 'none'};"></i>
                     <div>
-                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">아챔 (ACL)</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">챔스</div>
                         <div style="font-size: 0.9rem; font-weight: 800; color: ${aclTitles > 0 ? '#fff' : '#6b7280'};">${aclTitles}회 우승</div>
                     </div>
                 </div>
@@ -2591,10 +2591,8 @@ function renderHallOfFameSub(subTabId) {
         const stats = record.userTeamStats || record.jeonbukRecord || { w: 0, d: 0, l: 0, pts: 0 };
         const totalRounds = record.totalRounds || 33;
         const leagueName = record.leagueName || 'K리그1';
-        const isRecordEpl = (record.leagueId === 'epl');
-        const isRecordJLeague = (record.leagueId === 'jleague');
-        const cupName = isRecordEpl ? '카라바오컵' : (isRecordJLeague ? 'FA 컵' : '코리아컵');
-        const aclName = isRecordEpl ? '챔스' : '아챔';
+        const cupName = 'FA컵';
+        const aclName = '챔스';
         
         let badgeClass = 'other-medal';
         let badgeIcon = '<i class="fa-solid fa-award"></i>';

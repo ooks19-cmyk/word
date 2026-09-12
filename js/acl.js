@@ -1,9 +1,6 @@
 // 0. 활성 리그 연동 헬퍼 함수
 function getActiveAclTournamentName() {
-    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
-        return "UEFA 챔피언스리그";
-    }
-    return "AFC 챔피언스리그";
+    return "챔스";
 }
 
 function getActiveAclUserTeamId() {

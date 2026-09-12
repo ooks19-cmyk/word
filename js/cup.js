@@ -2,11 +2,7 @@
 
 // 0. 활성 리그 연동 헬퍼 함수
 function getActiveCupTournamentName() {
-    if (typeof currentLeagueId !== 'undefined') {
-        if (currentLeagueId === 'epl') return "카라바오컵";
-        if (currentLeagueId === 'jleague') return "FA 컵";
-    }
-    return "코리아컵";
+    return "FA컵";
 }
 
 function getActiveCupUserTeamId() {
