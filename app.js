@@ -88,9 +88,16 @@ function updateAppLogo() {
     const logoImg = document.getElementById('appLogoImg') || document.querySelector('#appLogo img');
     if (!logoImg) return;
     
-    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
+    if (typeof LEAGUE_CONFIGS !== 'undefined' && typeof currentLeagueId !== 'undefined' && LEAGUE_CONFIGS[currentLeagueId]) {
+        const config = LEAGUE_CONFIGS[currentLeagueId];
+        logoImg.src = config.userTeamEmblem;
+        logoImg.alt = config.userTeamName;
+    } else if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
         logoImg.src = 'img/mark_liverpool.png';
         logoImg.alt = '리버풀 FC';
+    } else if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'jleague') {
+        logoImg.src = 'img/mark_tokyo.png';
+        logoImg.alt = 'FC 도쿄';
     } else {
         logoImg.src = 'img/mark_jb.svg';
         logoImg.alt = '전북 현대';
