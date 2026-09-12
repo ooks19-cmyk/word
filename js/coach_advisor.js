@@ -137,13 +137,33 @@ function getActiveOpponentInfo() {
         }
     }
     
-    // 4. 친선경기 탭 활성화 확인
+    // 4. 도전모드(친선경기) 탭 활성화 확인
     const friendlyTab = document.getElementById('matchSubTabFriendly');
     if (friendlyTab && friendlyTab.classList.contains('active')) {
-        const card = document.getElementById('friendlyOpponentAnalysisCard');
-        if (card && card.style.display !== 'none') {
-            const oppName = document.getElementById('friendlyAwayTeamName')?.innerText || '친선 상대';
-            const oppForm = document.getElementById('friendlyOpponentFormationText')?.innerText || '4-4-2';
+        let oppName = '도전 상대 구단';
+        let oppForm = '4-3-3';
+
+        if (typeof getCurrentChallengeOpponent === 'function') {
+            const opp = getCurrentChallengeOpponent();
+            if (opp) {
+                oppName = `Stage ${opp.stage} · ${opp.name}`;
+                oppForm = opp.activeFormation || '4-3-3';
+                return { active: true, name: oppName, formation: oppForm.trim(), mode: 'friendly' };
+            }
+        }
+        
+        if (typeof selectedFriendlyOpponent !== 'undefined' && selectedFriendlyOpponent) {
+            oppName = `Stage ${selectedFriendlyOpponent.stage || 1} · ${selectedFriendlyOpponent.name}`;
+            oppForm = selectedFriendlyOpponent.activeFormation || '4-3-3';
+            return { active: true, name: oppName, formation: oppForm.trim(), mode: 'friendly' };
+        }
+
+        const awayEl = document.getElementById('friendlyAwayTeamName');
+        if (awayEl && awayEl.innerText.trim()) {
+            oppName = awayEl.innerText.trim();
+            const venueText = document.getElementById('friendlyMatchVenueDisplay')?.innerText || '';
+            const match = venueText.match(/\d-\d-\d(-\d)?/);
+            if (match) oppForm = match[0];
             return { active: true, name: oppName, formation: oppForm.trim(), mode: 'friendly' };
         }
     }
@@ -188,15 +208,15 @@ function showCoachAdvice() {
     let adviceDetail = '';
     
     // 전술 카운터 규칙 적용
-    if (oppForm === '3-4-3') {
+    if (oppForm === '3-4-3' || oppForm === '3-4-2-1') {
         counterForm = '4-2-3-1';
-        adviceDetail = `상대의 <strong>3-4-3</strong> 스위칭 전술은 빠른 윙백 침투와 위치 혼선이 위협적입니다. 이를 무력화하려면 중원 숫자를 두텁게 가져가 볼 점유권을 통제하고, 유기적인 측면 패스를 사전에 끊어낼 수 있는 <strong>4-2-3-1</strong> 전술이 가장 좋은 대안입니다.`;
+        adviceDetail = `상대의 <strong>${oppForm}</strong> 스위칭 전술은 빠른 윙백 침투와 위치 혼선이 위협적입니다. 이를 무력화하려면 중원 숫자를 두텁게 가져가 볼 점유권을 통제하고, 유기적인 측면 패스를 사전에 끊어낼 수 있는 <strong>4-2-3-1</strong> 전술이 가장 좋은 대안입니다.`;
     } else if (oppForm === '4-3-3') {
         counterForm = '3-4-3';
         adviceDetail = `상대는 <strong>4-3-3</strong> 지공 축구로 촘촘히 라인을 올릴 것입니다. 우리는 측면에 숫자를 다수 배치하여 윙백의 역동적인 오버랩을 활용하고, 빠른 유기적 스위칭 축구로 상대의 하프스페이스를 허물 수 있는 <strong>3-4-3</strong> 포메이션을 구성하는 편이 유리합니다.`;
-    } else if (oppForm === '5-4-1') {
+    } else if (oppForm === '5-4-1' || oppForm === '5-3-2') {
         counterForm = '4-3-3';
-        adviceDetail = `상대는 촘촘히 내려앉아 <strong>5-4-1</strong> 역습 위주의 질식 수비를 펼칠 것으로 분석됩니다. 무작정 부딪히기보다는 정밀한 패스워크와 넓은 윙어 배치를 통해 2선과 측면에서 점진적으로 밀고 들어가는 빌드업 지공 전술인 <strong>4-3-3</strong> 포메이션으로 밀집 공간을 파괴해야 합니다.`;
+        adviceDetail = `상대는 촘촘히 내려앉아 <strong>${oppForm}</strong> 역습 위주의 질식 수비를 펼칠 것으로 분석됩니다. 무작정 부딪히기보다는 정밀한 패스워크와 넓은 윙어 배치를 통해 2선과 측면에서 점진적으로 밀고 들어가는 빌드업 지공 전술인 <strong>4-3-3</strong> 포메이션으로 밀집 공간을 파괴해야 합니다.`;
     } else if (oppForm === '4-2-3-1') {
         counterForm = '5-4-1';
         adviceDetail = `상대는 <strong>4-2-3-1</strong> 포메이션으로 높은 중원 점유율을 통해 게임을 완만하게 이끌어가려 할 것입니다. 상대가 높은 라인에서 실수를 유발하게끔 든든한 5백으로 수비진을 잠근 채 수비 성공 후 번개 같은 템포의 기습 윙어 역습을 노리는 <strong>5-4-1</strong> 전술을 추천드립니다.`;

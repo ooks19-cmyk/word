@@ -2059,3 +2059,12 @@ graph TD
   1. `js/match_algorithm.js`: 포메이션별 최적 스트라이커 조건 검증 함수 `getStrikerStyleHiddenBonus()` 신설 및 공통 슈팅 득점 확률 계산 함수 `calculatePlayerScoreProb()`에 +2% 보너스 가산 연동.
   2. `js/coach_advisor.js`: `FORMATION_STRIKER_HINTS` 전술 코멘트 사전 구축 및 수석코치 조언 모달 내 "스트라이커 전술 운용 팁" 카드 렌더링 추가.
   3. `index.html` & `sw.js`: `match_algorithm.js?v=3.0`, `coach_advisor.js?v=1.1`, PWA 캐시 버전 **`fc-star-v347`** 판올림.
+
+143. **도전모드(Challenge Mode) 수석코치 전술 조언 실시간 연동 및 변형 포메이션 카운터 확장 (2026.09.13 - v348)**
+- **작업 개요**:
+  - 도전모드(Challenge Mode) 탭 진입 시 수석코치 전술 조언 모달이 상대 분석 카드의 미존재로 인해 빈 화면을 띄우던 문제를 해결.
+  - 현재 도전 중인 1~10 스테이지 구단(셀틱 FC, 아약스, 벤피카, AS 로마, AT마드리드, 아스날, 뮌헨, 맨시티, PSG, 레알 마드리드)의 스테이지 번호, 구단명, 포메이션을 실시간 자동 감지하여 완벽하게 전술 브리핑 및 스트라이커 기용 팁 제공.
+  - `3-4-2-1`(AS 로마), `5-3-2`(아틀레티코 마드리드) 등 10개 스테이지 명문 구단의 변형 포메이션에 대한 카운터 전술 매칭 룰 전면 확장.
+- **수정 파일 및 변경 내역**:
+  1. `js/coach_advisor.js`: `getActiveOpponentInfo()` 내 도전모드 상대 구단 감지 로직 개편 및 `3-4-2-1`/`5-3-2` 포메이션 카운터 분기 추가.
+  2. `index.html` & `sw.js`: `coach_advisor.js?v=1.2`, PWA 캐시 버전 **`fc-star-v348`** 판올림.
