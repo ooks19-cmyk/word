@@ -173,7 +173,7 @@ graph TD
 ### 🏆 18) 2026 K리그 12개 구단 공식 엠블럼 연동 및 경기 보드/순위표 UI 고도화
 *   **추가 배경**: K리그 구단들이 맞붙을 때 실제 리그의 현장감을 고취하기 위해, `img/` 폴더에 구비된 타 구단 공식 엠블럼 이미지 자산들을 시스템 내에 연동하고, 상대 팀 선수들의 득점/도움 스탯이 실시간으로 시뮬레이션되도록 개선 요청.
 *   **반영 사항**:
-    *   **구단별 공식 엠블럼 매핑 (`app.js`)**: `img/` 내에 보관된 K리그 구단 엠블럼 이미지 파일들을 매핑하는 `getTeamEmblemPath(teamId)` 헬퍼 함수를 구현. 경기 시뮬레이션 매치업 스코어보드와 리그 순위표 테이블(Table) 내에 엠블럼 아이콘이 시각적으로 아름답게 동적 노출되도록 렌더링 로직 적용 완료.
+     - getTeamEmblemPath()에 J1리그 및 FA컵 16개 구단 엠블럼 매핑 및 img/ 폴더 내 고화질 투명 PNG 엠블럼 16종(mark_tokyo.png, mark_kobe.png 등 200x200 RGBA) 정규화 제작 배치 완료.
     *   **타 팀 선수 시뮬레이션 및 개인 스탯 레이스 구축**:
         *   `player/other_teams_data.js`를 신설하여 2026 K리그 11개 상대 구단들의 대표 선수 명단 및 포지션 데이터를 완벽히 데이터베이스화 (울산 이동경, 서울 린가드/송민규, 강원 양민혁 등).
         *   매치 시뮬레이션 시, 유저 경기뿐만 아니라 다른 11개 구단들의 경기 내에서 실제 해당 팀 선수들이 일정 확률(~0.25 확률)로 골/도움을 득점하도록 연동하는 `simulateOtherPlayersStats()` 시스템 구축.
@@ -1189,7 +1189,7 @@ graph TD
     - `mark_benfica.png` (SL 벤피카)
   - **팀 데이터 엠블럼 경로 매핑 고도화 (`other_teams_data_epl.js`, `js/league.js`)**:
     - `UCL_TEAMS_PRESET_EPL` 각 구단 `emblem` 속성에 다운로드된 고화질 이미지 경로 바인딩.
-    - `js/league.js` 내 `getTeamEmblemPath(teamId)`에 UCL 12개 팀 엠블럼 매핑을 추가하여 매치 및 토너먼트 렌더링 전반에서 안전하게 로드되도록 지원.
+     - getTeamEmblemPath()에 J1리그 및 FA컵 16개 구단 엠블럼 매핑 및 img/ 폴더 내 고화질 투명 PNG 엠블럼 16종(mark_tokyo.png, mark_kobe.png 등 200x200 RGBA) 정규화 제작 배치 완료.
   - **캐시 및 스크립트 버전 최신화 (`index.html`, `sw.js`)**:
     - `index.html` 내 `other_teams_data_epl.js?v=1.3`, `league.js?v=3.5` 갱신.
     - `sw.js` 서비스 워커 캐시 버전 `'fc-star-v282'`로 갱신.
@@ -1963,7 +1963,7 @@ graph TD
   2. **리그 및 명예의 전당 엔진 갱신 (`js/league.js`)**:
      - `LEAGUE_CONFIGS.jleague` 등록 (`userTeamId: 'tokyo'`, `userTeamName: 'FC 도쿄'`).
      - `checkAndMigrateLeagueTeams()`의 하드코딩 2-way 백업 로직을 `Object.keys(LEAGUE_CONFIGS)` 기반 다중 리그 동적 탐색 백업으로 개선.
-     - `getTeamEmblemPath()`에 J1리그 및 FA컵 16개 구단 엠블럼 매핑 추가.
+     - getTeamEmblemPath()에 J1리그 및 FA컵 16개 구단 엠블럼 매핑 및 img/ 폴더 내 고화질 투명 PNG 엠블럼 16종(mark_tokyo.png, mark_kobe.png 등 200x200 RGBA) 정규화 제작 배치 완료.
      - `openLeagueTransferModal()`에 3-way 리그 상태 스타일 동기화 함수화 적용.
      - 명예의 전당 트로피 룸(J1리그, FA 컵, 아챔) 및 시즌 카드 렌더링 분기 추가.
   3. **컵대회 및 챔피언스리그 엔진 갱신 (`js/cup.js`, `js/acl.js`)**:
