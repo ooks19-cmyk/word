@@ -66,6 +66,7 @@ let aclState = {
 
 // 2. 챔피언스리그 초기화 함수
 function initAcl() {
+    const expectedUserTeamId = getActiveAclUserTeamId();
     try {
         const key = getAclStorageKey();
         let savedState = localStorage.getItem(key);
@@ -74,6 +75,13 @@ function initAcl() {
         }
         if (savedState) {
             aclState = JSON.parse(savedState);
+            // 현재 활성 리그의 유저 팀(리버풀 / FC도쿄 / 전북)이 대진표/팀목록에 포함되어 있는지 검증
+            const hasUserTeam = aclState.teams && aclState.teams.some(t => t.id === expectedUserTeamId);
+            if (!hasUserTeam) {
+                console.log(`[ACL Check] 활성 리그(${currentLeagueId})의 플레이어 팀(${expectedUserTeamId})과 불일치하여 신규 토너먼트를 재구성합니다.`);
+                resetAclStateData();
+                return;
+            }
             if (aclState.hasResetThisSeason === undefined) {
                 aclState.hasResetThisSeason = false;
             }
@@ -274,20 +282,21 @@ function resetAclStateData() {
         
         // 해외 13개 팀 구성 (플레이어/진출 구단과 중복되지 않는 프리셋 풀 구성)
         const domesticIds = [playerTeamId, ...domesticQualifiers.map(q => q.id)];
-        let foreignPool = presetTeams.filter(t => !domesticIds.includes(t.id));
-        
-        // 만약 J리그 모드여서 해외 풀이 부족하면 K리그 명문팀 추가
-        if (isJLeague && foreignPool.length < 13) {
-            const kLeaguePool = [
+        let foreignPool = [];
+        if (isJLeague) {
+            // J리그 모드: 동아시아 해외(K리그 3팀 + 중국/태국 2팀) + 서아시아 8팀
+            const eastForeignPreset = [
                 { id: "ulsan_hd", name: "울산 HD", rating: 80, color: "#2563eb" },
                 { id: "jeonbuk_hyundai", name: "전북 현대", rating: 78, color: "#005a3c" },
-                { id: "pohang_steelers", name: "포항 스틸러스", rating: 77, color: "#b22222" }
+                { id: "pohang_steelers", name: "포항 스틸러스", rating: 77, color: "#b22222" },
+                { id: "shanghai_port", name: "상하이 포트", rating: 74, color: "#dc2626" },
+                { id: "buriram_united", name: "FC 부리람", rating: 70, color: "#1e3a8a" }
             ];
-            kLeaguePool.forEach(kt => {
-                if (foreignPool.length < 13 && !foreignPool.some(f => f.id === kt.id)) {
-                    foreignPool.push(kt);
-                }
-            });
+            const westPreset = presetTeams.filter(t => ["al_hilal", "al_nassr", "al_ahli", "al_itihad", "al_ain", "al_sadd", "persepolis", "pakhtakor"].includes(t.id));
+            foreignPool = [...eastForeignPreset, ...westPreset];
+        } else {
+            // K리그 모드: 동아시아 해외(J리그 3팀 + 중국/태국 2팀) + 서아시아 8팀
+            foreignPool = presetTeams.filter(t => !domesticIds.includes(t.id));
         }
         
         const westTeamIds = ["al_hilal", "al_nassr", "al_ahli", "al_itihad", "al_ain", "al_sadd", "persepolis", "pakhtakor"];
@@ -569,14 +578,16 @@ function updateAclPlayerTeamOvr() {
     const formBonus = (typeof getPlayerFormationTacticBonuses === 'function') ? getPlayerFormationTacticBonuses().formationBonus : 0;
     const playerOvr = pureOvr + formBonus; // 포메이션 전술 완성 보너스 포함
     const playerTeamId = getActiveAclUserTeamId();
+    const playerTeamName = getActiveAclUserTeamName();
     const isEpl = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl');
     
     // 1. aclState.teams 동기화
     aclState.teams.forEach(team => {
         if (team.id === playerTeamId) {
             team.rating = playerOvr;
-        } else if (!isEpl && ['ulsan', 'seoul', 'pohang', 'gangwon', 'gwangju', 'gimcheon', 'bucheon_fc', 'jeju', 'daejeon', 'anyang', 'incheon'].includes(team.id)) {
-            // 다른 K리그 구단은 리그 OVR과 맞춤 동기화
+            team.name = playerTeamName;
+        } else if (!isEpl && ['ulsan', 'seoul', 'pohang', 'gangwon', 'gwangju', 'gimcheon', 'bucheon_fc', 'jeju', 'daejeon', 'anyang', 'incheon', 'kobe', 'hiroshima', 'machida', 'kashima', 'gamba', 'marinos', 'urawa', 'cerezo', 'verdy', 'kawasaki', 'nagoya'].includes(team.id)) {
+            // 다른 자국 리그 구단은 리그 OVR과 맞춤 동기화
             if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {
                 const leagueTeam = leagueTeams.find(t => t.id === team.id);
                 if (leagueTeam && leagueTeam.rating !== undefined) {
@@ -600,6 +611,7 @@ function updateAclPlayerTeamOvr() {
             if (match.team1) {
                 if (match.team1.id === playerTeamId) {
                     match.team1.rating = playerOvr;
+                    match.team1.name = playerTeamName;
                 } else if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {
                     const leagueTeam = leagueTeams.find(t => t.id === match.team1.id);
                     if (leagueTeam && leagueTeam.rating !== undefined) {
@@ -610,6 +622,7 @@ function updateAclPlayerTeamOvr() {
             if (match.team2) {
                 if (match.team2.id === playerTeamId) {
                     match.team2.rating = playerOvr;
+                    match.team2.name = playerTeamName;
                 } else if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {
                     const leagueTeam = leagueTeams.find(t => t.id === match.team2.id);
                     if (leagueTeam && leagueTeam.rating !== undefined) {

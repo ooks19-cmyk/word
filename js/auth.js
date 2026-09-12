@@ -147,14 +147,18 @@ function saveAllToLocalStorage() {
             localStorage.setItem('fc_star_pvp_opp_stats', JSON.stringify(userPvpOpponentStats));
         }
         if (typeof cupState !== 'undefined') {
-            const cupKey = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') ? 'fc_star_cup_state_epl' : 'fc_star_cup_state_kleague1';
+            const cupKey = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') ? 'fc_star_cup_state_epl' : ((typeof currentLeagueId !== 'undefined' && currentLeagueId === 'jleague') ? 'fc_star_cup_state_jleague' : 'fc_star_cup_state_kleague1');
             localStorage.setItem(cupKey, JSON.stringify(cupState));
-            localStorage.setItem('fc_star_cup_state', JSON.stringify(cupState));
+            if (!currentLeagueId || currentLeagueId === 'kleague1') {
+                localStorage.setItem('fc_star_cup_state', JSON.stringify(cupState));
+            }
         }
         if (typeof aclState !== 'undefined') {
-            const aclKey = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') ? 'fc_star_acl_state_epl' : 'fc_star_acl_state_kleague1';
+            const aclKey = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') ? 'fc_star_acl_state_epl' : ((typeof currentLeagueId !== 'undefined' && currentLeagueId === 'jleague') ? 'fc_star_acl_state_jleague' : 'fc_star_acl_state_kleague1');
             localStorage.setItem(aclKey, JSON.stringify(aclState));
-            localStorage.setItem('fc_star_acl_state', JSON.stringify(aclState));
+            if (!currentLeagueId || currentLeagueId === 'kleague1') {
+                localStorage.setItem('fc_star_acl_state', JSON.stringify(aclState));
+            }
         }
         if (typeof friendlyMatchesHistory !== 'undefined') {
             localStorage.setItem(`fc_star_friendly_history_${myId}`, JSON.stringify(friendlyMatchesHistory));
