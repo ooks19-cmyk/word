@@ -1977,3 +1977,23 @@ graph TD
      - 명예의 전당 리그 탭 바에 J1리그 탭 추가.
      - `other_teams_data_jleague.js?v=1.0` 스크립트 로드 및 `sw.js` 캐시 버전 `fc-star-v337` 판올림.
      - `js/update_data.js`에 v3.4.0 릴리즈 노트 등록.
+
+---
+
+### 🏆 136) J1리그 시스템 안정화 및 컵/챔스 명칭 통일, UI/포메이션/엠블럼 버그 수정 & 이적 가드 연동 (2026-09-12)
+* **대회 명칭 일괄 통일**:
+  - 사용자 피드백을 반영하여 전 리그에서 컵대회 명칭을 **"FA컵"**, 챔피언스리그 명칭을 **"챔스"**로 직관적 일괄 통일 (`app.js`, `index.html`, `js/cup.js`, `js/acl.js`, `js/league.js`, `js/achievements.js`).
+* **J리그 챔스(ACL) 탭 팀명 및 데이터 동기화 버그 수정**:
+  - J리그 진행 시 챔스 탭에서 유저 팀명이 '전북 현대'로 고정 노출되던 스토리지 키 매핑 누락(`fc_star_current_league`) 및 렌더링 헬퍼 동기화 버그 완벽 수정.
+* **상대팀 포메이션 기본값(4-4-2) 고정 버그 수정**:
+  - 전역 포메이션 설정 객체(`TEAM_FORMATIONS_PRESET`)에 J1리그 12개 구단 및 FA컵 참가 4개 구단 고유 포메이션(`4-2-3-1`, `4-3-3`, `3-4-3`, `4-4-2` 등) 등록 및 `other_teams_data_jleague.js`와의 자동 병합(`Object.assign`) 연동 완료.
+* **상단 탑바(Header) 로고 엠블럼 동적 갱신**:
+  - `app.js`의 `updateAppLogo()` 함수를 `LEAGUE_CONFIGS[currentLeagueId]` 기반으로 개선하여, J1리그 활성화 시 헤더 탑바에 **FC 도쿄 엠블럼(`img/mark_tokyo.png`)**이 실시간 정상 노출되도록 조치.
+* **감독 이적 모달 J리그 부임 임시 차단 가드 연동**:
+  - `js/league.js`의 `confirmLeagueTransfer()`, `transferToLeague()`에서 J1리그 이적 시도 시 **`alert("아직 준비중입니다.");`** 팝업을 발생시키고 진입을 안전하게 차단.
+  - 감독 이적 모달의 J1리그 버튼을 `준비 중 🔒` 상태로 시각적 안내.
+* **개발자 계정(`ooks12`) Firestore 비밀번호 갱신**:
+  - `fc_star_users/ooks12` 문서의 비밀번호를 `1206`에서 `1`로 성공적 갱신 완료.
+* **PWA 캐시 버전 최종 판올림**:
+  - `sw.js` (최신 캐시 버전 **`fc-star-v341`**), `index.html` 스크립트 버전 동기화 완료.
+
