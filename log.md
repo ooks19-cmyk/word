@@ -2008,4 +2008,16 @@ graph TD
   2. `js/acl.js`의 `getAclTeamEmblemHtml()`을 개선하여, 엠블럼 이미지가 없는 구단(서아시아 8팀, 태국/중국 등)은 구단 고유 테마 컬러가 적용된 멋진 **방패 뱃지 아이콘(`fa-shield-halved`)**으로 품격 있게 렌더링되도록 수정.
   3. `sw.js` (캐시 버전 **`fc-star-v342`**) 및 `index.html` 스크립트 버전 동기화 완료.
 
+---
+
+### ⚖️ 138) 챔피언스리그(ACL) 연장전 스코어 undefined 및 원정 승부차기 승패 판정 역전 버그 완벽 수정 (2026-09-12)
+* **버그 원인 분석**:
+  1. **연장전 스코어 undefined 오류**: `simulateExtraTimeEngine()`이 반환하는 프로퍼티명은 `score1`, `score2`이나, `runActualAclExtraTime()`에서 존재하지 않는 `etResult.finalScore1`을 참조하여 스코어가 `undefined : undefined`로 전달됨.
+  2. **원정 경기 시 승부차기(PK) 승패 역전 오류**: `playerMatch`의 홈/원정(`team1`/`team2`) 슬롯과 무관하게 `runActualAclPenaltyShootout()`에서 `isHome === false`일 때 플레이어 점수(`pkScore2`)를 `pkScore1` 자리에 대입하여 `finalizeAclMatch()`로 전달함에 따라, 플레이어가 PK를 이겼음에도 반대편 구단(team1)이 승리한 것으로 오판정되어 탈락 처리되던 심각한 버그 발생.
+* **조치 사항**:
+  1. `runActualAclExtraTime()`에서 `etResult.score1`, `etResult.score2`를 정규 참조하여 실시간 스코어 및 매치 완료 스코어가 정확한 정수(예: `1 : 1`)로 온전히 기록되도록 수정.
+  2. `runActualAclPenaltyShootout()`에서 `pkData`를 `playerMatch.team1`/`team2` 순서에 엄격히 맞추고, `finalizeAclMatch()`에 `pkResult.pkScore1`, `pkResult.pkScore2`를 1:1로 정직하게 전달하여 홈/원정 여부와 상관없이 PK 승리팀이 100% 정상 진출하도록 정밀 수정.
+  3. `sw.js` (캐시 버전 **`fc-star-v343`**) 및 `index.html` 내 `js/acl.js?v=3.4` 판올림 동기화 완료.
+
+
 

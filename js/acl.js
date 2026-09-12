@@ -1529,16 +1529,16 @@ function runActualAclExtraTime(score1, score2, playerMatch, playerOvr, opponentO
     const activeAssisterName = etGoalData.assisterName;
 
     const etData = {
-        team1Name: isHome ? playerTeamName : playerMatch.team1.name,
-        team2Name: isHome ? playerMatch.team2.name : playerTeamName,
-        rating1: isHome ? playerOvr : playerMatch.team1.rating,
-        rating2: isHome ? playerMatch.team2.rating : playerOvr,
-        score1: isHome ? score1 : score2,
-        score2: isHome ? score2 : score1,
+        team1Name: playerMatch.team1.name,
+        team2Name: playerMatch.team2.name,
+        rating1: playerMatch.team1.rating,
+        rating2: playerMatch.team2.rating,
+        score1: score1,
+        score2: score2,
         playerScorerName: activeScorerName,
         playerAssisterName: activeAssisterName,
         isTeam1Jeonbuk: isHome,
-        opponentTeamId: isHome ? playerMatch.team2.id : playerMatch.team1.id
+        opponentTeamId: opponent.id
     };
 
     const etResult = simulateExtraTimeEngine(etData);
@@ -1553,25 +1553,25 @@ function runActualAclExtraTime(score1, score2, playerMatch, playerOvr, opponentO
             addCommentary(ev.min, ev.text, ev.type);
         });
 
-        const finalScore1 = isHome ? etResult.finalScore1 : etResult.finalScore2;
-        const finalScore2 = isHome ? etResult.finalScore2 : etResult.finalScore1;
+        const finalScore1 = etResult.score1;
+        const finalScore2 = etResult.score2;
         document.getElementById('aclHomeScore').innerText = finalScore1;
         document.getElementById('aclAwayScore').innerText = finalScore2;
 
-        if (etResult.hasGoal) {
+        if (etResult.score1 > score1 || etResult.score2 > score2) {
             if (isHome) {
-                if (etResult.finalScore1 > score1) {
+                if (etResult.score1 > score1) {
                     addAclPlayerStatRecord(playerMatch.team1, activeScorerName, activeAssisterName);
                 }
-                if (etResult.finalScore2 > score2) {
+                if (etResult.score2 > score2) {
                     const oppGoalData = determineOpponentScorerAndAssister(playerMatch.team2.id);
                     addAclPlayerStatRecord(playerMatch.team2, oppGoalData.scorerName, oppGoalData.assisterName);
                 }
             } else {
-                if (etResult.finalScore2 > score2) {
+                if (etResult.score2 > score2) {
                     addAclPlayerStatRecord(playerMatch.team2, activeScorerName, activeAssisterName);
                 }
-                if (etResult.finalScore1 > score1) {
+                if (etResult.score1 > score1) {
                     const oppGoalData = determineOpponentScorerAndAssister(playerMatch.team1.id);
                     addAclPlayerStatRecord(playerMatch.team1, oppGoalData.scorerName, oppGoalData.assisterName);
                 }
@@ -1593,6 +1593,10 @@ function runActualAclExtraTime(score1, score2, playerMatch, playerOvr, opponentO
         if (ev) {
             addCommentary(ev.min, ev.text, ev.type);
             if (timeDisplay) timeDisplay.innerText = ev.min;
+            if (ev.type === 'goal') {
+                document.getElementById('aclHomeScore').innerText = ev.score1;
+                document.getElementById('aclAwayScore').innerText = ev.score2;
+            }
         }
 
         etIdx++;
@@ -1600,25 +1604,25 @@ function runActualAclExtraTime(score1, score2, playerMatch, playerOvr, opponentO
         if (etIdx >= etResult.events.length) {
             clearInterval(etTimer);
             
-            const finalScore1 = isHome ? etResult.finalScore1 : etResult.finalScore2;
-            const finalScore2 = isHome ? etResult.finalScore2 : etResult.finalScore1;
+            const finalScore1 = etResult.score1;
+            const finalScore2 = etResult.score2;
             document.getElementById('aclHomeScore').innerText = finalScore1;
             document.getElementById('aclAwayScore').innerText = finalScore2;
 
-            if (etResult.hasGoal) {
+            if (etResult.score1 > score1 || etResult.score2 > score2) {
                 if (isHome) {
-                    if (etResult.finalScore1 > score1) {
+                    if (etResult.score1 > score1) {
                         addAclPlayerStatRecord(playerMatch.team1, activeScorerName, activeAssisterName);
                     }
-                    if (etResult.finalScore2 > score2) {
+                    if (etResult.score2 > score2) {
                         const oppGoalData = determineOpponentScorerAndAssister(playerMatch.team2.id);
                         addAclPlayerStatRecord(playerMatch.team2, oppGoalData.scorerName, oppGoalData.assisterName);
                     }
                 } else {
-                    if (etResult.finalScore2 > score2) {
+                    if (etResult.score2 > score2) {
                         addAclPlayerStatRecord(playerMatch.team2, activeScorerName, activeAssisterName);
                     }
-                    if (etResult.finalScore1 > score1) {
+                    if (etResult.score1 > score1) {
                         const oppGoalData = determineOpponentScorerAndAssister(playerMatch.team1.id);
                         addAclPlayerStatRecord(playerMatch.team1, oppGoalData.scorerName, oppGoalData.assisterName);
                     }
@@ -1641,7 +1645,6 @@ function runActualAclExtraTime(score1, score2, playerMatch, playerOvr, opponentO
 function runActualAclPenaltyShootout(etScore1, etScore2, playerMatch, isHome, opponent) {
     const timeDisplay = document.getElementById('aclSbTimeDisplay');
     const commBox = document.getElementById('aclCommentaryScroll');
-    const playerTeamName = getActiveAclUserTeamName();
     
     const addCommentary = (min, text, type = 'normal') => {
         const item = document.createElement('div');
@@ -1655,8 +1658,10 @@ function runActualAclPenaltyShootout(etScore1, etScore2, playerMatch, isHome, op
     };
 
     const pkData = {
-        team1Name: isHome ? playerTeamName : opponent.name,
-        team2Name: isHome ? opponent.name : playerTeamName,
+        team1Name: playerMatch.team1.name,
+        team2Name: playerMatch.team2.name,
+        rating1: playerMatch.team1.rating,
+        rating2: playerMatch.team2.rating,
         isTeam1Jeonbuk: isHome,
         opponentTeamId: opponent.id
     };
@@ -1675,12 +1680,10 @@ function runActualAclPenaltyShootout(etScore1, etScore2, playerMatch, isHome, op
             addCommentary(ev.round === 0 ? 'PK' : `PK ${ev.round}`, ev.text, ev.success ? "goal" : "normal");
         });
 
-        const pkScore1 = isHome ? pkResult.pkScore1 : pkResult.pkScore2;
-        const pkScore2 = isHome ? pkResult.pkScore2 : pkResult.pkScore1;
-        document.getElementById('aclHomeScore').innerText = `${etScore1} (${pkScore1})`;
-        document.getElementById('aclAwayScore').innerText = `${etScore2} (${pkScore2})`;
+        document.getElementById('aclHomeScore').innerText = `${etScore1} (${pkResult.pkScore1})`;
+        document.getElementById('aclAwayScore').innerText = `${etScore2} (${pkResult.pkScore2})`;
 
-        finalizeAclMatch(etScore1, etScore2, playerMatch, pkScore1, pkScore2);
+        finalizeAclMatch(etScore1, etScore2, playerMatch, pkResult.pkScore1, pkResult.pkScore2);
         return;
     }
 
@@ -1694,19 +1697,17 @@ function runActualAclPenaltyShootout(etScore1, etScore2, playerMatch, isHome, op
             }
             if (timeDisplay) timeDisplay.innerText = "PK";
             
-            const curPk1 = isHome ? ev.score1 : ev.score2;
-            const curPk2 = isHome ? ev.score2 : ev.score1;
-            document.getElementById('aclHomeScore').innerText = `${etScore1} (${curPk1})`;
-            document.getElementById('aclAwayScore').innerText = `${etScore2} (${curPk2})`;
+            if (ev.round > 0) {
+                document.getElementById('aclHomeScore').innerText = `${etScore1} (${ev.score1})`;
+                document.getElementById('aclAwayScore').innerText = `${etScore2} (${ev.score2})`;
+            }
         }
 
         pkIdx++;
 
         if (pkIdx >= pkResult.events.length) {
             clearInterval(pkTimer);
-            const pkScore1 = isHome ? pkResult.pkScore1 : pkResult.pkScore2;
-            const pkScore2 = isHome ? pkResult.pkScore2 : pkResult.pkScore1;
-            finalizeAclMatch(etScore1, etScore2, playerMatch, pkScore1, pkScore2);
+            finalizeAclMatch(etScore1, etScore2, playerMatch, pkResult.pkScore1, pkResult.pkScore2);
         }
     }, 1200);
 }
