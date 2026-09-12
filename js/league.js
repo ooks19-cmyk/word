@@ -714,6 +714,10 @@ function recordSeasonProgressToFame(isResigned = false) {
 
 // 감독 커리어 이적 함수 (새로운 리그 부임 -> 다음 연도 1라운드 시작)
 function transferToLeague(targetLeagueId) {
+    if (targetLeagueId === 'jleague') {
+        alert("아직 준비중입니다.");
+        return;
+    }
     if (isMatchRunning) {
         showToast("경기 진행 중에는 리그를 이동할 수 없습니다.");
         return;
@@ -2820,7 +2824,20 @@ function openLeagueTransferModal() {
 
     setCardActive(kleagueCard, btnKLeague, currentLeagueId === 'kleague1', '#00ff87', 'linear-gradient(135deg, #00ff87, #60efff)');
     setCardActive(eplCard, btnEpl, currentLeagueId === 'epl', '#ffd700', 'linear-gradient(135deg, #ffd700, #ff6b6b)');
-    setCardActive(jleagueCard, btnJLeague, currentLeagueId === 'jleague', '#e60012', 'linear-gradient(135deg, #e60012, #ff8c00)');
+    
+    if (currentLeagueId === 'jleague') {
+        setCardActive(jleagueCard, btnJLeague, true, '#e60012', 'linear-gradient(135deg, #e60012, #ff8c00)');
+    } else {
+        if (jleagueCard && btnJLeague) {
+            jleagueCard.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+            jleagueCard.style.background = 'rgba(255, 255, 255, 0.02)';
+            btnJLeague.innerText = '준비 중 🔒';
+            btnJLeague.disabled = false;
+            btnJLeague.style.background = 'rgba(255, 255, 255, 0.08)';
+            btnJLeague.style.color = '#cbd5e1';
+            btnJLeague.style.cursor = 'pointer';
+        }
+    }
     
     modal.style.display = 'flex';
     modal.classList.add('active');
@@ -2835,6 +2852,11 @@ function closeLeagueTransferModal() {
 }
 
 function confirmLeagueTransfer(targetLeagueId) {
+    if (targetLeagueId === 'jleague') {
+        alert("아직 준비중입니다.");
+        return;
+    }
+
     if (targetLeagueId === currentLeagueId) {
         showToast(`이미 ${LEAGUE_CONFIGS[targetLeagueId].name}를 진행 중입니다.`);
         closeLeagueTransferModal();
