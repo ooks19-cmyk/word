@@ -768,6 +768,7 @@ function transferToLeague(targetLeagueId) {
 }
 
 function getTeamEmblemPath(teamId) {
+    if (!teamId) return "";
     const mapping = {
         // K리그
         "jeonbuk": "img/mark_jb.svg",
@@ -832,9 +833,16 @@ function getTeamEmblemPath(teamId) {
         "shimizu": "img/mark_shimizu.png",
         "iwata": "img/mark_iwata.png",
         "chiba": "img/mark_chiba.png",
-        "yamagata": "img/mark_yamagata.png"
+        "yamagata": "img/mark_yamagata.png",
+        // AFC 챔피언스리그 (ACL) 매핑
+        "vissel_kobe": "img/mark_kobe.png",
+        "yokohama_marinos": "img/mark_marinos.png",
+        "kawasaki_frontale": "img/mark_kawasaki.png",
+        "ulsan_hd": "img/mark_ulsan.png",
+        "jeonbuk_hyundai": "img/mark_jb.svg",
+        "pohang_steelers": "img/mark_pohang.png"
     };
-    return mapping[teamId] || "img/mark_jb.svg";
+    return mapping[teamId] || "";
 }
 
 function updateMatchPreviewBoard() {

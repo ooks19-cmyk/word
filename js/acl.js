@@ -942,11 +942,18 @@ function renderAclMatchNode(match, round) {
 // 7. 팀 엠블럼 렌더링 헬퍼
 function getAclTeamEmblemHtml(team, size = 20) {
     if (!team) return '';
+    const userTeamId = getActiveAclUserTeamId();
+    const isPlayer = team.id === userTeamId;
+    const isGlow = (isPlayer && size >= 30) ? 'match-emblem-glow' : '';
+    
     const emblem = team.emblem || (typeof getTeamEmblemPath === 'function' ? getTeamEmblemPath(team.id) : '');
     if (emblem && (emblem.endsWith('.png') || emblem.endsWith('.svg') || emblem.endsWith('.jpg') || emblem.includes('/'))) {
-        return `<img src="${emblem}" alt="${team.name}" style="width: ${size}px; height: ${size}px; object-fit: contain; vertical-align: middle; margin-right: 4px; display: inline-block;">`;
+        return `<img src="${emblem}" alt="${team.name}" class="match-emblem-img ${isGlow}" style="width: ${size}px; height: ${size}px; object-fit: contain; vertical-align: middle; margin-right: 4px; display: inline-block;">`;
     }
-    return `<span style="font-size: ${Math.max(10, size - 4)}px; margin-right: 4px;">⚽</span>`;
+    
+    // 엠블럼 이미지가 없는 구단은 팀 고유 색상 기반의 방패(Shield) 아이콘 렌더링
+    const teamColor = team.color || '#3b82f6';
+    return `<i class="fa-solid fa-shield-halved" style="color: ${teamColor}; font-size: ${Math.max(12, size - 4)}px; width: ${size}px; height: ${size}px; display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; margin-right: 4px; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));"></i>`;
 }
 
 // 8. 득점/도움 순위판 렌더링

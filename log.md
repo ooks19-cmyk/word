@@ -1997,3 +1997,15 @@ graph TD
 * **PWA 캐시 버전 최종 판올림**:
   - `sw.js` (최신 캐시 버전 **`fc-star-v341`**), `index.html` 스크립트 버전 동기화 완료.
 
+---
+
+### 🛡️ 137) 챔피언스리그(ACL) 해외 참가팀 엠블럼 매핑 및 Fallback 전북 현대 고정 버그 전면 해결 (2026-09-12)
+* **버그 원인 분석**:
+  - `getTeamEmblemPath(teamId)` 함수에서 미등록 ID에 대해 일괄 `mapping[teamId] || "img/mark_jb.svg"`(전북 현대)를 fallback으로 반환하던 취약성 존재.
+  - ACL(아시아 챔피언스리그) 해외 참가 구단 ID(`vissel_kobe`, `yokohama_marinos`, `kawasaki_frontale`, `ulsan_hd`, `jeonbuk_hyundai`, `pohang_steelers`)가 엠블럼 매핑에 누락되어 모든 해외 상대팀이 전북 현대 엠블럼으로 노출되는 현상 발생.
+* **조치 사항**:
+  1. `getTeamEmblemPath()`에 ACL 일본/한국 구단 별칭 ID 매핑(`vissel_kobe`, `yokohama_marinos`, `kawasaki_frontale` 등)을 추가하고, 미등록 시 전북 현대 강제 반환 대신 빈 문자열(`""`)을 반환하도록 수정.
+  2. `js/acl.js`의 `getAclTeamEmblemHtml()`을 개선하여, 엠블럼 이미지가 없는 구단(서아시아 8팀, 태국/중국 등)은 구단 고유 테마 컬러가 적용된 멋진 **방패 뱃지 아이콘(`fa-shield-halved`)**으로 품격 있게 렌더링되도록 수정.
+  3. `sw.js` (캐시 버전 **`fc-star-v342`**) 및 `index.html` 스크립트 버전 동기화 완료.
+
+
