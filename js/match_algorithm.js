@@ -42,6 +42,26 @@ function getStrikerChanceStat(position, card, styles = null) {
     }
 }
 
+// 0-3. 포메이션별 최적 스트라이커(ST) 플레이스타일 히든 보너스 (+2% 득점 확률)
+// 4-3-3: 타겟맨 (targetman) | 3-4-3: 라인브레이커 (linebreaker) | 5-4-1: 라인브레이커 (linebreaker) | 4-2-3-1: 타겟맨 (targetman)
+function getStrikerStyleHiddenBonus(formation = currentFormation, customStyles = null) {
+    let activeStyles = customStyles;
+    if (!activeStyles && typeof strikerStyles !== 'undefined') {
+        activeStyles = strikerStyles[formation] || strikerStyles;
+    }
+    if (!activeStyles) activeStyles = { ST: 'targetman' };
+    if (activeStyles[formation]) activeStyles = activeStyles[formation];
+    
+    const style = activeStyles.ST || 'targetman';
+    
+    if (formation === '4-3-3' && style === 'targetman') return 0.02;
+    if (formation === '3-4-3' && style === 'linebreaker') return 0.02;
+    if (formation === '5-4-1' && style === 'linebreaker') return 0.02;
+    if (formation === '4-2-3-1' && style === 'targetman') return 0.02;
+    
+    return 0.0;
+}
+
 // 1. 활성화된 베이스 스쿼드의 순수 평균 OVR 계산
 function getPlayerPureOvr() {
     let totalOvr = 0;
@@ -1397,11 +1417,14 @@ function determineOpponentScorerAndAssister(opponentTeamId) {
 }
 
 // 10. 공통 슛 득점 확률 계산 함수 (플레이어 및 상대팀)
-function calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentRating, formationScoreBoost, suitabilityBonus) {
+function calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentRating, formationScoreBoost, suitabilityBonus, customStrikerBonus = null) {
     const playerChanceBonus = Math.max(0, (chancePlayerStat - opponentRating) * 0.01);
     const maxScoreProb = 0.50;
     const minScoreProb = 0.10;
-    const calculated = 0.24 + (activeDiff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus;
+    const strikerHiddenBonus = (customStrikerBonus !== null)
+        ? customStrikerBonus
+        : ((typeof getStrikerStyleHiddenBonus === 'function') ? getStrikerStyleHiddenBonus() : 0.0);
+    const calculated = 0.24 + (activeDiff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus + strikerHiddenBonus;
     const prob = Math.min(maxScoreProb, Math.max(minScoreProb, calculated));
     
     console.log(`[시뮬레이션] 🟢 플레이어 슈팅 연산:
@@ -1409,6 +1432,7 @@ function calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentRating, 
     - 슈팅 스탯 보정: ${(playerChanceBonus * 100).toFixed(1)}% (슈팅: ${chancePlayerStat} vs 수비: ${opponentRating})
     - 전술/포메이션 보정: ${(formationScoreBoost * 100).toFixed(1)}%
     - 전술 적합도 보정: ${(suitabilityBonus * 100).toFixed(1)}%
+    - 스트라이커 히든 보너스: ${(strikerHiddenBonus * 100).toFixed(1)}%
     - 최종 계산 득점 확률: ${(prob * 100).toFixed(1)}% (보정 전: ${(calculated * 100).toFixed(1)}%)`);
     
     return prob;

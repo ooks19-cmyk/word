@@ -207,6 +207,56 @@ function showCoachAdvice() {
         adviceDetail = `상대는 균형 잡힌 기본 전술인 <strong>${oppForm}</strong> 포메이션을 들고 나왔기에 특별한 상성적 약점이 뚜렷하지 않습니다. 이럴 때는 상대 전술에 대응하기보다는, 현재 우리 스쿼드에서 선수 구성과 완성도 보너스(OVR 증가 등)가 가장 높은 <strong>${counterForm}</strong> 전술로 정면 승부를 거시는 것을 적극 권장합니다.`;
     }
     
+    // 포메이션별 최적 스트라이커 운용 팁 사전
+    const FORMATION_STRIKER_HINTS = {
+        '4-3-3': {
+            idealStyle: 'targetman',
+            idealStyleName: '타겟맨',
+            hint: '4-3-3 포메이션에선 전방에 키가 크고 피지컬과 헤딩 능력이 탁월한 <strong>타겟맨</strong> 공격수를 배치하고 고공 롱볼을 적극 투입할 때, 상대 수비 라인을 무너뜨리며 득점 찬스가 크게 열립니다.'
+        },
+        '3-4-3': {
+            idealStyle: 'linebreaker',
+            idealStyleName: '라인브레이커',
+            hint: '3-4-3 포메이션에선 와이드한 측면 윙어들의 전개와 함께 전방 스트라이커가 번개처럼 수비 뒷공간을 파고드는 <strong>라인브레이커</strong> 역할을 수행할 때 최상의 골 찬스가 완성됩니다.'
+        },
+        '5-4-1': {
+            idealStyle: 'linebreaker',
+            idealStyleName: '라인브레이커',
+            hint: '5-4-1 포메이션에선 단단한 수비 블록에서 단숨에 전방으로 연결되는 롱패스를 받아 수비 라인을 허무는 <strong>라인브레이커</strong>형 스트라이커가 배치될 때 원샷원킬 역습 득점이 폭발합니다.'
+        },
+        '4-2-3-1': {
+            idealStyle: 'targetman',
+            idealStyleName: '타겟맨',
+            hint: '4-2-3-1 포메이션에선 2선 공격형 미드필더와의 연계를 위해 전방에서 볼을 지켜주고 수비를 등지는 <strong>타겟맨</strong> 공격수를 기용할 때 2선 침투와 문전 마무리의 파괴력이 극대화됩니다.'
+        }
+    };
+
+    // 현재 포메이션 또는 추천 포메이션에 맞춘 스트라이커 조언 카드 생성
+    const targetFormForStriker = FORMATION_STRIKER_HINTS[playForm] ? playForm : (FORMATION_STRIKER_HINTS[counterForm] ? counterForm : null);
+    let strikerAdviceHtml = '';
+    if (targetFormForStriker && FORMATION_STRIKER_HINTS[targetFormForStriker]) {
+        const hintData = FORMATION_STRIKER_HINTS[targetFormForStriker];
+        let currentStStyle = 'targetman';
+        if (typeof strikerStyles !== 'undefined' && strikerStyles[playForm]) {
+            currentStStyle = strikerStyles[playForm].ST || 'targetman';
+        }
+        const isOptimal = (playForm === targetFormForStriker && currentStStyle === hintData.idealStyle);
+        
+        const synergyBadge = isOptimal
+            ? `<span style="font-size: 0.72rem; color: #ffd700; background: rgba(255, 215, 0, 0.15); border: 1px solid rgba(255, 215, 0, 0.35); padding: 2px 8px; border-radius: 10px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px;"><i class="fa-solid fa-wand-magic-sparkles"></i> 최적 조합 적용 중 (+2% 득점)</span>`
+            : `<span style="font-size: 0.72rem; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); padding: 2px 8px; border-radius: 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;"><i class="fa-solid fa-crosshairs"></i> ${hintData.idealStyleName} 설정 추천</span>`;
+
+        strikerAdviceHtml = `
+            <div class="advice-recommend-card" style="background: rgba(255, 215, 0, 0.03); border: 1.5px solid rgba(255, 215, 0, 0.25); border-radius: 18px; padding: 1.1rem; display: flex; flex-direction: column; gap: 0.5rem; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);">
+                <div class="rec-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+                    <span class="rec-title" style="font-size: 0.88rem; font-weight: 800; color: #ffd700; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-bullseye"></i> 스트라이커 전술 운용 팁</span>
+                    ${synergyBadge}
+                </div>
+                <p class="rec-description" style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.6; margin: 0; word-break: keep-all;">${hintData.hint}</p>
+            </div>
+        `;
+    }
+
     // 현재 전술 상태 요약
     let matchStatusHtml = '';
     if (playForm === counterForm) {
@@ -261,6 +311,8 @@ function showCoachAdvice() {
                     </div>
                     <p class="rec-description" style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.6; margin: 0; word-break: keep-all;">${adviceDetail}</p>
                 </div>
+
+                ${strikerAdviceHtml}
                 
                 ${matchStatusHtml}
             </div>

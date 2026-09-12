@@ -2045,3 +2045,17 @@ graph TD
   1. `player_data.js`: 모따(motta) OVR 86, 희귀도 `special`, 스탯(PAC 77, SHO 87, PAS 80, DRI 77, DEF 55, PHY 92) 및 헤딩 특화 소개 문구 반영.
   2. `선수데이터.csv` & `선수데이터2.csv`: 모따 데이터 동기화 업데이트.
   3. `index.html` & `sw.js`: `player_data.js?v=1.69` 및 PWA 캐시 버전 **`fc-star-v346`** 판올림.
+
+142. **포메이션별 스트라이커(ST) 플레이스타일 최적 조합 히든 보너스(+2% 득점 확률) 및 수석코치 전술 힌트 연동 (2026.09.13 - v347)**
+- **작업 개요**:
+  - 포메이션별 스트라이커 설정에 따른 히든 전술 시너지 보너스를 구축하여, 조건 만족 시 득점 확률에 +2%(+0.02) 가산 적용.
+  - 최적 스트라이커 플레이스타일 매칭 룰:
+    - **4-3-3**: 타겟맨 (`targetman`)
+    - **3-4-3**: 라인브레이커 (`linebreaker`)
+    - **5-4-1**: 라인브레이커 (`linebreaker`)
+    - **4-2-3-1**: 타겟맨 (`targetman`)
+  - 수석코치 ooks의 전술 조언 모달에 각 포메이션별 스트라이커 전술 운용 팁 및 현재 설정의 최적 조합 달성 여부(히든 시너지 뱃지) 실시간 안내 연동.
+- **수정 파일 및 변경 내역**:
+  1. `js/match_algorithm.js`: 포메이션별 최적 스트라이커 조건 검증 함수 `getStrikerStyleHiddenBonus()` 신설 및 공통 슈팅 득점 확률 계산 함수 `calculatePlayerScoreProb()`에 +2% 보너스 가산 연동.
+  2. `js/coach_advisor.js`: `FORMATION_STRIKER_HINTS` 전술 코멘트 사전 구축 및 수석코치 조언 모달 내 "스트라이커 전술 운용 팁" 카드 렌더링 추가.
+  3. `index.html` & `sw.js`: `match_algorithm.js?v=3.0`, `coach_advisor.js?v=1.1`, PWA 캐시 버전 **`fc-star-v347`** 판올림.
