@@ -939,16 +939,16 @@ function startPvpMatchSimulation(roomId, roomData) {
                 const cleanText = (text) => {
                     if (!text) return "";
                     return text
-                        .replace(/전북 현대|전북|나의 구단/g, `<strong>${attackerName}</strong>`)
+                        .replace(/전북 현대|전북|리버풀 FC|리버풀|FC 도쿄|FC도쿄|나의 구단/g, `<strong>${attackerName}</strong>`)
                         .replace(/상대팀|상대/g, `<strong>${defenderName}</strong>`)
-                        .replace(/전주성/g, `경기장`);
+                        .replace(/전주성|안필드|아지노모토 스타디움/g, `경기장`);
                 };
                 const cleanTextForDef = (text) => {
                     if (!text) return "";
                     return text
-                        .replace(/전북 현대|전북|나의 구단/g, `<strong>${defenderName}</strong>`)
+                        .replace(/전북 현대|전북|리버풀 FC|리버풀|FC 도쿄|FC도쿄|나의 구단/g, `<strong>${defenderName}</strong>`)
                         .replace(/상대팀|상대/g, `<strong>${attackerName}</strong>`)
-                        .replace(/전주성/g, `경기장`);
+                        .replace(/전주성|안필드|아지노모토 스타디움/g, `경기장`);
                 };
                 
                 addPvpCommentary(currentExtraMin, `⚡ [${attackerName}] [찬스 - 연장] ${cleanText(commData.eventDesc)}`, 'attack');
@@ -1068,16 +1068,16 @@ function startPvpMatchSimulation(roomId, roomData) {
             const cleanText = (text) => {
                 if (!text) return "";
                 return text
-                    .replace(/전북 현대|전북|나의 구단/g, `<strong>${attackerName}</strong>`)
+                    .replace(/전북 현대|전북|리버풀 FC|리버풀|FC 도쿄|FC도쿄|나의 구단/g, `<strong>${attackerName}</strong>`)
                     .replace(/상대팀|상대/g, `<strong>${defenderName}</strong>`)
-                    .replace(/전주성/g, `경기장`);
+                    .replace(/전주성|안필드|아지노모토 스타디움/g, `경기장`);
             };
             const cleanTextForDef = (text) => {
                 if (!text) return "";
                 return text
-                    .replace(/전북 현대|전북|나의 구단/g, `<strong>${defenderName}</strong>`)
+                    .replace(/전북 현대|전북|리버풀 FC|리버풀|FC 도쿄|FC도쿄|나의 구단/g, `<strong>${defenderName}</strong>`)
                     .replace(/상대팀|상대/g, `<strong>${attackerName}</strong>`)
-                    .replace(/전주성/g, `경기장`);
+                    .replace(/전주성|안필드|아지노모토 스타디움/g, `경기장`);
             };
             
             addPvpCommentary(currentMin, `⚡ [${attackerName}] [찬스] ${cleanText(commData.eventDesc)}`, 'attack');

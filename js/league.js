@@ -1056,11 +1056,15 @@ function startLeagueAutoSimulation() {
             break;
         }
         
-        // K리그일 때만 33라운드 최종전 직전, 코리아컵/아챔 완료 상태 검사
-        if (config.id === 'kleague1' && leagueRound === 33) {
+        // 리그별 최종 라운드 직전, 컵/아챔 완료 상태 검사
+        if (leagueRound === config.totalRounds) {
             let isCupFinished = false;
+            let cupStorageKey = 'fc_star_cup_state_kleague1';
+            if (config.id === 'epl') cupStorageKey = 'fc_star_cup_state_epl';
+            else if (config.id === 'jleague') cupStorageKey = 'fc_star_cup_state_jleague';
+
             try {
-                const savedCup = localStorage.getItem('fc_star_cup_state_kleague1') || localStorage.getItem('fc_star_cup_state');
+                const savedCup = localStorage.getItem(cupStorageKey) || (config.id === 'kleague1' ? localStorage.getItem('fc_star_cup_state') : null);
                 if (savedCup) {
                     const cupStateParsed = JSON.parse(savedCup);
                     isCupFinished = cupStateParsed.isFinished;
@@ -1069,41 +1073,30 @@ function startLeagueAutoSimulation() {
                 console.warn("Cup state check failed:", e);
             }
             
+            const cupName = (typeof getActiveCupTournamentName === 'function') ? getActiveCupTournamentName() : ((config.id === 'epl') ? '카라바오컵' : (config.id === 'jleague' ? 'FA 컵' : '코리아컵'));
             if (!isCupFinished) {
-                alert(`⚠️ K리그1 33라운드 최종전을 시작하기 전에 코리아컵 결승전을 완료해야 하므로 자동진행이 중단되었습니다!\n진행된 경기: ${simulatedCount}경기 (${wins}승 ${draws}무 ${losses}패)`);
+                alert(`⚠️ ${config.name} ${config.totalRounds}라운드 최종전을 시작하기 전에 ${cupName} 결승전을 완료해야 하므로 자동진행이 중단되었습니다!\n진행된 경기: ${simulatedCount}경기 (${wins}승 ${draws}무 ${losses}패)`);
                 break;
             }
-    
+
             let isAclFinished = false;
+            let aclStorageKey = 'fc_star_acl_state_kleague1';
+            if (config.id === 'epl') aclStorageKey = 'fc_star_acl_state_epl';
+            else if (config.id === 'jleague') aclStorageKey = 'fc_star_acl_state_jleague';
+
             try {
-                const savedAcl = localStorage.getItem('fc_star_acl_state');
+                const savedAcl = localStorage.getItem(aclStorageKey) || (config.id === 'kleague1' ? localStorage.getItem('fc_star_acl_state') : null);
                 if (savedAcl) {
                     const aclStateParsed = JSON.parse(savedAcl);
                     isAclFinished = aclStateParsed.isFinished;
                 }
             } catch (e) {
-                console.warn("ACL state check failed:", e);
+                console.warn("ACL/UCL state check failed:", e);
             }
             
+            const aclName = (typeof getActiveAclTournamentName === 'function') ? getActiveAclTournamentName() : ((config.id === 'epl') ? 'UEFA 챔피언스리그' : 'AFC 챔피언스리그');
             if (!isAclFinished) {
-                alert(`⚠️ K리그1 33라운드 최종전을 시작하기 전에 AFC 챔피언스리그를 완료해야 하므로 자동진행이 중단되었습니다!\n진행된 경기: ${simulatedCount}경기 (${wins}승 ${draws}무 ${losses}패)`);
-                break;
-            }
-        } else if (config.id === 'epl' && leagueRound === 38) {
-            // EPL 38라운드 최종전 직전 카라바오컵 완료 상태 검사
-            let isCupFinished = false;
-            try {
-                const savedCup = localStorage.getItem('fc_star_cup_state_epl');
-                if (savedCup) {
-                    const cupStateParsed = JSON.parse(savedCup);
-                    isCupFinished = cupStateParsed.isFinished;
-                }
-            } catch (e) {
-                console.warn("EPL Cup state check failed:", e);
-            }
-            
-            if (!isCupFinished) {
-                alert(`⚠️ 프리미어리그 38라운드 최종전을 시작하기 전에 카라바오컵 결승전을 완료해야 하므로 자동진행이 중단되었습니다!\n진행된 경기: ${simulatedCount}경기 (${wins}승 ${draws}무 ${losses}패)`);
+                alert(`⚠️ ${config.name} ${config.totalRounds}라운드 최종전을 시작하기 전에 ${aclName}을 완료해야 하므로 자동진행이 중단되었습니다!\n진행된 경기: ${simulatedCount}경기 (${wins}승 ${draws}무 ${losses}패)`);
                 break;
             }
         }
@@ -1354,7 +1347,7 @@ function startMatchSimulation() {
     if (leagueRound === config.totalRounds) {
         let isCupFinished = false;
         try {
-            const cupKey = (config.id === 'epl') ? 'fc_star_cup_state_epl' : 'fc_star_cup_state_kleague1';
+            const cupKey = (config.id === 'epl') ? 'fc_star_cup_state_epl' : (config.id === 'jleague' ? 'fc_star_cup_state_jleague' : 'fc_star_cup_state_kleague1');
             let savedCup = localStorage.getItem(cupKey);
             if (!savedCup && config.id === 'kleague1') savedCup = localStorage.getItem('fc_star_cup_state');
             if (savedCup) {
@@ -1365,7 +1358,7 @@ function startMatchSimulation() {
             console.warn("Cup state check failed:", e);
         }
         
-        const cupName = (config.id === 'epl') ? '카라바오컵' : '코리아컵';
+        const cupName = (typeof getActiveCupTournamentName === 'function') ? getActiveCupTournamentName() : ((config.id === 'epl') ? '카라바오컵' : (config.id === 'jleague' ? 'FA 컵' : '코리아컵'));
         if (!isCupFinished) {
             alert(`⚠️ ${config.name} ${config.totalRounds}라운드 최종전을 시작하기 전에 ${cupName}(리그컵)을 완료해야 합니다!\n${cupName} 탭으로 이동하여 대회를 마쳐주세요.`);
             return;
@@ -1373,7 +1366,7 @@ function startMatchSimulation() {
 
         let isAclFinished = false;
         try {
-            const aclKey = (config.id === 'epl') ? 'fc_star_acl_state_epl' : 'fc_star_acl_state_kleague1';
+            const aclKey = (config.id === 'epl') ? 'fc_star_acl_state_epl' : (config.id === 'jleague' ? 'fc_star_acl_state_jleague' : 'fc_star_acl_state_kleague1');
             let savedAcl = localStorage.getItem(aclKey);
             if (!savedAcl && config.id === 'kleague1') savedAcl = localStorage.getItem('fc_star_acl_state');
             if (savedAcl) {
@@ -1384,7 +1377,7 @@ function startMatchSimulation() {
             console.warn("ACL state check failed:", e);
         }
         
-        const tournamentName = (config.id === 'epl') ? 'UEFA 챔피언스리그(챔스)' : 'AFC 챔피언스리그(아챔)';
+        const tournamentName = (typeof getActiveAclTournamentName === 'function') ? getActiveAclTournamentName() : ((config.id === 'epl') ? 'UEFA 챔피언스리그(챔스)' : 'AFC 챔피언스리그(아챔)');
         if (!isAclFinished) {
             alert(`⚠️ ${config.name} ${config.totalRounds}라운드 최종전을 시작하기 전에 ${tournamentName}를 완료해야 합니다!\n${config.id === 'epl' ? '챔스' : '아챔'} 탭으로 이동하여 대회를 마쳐주세요.`);
             return;
@@ -2256,15 +2249,19 @@ function checkSeasonChampion() {
     trophyContainer.style.textAlign = 'center';
     trophyContainer.style.animation = 'goalPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
     
-    // K리그 트레블 검사 (코리아컵 + 아챔)
+    // 리그별 트레블 검사 (정규리그 + 컵대회 + 챔피언스리그)
     let isTreble = false;
-    if (config.id === 'kleague1' && isUserTeamChamp) {
+    if (isUserTeamChamp) {
         let cupWon = false, aclWon = false;
         try {
-            const savedCup = localStorage.getItem('fc_star_cup_state');
-            if (savedCup && JSON.parse(savedCup).bracket?.winner?.id === 'jeonbuk') cupWon = true;
-            const savedAcl = localStorage.getItem('fc_star_acl_state');
-            if (savedAcl && JSON.parse(savedAcl).bracket?.winner?.id === 'jeonbuk') aclWon = true;
+            const cupKey = (config.id === 'epl') ? 'fc_star_cup_state_epl' : (config.id === 'jleague' ? 'fc_star_cup_state_jleague' : 'fc_star_cup_state_kleague1');
+            const savedCup = localStorage.getItem(cupKey) || (config.id === 'kleague1' ? localStorage.getItem('fc_star_cup_state') : null);
+            if (savedCup && JSON.parse(savedCup).bracket?.winner?.id === config.userTeamId) cupWon = true;
+
+            const aclKey = (config.id === 'epl') ? 'fc_star_acl_state_epl' : (config.id === 'jleague' ? 'fc_star_acl_state_jleague' : 'fc_star_acl_state_kleague1');
+            const savedAcl = localStorage.getItem(aclKey) || (config.id === 'kleague1' ? localStorage.getItem('fc_star_acl_state') : null);
+            if (savedAcl && JSON.parse(savedAcl).bracket?.winner?.id === config.userTeamId) aclWon = true;
+
             isTreble = cupWon && aclWon;
         } catch(e) {}
     }
@@ -2278,6 +2275,9 @@ function checkSeasonChampion() {
         
         showToast("🏆 역사적인 트레블(3관왕) 달성! 보너스 10 FP 지급!");
         
+        const cupName = (typeof getActiveCupTournamentName === 'function') ? getActiveCupTournamentName() : ((config.id === 'epl') ? '카라바오컵' : (config.id === 'jleague' ? 'FA 컵' : '코리아컵'));
+        const aclName = (typeof getActiveAclTournamentName === 'function') ? getActiveAclTournamentName() : ((config.id === 'epl') ? 'UEFA 챔피언스리그' : 'AFC 챔피언스리그');
+
         trophyContainer.style.background = 'radial-gradient(circle, rgba(0,255,135,0.25) 0%, rgba(10,14,26,0.98) 80%)';
         trophyContainer.style.border = '2.5px solid #ffd700';
         trophyContainer.style.boxShadow = '0 0 35px rgba(255, 215, 0, 0.4), 0 0 20px rgba(0, 255, 135, 0.3)';
@@ -2290,7 +2290,7 @@ function checkSeasonChampion() {
             </div>
             <h2 style="font-size:1.80rem; font-weight:900; background: linear-gradient(135deg, #ffd700 0%, #00ff87 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:0.8rem; text-shadow: 0 0 10px rgba(0,255,135,0.25);">👑 역사적인 트레블 달성! 👑</h2>
             <p style="color:var(--text-light); font-size:1.05rem; line-height:1.6; margin-bottom:1rem;">
-                축하합니다! ${config.userTeamName}가 ${leagueYear} 시즌 **K리그1 + 코리아컵 + AFC 챔피언스리그**를 모두 제패하며 위대한 **트레블(3관왕)**을 완성했습니다!<br>
+                축하합니다! ${config.userTeamName}가 ${leagueYear} 시즌 **${config.name} + ${cupName} + ${aclName}**를 모두 제패하며 위대한 **트레블(3관왕)**을 완성했습니다!<br>
                 축구 역사에 영원히 기억될 대기록의 주인공이 되었습니다.<br>
                 <strong style="color: #ffd700; font-size: 1.05rem;">🎁 트레블 달성 보상: +10 FP</strong>
             </p>

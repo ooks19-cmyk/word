@@ -81,26 +81,38 @@ function getPlayerTop20Ovr() {
 
 // 활성 리그에 따른 플레이어 구단명 및 홈 구장 동적 반환 헬퍼
 function getActiveUserTeamName() {
-    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') return "리버풀 FC";
+    if (typeof currentLeagueId !== 'undefined') {
+        if (currentLeagueId === 'epl') return "리버풀 FC";
+        if (currentLeagueId === 'jleague') return "FC 도쿄";
+    }
     return "전북 현대";
 }
 
 function getActiveUserShortName() {
-    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') return "리버풀";
+    if (typeof currentLeagueId !== 'undefined') {
+        if (currentLeagueId === 'epl') return "리버풀";
+        if (currentLeagueId === 'jleague') return "FC도쿄";
+    }
     return "전북";
 }
 
 function getActiveUserStadiumName() {
-    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') return "안필드";
+    if (typeof currentLeagueId !== 'undefined') {
+        if (currentLeagueId === 'epl') return "안필드";
+        if (currentLeagueId === 'jleague') return "아지노모토 스타디움";
+    }
     return "전주성";
 }
 
 function getActiveUserEmblem() {
-    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') return "img/mark_liverpool.png";
+    if (typeof currentLeagueId !== 'undefined') {
+        if (currentLeagueId === 'epl') return "img/mark_liverpool.png";
+        if (currentLeagueId === 'jleague') return "img/mark_tokyo.png";
+    }
     return "img/mark_jb.svg";
 }
 
-// 2. 스쿼드 포메이션 전술/세부전술 보너스를 취합하여 플레이어 구단(전북 현대 / 리버풀) 최종 OVR 동기화 및 현황판 UI 업데이트
+// 2. 스쿼드 포메이션 전술/세부전술 보너스를 취합하여 플레이어 구단(전북 현대 / 리버풀 / FC 도쿄) 최종 OVR 동기화 및 현황판 UI 업데이트
 function syncPlayerTeamOvr() {
     let avgOvr = getPlayerPureOvr();
     
@@ -117,7 +129,11 @@ function syncPlayerTeamOvr() {
     
     avgOvr += formationBonus;
     
-    const activeUserTeamId = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') ? 'liverpool' : 'jeonbuk';
+    let activeUserTeamId = 'jeonbuk';
+    if (typeof currentLeagueId !== 'undefined') {
+        if (currentLeagueId === 'epl') activeUserTeamId = 'liverpool';
+        else if (currentLeagueId === 'jleague') activeUserTeamId = 'tokyo';
+    }
     if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {
         const userTeam = leagueTeams.find(t => t.id === activeUserTeamId);
         if (userTeam) {

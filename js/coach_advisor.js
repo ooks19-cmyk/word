@@ -116,7 +116,8 @@ function getActiveOpponentInfo() {
         if (card && card.style.display !== 'none') {
             const homeName = document.getElementById('cupHomeTeamName')?.innerText;
             const awayName = document.getElementById('cupAwayTeamName')?.innerText;
-            const oppName = homeName === '전북 현대' ? awayName : homeName;
+            const userTeam = (typeof getActiveUserTeamName === 'function') ? getActiveUserTeamName() : '전북 현대';
+            const oppName = homeName === userTeam ? awayName : homeName;
             const oppForm = document.getElementById('cupOpponentFormationText')?.innerText || '4-4-2';
             return { active: true, name: oppName, formation: oppForm.trim(), mode: 'cup' };
         }
@@ -129,7 +130,8 @@ function getActiveOpponentInfo() {
         if (card && card.style.display !== 'none') {
             const homeName = document.getElementById('aclHomeTeamName')?.innerText;
             const awayName = document.getElementById('aclAwayTeamName')?.innerText;
-            const oppName = homeName === '전북 현대' ? awayName : homeName;
+            const userTeam = (typeof getActiveUserTeamName === 'function') ? getActiveUserTeamName() : '전북 현대';
+            const oppName = homeName === userTeam ? awayName : homeName;
             const oppForm = document.getElementById('aclOpponentFormationText')?.innerText || '4-4-2';
             return { active: true, name: oppName, formation: oppForm.trim(), mode: 'acl' };
         }
@@ -229,7 +231,7 @@ function showCoachAdvice() {
                 <div class="coach-avatar-wrapper" style="width: 52px; height: 52px; background: rgba(0, 255, 135, 0.15); border: 2px solid rgba(0, 255, 135, 0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 0 12px rgba(0, 255, 135, 0.25);">👔</div>
                 <div class="coach-info" style="display: flex; flex-direction: column; text-align: left;">
                     <span class="coach-name" style="font-size: 1.05rem; font-weight: 900; color: #fff;">수석코치 ooks</span>
-                    <span class="coach-role" style="font-size: 0.72rem; color: #94a3b8; font-weight: 500;">FC 전북 현대 수석 전술 분석관</span>
+                    <span class="coach-role" style="font-size: 0.72rem; color: #94a3b8; font-weight: 500;">${typeof getActiveUserTeamName === 'function' ? getActiveUserTeamName() : '전북 현대'} 수석 전술 분석관</span>
                 </div>
             </div>
             

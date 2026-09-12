@@ -311,9 +311,9 @@ function updateChallengeMatchPreview() {
     const formTactic = (typeof getPlayerFormationTacticBonuses === 'function') ? getPlayerFormationTacticBonuses() : { formationBonus: 0 };
     const userTotalOvr = pureOvr + (formTactic.formationBonus || 0);
 
-    const userTeamName = (typeof getActiveUserTeamName === 'function') ? getActiveUserTeamName() : ((typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') ? '리버풀 FC' : '전북 현대');
-    const userShortName = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') ? '리버풀' : '전북';
-    const userEmblem = (typeof getActiveUserEmblem === 'function') ? getActiveUserEmblem() : ((typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') ? 'img/mark_liverpool.png' : 'img/mark_jb.svg');
+    const userTeamName = (typeof getActiveUserTeamName === 'function') ? getActiveUserTeamName() : ((typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') ? '리버풀 FC' : (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'jleague' ? 'FC 도쿄' : '전북 현대'));
+    const userShortName = (typeof getActiveUserShortName === 'function') ? getActiveUserShortName() : ((typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') ? '리버풀' : (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'jleague' ? 'FC도쿄' : '전북'));
+    const userEmblem = (typeof getActiveUserEmblem === 'function') ? getActiveUserEmblem() : ((typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') ? 'img/mark_liverpool.png' : (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'jleague' ? 'img/mark_tokyo.png' : 'img/mark_jb.svg'));
 
     const fHomeName = document.getElementById('friendlyHomeTeamName');
     if (fHomeName) fHomeName.innerText = `나의 구단 (${userShortName})`;
