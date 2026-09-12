@@ -2019,5 +2019,16 @@ graph TD
   2. `runActualAclPenaltyShootout()`에서 `pkData`를 `playerMatch.team1`/`team2` 순서에 엄격히 맞추고, `finalizeAclMatch()`에 `pkResult.pkScore1`, `pkResult.pkScore2`를 1:1로 정직하게 전달하여 홈/원정 여부와 상관없이 PK 승리팀이 100% 정상 진출하도록 정밀 수정.
   3. `sw.js` (캐시 버전 **`fc-star-v343`**) 및 `index.html` 내 `js/acl.js?v=3.4` 판올림 동기화 완료.
 
+---
+
+### 🏆 139) FA컵(코리아컵/FA Cup) 연장전 및 승부차기 전수 점검 및 팀 데이터 매핑 정규화 (2026-09-12)
+* **점검 결과**:
+  - `js/cup.js`는 `etResult.score1/score2` 및 `pkResult.pkScore1/pkScore2`를 그대로 인자로 넘겨 정상 판정되고 있었으나, `etData`와 `pkData`에서 삼항 연산자로 팀명을 조건부 주입하던 부분을 `playerMatch.team1`/`team2`에 1:1로 엄격히 맞추도록 표준화 리팩토링 진행.
+  - 이를 통해 모든 토너먼트 모드(챔스 및 FA컵)에서 홈/원정 구분 없이 100% 견고하고 일관된 연장전/승부차기 시뮬레이션 동작을 보장.
+* **조치 사항**:
+  1. `js/cup.js`의 `runActualCupExtraTime()`, `runActualCupPenaltyShootout()` 내 `etData`/`pkData` 정의 표준화.
+  2. `sw.js` (캐시 버전 **`fc-star-v344`**) 및 `index.html` 내 `js/cup.js?v=3.1` 판올림 동기화 완료.
+
+
 
 

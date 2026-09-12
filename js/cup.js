@@ -1345,10 +1345,10 @@ function runActualCupExtraTime(score1, score2, playerMatch, playerOvr, opponentO
     const activeAssisterName = etGoalData.assisterName;
 
     const etData = {
-        team1Name: isHome ? playerTeamName : playerMatch.team1.name,
-        team2Name: isHome ? playerMatch.team2.name : playerTeamName,
-        rating1: isHome ? playerOvr : playerMatch.team1.rating,
-        rating2: isHome ? playerMatch.team2.rating : playerOvr,
+        team1Name: playerMatch.team1.name,
+        team2Name: playerMatch.team2.name,
+        rating1: playerMatch.team1.rating,
+        rating2: playerMatch.team2.rating,
         score1: isHome ? score1 : score2,
         score2: isHome ? score2 : score1,
         playerScorerName: activeScorerName,
@@ -1449,10 +1449,10 @@ function runActualCupPenaltyShootout(etScore1, etScore2, playerMatch, playerOvr,
     };
 
     const pkData = {
-        team1Name: isHome ? playerTeamName : playerMatch.team1.name,
-        team2Name: isHome ? playerMatch.team2.name : playerTeamName,
-        rating1: isHome ? playerOvr : playerMatch.team1.rating,
-        rating2: isHome ? playerMatch.team2.rating : playerOvr,
+        team1Name: playerMatch.team1.name,
+        team2Name: playerMatch.team2.name,
+        rating1: playerMatch.team1.rating,
+        rating2: playerMatch.team2.rating,
         isTeam1Jeonbuk: isHome
     };
 
