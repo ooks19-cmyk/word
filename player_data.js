@@ -39,53 +39,28 @@ const CARDS_DATABASE = {
             phy: 72
         }
     },
-    "lee_seung_woo": {
-        id: "lee_seung_woo",
-        name: "이승우",
-        rating: 82,
-        position: "LW",
-        nation: "South Korea",
-        nationFlag: "https://flagcdn.com/w40/kr.png",
-        club: "JEONBUK",
-        image: "player/이승우.png",
-        rarity: "normal",
-        description: "번뜩이는 천재성과 예측 불가능한 플레이 스타일을 지닌 대한민국 최고의 크랙형 공격수입니다. 뛰어난 테크닉, 폭발적인 드리블 스피드, 그리고 독보적인 스타성으로 경기장 분위기를 한순간에 뒤바꿔 놓는 해결사입니다.",
-        theme: {
-            primary: "#005a3c",
-            secondary: "#ffd700",
-            glow: "#00ff87"
-        },
-        stats: {
-            pac: 87,
-            sho: 80,
-            pas: 78,
-            dri: 85,
-            def: 38,
-            phy: 62
-        }
-    },
     "lee_seung_woo_kr": {
         id: "lee_seung_woo_kr",
         name: "이승우",
-        rating: 86,
-        position: "LW",
+        rating: 88,
+        position: "CAM",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
         image: "player/이승우_kr.png",
         rarity: "special",
-        description: "가슴에 찬란한 태극 마크를 품고 대한민국의 붉은 함성을 이끄는 특급 국가대표 윙어 이승우입니다. 특유의 기동력과 지칠 줄 모르는 과감한 돌파력, 그리고 그라운드 위에서 번뜩이는 천재적인 플레이로 조국의 승리를 이끄는 스페셜 공격수입니다.",
+        description: "가슴에 찬란한 태극 마크를 품고 대한민국의 붉은 함성을 이끄는 특급 공격형 미드필더 이승우입니다. 특유의 기동력과 지칠 줄 모르는 과감한 돌파력, 날카로운 킬패스와 번뜩이는 천재적인 슈팅 감각으로 조국의 승리를 이끄는 스페셜 플레이메이커입니다.",
         theme: {
             primary: "#da1a32",
             secondary: "#1d2b58",
             glow: "#ff2a55"
         },
         stats: {
-            pac: 90,
-            sho: 84,
-            pas: 83,
-            dri: 88,
-            def: 40,
+            pac: 87,
+            sho: 90,
+            pas: 88,
+            dri: 90,
+            def: 60,
             phy: 68
         }
     },
@@ -117,8 +92,8 @@ const CARDS_DATABASE = {
     "lee_kang_in": {
         id: "lee_kang_in",
         name: "이강인",
-        rating: 86,
-        position: "RW",
+        rating: 89,
+        position: "CAM",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "PARIS SG",
@@ -131,12 +106,12 @@ const CARDS_DATABASE = {
             glow: "#ffd700"
         },
         stats: {
-            pac: 83,
-            sho: 82,
-            pas: 89,
-            dri: 89,
-            def: 45,
-            phy: 68
+            pac: 85,
+            sho: 90,
+            pas: 92,
+            dri: 92,
+            def: 68,
+            phy: 71
         }
     },
     "oberdan": {
@@ -2362,6 +2337,56 @@ const CARDS_DATABASE = {
             dri: 90,
             def: 84,
             phy: 87
+        }
+    },
+    "shinji_kagawa": {
+        id: "shinji_kagawa",
+        name: "카가와 신지",
+        rating: 90,
+        position: "CM",
+        nation: "Japan",
+        nationFlag: "https://flagcdn.com/w40/jp.png",
+        club: "DORTMUND",
+        image: "player2/카가와 신지.png",
+        rarity: "legend",
+        description: "분데스리가 2연패와 맨체스터 유나이티드 우승을 이끈 아시아 축구 역사상 최고의 공격형 미드필더 카가와 신지입니다. 번뜩이는 퍼스트 터치와 유려한 탈압박, 자로 잰 듯한 킬패스와 침투 득점력으로 도르트문트의 황금기를 지휘한 전설적인 플레이메이커입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 85,
+            sho: 86,
+            pas: 91,
+            dri: 92,
+            def: 74,
+            phy: 70
+        }
+    },
+    "park_joo_ho": {
+        id: "park_joo_ho",
+        name: "박주호",
+        rating: 89,
+        position: "LB",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "DORTMUND",
+        image: "player2/박주호.png",
+        rarity: "legend",
+        description: "유럽 명문 FC 바젤, 마인츠, 보루시아 도르트문트와 대한민국 축구 국가대표팀을 빛낸 전설적인 레프트백 박주호입니다. 영리한 축구 지능과 탄탄한 기본기, 지치지 않는 왕성한 활동량과 정교한 왼발 크로스로 측면과 중원을 완벽하게 지배한 멀티플레이어입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 86,
+            sho: 70,
+            pas: 87,
+            dri: 85,
+            def: 88,
+            phy: 84
         }
     }
 };

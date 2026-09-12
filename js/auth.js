@@ -1341,140 +1341,57 @@ function checkLevelUpRewards(level) {
         showLevelRewardModal(
             "🚀 특별 목표 알림 🚀",
             "Lv. 2 달성을 축하합니다!",
-            "레벨 10이 되면 특급 윙어 <strong>'이승우'</strong>, 레벨 20이 되면 월드클래스 <strong>'손흥민'</strong>, 레벨 30이 되면 파리의 마술사 <strong>'이강인'</strong>, 레벨 40이 되면 태극전사 <strong>'이승우(스페셜)'</strong>, 레벨 50이 되면 영원한 산소탱크 <strong>'박지성'</strong>, 레벨 60이 되면 마스터 플레이메이커 <strong>'기성용'</strong>, 레벨 70이 되면 괴물 수비수 <strong>'김민재'</strong>, 레벨 80이 되면 중원의 열정 엔진 <strong>'이재성'</strong>, 레벨 90이 되면 왼발의 마술사 <strong>'이동경'</strong> 특별 카드, 레벨 110이 되면 대한민국의 핵심 사령탑 <strong>'황인범'</strong> 특별 카드, 레벨 120이 되면 대한민국 황소 <strong>'황희찬'</strong> 특별 카드, 레벨 130이 되면 대구 FC의 전설 <strong>'세징야'</strong> 특별 카드, 레벨 140이 되면 포항의 젊은 사자 <strong>'이동국99'</strong> 특별 카드, 레벨 150이 되면 대한민국 축구 영웅 <strong>'안정환'</strong> 전설 카드가 지급되며, 레벨 160부터는 10레벨 달성 시마다 <strong>5 FP(포인트)</strong>를 받으실 수 있습니다!<br><br>열심히 단어 공부를 하고 특별한 혜택을 쟁취해보세요!"
+            "레벨 10이 상승할 때마다 <strong>전설(Legend) 카드 1장</strong>이 특별 선물로 지급되며, 모든 카드를 보유 중일 경우 <strong>10 FP(포인트)</strong>가 지급됩니다!<br><br>열심히 단어 공부를 하고 특별한 전설 혜택을 쟁취해보세요!"
         );
     } else if (level > 0 && level % 10 === 0) {
-        if (level > 150) {
-            // 레벨 150부터는 5 FP 지급
-            userPoints += 5;
+        if (typeof CARDS_DATABASE === 'undefined') return;
+
+        // 전설 등급 카드 목록 추출
+        const legendKeys = Object.keys(CARDS_DATABASE).filter(k => CARDS_DATABASE[k].rarity === 'legend');
+        
+        // 아직 보유하지 않은 전설 카드 목록 필터링
+        const unownedLegends = legendKeys.filter(k => !playerDeck[k]);
+
+        if (unownedLegends.length === 0) {
+            // 모든 전설 카드를 이미 보유 중인 경우: 10 FP 지급
+            userPoints += 10;
             try {
                 localStorage.setItem('fc_star_user_points', userPoints.toString());
             } catch(e) {}
             renderUserPoints();
             saveUserProgress();
-            
+
             showLevelRewardModal(
                 "🎁 특별 레벨업 보상 🎁",
                 `Lv. ${level} 달성을 축하합니다!`,
-                `축하합니다! 레벨 ${level} 도달 기념으로 특별 보상인 <strong>5 FP(포인트)</strong>가 지급되었습니다!<br><br>앞으로도 레벨 10이 오를 때마다 5 FP가 지급됩니다!`
+                `축하합니다! 레벨 ${level} 달성 기념 보상입니다.<br>이미 모든 전설 카드를 보유하고 있어 특별 선물로 <strong>10 FP (가차 포인트)</strong>가 지급되었습니다!<br><br>앞으로도 레벨 10이 오를 때마다 전설 카드 또는 10 FP가 지급됩니다!`
             );
-            return;
-        }
-
-        let cardId = "";
-        let isRandom = false;
-        
-        if (level === 10) {
-            cardId = "lee_seung_woo";
-        } else if (level === 20) {
-            cardId = "son_heung_min";
-        } else if (level === 30) {
-            cardId = "lee_kang_in";
-        } else if (level === 40) {
-            cardId = "lee_seung_woo_kr";
-        } else if (level === 50) {
-            cardId = "park_ji_sung";
-        } else if (level === 60) {
-            cardId = "ki_sung_yueng";
-        } else if (level === 70) {
-            cardId = "kim_min_jae";
-        } else if (level === 80) {
-            cardId = "lee_jae_sung";
-        } else if (level === 90) {
-            cardId = "lee_dong_gyeong";
-        } else if (level === 110) {
-            cardId = "hwang_in_beom";
-        } else if (level === 120) {
-            cardId = "hwang_hee_chan";
-        } else if (level === 130) {
-            cardId = "cesinha";
-        } else if (level === 140) {
-            cardId = "lee_dong_gook_99";
-        } else if (level === 150) {
-            cardId = "ahn_jung_hwan";
         } else {
-            // Award random card (e.g. level 100)
-            if (typeof CARDS_DATABASE !== 'undefined') {
-                const keys = Object.keys(CARDS_DATABASE);
-                if (keys.length > 0) {
-                    cardId = keys[Math.floor(Math.random() * keys.length)];
-                    isRandom = true;
-                }
-            }
-        }
-        
-        if (cardId && typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE[cardId]) {
-            const cardObj = CARDS_DATABASE[cardId];
-            let detailMsg = "";
-            if (playerDeck[cardId]) {
-                playerDeck[cardId].quantity = 1;
-                if (typeof playerDeck[cardId].awakening !== 'number') {
-                    playerDeck[cardId].awakening = 0;
-                }
-                if (playerDeck[cardId].awakening < 5) {
-                    playerDeck[cardId].awakening += 1;
-                    detailMsg = `(보유 중인 ${cardObj.name} 카드가 <strong>★${playerDeck[cardId].awakening} 각성</strong>으로 한층 강해졌습니다!)`;
-                } else {
-                    detailMsg = `(이미 ${cardObj.name} 카드가 최대 각성 상태(5각성)입니다.)`;
-                }
-            } else {
-                playerDeck[cardId] = {
-                    card: cardObj,
-                    quantity: 1,
-                    awakening: 0
-                };
-                detailMsg = `(내 컬렉션(덱)에 새로운 선수로 안전하게 지급되었습니다!)`;
-            }
-            
-            // Save state
+            // 미보유 전설 카드 중 무작위 1장 선정 및 지급
+            const chosenKey = unownedLegends[Math.floor(Math.random() * unownedLegends.length)];
+            const cardObj = CARDS_DATABASE[chosenKey];
+
+            playerDeck[chosenKey] = {
+                card: cardObj,
+                quantity: 1,
+                awakening: 0,
+                condition: 0,
+                conditionDate: new Date().toLocaleDateString('ko-KR')
+            };
+
+            // 상태 저장
             try {
                 localStorage.setItem('fc_star_player_deck', JSON.stringify(playerDeck));
             } catch(e) {}
             saveUserProgress();
             
-            let awardMessage = "";
-            if (level === 10) {
-                awardMessage = `축하합니다! 레벨 10 도달 기념으로 전북 현대 최고의 특급 윙어 <strong>'이승우'</strong> 선수카드가 지급되었습니다!<br><br>${detailMsg}`;
-            } else if (level === 20) {
-                awardMessage = `축하합니다! 레벨 20 도달 기념으로 대한민국 최고의 월드클래스 슈퍼스타 <strong>'손흥민'</strong> 선수카드가 지급되었습니다!<br><br>${detailMsg}`;
-            } else if (level === 30) {
-                awardMessage = `축하합니다! 레벨 30 도달 기념으로 파리 생제르맹(PSG)의 보석이자 천재 미드필더 <strong>'이강인'</strong> 전설 카드가 지급되었습니다!<br><br>${detailMsg}`;
-            } else if (level === 40) {
-                awardMessage = `축하합니다! 레벨 40 도달 기념으로 태극 마크를 단 최고의 국가대표 <strong>'이승우'</strong> 스페셜 선수카드가 지급되었습니다!<br><br>${detailMsg}`;
-            } else if (level === 50) {
-                awardMessage = `축하합니다! 레벨 50 도달 기념으로 맨체스터 유나이티드의 전설이자 영원한 캡틴 <strong>'박지성'</strong> 전설 카드가 지급되었습니다!<br><br>${detailMsg}`;
-            } else if (level === 60) {
-                awardMessage = `축하합니다! 레벨 60 도달 기념으로 국가대표 최고의 딥라잉 플레이메이커이자 캡틴 <strong>'기성용'</strong> 전설 카드가 지급되었습니다!<br><br>${detailMsg}`;
-            } else if (level === 70) {
-                awardMessage = `축하합니다! 레벨 70 도달 기념으로 대한민국 최고의 피지컬 괴물 수비수 <strong>'김민재'</strong> 전설 카드가 지급되었습니다!<br><br>${detailMsg}`;
-            } else if (level === 80) {
-                awardMessage = `축하합니다! 레벨 80 도달 기념으로 대한민국 국가대표 중원의 엔진이자 에이스 <strong>'이재성'</strong> 스페셜 카드가 지급되었습니다!<br><br>${detailMsg}`;
-            } else if (level === 90) {
-                awardMessage = `축하합니다! 레벨 90 도달 기념으로 왼발의 마술사라 불리는 대한민국 최고의 테크니션 미드필더 <strong>'이동경'</strong> 스페셜 카드가 지급되었습니다!<br><br>${detailMsg}`;
-            } else if (level === 110) {
-                awardMessage = `축하합니다! 레벨 110 도달 기념으로 대한민국 국가대표 중원의 마에스트로 <strong>'황인범'</strong> 스페셜 카드가 지급되었습니다!<br><br>${detailMsg}`;
-            } else if (level === 120) {
-                awardMessage = `축하합니다! 레벨 120 도달 기념으로 대한민국 프리미어리거 '황소' <strong>'황희찬'</strong> 스페셜 카드가 지급되었습니다!<br><br>${detailMsg}`;
-            } else if (level === 130) {
-                awardMessage = `축하합니다! 레벨 130 도달 기념으로 대구 FC의 살아있는 전설 <strong>'세징야'</strong> 스페셜 카드가 지급되었습니다!<br><br>${detailMsg}`;
-            } else if (level === 140) {
-                awardMessage = `축하합니다! 레벨 140 도달 기념으로 포항 스틸러스 시절 신인왕과 득점왕을 거머쥐었던 젊은 사자 <strong>'이동국99'</strong> 스페셜 카드가 지급되었습니다!<br><br>${detailMsg}`;
-            } else if (level === 150) {
-                awardMessage = `축하합니다! 레벨 150 도달 기념으로 대한민국 최고의 판타지스타이자 테크니션 <strong>'안정환'</strong> 전설 카드가 지급되었습니다!<br><br>${detailMsg}`;
-            } else {
-                awardMessage = `축하합니다! 레벨 ${level} 도달 기념으로 K리그 최고의 스타 <strong>'${cardObj.name}'</strong> 선수카드가 무작위 특별 보상으로 지급되었습니다!<br><br>${detailMsg}`;
-            }
-                
-            let subText = "앞으로도 레벨 10이 오를 때마다 '특별한' 선물이 지급됩니다!";
-            if (level === 140) {
-                subText = "앞으로 레벨 150 달성 시 대한민국 축구 영웅 '안정환' 전설 카드가 지급됩니다!";
-            } else if (level === 150) {
-                subText = "앞으로 레벨 160부터는 10레벨마다 5 FP가 지급됩니다!";
-            }
+            if (typeof updateTotalCardCount === 'function') updateTotalCardCount();
+            if (typeof renderDeck === 'function') renderDeck();
+
             showLevelRewardModal(
                 "🎁 특별 레벨업 보상 🎁",
                 `Lv. ${level} 달성을 축하합니다!`,
-                `${awardMessage}<br><br>${subText}`
+                `축하합니다! 레벨 ${level} 달성 기념으로 새로운 전설 등급 카드 <strong>'${cardObj.name}'</strong> 선수를 획득하셨습니다!<br><br>(내 컬렉션(덱)에 새로운 전설 선수로 안전하게 지급되었습니다!)<br><br>앞으로도 레벨 10이 오를 때마다 전설 카드(모두 보유 시 10 FP)가 지급됩니다!`
             );
         }
     }

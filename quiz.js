@@ -401,8 +401,8 @@ function renderQuizCurrent() {
             qBarEl.style.width = `${pct}%`;
         }
 
-        // Mode Switching: Multiple Choice (목/금 복습일이거나 새 스케줄 시작 당일인 경우) vs Short Answer (그 외 일반 유지 기간)
-        const isMultipleChoice = isReviewDay() || isTodayQuizSchedule();
+        // Mode Switching: 단어 퀴즈는 항상 4지선다형 객관식 모드로 출제
+        const isMultipleChoice = true;
         const quizChoicesWrapper = document.getElementById('quizChoicesWrapper');
         const quizInputWrapper = document.querySelector('.quiz-input-wrapper');
         const btnQuizSubmit = document.getElementById('btnQuizSubmit');
