@@ -217,26 +217,26 @@ const CARDS_DATABASE = {
     "motta": {
         id: "motta",
         name: "모따",
-        rating: 79,
+        rating: 86,
         position: "ST",
         nation: "Brazil",
         nationFlag: "https://flagcdn.com/w40/br.png",
         club: "JEONBUK",
         image: "player/모따.png",
-        rarity: "normal",
-        description: "유연한 발재간과 탁월한 공간 침투력을 보유한 브라질 테크니션 포워드입니다. 감각적인 연계 플레이와 빠른 반박자 빠른 슈팅 타이밍으로 상대의 골문을 흔드는 크랙입니다.",
+        rarity: "special",
+        description: "탁월한 고공 헤딩 능력과 압도적인 피지컬을 앞세워 페널티 박스를 지배하는 브라질 특급 타깃형 스트라이커입니다. 높은 타점의 위력적인 헤더와 브라질리언 특유의 유연한 연계 플레이, 반박자 빠른 슈팅 타이밍으로 상대 수비진을 무너뜨리는 최전방 해결사입니다.",
         theme: {
             primary: "#005a3c",
             secondary: "#fec913",
-            glow: "#ff9f00"
+            glow: "#ffd700"
         },
         stats: {
-            pac: 75,
-            sho: 80,
-            pas: 64,
-            dri: 73,
-            def: 35,
-            phy: 80
+            pac: 77,
+            sho: 87,
+            pas: 80,
+            dri: 77,
+            def: 55,
+            phy: 92
         }
     },
     "kim_jin_gyu": {

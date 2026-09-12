@@ -2035,4 +2035,13 @@ graph TD
 - **수정 파일 및 변경 내역**:
   1. `js/update_data.js`: `v3.4.0` 릴리즈 로그 블록 삭제 및 `v3.3.0`을 `latest: true`로 지정.
   2. `index.html`: `js/update_data.js?v=2.78` 쿼리 버전 판올림.
-  3. `sw.js`: PWA 캐시 버전을 **`fc-star-v345`**로 상향 갱신.
+  3. `sw.js` (캐시 버전 **`fc-star-v345`**)로 상향 갱신.
+
+141. **모따(motta) 선수 데이터 상향 및 스페셜 등급 개편 (2026.09.12 - v346)**
+- **작업 개요**:
+  - 전북 현대 스트라이커 모따(motta) 선수를 일반(normal)에서 스페셜(special, OVR 86) 등급으로 상향 조정.
+  - 탁월한 고공 헤딩 능력과 막강한 피지컬(PHY 92), 결정력(SHO 87)을 강조한 신규 선수 소개 문구 적용 및 CSV/데이터베이스 완벽 동기화.
+- **수정 파일 및 변경 내역**:
+  1. `player_data.js`: 모따(motta) OVR 86, 희귀도 `special`, 스탯(PAC 77, SHO 87, PAS 80, DRI 77, DEF 55, PHY 92) 및 헤딩 특화 소개 문구 반영.
+  2. `선수데이터.csv` & `선수데이터2.csv`: 모따 데이터 동기화 업데이트.
+  3. `index.html` & `sw.js`: `player_data.js?v=1.69` 및 PWA 캐시 버전 **`fc-star-v346`** 판올림.
