@@ -73,8 +73,8 @@ const OTHER_TEAMS_PLAYERS_PRESET_JLEAGUE = [
     { id: "j_urawa_2", name: "마츠오", teamId: "urawa", teamName: "우라와 레즈" },
 
     // 8. 세레소 오사카 (cerezo)
-    { id: "j_cerezo_1", name: "레오 세아라", teamId: "cerezo", teamName: "세레소 오사카" },
-    { id: "j_cerezo_2", name: "페르난데스", teamId: "cerezo", teamName: "세레소 오사카" },
+    { id: "j_cerezo_1", name: "카가와 신지", teamId: "cerezo", teamName: "세레소 오사카" },
+    { id: "j_cerezo_2", name: "싸박", teamId: "cerezo", teamName: "세레소 오사카" },
 
     // 9. 도쿄 베르디 (verdy)
     { id: "j_verdy_1", name: "기무라", teamId: "verdy", teamName: "도쿄 베르디" },
@@ -149,3 +149,9 @@ const J_LEAGUE_TEAM_FORMATIONS = {
     "chiba": "4-4-2",
     "yamagata": "4-2-3-1"
 };
+
+// 전역 TEAM_FORMATIONS_PRESET과 자동 병합
+if (typeof TEAM_FORMATIONS_PRESET !== 'undefined') {
+    Object.assign(TEAM_FORMATIONS_PRESET, J_LEAGUE_TEAM_FORMATIONS);
+}
+

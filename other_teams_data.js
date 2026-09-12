@@ -220,5 +220,25 @@ const TEAM_FORMATIONS_PRESET = {
     "juventus": "4-2-3-1",
     "ac_milan": "4-2-3-1",
     "sporting_cp": "3-4-3",
-    "benfica": "4-2-3-1"
+    "benfica": "4-2-3-1",
+
+    // 🇯🇵 J1리그 (12개 구단)
+    "tokyo": "4-2-3-1",
+    "kobe": "4-3-3",
+    "hiroshima": "3-4-3",
+    "machida": "4-4-2",
+    "kashima": "4-2-3-1",
+    "gamba": "4-2-3-1",
+    "marinos": "4-3-3",
+    "urawa": "4-2-3-1",
+    "cerezo": "4-3-3",
+    "verdy": "3-4-3",
+    "kawasaki": "4-2-3-1",
+    "nagoya": "3-4-3",
+
+    // 🏆 J리그 FA 컵 추가 4개 구단
+    "shimizu": "4-2-3-1",
+    "iwata": "4-2-3-1",
+    "chiba": "4-4-2",
+    "yamagata": "4-3-3"
 };
