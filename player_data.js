@@ -2367,7 +2367,7 @@ const CARDS_DATABASE = {
     "park_joo_ho": {
         id: "park_joo_ho",
         name: "박주호",
-        rating: 89,
+        rating: 91,
         position: "LB",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
@@ -2381,12 +2381,37 @@ const CARDS_DATABASE = {
             glow: "#ffd700"
         },
         stats: {
-            pac: 86,
-            sho: 70,
-            pas: 87,
-            dri: 85,
-            def: 88,
-            phy: 84
+            pac: 87,
+            sho: 73,
+            pas: 89,
+            dri: 88,
+            def: 90,
+            phy: 86
+        }
+    },
+    "park_chu_young": {
+        id: "park_chu_young",
+        name: "박주영",
+        rating: 91,
+        position: "ST",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "KOREA",
+        image: "player/박주영.png",
+        rarity: "legend",
+        description: "대한민국 축구 역사상 최고의 '축구 천재'이자 올림픽 동메달 신화의 주역, 박주영입니다. 번뜩이는 퍼스트 터치와 유려한 턴 동작, 상대 수비진의 허를 찌르는 환상적인 프리킥과 무결점 헤더, 그리고 결정적인 순간 골망을 가르는 완벽한 골 결정력으로 온 국민을 열광시킨 불멸의 전설적인 스트라이커입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 84,
+            sho: 92,
+            pas: 86,
+            dri: 91,
+            def: 52,
+            phy: 90
         }
     }
 };

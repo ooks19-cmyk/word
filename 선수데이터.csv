@@ -1,4 +1,4 @@
-ID,이름,레이팅,포지션,국적,국적국기,클럽,이미지,희귀도,설명,PAC,SHO,PAS,DRI,DEF,PHY
+﻿ID,이름,레이팅,포지션,국적,국적국기,클럽,이미지,희귀도,설명,PAC,SHO,PAS,DRI,DEF,PHY
 son_heung_min,손흥민,89,LW,South Korea,https://flagcdn.com/w40/kr.png,LA FC,player/손흥민.png,legend,"대한민국 축구 역사상 최고의 전설적인 공격수입니다. 탁월한 리더십과 훌륭한 인품, 그리고 그라운드 위에서 끝까지 최선을 다하는 헌신적인 태도로 동료 선수들과 온 국민의 열렬한 사랑과 성원을 받는 이 시대 최고의 축구 선수이자 아이콘입니다.",91,89,84,87,42,72
 lee_seung_woo_kr,이승우,88,CAM,South Korea,https://flagcdn.com/w40/kr.png,KOREA,player/이승우_kr.png,special,"가슴에 찬란한 태극 마크를 품고 대한민국의 붉은 함성을 이끄는 특급 공격형 미드필더 이승우입니다. 특유의 기동력과 지칠 줄 모르는 과감한 돌파력, 날카로운 킬패스와 번뜩이는 천재적인 슈팅 감각으로 조국의 승리를 이끄는 스페셜 플레이메이커입니다.",87,90,88,90,60,68
 yang_hyun_jun,양현준,85,RW,South Korea,https://flagcdn.com/w40/kr.png,CELTIC,player/양현준.webp,special,폭발적인 스피드와 저돌적인 드리블 돌파력을 지닌 대한민국의 차세대 윙어 양현준입니다. 과감한 1대1 돌파와 날카로운 크로스로 경기장 측면을 지배하는 대한민국 국가대표팀의 미래이자 스페셜 공격수입니다.,88,82,79,86,42,70
@@ -93,4 +93,5 @@ super_mbappe,S음바페,94,ST,France,https://flagcdn.com/w40/fr.png,REAL MADRID,
 ronaldo_nazario,호나우두,92,ST,Brazil,https://flagcdn.com/w40/br.png,BRAZIL,player2/호나우두.png,legend,"축구 역사상 가장 경이로운 천재 스트라이커이자 '일 페노메노(El Fenómeno)'로 불린 영원한 황제 호나우두입니다. 수비수를 단숨에 무너뜨리는 폭발적인 스피드와 화려한 헛다리 드리블, 그리고 골키퍼마저 제쳐버리는 완벽한 골 결정력으로 2002 한일 월드컵 득점왕과 우승을 이끈 불멸의 전설입니다.",95,94,81,93,38,84
 super_ki_sung_yueng,S기성용,94,CM,South Korea,https://flagcdn.com/w40/kr.png,KOREA,player2/슈퍼 기성용.webp,super,"전설을 초월한 궁극의 마스터 플레이메이커, 슈퍼 기성용(S기성용)입니다. 중원을 완벽히 지배하는 컴퓨터 같은 초정밀 롱패스와 대포알 중거리 슈팅, 유려한 탈압박과 탁월한 피지컬로 경기 조율의 마법을 부리는 대한민국 최고의 사령관입니다.",80,89,95,90,84,87
 shinji_kagawa,카가와 신지,90,CM,Japan,https://flagcdn.com/w40/jp.png,DORTMUND,player2/카가와 신지.png,legend,"분데스리가 2연패와 맨체스터 유나이티드 우승을 이끈 아시아 축구 역사상 최고의 공격형 미드필더 카가와 신지입니다. 번뜩이는 퍼스트 터치와 유려한 탈압박, 자로 잰 듯한 킬패스와 침투 득점력으로 도르트문트의 황금기를 지휘한 전설적인 플레이메이커입니다.",85,86,91,92,74,70
-park_joo_ho,박주호,89,LB,South Korea,https://flagcdn.com/w40/kr.png,DORTMUND,player2/박주호.png,legend,"유럽 명문 FC 바젤, 마인츠, 보루시아 도르트문트와 대한민국 축구 국가대표팀을 빛낸 전설적인 레프트백 박주호입니다. 영리한 축구 지능과 탄탄한 기본기, 지치지 않는 왕성한 활동량과 정교한 왼발 크로스로 측면과 중원을 완벽하게 지배한 멀티플레이어입니다.",86,70,87,85,88,84
+park_joo_ho,박주호,91,LB,South Korea,https://flagcdn.com/w40/kr.png,DORTMUND,player2/박주호.png,legend,"유럽 명문 FC 바젤, 마인츠, 보루시아 도르트문트와 대한민국 축구 국가대표팀을 빛낸 전설적인 레프트백 박주호입니다. 영리한 축구 지능과 탄탄한 기본기, 지치지 않는 왕성한 활동량과 정교한 왼발 크로스로 측면과 중원을 완벽하게 지배한 멀티플레이어입니다.",87,73,89,88,90,86
+park_chu_young,박주영,91,ST,South Korea,https://flagcdn.com/w40/kr.png,KOREA,player/박주영.png,legend,"대한민국 축구 역사상 최고의 '축구 천재'이자 올림픽 동메달 신화의 주역, 박주영입니다. 번뜩이는 퍼스트 터치와 유려한 턴 동작, 상대 수비진의 허를 찌르는 환상적인 프리킥과 무결점 헤더, 그리고 결정적인 순간 골망을 가르는 완벽한 골 결정력으로 온 국민을 열광시킨 불멸의 전설적인 스트라이커입니다.",84,92,86,91,52,90
