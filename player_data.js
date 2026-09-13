@@ -2397,7 +2397,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
-        image: "player/박주영.png",
+        image: "player2/박주영.png",
         rarity: "legend",
         description: "대한민국 축구 역사상 최고의 '축구 천재'이자 올림픽 동메달 신화의 주역, 박주영입니다. 번뜩이는 퍼스트 터치와 유려한 턴 동작, 상대 수비진의 허를 찌르는 환상적인 프리킥과 무결점 헤더, 그리고 결정적인 순간 골망을 가르는 완벽한 골 결정력으로 온 국민을 열광시킨 불멸의 전설적인 스트라이커입니다.",
         theme: {
