@@ -98,6 +98,73 @@ const CLOUD_SAVE_INTERVAL = 60000; // 1 minute (60,000 ms)
 let lastUploadedPoints = null;
 let lastUploadedDeckJson = null;
 
+// 캐시 접속 후 최초 서버 확인만 재시도한다. 세이브 선택 완료 후에는 재검사하지 않는다.
+let pendingInitialCloudSync = null;
+let initialCloudSyncTimeoutId = null;
+
+function resetInitialCloudSync() {
+    pendingInitialCloudSync = null;
+    clearTimeout(initialCloudSyncTimeoutId);
+    initialCloudSyncTimeoutId = null;
+    clearTimeout(cloudSaveTimeoutId);
+    cloudSaveTimeoutId = null;
+    isCloudDataSynced = false;
+    dbService.cloudSaveUserId = null;
+    lastCloudUploadTime = 0;
+    lastUploadedPoints = null;
+    lastUploadedDeckJson = null;
+}
+
+function startInitialCloudSync(userData, password) {
+    if (!dbService.isFirebase || userData._serverVerified === true) {
+        syncUserDataOnLogin(userData);
+        return;
+    }
+    // 캐시 데이터로 서버 세이브 선택을 판단하거나 기존 로컬 진행을 덮어쓰지 않는다.
+    isCloudDataSynced = false;
+    dbService.cloudSaveUserId = null;
+    pendingInitialCloudSync = { id: currentUser, password, checking: false };
+    refreshAllScreens();
+    showToast('⚠️ 로컬 데이터로 시작합니다. 서버 확인 전에는 클라우드 저장이 보류됩니다.');
+    initialCloudSyncTimeoutId = setTimeout(retryInitialCloudSync, 15000);
+}
+
+async function retryInitialCloudSync() {
+    const pending = pendingInitialCloudSync;
+    if (!pending || pending.checking || currentUser !== pending.id) return;
+    clearTimeout(initialCloudSyncTimeoutId);
+    initialCloudSyncTimeoutId = null;
+    pending.checking = true;
+    try {
+        // 재확인은 서버 전용이다. 캐시 응답으로 업로드를 해제하지 않는다.
+        let serverData;
+        try {
+            serverData = await dbService.login(pending.id, pending.password, true);
+        } catch (loginErr) {
+            if (pendingInitialCloudSync !== pending || currentUser !== pending.id) return;
+            // 오프라인에서 처음 만든 게스트만 서버에서 계정 부재가 확인된 후 생성한다.
+            if (pending.id.startsWith('guest_') && loginErr.message === '존재하지 않는 아이디입니다.') {
+                serverData = await dbService.register(pending.id, pending.password);
+            } else {
+                throw loginErr;
+            }
+        }
+        if (pendingInitialCloudSync !== pending || currentUser !== pending.id) return;
+        if (serverData._serverVerified !== true) throw new Error('initial_sync_pending');
+        pendingInitialCloudSync = null;
+        // 오프라인 중의 진행도 보호하기 위해 서버가 확인되면 사용자가 최초 세이브를 선택한다.
+        syncUserDataOnLogin(serverData, false, true);
+    } catch (err) {
+        if (pendingInitialCloudSync === pending && currentUser === pending.id) {
+            initialCloudSyncTimeoutId = setTimeout(retryInitialCloudSync, 15000);
+        }
+    } finally {
+        pending.checking = false;
+    }
+}
+
+window.addEventListener('online', retryInitialCloudSync);
+
 // 전체 로컬 세이브 저장 수행
 function saveAllToLocalStorage() {
     const myId = currentUser || "ooks";
@@ -221,7 +288,11 @@ function saveUserProgress(forceImmediate = false) {
         cloudSaveTimeoutId = null;
     }
     
+    const saveUserId = currentUser;
     const uploadProgress = () => {
+        // 예약 업로드도 실행 시점에 계정과 최초 동기화 상태를 다시 확인한다.
+        if (!currentUser || currentUser !== saveUserId || !isCloudDataSynced || window.isSyncingData ||
+            (dbService.isFirebase && dbService.cloudSaveUserId !== currentUser)) return;
         const myId = currentUser;
         const progressData = {
             userPoints: userPoints,
@@ -409,7 +480,9 @@ function saveUserProgress(forceImmediate = false) {
             localLastUpdated: parseInt(localStorage.getItem('fc_star_local_last_updated') || '0') || Date.now()
         };
         
-        dbService.saveProgress(currentUser, progressData)
+        // 로그인 시점의 syncUserDataOnLogin에서만 세이브 선택을 확인한다.
+        // 플레이 중 자동 저장은 재확인 모달 없이 마지막으로 선택한 데이터를 갱신한다.
+        dbService.saveProgress(currentUser, progressData, false)
             .then(() => {
                 lastCloudUploadTime = Date.now();
                 isUploadingProgress = false;
@@ -446,6 +519,8 @@ function saveUserProgress(forceImmediate = false) {
 
 // 데이터 동기화 충돌 방지 및 처리 조율 모달 표시
 function showSyncConflictModal(progressData, serverData) {
+    if (dbService.isFirebase && (!serverData || serverData._serverVerified !== true)) return;
+    const syncUserId = currentUser;
     const modal = document.getElementById('syncConflictModal');
     if (!modal) return;
     
@@ -476,11 +551,11 @@ function showSyncConflictModal(progressData, serverData) {
     
     if (btnLoad) {
         btnLoad.onclick = () => {
+            if (currentUser !== syncUserId) return;
             modal.style.display = 'none';
             modal.classList.remove('active');
             
             // 1. 서버 데이터 반영 및 로컬스토리지 갱신 (forceLoad = true)
-            isCloudDataSynced = true;
             syncUserDataOnLogin(serverData, true);
             
             // 2. 화면 반영을 위해 안전하게 새로고침
@@ -493,6 +568,7 @@ function showSyncConflictModal(progressData, serverData) {
     
     if (btnOverwrite) {
         btnOverwrite.onclick = () => {
+            if (currentUser !== syncUserId) return;
             modal.style.display = 'none';
             modal.classList.remove('active');
             
@@ -518,6 +594,7 @@ function showSyncConflictModal(progressData, serverData) {
             } catch (e) {}
             
             isCloudDataSynced = true;
+            dbService.cloudSaveUserId = currentUser;
             lastUploadedPoints = null; // 강제 업로드 트리거를 위해 초기화
             lastUploadedDeckJson = null;
             showToast("💾 로컬 데이터로 클라우드 백업을 진행합니다...");
@@ -555,8 +632,11 @@ function refreshAllScreens() {
     updateAuthBadgeUI();
 }
 
-function syncUserDataOnLogin(userData, forceLoad = false) {
+function syncUserDataOnLogin(userData, forceLoad = false, requireChoice = false) {
     if (!userData) return;
+    isCloudDataSynced = false;
+    dbService.cloudSaveUserId = null;
+    if (dbService.isFirebase && userData._serverVerified !== true) return;
     
     window.isSyncingData = true;
     try {
@@ -580,7 +660,7 @@ function syncUserDataOnLogin(userData, forceLoad = false) {
         }
 
         // 로컬 진행 내역과 클라우드 데이터 시점이 다르고 강제 로드가 아닐 시 -> 사용자에게 선택 모달 표시
-        if (!forceLoad && localLastUpdated > cloudLastUpdated) {
+        if (!forceLoad && (requireChoice || localLastUpdated > cloudLastUpdated)) {
             console.log("⚠️ [Sync Info] 로컬 장치에 업로드되지 않은 최신 게임 진행 내역이 감지되었습니다. 사용자 선택을 대기합니다.");
             isCloudDataSynced = false; // 사용자가 선택하기 전까지 자동 클라우드 업로드 전면 차단
             window.isSyncingData = false;
@@ -984,6 +1064,7 @@ function syncUserDataOnLogin(userData, forceLoad = false) {
         
         // 동기화 완료 상태 마크
         isCloudDataSynced = true;
+        dbService.cloudSaveUserId = currentUser;
         
         // 데이터 동기화 완료 후 오늘 기준 컨디션 업데이트 적용
         try {
@@ -1152,6 +1233,7 @@ async function handleAuthSubmit() {
     
     isAuthSubmitting = true;
     const btnSubmit = document.getElementById('btnSubmitAuth');
+    resetInitialCloudSync();
     if (btnSubmit) btnSubmit.disabled = true;
     
     showToast(`${authMode === 'login' ? '로그인' : '회원가입'} 진행 중...`);
@@ -1164,7 +1246,7 @@ async function handleAuthSubmit() {
             localStorage.setItem('fc_star_local_data_owner', currentUser);
             
             // Sync and refresh
-            syncUserDataOnLogin(userData);
+            startInitialCloudSync(userData, pw);
             
             // Keep session
             localStorage.setItem('fc_star_current_user', currentUser);
@@ -1178,7 +1260,7 @@ async function handleAuthSubmit() {
             localStorage.setItem('fc_star_local_data_owner', currentUser);
             
             // Sync & automatically save existing local progress (if any) as first upload
-            syncUserDataOnLogin(defaultData);
+            startInitialCloudSync(defaultData, pw);
             
             // Backup existing local data to cloud immediately
             saveUserProgress(true);
@@ -1220,6 +1302,7 @@ async function handleGuestPlay() {
 
     isAuthSubmitting = true;
     const btnGuest = document.getElementById('btnGuestAuth');
+    resetInitialCloudSync();
     if (btnGuest) {
         btnGuest.disabled = true;
         btnGuest.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="margin-right: 6px;"></i>게스트 시작 중...`;
@@ -1248,7 +1331,7 @@ async function handleGuestPlay() {
         
         // Sync and refresh
         if (userData) {
-            syncUserDataOnLogin(userData);
+            startInitialCloudSync(userData, guestPw);
             // Backup existing local data to cloud immediately (just in case they had offline progress before registering)
             saveUserProgress();
         }
@@ -1262,6 +1345,12 @@ async function handleGuestPlay() {
         localStorage.setItem('fc_star_current_user', guestId);
         
         // Trigger UI rendering
+        isCloudDataSynced = false;
+        dbService.cloudSaveUserId = null;
+        if (dbService.isFirebase) {
+            pendingInitialCloudSync = { id: guestId, password: guestPw, checking: false };
+            initialCloudSyncTimeoutId = setTimeout(retryInitialCloudSync, 15000);
+        }
         if (typeof updateAuthBadgeUI === 'function') updateAuthBadgeUI();
         if (typeof updateDevModeUI === 'function') updateDevModeUI();
         if (typeof loadFriendlyMatchesState === 'function') {
@@ -1358,6 +1447,7 @@ function clearLocalGameData() {
 function handleLogout() {
     const confirmLogout = confirm("정말 로그아웃 하시겠습니까?\n로그아웃 시 비회원 로컬 모드로 전환됩니다.");
     if (confirmLogout) {
+        resetInitialCloudSync();
         currentUser = null;
         isCloudDataSynced = false;
         

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fc-star-v354';
+const CACHE_NAME = 'fc-star-v356';
 const ASSETS = [
   './index.html',
   './style.css',

@@ -56,6 +56,7 @@ function safeGetTime(dateVal) {
 const dbService = {
     isFirebase: false,
     firestore: null,
+    cloudSaveUserId: null, // 서버 확인 및 최초 세이브 선택을 마친 현재 계정만 저장 허용
 
     init() {
         const hasConfig = firebaseConfig && firebaseConfig.apiKey && firebaseConfig.apiKey.trim() !== "";
@@ -120,7 +121,7 @@ const dbService = {
     },
 
     // 로그인 처리
-    async login(id, password) {
+    async login(id, password, serverOnly = false) {
         const normalizedId = id.trim().toLowerCase();
         if (!normalizedId) throw new Error("아이디를 입력해주세요.");
 
@@ -133,7 +134,9 @@ const dbService = {
                     console.warn("⚠️ Firestore enableNetwork 실패 (현재 오프라인/지연 상태 유지):", netErr);
                 }
                 const docRef = this.firestore.collection('fc_star_users').doc(normalizedId);
-                const doc = await this._safeGetDoc(docRef);
+                const doc = serverOnly
+                    ? await docRef.get({ source: 'server' })
+                    : await this._safeGetDoc(docRef);
                 if (!doc.exists) {
                     throw new Error("존재하지 않는 아이디입니다.");
                 }
@@ -141,6 +144,10 @@ const dbService = {
                 if (userData.password !== password) {
                     throw new Error("비밀번호가 올바르지 않습니다.");
                 }
+                // 로그인 상태 정보는 게임 데이터나 Firestore에 저장하지 않는다.
+                Object.defineProperty(userData, '_serverVerified', {
+                    value: !!doc.metadata && doc.metadata.fromCache === false && !doc.metadata.hasPendingWrites
+                });
                 return userData;
             } catch (error) {
                 console.error("Firebase 로그인 실패:", error);
@@ -203,16 +210,13 @@ const dbService = {
                     console.warn("⚠️ Firestore enableNetwork 실패:", netErr);
                 }
                 const docRef = this.firestore.collection('fc_star_users').doc(normalizedId);
-                let doc = null;
-                try {
-                    doc = await this._safeGetDoc(docRef);
-                } catch (getErr) {
-                    console.warn("⚠️ 회원가입 전 중복 계정 조회 실패 (신규 가입 시도 진행):", getErr);
-                }
-                if (doc && doc.exists) {
+                // 캐시에 계정이 없더라도 서버의 기존 계정을 덮어쓰지 않도록 서버에서 확인한다.
+                const doc = await docRef.get({ source: 'server' });
+                if (doc.exists) {
                     throw new Error("이미 존재하는 아이디입니다.");
                 }
                 await docRef.set(defaultData);
+                Object.defineProperty(defaultData, '_serverVerified', { value: true });
                 return defaultData;
             } catch (error) {
                 console.error("Firebase 회원가입 실패:", error);
@@ -231,9 +235,12 @@ const dbService = {
     },
 
     // 데이터 클라우드 백업 저장
-    async saveProgress(id, progressData) {
+    async saveProgress(id, progressData, verifyVersion = false) {
         const normalizedId = id.trim().toLowerCase();
         if (!normalizedId) return;
+        if (this.isFirebase && this.cloudSaveUserId !== normalizedId) {
+            throw new Error('initial_sync_pending');
+        }
 
         // Firestore에서 undefined 필드 오류 방지를 위한 정제 작업
         let cleanData = progressData;
@@ -247,26 +254,29 @@ const dbService = {
             try {
                 const docRef = this.firestore.collection('fc_star_users').doc(normalizedId);
                 
-                // 낙관적 락 버전 검증: 서버의 최신 updatedAt과 클라이언트의 lastSyncedUpdatedAt 비교
-                try {
-                    const doc = await this._safeGetDoc(docRef);
-                    if (doc && doc.exists) {
-                        const serverData = doc.data();
-                        if (serverData && serverData.updatedAt) {
-                            const clientSyncTime = progressData.lastSyncedUpdatedAt || "";
-                            if (clientSyncTime && serverData.updatedAt !== clientSyncTime) {
-                                console.warn("⚠️ [Sync Mismatch] Server updatedAt:", serverData.updatedAt, "Client lastSynced:", clientSyncTime);
-                                const err = new Error("version_conflict");
-                                err.serverData = serverData;
-                                throw err;
+                // 세이브 선택 모달은 로그인 직후 `syncUserDataOnLogin()`에서만 판단한다.
+                // 게임 중 자동 저장은 마지막 로그인 때 확정된 세이브에 바로 반영한다.
+                if (verifyVersion) {
+                    try {
+                        const doc = await this._safeGetDoc(docRef);
+                        if (doc && doc.exists) {
+                            const serverData = doc.data();
+                            if (serverData && serverData.updatedAt) {
+                                const clientSyncTime = progressData.lastSyncedUpdatedAt || "";
+                                if (clientSyncTime && serverData.updatedAt !== clientSyncTime) {
+                                    console.warn("⚠️ [Sync Mismatch] Server updatedAt:", serverData.updatedAt, "Client lastSynced:", clientSyncTime);
+                                    const err = new Error("version_conflict");
+                                    err.serverData = serverData;
+                                    throw err;
+                                }
                             }
                         }
+                    } catch (getErr) {
+                        if (getErr.message === "version_conflict") {
+                            throw getErr;
+                        }
+                        console.warn("⚠️ saveProgress 버전 체크 중 조회 예외 (저장 진행):", getErr);
                     }
-                } catch (getErr) {
-                    if (getErr.message === "version_conflict") {
-                        throw getErr;
-                    }
-                    console.warn("⚠️ saveProgress 버전 체크 중 조회 예외 (저장 진행):", getErr);
                 }
                 
                 const newTimestamp = new Date().toISOString();
