@@ -374,3 +374,108 @@ matchTodayCount = 0; matchLastDate = new Date().toLocaleDateString('ko-KR'); loc
     console.log(`✅ 보유 카드 ${count}장의 각성(awakening)을 5(만렙)로 설정 및 저장 완료!`);
 })();
 ```
+
+---
+
+### 🏆 [챔피언스리그/ACL] 90분 동점 후 연장전 & 승부차기 테스트 콘솔코드
+
+#### 1) ⚡ [15초 실시간 라이브] 챔스 1:1 동점 상황에서 연장전 및 승부차기 즉시 진행
+> '경기 진행' ➔ '챔피언스리그' 탭으로 화면이 이동하며, 정규 90분 1:1 무승부 상태에서 **연장 전/후반(91~120분) 문자 중계 ➔ 골 발생 시 스코어보드 갱신 ➔ 120분 동점 시 승부차기(PK 1~5번)**까지 실시간으로 진행되는 전 과정을 확인합니다.
+
+```javascript
+(function testAclOvertimeLive() {
+    // 1. 경기(match) 메인 탭 및 아챔(acl) 서브탭으로 안전하게 화면 전환
+    if (typeof switchTab === 'function') switchTab('match');
+    if (typeof switchMatchSubTab === 'function') switchMatchSubTab('acl');
+    if (typeof initAclTab === 'function') initAclTab();
+
+    const playerTeamId = (typeof getActiveAclUserTeamId === 'function') ? getActiveAclUserTeamId() : "jeonbuk";
+    const curRound = (typeof aclState !== 'undefined' && aclState.round) ? aclState.round : 16;
+    let matches = (typeof aclState !== 'undefined' && aclState.bracket) ? aclState.bracket[curRound] : null;
+
+    // 만약 현재 라운드가 끝났거나 매치가 없으면 신규 토너먼트로 리셋
+    let playerMatch = matches ? matches.find(m => (m.team1 && m.team1.id === playerTeamId) || (m.team2 && m.team2.id === playerTeamId)) : null;
+    if (!playerMatch || playerMatch.status === 'completed' || aclState.isFinished) {
+        console.log("🔄 새로운 챔피언스리그 시즌으로 초기화 후 테스트를 시작합니다.");
+        if (typeof resetAclStateData === 'function') resetAclStateData();
+        if (typeof initAclTab === 'function') initAclTab();
+        playerMatch = aclState.bracket[16].find(m => (m.team1 && m.team1.id === playerTeamId) || (m.team2 && m.team2.id === playerTeamId));
+    }
+
+    if (!playerMatch) {
+        console.error("❌ 플레이어 매치를 찾을 수 없습니다.");
+        return;
+    }
+
+    const isHome = playerMatch.team1.id === playerTeamId;
+    const opponent = isHome ? playerMatch.team2 : playerMatch.team1;
+    const playerOvr = (typeof getPlayerPureOvr === 'function') ? getPlayerPureOvr() : 75;
+
+    // 2. 중계창 및 스코어보드 1:1 세팅
+    const commBox = document.getElementById('aclCommentaryScroll');
+    if (commBox) {
+        commBox.innerHTML = `
+            <div class="comm-item comm-system">⏱️ 90분 정규 시간 종료! (1 : 1 동점)</div>
+            <div class="comm-item comm-system">⚖️ 토너먼트 규정에 따라 연장전으로 돌입합니다!</div>
+        `;
+    }
+    const homeScoreEl = document.getElementById('aclHomeScore');
+    const awayScoreEl = document.getElementById('aclAwayScore');
+    if (homeScoreEl) homeScoreEl.innerText = "1";
+    if (awayScoreEl) awayScoreEl.innerText = "1";
+    
+    const timeDisplay = document.getElementById('aclSbTimeDisplay');
+    if (timeDisplay) {
+        timeDisplay.innerText = "90'";
+        timeDisplay.classList.add('live-ticking');
+    }
+
+    const playerScorerName = (typeof squadFormation !== 'undefined' && squadFormation["ST"] && CARDS_DATABASE[squadFormation["ST"]]) 
+        ? CARDS_DATABASE[squadFormation["ST"]].name : "이승우";
+    const playerAssisterName = "송민규";
+
+    console.log(`⚽ [챔스 연장전 테스트 시작] ${playerMatch.team1.name} vs ${playerMatch.team2.name} (90분 1:1 상황)`);
+    
+    // 3. 연장전 함수 직접 가동
+    runActualAclExtraTime(1, 1, playerMatch, playerOvr, opponent.rating, playerScorerName, playerAssisterName, isHome);
+})();
+```
+
+#### 2) 🚀 [개발자 모드] 연장전 + 승부차기 즉시(0.1초) 완료 및 판정 결과 확인
+> 대기 시간 없이 연장전과 승부차기가 즉시 완료되어 최종 스코어 및 득점/도움 순위, 다음 라운드 진출 상태가 정상 기록되는지 검증합니다.
+
+```javascript
+(function testAclOvertimeInstant() {
+    if (typeof switchTab === 'function') switchTab('match');
+    if (typeof switchMatchSubTab === 'function') switchMatchSubTab('acl');
+    if (typeof initAclTab === 'function') initAclTab();
+
+    const playerTeamId = (typeof getActiveAclUserTeamId === 'function') ? getActiveAclUserTeamId() : "jeonbuk";
+    const curRound = (typeof aclState !== 'undefined' && aclState.round) ? aclState.round : 16;
+    let matches = (typeof aclState !== 'undefined' && aclState.bracket) ? aclState.bracket[curRound] : null;
+
+    let playerMatch = matches ? matches.find(m => (m.team1 && m.team1.id === playerTeamId) || (m.team2 && m.team2.id === playerTeamId)) : null;
+    if (!playerMatch || playerMatch.status === 'completed' || aclState.isFinished) {
+        if (typeof resetAclStateData === 'function') resetAclStateData();
+        if (typeof initAclTab === 'function') initAclTab();
+        playerMatch = aclState.bracket[16].find(m => (m.team1 && m.team1.id === playerTeamId) || (m.team2 && m.team2.id === playerTeamId));
+    }
+
+    if (!playerMatch) {
+        console.error("❌ 플레이어 매치를 찾을 수 없습니다.");
+        return;
+    }
+
+    const isHome = playerMatch.team1.id === playerTeamId;
+    const opponent = isHome ? playerMatch.team2 : playerMatch.team1;
+    const playerOvr = (typeof getPlayerPureOvr === 'function') ? getPlayerPureOvr() : 75;
+
+    const prevDevMode = window.isDeveloperMode;
+    window.isDeveloperMode = true; // 개발자 모드 임시 활성화
+
+    runActualAclExtraTime(0, 0, playerMatch, playerOvr, opponent.rating, "이승우", "송민규", isHome);
+
+    window.isDeveloperMode = prevDevMode; // 원상 복원
+    console.log("✅ 개발자 모드 연장전/승부차기 즉시 완료 테스트가 실행되었습니다.");
+})();
+```

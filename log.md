@@ -2076,3 +2076,17 @@ graph TD
 - **수정 파일 및 변경 내역**:
   1. `js/coach_advisor.js`: 스트라이커 팁 카드 내 `synergyBadge` 제거.
   2. `index.html` & `sw.js`: `coach_advisor.js?v=1.3`, PWA 캐시 버전 **`fc-star-v349`** 판올림.
+
+145. **챔피언스리그(ACL/UCL) 90분 동점 시 연장전 진행 중단 및 ReferenceError 버그 완벽 수정 (2026.09.14 - v354)**
+- **문제 원인**:
+  - `js/acl.js`의 `runActualAclExtraTime()` 함수 내부에서 스코프 내에 정의되지 않은 `opponent.id`를 참조(`opponentTeamId: opponent.id`)하여 `ReferenceError: opponent is not defined`가 발생.
+  - 정규 시간 90분 무승부 후 연장전 돌입 시 자바스크립트 예외로 인해 연장전 중계 및 경기 진행이 먹통(정지)되는 현상 발생.
+  - 또한 홈/원정에 따른 `score1`/`score2` 및 `opponentTeamId` 매핑 분기가 누락되어 있던 문제 보완.
+- **수정 파일 및 변경 내역**:
+  1. `js/acl.js`:
+     - `runActualAclExtraTime()` 내 `etData` 구성 시 `opponentTeamId: isHome ? playerMatch.team2.id : playerMatch.team1.id` 및 `score1: isHome ? score1 : score2`, `score2: isHome ? score2 : score1`로 안전하게 매핑 정규화.
+     - 연장전 골 발생 시 실시간 골 사운드 재생, 스코어보드 동기화, 선수 골/도움 통계(`addAclPlayerStatRecord`) 누적 로직을 `cup.js`와 동일하게 표준화.
+     - `runActualAclPenaltyShootout()` 내 `opponent` 방어 코드 및 안전 fallback 로직 적용.
+  2. `index.html`: `js/acl.js?v=3.5` 캐시 버스팅 파라미터 판올림.
+  3. `sw.js`: PWA 캐시 버전 **`fc-star-v354`** 갱신.
+
