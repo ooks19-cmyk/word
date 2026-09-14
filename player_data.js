@@ -717,13 +717,13 @@ const CARDS_DATABASE = {
     "park_jin_seob": {
         id: "park_jin_seob",
         name: "박진섭",
-        rating: 81,
+        rating: 89,
         position: "CB",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "JEONBUK",
         image: "player/박진섭.webp",
-        rarity: "normal",
+        rarity: "special",
         description: "전북 현대의 핵심 수비형 미드필더이자 멀티 수비수 박진섭입니다. 지능적인 수비 위치 선정과 뛰어난 공중볼 장악력으로 빌드업의 핵심 역할을 수행하며 팀의 든든한 버팀목이 되어 줍니다.",
         theme: {
             primary: "#005a3c",
@@ -731,12 +731,12 @@ const CARDS_DATABASE = {
             glow: "#00ff87"
         },
         stats: {
-            pac: 76,
-            sho: 65,
-            pas: 74,
-            dri: 73,
-            def: 81,
-            phy: 82
+            pac: 84,
+            sho: 70,
+            pas: 82,
+            dri: 79,
+            def: 89,
+            phy: 90
         }
     },
     "hong_jeong_ho": {
@@ -867,8 +867,8 @@ const CARDS_DATABASE = {
     "jens_castrop": {
         id: "jens_castrop",
         name: "옌스",
-        rating: 85,
-        position: "CM",
+        rating: 88,
+        position: "RB",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
@@ -881,11 +881,11 @@ const CARDS_DATABASE = {
             glow: "#ff2a55"
         },
         stats: {
-            pac: 84,
+            pac: 87,
             sho: 75,
-            pas: 81,
-            dri: 82,
-            def: 79,
+            pas: 85,
+            dri: 87,
+            def: 84,
             phy: 83
         }
     },
@@ -1567,8 +1567,8 @@ const CARDS_DATABASE = {
     "takumi_minamino": {
         id: "takumi_minamino",
         name: "미나미노",
-        rating: 85,
-        position: "CM",
+        rating: 89,
+        position: "CAM",
         nation: "Japan",
         nationFlag: "https://flagcdn.com/w40/jp.png",
         club: "MONACO",
@@ -1581,18 +1581,18 @@ const CARDS_DATABASE = {
             glow: "#ff3e6c"
         },
         stats: {
-            pac: 83,
-            sho: 83,
-            pas: 88,
-            dri: 89,
-            def: 45,
+            pac: 84,
+            sho: 84,
+            pas: 89,
+            dri: 90,
+            def: 55,
             phy: 72
         }
     },
     "junya_ito": {
         id: "junya_ito",
         name: "이토 준야",
-        rating: 85,
+        rating: 89,
         position: "RW",
         nation: "Japan",
         nationFlag: "https://flagcdn.com/w40/jp.png",
@@ -1606,11 +1606,11 @@ const CARDS_DATABASE = {
             glow: "#ffd700"
         },
         stats: {
-            pac: 91,
-            sho: 78,
+            pac: 94,
+            sho: 84,
             pas: 83,
-            dri: 85,
-            def: 40,
+            dri: 89,
+            def: 65,
             phy: 70
         }
     },

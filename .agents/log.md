@@ -2152,3 +2152,17 @@ graph TD
 - 변경 파일: 이전 항목의 구현 파일 및 .agents 작업 기록.
 - 검증: 앞선 Node 회귀 테스트, JS 문법 검사 및 git diff --check 통과.
 - 최종 상태: 781b175 커밋을 origin/main에 푸시 완료.
+
+## 2026-09-14 22:21:06 — 실행 환경 오류 대응 및 박진섭 등급 변경
+- 요청: 필요한 복구 조치 수행 및 박진섭 선수 스페셜 등급·오버롤 89 수정.
+- 수행: 기본 Windows 격리 환경 초기화 실패 확인. 확장 권한에서 파일 접근·디스크 정상 확인 및 apply_patch 실행 성공. 박진섭 rating 89·rarity special 반영, CSV 2종 동기화, 선수 스크립트 v1.70·PWA 캐시 v358 갱신. 기존 다른 선수 변경 보존.
+- 변경 파일: player_data.js, 선수데이터.csv, 선수데이터2.csv, index.html, sw.js, .agents/progress.md, .agents/log.md.
+- 검증: node --check player_data.js 및 sw.js 통과. 선수 JS·CSV 값 일치 확인. CRLF를 고려한 git diff 검사 통과.
+- 최종 상태: 요청 수정 완료. 기본 격리 환경 오류 지속, 확장 권한으로 작업 가능. 커밋·푸시 미실행.
+
+## 2026-09-14 22:23:47 — 박진섭 오버롤 89 세부 스탯 반영
+- 요청: 변경된 오버롤에 맞춰 박진섭 세부 스탯도 업데이트.
+- 수행: 기존 센터백 스탯 기준을 참고해 속도 76→84, 슈팅 65→70, 패스 74→82, 드리블 73→79, 수비 81→89, 피지컬 82→90으로 조정. JS·CSV 2종 동기화. 스크립트 v1.71·PWA 캐시 v359 갱신.
+- 변경 파일: player_data.js, 선수데이터.csv, 선수데이터2.csv, index.html, sw.js, .agents/progress.md, .agents/log.md.
+- 검증: 실제 JS 객체의 rating 89·rarity special·6개 스탯 및 CSV 2종 값 일치 확인. node --check 및 CRLF를 고려한 git diff 검사 통과.
+- 최종 상태: 완료. 커밋·푸시 미실행.
