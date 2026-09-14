@@ -1031,7 +1031,7 @@ function startChallengeMatchSimulation(isRetry = false) {
                             ? getFormationMidfielders(currentFormation, squadFormation, playerDeck)
                             : [];
                         if (mfList.length > 0) {
-                            chancePlayerStat = Math.max(...mfList.map(m => m.sho));
+                            chancePlayerStat = Math.max(...mfList.map(m => m.sho + getPositionMatchGoalBonus(m.slot, m.card)));
                         } else {
                             chancePlayerStat = 75;
                         }
@@ -1039,7 +1039,7 @@ function startChallengeMatchSimulation(isRetry = false) {
                         const cmCardId = squadFormation['CM'];
                         if (cmCardId && CARDS_DATABASE[cmCardId]) {
                             const awakened = (typeof getAwakenedCard === 'function') ? getAwakenedCard(cmCardId) : CARDS_DATABASE[cmCardId];
-                            chancePlayerStat = (awakened.stats && awakened.stats.dri) ? awakened.stats.dri : 75;
+                            chancePlayerStat = getGoalCalculationStat('CM', awakened, 'dri');
                         }
                     }
 
@@ -1077,7 +1077,7 @@ function startChallengeMatchSimulation(isRetry = false) {
                     const gkCardId = squadFormation['GK'];
                     if (gkCardId && CARDS_DATABASE[gkCardId]) {
                         const awakened = (typeof getAwakenedCard === 'function') ? getAwakenedCard(gkCardId) : CARDS_DATABASE[gkCardId];
-                        playerGkStat = (awakened.stats && awakened.stats.def) ? awakened.stats.def : (awakened.rating || 70);
+                        playerGkStat = getGoalCalculationStat('GK', awakened, 'def', currentFormation, awakened.rating || 70);
                     }
 
                     const oppScoreProb = (typeof calculateOpponentScoreProb === 'function')

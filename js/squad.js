@@ -155,6 +155,18 @@ function validateFormation(formationType) {
 }
 
 
+// 화면 표시와 득점 계산에서 동일한 포메이션별 실제 포지션을 사용한다.
+function getFormationDisplayPosition(position, formation = currentFormation) {
+    const overrides = {
+        '4-4-2': { RW: 'ST', LW: 'LM', CM: 'RM' },
+        '4-3-3': { CM: 'DM' },
+        '5-4-1': { LW: 'LM', RW: 'RM', CM: 'CB' },
+        '3-4-3': { CM: 'AM', RCM: 'DM', LCM: 'CB', LB: 'CM', RB: 'CM' },
+        '4-2-3-1': { LW: 'LM', RW: 'RM', CM: 'AM', LCM: 'DM', RCM: 'DM' }
+    };
+    return (overrides[formation] && overrides[formation][position]) || position;
+}
+
 function renderSquadFormation() {
     let totalOvr = 0;
     
@@ -189,25 +201,10 @@ function renderSquadFormation() {
             cardData = getAwakenedCard(cardId);
         }
         
-        let displayPos = pos;
-        if (currentFormation === '5-4-1') {
-            if (pos === 'LW') displayPos = 'LM';
-            else if (pos === 'RW') displayPos = 'RM';
-            else if (pos === 'CM') displayPos = 'CB';
-        } else if (currentFormation === '3-4-3') {
-            if (pos === 'RCM') displayPos = 'DM';
-            else if (pos === 'LCM') displayPos = 'CB';
-            else if (pos === 'LB') displayPos = 'CM';
-            else if (pos === 'RB') displayPos = 'CM';
-        } else if (currentFormation === '4-2-3-1') {
-            if (pos === 'LW') displayPos = 'LM';
-            else if (pos === 'RW') displayPos = 'RM';
-            else if (pos === 'CM') displayPos = 'AM';
-            else if (pos === 'LCM' || pos === 'RCM') displayPos = 'DM';
-        }
+        const displayPos = getFormationDisplayPosition(pos);
         
         let wingerStyleBadge = '';
-        if (pos === 'LW' || pos === 'RW') {
+        if (['LW', 'RW', 'LM', 'RM'].includes(displayPos)) {
             const activeWingerStyles = wingerStyles[currentFormation] || {};
             const style = activeWingerStyles[pos] || (pos === 'LW' ? 'dribble' : 'sprint');
             if (style === 'dribble') {
@@ -215,9 +212,9 @@ function renderSquadFormation() {
             } else {
                 wingerStyleBadge = `<span class="winger-style-mini-badge sprint" title="치고 달리기" style="font-size: 0.62rem; font-weight: 800; background: rgba(255, 62, 108, 0.25); color: #ff3e6c; border: 1px solid rgba(255, 62, 108, 0.4); padding: 1px 4px; border-radius: 4px; margin-left: 3px; vertical-align: middle;">⚡</span>`;
             }
-        } else if (pos === 'ST') {
+        } else if (displayPos === 'ST') {
             const activeStrikerStyles = strikerStyles[currentFormation] || {};
-            const style = activeStrikerStyles[pos] || 'targetman';
+            const style = activeStrikerStyles[pos] || activeStrikerStyles.ST || 'targetman';
             if (style === 'targetman') {
                 wingerStyleBadge = `<span class="striker-style-mini-badge targetman" title="타겟맨" style="font-size: 0.62rem; font-weight: 800; background: rgba(0, 255, 135, 0.25); color: #00ff87; border: 1px solid rgba(0, 255, 135, 0.4); padding: 1px 4px; border-radius: 4px; margin-left: 3px; vertical-align: middle;">🌀</span>`;
             } else {
@@ -265,6 +262,7 @@ function renderSquadFormation() {
                     </div>
                     <div class="mini-card-name">${cardData.name}${conditionArrow}</div>
                 </div>
+                <div class="pitch-position-label">${displayPos}</div>
             `;
         } else {
             // Anonymous Player OVR 70 card placeholder structure
@@ -278,6 +276,7 @@ function renderSquadFormation() {
                     </div>
                     <div class="mini-card-name">무명 선수</div>
                 </div>
+                <div class="pitch-position-label">${displayPos}</div>
             `;
         }
     });
@@ -364,23 +363,7 @@ function openCardSelector(position) {
     const title = document.getElementById('drawerPositionTitle');
     const content = document.getElementById('drawerContent');
     
-    let displayTitle = position;
-    
-    if (currentFormation === '5-4-1') {
-        if (position === 'LW') displayTitle = 'LM';
-        else if (position === 'RW') displayTitle = 'RM';
-        else if (position === 'CM') displayTitle = 'CB';
-    } else if (currentFormation === '3-4-3') {
-        if (position === 'RCM') displayTitle = 'DM';
-        else if (position === 'LCM') displayTitle = 'CB';
-        else if (position === 'LB') displayTitle = 'CM';
-        else if (position === 'RB') displayTitle = 'CM';
-    } else if (currentFormation === '4-2-3-1') {
-        if (position === 'LW') displayTitle = 'LM';
-        else if (position === 'RW') displayTitle = 'RM';
-        else if (position === 'CM') displayTitle = 'AM';
-        else if (position === 'LCM' || position === 'RCM') displayTitle = 'DM';
-    }
+    const displayTitle = getFormationDisplayPosition(position);
     title.innerText = displayTitle;
     overlay.classList.add('active');
     
@@ -393,7 +376,7 @@ function openCardSelector(position) {
         bannerHtml = `
             <div style="background: rgba(255, 215, 0, 0.1); border: 1.5px solid rgba(255, 215, 0, 0.3); padding: 0.8rem 1rem; border-radius: 12px; font-size: 0.8rem; color: #ffd700; line-height: 1.45; font-weight: bold; margin-bottom: 1rem; text-align: left; word-break: keep-all;">
                 <i class="fa-solid fa-star" style="margin-right: 4px; animation: keyPlayerLabelPulse 1.5s infinite alternate;"></i> 
-                <strong>[4-3-3 빌드업 핵심 자리 - CM]</strong><br>
+                <strong>[4-3-3 빌드업 핵심 자리 - DM]</strong><br>
                 패스(PAS)가 <strong>80 이상</strong>인 선수를 기용하면 전술이 활성화되며, 핵심 선수 패스 수치 비례 <strong>공격권 획득 확률 보너스</strong>를 획득합니다! (80 초과 1점당 +0.5%)
             </div>
         `;
@@ -401,7 +384,7 @@ function openCardSelector(position) {
         bannerHtml = `
             <div style="background: rgba(0, 255, 135, 0.1); border: 1.5px solid rgba(0, 255, 135, 0.3); padding: 0.8rem 1rem; border-radius: 12px; font-size: 0.8rem; color: #00ff87; line-height: 1.45; font-weight: bold; margin-bottom: 1rem; text-align: left; word-break: keep-all;">
                 <i class="fa-solid fa-star" style="margin-right: 4px; animation: keyPlayerLabelPulse 1.5s infinite alternate;"></i> 
-                <strong>[3-4-3 스위칭 핵심 자리 - CM (CAM)]</strong><br>
+                <strong>[3-4-3 스위칭 핵심 자리 - AM (CAM)]</strong><br>
                 드리블(DRI)이 <strong>80 이상</strong>인 선수를 기용하면 전술이 활성화되며, 핵심 선수 드리블 수치 비례 <strong>공격권 획득 확률 보너스</strong>를 획득합니다! (80 초과 1점당 +0.5%)
             </div>
         `;
@@ -430,8 +413,8 @@ function openCardSelector(position) {
         content.appendChild(bannerContainer);
     }
     
-    // LW 또는 RW인 경우 플레이스타일 선택 토글 위젯 추가
-    if (position === 'LW' || position === 'RW') {
+    // 내부 슬롯 키 대신 실제 표시 포지션에 맞는 플레이스타일 위젯을 제공한다.
+    if (['LW', 'RW', 'LM', 'RM'].includes(displayTitle)) {
         const styleContainer = document.createElement('div');
         styleContainer.className = 'winger-style-toggle-container';
         styleContainer.style.cssText = `
@@ -465,7 +448,7 @@ function openCardSelector(position) {
             </div>
         `;
         content.appendChild(styleContainer);
-    } else if (position === 'ST') {
+    } else if (displayTitle === 'ST') {
         const styleContainer = document.createElement('div');
         styleContainer.className = 'striker-style-toggle-container';
         styleContainer.style.cssText = `
@@ -480,7 +463,7 @@ function openCardSelector(position) {
         `;
         
         const activeStrikerStyles = strikerStyles[currentFormation] || {};
-        const style = activeStrikerStyles[position] || 'targetman';
+        const style = activeStrikerStyles[position] || activeStrikerStyles.ST || 'targetman';
         const isChecked = style === 'linebreaker';
         
         styleContainer.innerHTML = `
@@ -672,22 +655,7 @@ function selectPlayerForPosition(cardId) {
     if (!card) return;
     
     // Get active slot's display position
-    let displayTitle = activeSelectorPosition;
-    if (currentFormation === '5-4-1') {
-        if (activeSelectorPosition === 'LW') displayTitle = 'LM';
-        else if (activeSelectorPosition === 'RW') displayTitle = 'RM';
-        else if (activeSelectorPosition === 'CM') displayTitle = 'CB';
-    } else if (currentFormation === '3-4-3') {
-        if (activeSelectorPosition === 'RCM') displayTitle = 'DM';
-        else if (activeSelectorPosition === 'LCM') displayTitle = 'CB';
-        else if (activeSelectorPosition === 'LB') displayTitle = 'CM';
-        else if (activeSelectorPosition === 'RB') displayTitle = 'CM';
-    } else if (currentFormation === '4-2-3-1') {
-        if (activeSelectorPosition === 'LW') displayTitle = 'LM';
-        else if (activeSelectorPosition === 'RW') displayTitle = 'RM';
-        else if (activeSelectorPosition === 'CM') displayTitle = 'AM';
-        else if (activeSelectorPosition === 'LCM' || activeSelectorPosition === 'RCM') displayTitle = 'DM';
-    }
+    const displayTitle = getFormationDisplayPosition(activeSelectorPosition);
     
     if (!isPositionCompatible(displayTitle, card.position)) {
         showToast(`❌ 이 포지션(${displayTitle})에는 ${card.position} 선수를 배치할 수 없습니다!`);
@@ -709,7 +677,7 @@ function selectPlayerForPosition(cardId) {
     renderSquadFormation();
     
     const cardName = CARDS_DATABASE[cardId].name;
-    showToast(`${activeSelectorPosition} 자리에 ${cardName} 선수를 배치했습니다!`);
+    showToast(`${displayTitle} 자리에 ${cardName} 선수를 배치했습니다!`);
     
     // Auto-save user data to cloud
     saveUserProgress();
@@ -1363,5 +1331,3 @@ function toggleStrikerStyle(position, isChecked) {
         saveUserProgress();
     }
 }
-
-

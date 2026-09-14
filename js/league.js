@@ -1229,7 +1229,7 @@ function startLeagueAutoSimulation() {
                             ? getFormationMidfielders(currentFormation, squadFormation, playerDeck)
                             : [];
                         if (mfList.length > 0) {
-                            chancePlayerStat = Math.max(...mfList.map(m => m.sho));
+                            chancePlayerStat = Math.max(...mfList.map(m => m.sho + getPositionMatchGoalBonus(m.slot, m.card)));
                         } else {
                             chancePlayerStat = 75;
                         }
@@ -1237,7 +1237,7 @@ function startLeagueAutoSimulation() {
                         const cmCardId = squadFormation['CM'];
                         if (cmCardId && CARDS_DATABASE[cmCardId]) {
                             const card = getAwakenedCard(cmCardId);
-                            chancePlayerStat = card.stats.dri || 75;
+                            chancePlayerStat = getGoalCalculationStat('CM', card, 'dri');
                         }
                     }
                     
@@ -1253,7 +1253,7 @@ function startLeagueAutoSimulation() {
                     const gkCardId = squadFormation['GK'];
                     if (gkCardId && CARDS_DATABASE[gkCardId]) {
                         const card = getAwakenedCard(gkCardId);
-                        playerGkStat = card.stats.def || card.rating || 70;
+                        playerGkStat = getGoalCalculationStat('GK', card, 'def', currentFormation, card.rating || 70);
                     }
                     
                     const oppScoreProb = calculateOpponentScoreProb(activeDiff, opponentOvr, playerGkStat);
@@ -1615,7 +1615,7 @@ function startMatchSimulation() {
                                 ? getFormationMidfielders(currentFormation, squadFormation, playerDeck)
                                 : [];
                             if (mfList.length > 0) {
-                                chancePlayerStat = Math.max(...mfList.map(m => m.sho));
+                                chancePlayerStat = Math.max(...mfList.map(m => m.sho + getPositionMatchGoalBonus(m.slot, m.card)));
                             } else {
                                 chancePlayerStat = 75;
                             }
@@ -1623,7 +1623,7 @@ function startMatchSimulation() {
                             const cmCardId = squadFormation['CM'];
                             if (cmCardId && CARDS_DATABASE[cmCardId]) {
                                 const card = getAwakenedCard(cmCardId);
-                                chancePlayerStat = card.stats.dri || 75;
+                                chancePlayerStat = getGoalCalculationStat('CM', card, 'dri');
                             }
                         }
                         
@@ -1647,7 +1647,7 @@ function startMatchSimulation() {
                         const gkCardId = squadFormation['GK'];
                         if (gkCardId && CARDS_DATABASE[gkCardId]) {
                             const card = getAwakenedCard(gkCardId);
-                            playerGkStat = card.stats.def || card.rating || 70;
+                            playerGkStat = getGoalCalculationStat('GK', card, 'def', currentFormation, card.rating || 70);
                         }
                         
                         const oppScoreProb = calculateOpponentScoreProb(activeDiff, opponentOvr, playerGkStat);
@@ -1890,7 +1890,7 @@ function startMatchSimulation() {
                             ? getFormationMidfielders(currentFormation, squadFormation, playerDeck)
                             : [];
                         if (mfList.length > 0) {
-                            chancePlayerStat = Math.max(...mfList.map(m => m.sho));
+                            chancePlayerStat = Math.max(...mfList.map(m => m.sho + getPositionMatchGoalBonus(m.slot, m.card)));
                         } else {
                             chancePlayerStat = 75;
                         }
@@ -1898,7 +1898,7 @@ function startMatchSimulation() {
                         const cmCardId = squadFormation['CM'];
                         if (cmCardId && CARDS_DATABASE[cmCardId]) {
                             const card = getAwakenedCard(cmCardId);
-                            chancePlayerStat = card.stats.dri || 75;
+                            chancePlayerStat = getGoalCalculationStat('CM', card, 'dri');
                         }
                     }
                     
@@ -1935,7 +1935,7 @@ function startMatchSimulation() {
                     const gkCardId = squadFormation['GK'];
                     if (gkCardId && CARDS_DATABASE[gkCardId]) {
                         const card = getAwakenedCard(gkCardId);
-                        playerGkStat = card.stats.def || card.rating || 70;
+                        playerGkStat = getGoalCalculationStat('GK', card, 'def', currentFormation, card.rating || 70);
                     }
                     
                     const oppScoreProb = calculateOpponentScoreProb(activeDiff, opponentOvr, playerGkStat);

@@ -782,7 +782,7 @@ function startPvpMatchSimulation(roomId, roomData) {
             if (kickerId && CARDS_DATABASE[kickerId]) {
                 const card = getAwakenedCard(kickerId, activeTeam.playerDeck);
                 kickerName = card.name;
-                kickerSho = card.stats.sho || card.rating || 75;
+                kickerSho = getGoalCalculationStat(posKey, card, 'sho', activeTeam.formation, card.rating || 75);
             }
             
             // 골키퍼 정보 로드
@@ -792,7 +792,7 @@ function startPvpMatchSimulation(roomId, roomData) {
             if (gkId && CARDS_DATABASE[gkId]) {
                 const card = getAwakenedCard(gkId, defenderTeam.playerDeck);
                 gkName = card.name;
-                gkDef = card.stats.def || card.rating || 70;
+                gkDef = getGoalCalculationStat('GK', card, 'def', defenderTeam.formation, card.rating || 70);
             }
             
             // 패널티킥 골 성공 확률 계산 (기본 75% 베이스)
@@ -895,17 +895,17 @@ function startPvpMatchSimulation(roomId, roomData) {
                 let attStSho = 75;
                 if (attStId && CARDS_DATABASE[attStId]) {
                     const card = getAwakenedCard(attStId, attackerInfo.playerDeck);
-                    attStSho = getStrikerChanceStat('ST', card, attackerInfo.strikerStyles);
+                    attStSho = getStrikerChanceStat('ST', card, attackerInfo.strikerStyles, attackerInfo.formation);
                 }
                 const defGkId = defenderInfo.squad["GK"];
                 let defGkDef = 70;
                 let defGkName = "상대 골키퍼";
                 if (defGkId && CARDS_DATABASE[defGkId]) {
                     const card = getAwakenedCard(defGkId, defenderInfo.playerDeck);
-                    defGkDef = card.stats.def || card.rating || 70;
+                    defGkDef = getGoalCalculationStat('GK', card, 'def', defenderInfo.formation, card.rating || 70);
                     defGkName = card.name;
                 }
-                const defDefAvg = getTeamAverageStat('def', defenderInfo.squad, defenderInfo.playerDeck);
+                const defDefAvg = getGoalTeamAverageStat('def', defenderInfo.formation, defenderInfo.squad, defenderInfo.playerDeck);
                 
                 const attFormTactic = getPlayerFormationTacticBonuses(attackerInfo.formation, attackerInfo.squad, attackerInfo.playerDeck);
                 const attDetailedTactic = getPlayerDetailedTacticBonuses(attackerInfo.formation, attackerInfo.squad, attackerInfo.playerDeck);
@@ -1024,17 +1024,17 @@ function startPvpMatchSimulation(roomId, roomData) {
             let attStSho = 75;
             if (attStId && CARDS_DATABASE[attStId]) {
                 const card = getAwakenedCard(attStId, attackerInfo.playerDeck);
-                attStSho = getStrikerChanceStat('ST', card, attackerInfo.strikerStyles);
+                attStSho = getStrikerChanceStat('ST', card, attackerInfo.strikerStyles, attackerInfo.formation);
             }
             const defGkId = defenderInfo.squad["GK"];
             let defGkDef = 70;
             let defGkName = "상대 골키퍼";
             if (defGkId && CARDS_DATABASE[defGkId]) {
                 const card = getAwakenedCard(defGkId, defenderInfo.playerDeck);
-                defGkDef = card.stats.def || card.rating || 70;
+                defGkDef = getGoalCalculationStat('GK', card, 'def', defenderInfo.formation, card.rating || 70);
                 defGkName = card.name;
             }
-            const defDefAvg = getTeamAverageStat('def', defenderInfo.squad, defenderInfo.playerDeck);
+            const defDefAvg = getGoalTeamAverageStat('def', defenderInfo.formation, defenderInfo.squad, defenderInfo.playerDeck);
             
             const attFormTactic = getPlayerFormationTacticBonuses(attackerInfo.formation, attackerInfo.squad, attackerInfo.playerDeck);
             const attDetailedTactic = getPlayerDetailedTacticBonuses(attackerInfo.formation, attackerInfo.squad, attackerInfo.playerDeck);

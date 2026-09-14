@@ -1,44 +1,82 @@
+// 정포지션 +1은 능력치를 읽는 득점 확률 계산에만 적용한다.
+// 카드/각성 데이터, 표시 능력치, OVR, 공격권 및 전술 활성 조건은 변경하지 않는다.
+function getPositionMatchGoalBonus(position, card, formation = currentFormation) {
+    if (!card || !card.position || !position) return 0;
+    const aliases = { LCB: 'CB', RCB: 'CB', LCM: 'CM', RCM: 'CM',
+        DM: 'CM', LM: 'LW', RM: 'RW', AM: 'CAM' };
+    const displayPosition = getFormationDisplayPosition(position, formation);
+    const slotRole = aliases[displayPosition] || displayPosition;
+    const cardRole = aliases[card.position] || card.position;
+    const validRoles = ['GK', 'LB', 'CB', 'RB', 'CM', 'CAM', 'LW', 'ST', 'RW'];
+    return validRoles.includes(slotRole) && slotRole === cardRole ? 1 : 0;
+}
+
+function getGoalCalculationStat(position, card, statName, formation = currentFormation, fallback = 75) {
+    const baseStat = (card && card.stats && card.stats[statName]) || fallback;
+    return baseStat + getPositionMatchGoalBonus(position, card, formation);
+}
+
+function getGoalTeamAverageStat(statName, formation = currentFormation, squad = squadFormation, deck = playerDeck) {
+    let total = 0;
+    TACTICAL_POSITIONS.forEach(position => {
+        const cardId = squad[position];
+        const card = cardId && CARDS_DATABASE[cardId] ? getAwakenedCard(cardId, deck) : null;
+        total += card && card.stats && card.stats[statName] !== undefined
+            ? card.stats[statName] + getPositionMatchGoalBonus(position, card, formation)
+            : 70;
+    });
+    return Math.round(total / TACTICAL_POSITIONS.length);
+}
+
 // 0. 윙어 플레이스타일에 따른 찬스 스탯 계산
-function getWingerChanceStat(position, card, styles = null) {
+function getWingerChanceStat(position, card, styles = null, formation = currentFormation) {
+    // 4-4-2의 RW 슬롯은 실제 오른쪽 ST이므로 스트라이커 계산을 사용한다.
+    if (getFormationDisplayPosition(position, formation) === 'ST') {
+        return getStrikerChanceStat(position, card, null, formation);
+    }
     let activeStyles = styles;
     if (!activeStyles && typeof wingerStyles !== 'undefined') {
-        activeStyles = wingerStyles[currentFormation] || wingerStyles;
+        activeStyles = wingerStyles[formation] || wingerStyles;
     }
     if (!activeStyles) activeStyles = { LW: 'dribble', RW: 'sprint' };
     
     // 이중 중첩 방지 방어 코드
-    if (activeStyles[currentFormation]) {
-        activeStyles = activeStyles[currentFormation];
+    if (activeStyles[formation]) {
+        activeStyles = activeStyles[formation];
     }
     
     const style = activeStyles[position] || (position === 'LW' ? 'dribble' : 'sprint');
     
     if (style === 'dribble') {
-        return Math.round(((card.stats.dri || 75) + (card.stats.sho || 75)) / 2);
+        return Math.round((getGoalCalculationStat(position, card, 'dri', formation) +
+            getGoalCalculationStat(position, card, 'sho', formation)) / 2);
     } else {
-        return Math.round(((card.stats.pac || 75) + (card.stats.sho || 75)) / 2);
+        return Math.round((getGoalCalculationStat(position, card, 'pac', formation) +
+            getGoalCalculationStat(position, card, 'sho', formation)) / 2);
     }
 }
 
 // 0-2. 스트라이커 플레이스타일에 따른 찬스 스탯 계산
-function getStrikerChanceStat(position, card, styles = null) {
+function getStrikerChanceStat(position, card, styles = null, formation = currentFormation) {
     let activeStyles = styles;
     if (!activeStyles && typeof strikerStyles !== 'undefined') {
-        activeStyles = strikerStyles[currentFormation] || strikerStyles;
+        activeStyles = strikerStyles[formation] || strikerStyles;
     }
     if (!activeStyles) activeStyles = { ST: 'targetman' };
     
     // 이중 중첩 방지 방어 코드
-    if (activeStyles[currentFormation]) {
-        activeStyles = activeStyles[currentFormation];
+    if (activeStyles[formation]) {
+        activeStyles = activeStyles[formation];
     }
     
-    const style = activeStyles[position] || 'targetman';
+    const style = activeStyles[position] || activeStyles.ST || 'targetman';
     
     if (style === 'targetman') {
-        return Math.round(((card.stats.sho || 75) + (card.stats.phy || 75)) / 2);
+        return Math.round((getGoalCalculationStat(position, card, 'sho', formation) +
+            getGoalCalculationStat(position, card, 'phy', formation)) / 2);
     } else {
-        return Math.round(((card.stats.sho || 75) + (card.stats.pac || 75)) / 2);
+        return Math.round((getGoalCalculationStat(position, card, 'sho', formation) +
+            getGoalCalculationStat(position, card, 'pac', formation)) / 2);
     }
 }
 
@@ -1170,18 +1208,9 @@ let lastTacticGoalData = null;
  * (5-4-1의 CM 슬롯은 CB이므로 제외, 3-4-3의 LCM 슬롯은 CB이므로 제외 등 완벽 필터링)
  */
 function getFormationMidfielders(formation = '4-3-3', squad = squadFormation, deck = playerDeck) {
-    let mfSlots = [];
-    if (formation === '4-3-3') {
-        mfSlots = ['CM', 'LCM', 'RCM'];
-    } else if (formation === '5-4-1') {
-        mfSlots = ['LCM', 'RCM']; // 5-4-1의 CM 슬롯은 중앙 수비수(CB)이므로 완벽 제외!
-    } else if (formation === '3-4-3') {
-        mfSlots = ['CM', 'RCM']; // 3-4-3의 LCM 슬롯은 중앙 수비수(CB)이므로 제외!
-    } else if (formation === '4-2-3-1') {
-        mfSlots = ['CM', 'LCM', 'RCM'];
-    } else { // 4-4-2 등 기본
-        mfSlots = ['LCM', 'RCM', 'CM'];
-    }
+    const midfieldPositions = ['CM', 'LCM', 'RCM', 'DM', 'AM'];
+    const mfSlots = ['CM', ...TACTICAL_POSITIONS.filter(slot => slot !== 'CM')].filter(slot =>
+        midfieldPositions.includes(getFormationDisplayPosition(slot, formation)));
 
     const list = [];
     mfSlots.forEach(slot => {
@@ -1439,7 +1468,7 @@ function calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentRating, 
 }
 
 function calculateOpponentScoreProb(activeDiff, opponentOvr, playerGkStat) {
-    const playerDef = getTeamAverageStat('def');
+    const playerDef = getGoalTeamAverageStat('def');
     const playerDefBonus = Math.max(0, (playerDef - 70) * 0.01);
     const gkBonus = Math.max(0, (playerGkStat + 5 - opponentOvr) * 0.01);
     const calculated = 0.40 - (activeDiff * 0.026) - playerDefBonus - gkBonus;

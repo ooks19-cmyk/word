@@ -2138,3 +2138,17 @@ graph TD
 - 변경 파일: `AGENTS.md`, `.agents/progress.md`, `.agents/log.md`
 - 검증: git push 성공(a0b53e8 → 718eb67), main과 origin/main 일치 확인.
 - 최종 상태: 코드 푸시 및 완료 기록 정리 완료.
+
+## 2026-09-14 15:24:32 — 정포지션 득점 보너스 및 포메이션 라벨
+- 요청: 실제 배치 포지션과 카드 포지션 일치 시 득점 계산 능력치 각각 +1. 포메이션 매핑 오류 확인 및 선수 박스 아래 작은 포지션 라벨 표시.
+- 수행: 포메이션 표시·선택·득점 판정·친구 스쿼드의 역할 매핑 통일. 4-4-2의 RW 슬롯을 ST, LW를 LM, CM을 RM으로 수정. 4-3-3 중앙 DM 및 3-4-3 중앙 AM 반영. 기존 저장 슬롯과 선수 배치는 보존. 실제 중앙 미드필더 필터 정정. 정포지션 득점 전용 능력치 및 수비 평균 보너스를 일반 경기·실시간 경기·승부차기에 적용. 선수 카드와 빈 자리 아래 작은 라벨 추가. CSS·JS·PWA 버전 갱신.
+- 변경 파일: js/squad.js, js/match_algorithm.js, js/league.js, js/cup.js, js/acl.js, js/friendly.js, js/realtime.js, js/friend.js, css/squad.css, style.css, index.html, sw.js, tests/position_match_goal_bonus.test.cjs, .agents/progress.md, .agents/log.md
+- 검증: Node 회귀 테스트 통과(5개 포메이션 전체 슬롯·6개 능력치, 스타일·각성·컨디션 중첩, 8개 경기 찬스 경로, 실시간·승부차기, 원본 능력치·OVR·공격 전술 불변). 변경 JS 문법 및 git diff --check 통과. 브라우저 육안 검증 미수행.
+- 최종 상태: 구현 완료. 이번 변경의 커밋·푸시는 미실행.
+
+## 2026-09-14 15:30:59 — 정포지션 기능 Git 푸시 요청
+- 요청: 정포지션 득점 보너스·포메이션 라벨 수정 사항 Git 푸시.
+- 수행: main 브랜치에서 변경 사항과 작업 기록을 커밋 후 word 원격 저장소로 푸시 예정.
+- 변경 파일: 이전 항목의 구현 파일 및 .agents 작업 기록.
+- 검증: 앞선 Node 회귀 테스트, JS 문법 검사 및 git diff --check 통과.
+- 최종 상태: 푸시 진행 중.

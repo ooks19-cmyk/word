@@ -332,22 +332,7 @@ function renderFriendSquad(squad, deck, formationType, user) {
         }
 
         // 전술별 포지션 뱃지 명칭 변환
-        let displayPos = pos;
-        if (formationType === '5-4-1') {
-            if (pos === 'LW') displayPos = 'LM';
-            else if (pos === 'RW') displayPos = 'RM';
-            else if (pos === 'CM') displayPos = 'CB';
-        } else if (formationType === '3-4-3') {
-            if (pos === 'RCM') displayPos = 'DM';
-            else if (pos === 'LCM') displayPos = 'CB';
-            else if (pos === 'LB') displayPos = 'CM';
-            else if (pos === 'RB') displayPos = 'CM';
-        } else if (formationType === '4-2-3-1') {
-            if (pos === 'LW') displayPos = 'LM';
-            else if (pos === 'RW') displayPos = 'RM';
-            else if (pos === 'CM') displayPos = 'AM';
-            else if (pos === 'LCM' || pos === 'RCM') displayPos = 'DM';
-        }
+        const displayPos = getFormationDisplayPosition(pos, formationType);
 
         const cardId = squad[pos];
         let cardData = null;
@@ -369,24 +354,24 @@ function renderFriendSquad(squad, deck, formationType, user) {
                 <div class="mini-player-card active-placed${captainClass}">
                     ${captainBadge}
                     <div class="mini-card-ovr-badge">${cardData.rating}${starIndicator}</div>
-                    <div class="mini-card-position-badge">${displayPos}</div>
                     <div class="mini-card-portrait">
                         <img src="${cardData.image}" alt="${cardData.name}" onerror="this.src='https://placehold.co/80x80/005a3c/ffd700?text=${encodeURIComponent(cardData.name)}'">
                     </div>
                     <div class="mini-card-name">${cardData.name}</div>
                 </div>
+                <div class="pitch-position-label">${displayPos}</div>
             `;
         } else {
             totalOvr += 70;
             slotEl.innerHTML = `
                 <div class="mini-player-card anonymous">
                     <div class="mini-card-ovr-badge">70</div>
-                    <div class="mini-card-position-badge">${displayPos}</div>
                     <div class="mini-card-portrait">
                         <i class="fa-solid fa-user-ninja"></i>
                     </div>
                     <div class="mini-card-name">무명 선수</div>
                 </div>
+                <div class="pitch-position-label">${displayPos}</div>
             `;
         }
     });
