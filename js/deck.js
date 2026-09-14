@@ -352,17 +352,26 @@ function renderStorageDeck() {
 function openStoragePage() {
     const deckContainer = document.getElementById('deckContainer');
     const storageContainer = document.getElementById('storageContainer');
+    const scrollY = window.scrollY || window.pageYOffset || 0;
+    const deckHeight = deckContainer ? deckContainer.offsetHeight : 0;
+
     if (deckContainer) deckContainer.style.display = 'none';
     if (storageContainer) {
+        // 보관함 카드 수가 적어도 문서 높이가 줄어 스크롤이 위로 튀지 않게 한다.
+        storageContainer.style.minHeight = `${deckHeight}px`;
         storageContainer.style.display = 'block';
         renderStorageDeck();
+        requestAnimationFrame(() => window.scrollTo(0, scrollY));
     }
 }
 
 function closeStoragePage() {
     const deckContainer = document.getElementById('deckContainer');
     const storageContainer = document.getElementById('storageContainer');
-    if (storageContainer) storageContainer.style.display = 'none';
+    if (storageContainer) {
+        storageContainer.style.display = 'none';
+        storageContainer.style.minHeight = '';
+    }
     if (deckContainer) {
         deckContainer.style.display = 'block';
         renderDeck();
@@ -541,4 +550,3 @@ function upgradeCardToSix(cardId) {
     
     alert(`🎉 '${cardObj.card.name}' 선수가 ★6 각성(최종 강화)으로 고정 강화되었습니다! 🎉`);
 }
-

@@ -2166,3 +2166,10 @@ graph TD
 - 변경 파일: player_data.js, 선수데이터.csv, 선수데이터2.csv, index.html, sw.js, .agents/progress.md, .agents/log.md.
 - 검증: 실제 JS 객체의 rating 89·rarity special·6개 스탯 및 CSV 2종 값 일치 확인. node --check 및 CRLF를 고려한 git diff 검사 통과.
 - 최종 상태: c4277cf 커밋을 origin/main에 푸시 완료.
+
+## 2026-09-14 23:22:53 — 보관함 전환 스크롤 위치 유지
+- 요청: 덱 화면에서 보관함 버튼을 눌렀을 때 스크롤이 맨 위로 올라가지 않고 현재 화면 영역을 유지.
+- 수행: 보관함 전환 전 스크롤 좌표와 덱 컨테이너 높이를 저장. 보관함에 기존 덱 높이를 최소 높이로 설정해 문서 높이 축소를 막고, 렌더링 다음 프레임에 저장 좌표를 복원. 돌아올 때 최소 높이 해제. deck.js 쿼리 버전과 PWA 캐시 갱신.
+- 변경 파일: js/deck.js, index.html, sw.js, .agents/progress.md, .agents/log.md.
+- 검증: Node VM 전환 시뮬레이션에서 480px 스크롤·960px 최소 높이 보존 및 복귀 시 최소 높이 해제 확인. node --check 및 CRLF를 고려한 git diff 검사 통과.
+- 최종 상태: 완료. 커밋·푸시 미실행.
