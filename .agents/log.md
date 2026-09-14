@@ -2124,3 +2124,17 @@ graph TD
 - 변경 파일: `db.js`, `js/auth.js`, `index.html`, `sw.js`, `scratch/verify_initial_cloud_sync.cjs`, `.agents/progress.md`, `.agents/log.md`
 - 검증: 실제 db.js·state.js·auth.js를 Node VM 및 모의 Firestore에서 실행. 캐시 접속 저장 차단, 재시도 캐시 차단, 복구 후 선택 대기, 로컬·클라우드 양쪽 선택, 정상 로그인, 선택 후 반복 검사 없음, 계정 전환·예약 저장 차단, 미확정 쓰기 및 신규 오프라인 게스트 처리 통과. node --check 및 git diff --check 통과. 실제 클라우드 변경 없음.
 - 최종 상태: 코드 수정 완료. db v2.4, auth v2.70, PWA 캐시 v356으로 갱신.
+
+## 2026-09-14 15:03:33 — Git 커밋 및 푸시 요청
+- 요청: 이번 수정 사항 Git 푸시
+- 수행: 수정한 게임 파일과 작업 로그 이동을 718eb67에 커밋. main이 origin/main을 추적하며 origin/main과 커밋 부모가 일치함을 확인.
+- 변경 파일: `db.js`, `js/auth.js`, `index.html`, `sw.js`, `.agents/log.md`, `.agents/progress.md` (최상위 log.md는 .agents로 이동)
+- 검증: git diff --check 통과. main은 origin/main보다 1개 커밋 앞섬. 푸시는 실행되지 않음.
+- 최종 상태: 자동 승인 검토에서 원격 소유·공개 여부 및 구체적 외부 전송 승인 부족을 이유로 차단됨. 사용자 승인 대기.
+
+## 2026-09-14 15:06:09 — 승인 후 Git 푸시 및 기본 브랜치 규칙 기록
+- 요청: word 저장소 main 브랜치에 코드·작업 기록 푸시. 앞으로 별도 지시가 없으면 main 사용.
+- 수행: 사용자 명시적 승인 후 718eb67을 origin/main에 푸시. AGENTS.md에 기본 main 브랜치 및 기존 작업 기록 규칙을 보존함.
+- 변경 파일: `AGENTS.md`, `.agents/progress.md`, `.agents/log.md`
+- 검증: git push 성공(a0b53e8 → 718eb67), main과 origin/main 일치 확인.
+- 최종 상태: 코드 푸시 및 완료 기록 정리 완료.
