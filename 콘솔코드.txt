@@ -1,3 +1,14 @@
+국대모드 진입
+
+(() => {
+  switchTab('match');
+  switchMatchSubTab('national');
+  renderNationalMode();
+})();
+
+
+resetNationalModeDev()
+
 리그 및 컵 초기화
 resetLeagueSeason() 및 
 resetCupSeason() 
@@ -6,7 +17,7 @@ resetAclStateData(); initAclTab(); console.log("🏆 아챔 토너먼트가 성�
 
 skipToAclFinal();
 
-강제 시즌 종료
+## 강제 시즌 종료
 
 checkSeasonChampion();
 
@@ -34,12 +45,12 @@ javascript
 
 
 // 1. 라운드 변경 및 저장
-leagueRound = 33;
-localStorage.setItem('fc_star_league_round', '33');
+leagueRound = 38;
+localStorage.setItem('fc_star_league_round', '38');
 // 2. 프리뷰 보드 및 순위표 UI 동기화
 updateMatchPreviewBoard();
 renderLeagueTable();
-showToast("33라운드로 이동했습니다!");
+showToast("38라운드로 이동했습니다!");
 
 
 친선경기 리셋 코드

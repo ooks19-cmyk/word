@@ -617,7 +617,7 @@ const CARDS_DATABASE = {
     "jo_hyeon_woo": {
         id: "jo_hyeon_woo",
         name: "조현우",
-        rating: 85,
+        rating: 87,
         position: "GK",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
@@ -635,7 +635,7 @@ const CARDS_DATABASE = {
             sho: 83,
             pas: 75,
             dri: 85,
-            def: 85,
+            def: 88,
             phy: 82
         }
     },
@@ -1539,6 +1539,31 @@ const CARDS_DATABASE = {
             phy: 89
         }
     },
+    "zion_suzuki": {
+        id: "zion_suzuki",
+        name: "스즈키 자이온",
+        rating: 89,
+        position: "GK",
+        nation: "Japan",
+        nationFlag: "https://flagcdn.com/w40/jp.png",
+        club: "ASTON VILLA",
+        image: "player2/스즈키 자이온.webp",
+        rarity: "special",
+        description: "뛰어난 반사 신경과 넓은 수비 범위, 침착한 빌드업 능력을 겸비한 일본 국가대표 수문장 스즈키 자이온입니다. 압도적인 피지컬을 바탕으로 공중볼을 장악하고 결정적인 일대일 상황에서도 강한 존재감을 보이는 스페셜 골키퍼입니다.",
+        theme: {
+            primary: "#670e36",
+            secondary: "#95bfe5",
+            glow: "#00a3e0"
+        },
+        stats: {
+            pac: 83,
+            sho: 75,
+            pas: 80,
+            dri: 84,
+            def: 90,
+            phy: 88
+        }
+    },
     "erling_haaland": {
         id: "erling_haaland",
         name: "홀란드",
@@ -1556,8 +1581,8 @@ const CARDS_DATABASE = {
             glow: "#00f2fe"
         },
         stats: {
-            pac: 92,
-            sho: 93,
+            pac: 90,
+            sho: 91,
             pas: 72,
             dri: 82,
             def: 40,

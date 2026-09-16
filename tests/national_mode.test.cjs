@@ -193,6 +193,13 @@ assert.match(nationalSource,/function renderNationalMode\(\)[\s\S]*state=syncNat
 const appSource=fs.readFileSync('app.js','utf8');
 const leagueSource=fs.readFileSync('js/league.js','utf8');
 const indexSource=fs.readFileSync('index.html','utf8');
+const closeChampModalSource=leagueSource.match(/function closeChampModal\(\) \{([\s\S]*?)\r?\n\}\r?\n\r?\nfunction startNextSeason/);
+assert.ok(closeChampModalSource, 'the league champion modal close handler should exist');
+const executableCloseChampModalSource=closeChampModalSource[1].replace(/\/\*[\s\S]*?\*\//g, '');
+assert.match(executableCloseChampModalSource, /startNextSeason\(\);/, 'the league champion modal should start the next season directly');
+assert.doesNotMatch(executableCloseChampModalSource, /openNationalTournamentWindow|switchMatchSubTab\('national'\)/, 'the league champion modal must not open national mode while it is temporarily disabled');
+assert.match(closeChampModalSource[1], /기존 국대 대회 전환 흐름으로 즉시 복원/, 'the disabled national transition should be preserved for quick restoration');
+assert.equal((leagueSource.match(/>다음 시즌 시작<\/button>/g) || []).length, 3, 'every league ending result should offer the next-season action');
 assert.ok(indexSource.includes(`id="matchSubTabNational" onclick="showNationalComingSoon()"`));
 assert.doesNotMatch(appSource,/tabId === 'national' && !isDevEntry/);
 assert.match(appSource,/else if \(tabId === 'national'\)[\s\S]*renderNationalMode\(\)/);

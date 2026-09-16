@@ -2423,3 +2423,40 @@ graph TD
 - 변경 파일: `index.html`, `sw.js`, `tests/national_mode.test.cjs`, `.agents/progress.md`, `.agents/log.md`.
 - 검증: 국대·정포지션·업적 회귀 테스트, JS·서비스 워커 문법 및 `git diff --check` 통과.
 - 최종 상태: 수정 완료. PWA 캐시 v397. 커밋·푸시 미실행.
+
+## 2026-09-17 — 작업 로그 확인
+- 요청: 프로젝트 로그 확인.
+- 수행: `.agents/agent.md`, 최신 작업 기록과 Git 최근 커밋·작업 트리를 확인.
+- 변경 파일: `.agents/progress.md`, `.agents/log.md`.
+- 검증: 최신 개발 이력은 2026-09-17 00:25의 국대모드 준비중 안내이며, 최근 커밋 `de97355 Add national tournament season flow`를 확인. 미커밋 변경은 사용자 파일 `콘솔코드.txt`뿐임을 확인.
+- 최종 상태: 완료. 코드·데이터 변경 및 커밋·푸시는 수행하지 않음.
+
+## 2026-09-17 — 리그 종료 모달 국대 이동 임시 차단
+- 요청: 리그 종료 모달의 국대모드 이동을 임시로 막고 다음 시즌 재시작 버튼으로 연결.
+- 수행: 트레블·리그 우승·일반 시즌 종료 모달의 버튼 문구를 `다음 시즌 시작`으로 통일. `closeChampModal()`에서 국대 대회 창·국대 탭을 열던 호출은 실행하지 않고 `startNextSeason()`을 직접 실행하도록 변경했으며, 기존 국대 전환 블록은 같은 함수에 주석으로 보존해 즉시 복원 가능.
+- 변경 파일: `js/league.js`, `index.html`, `sw.js`, `tests/national_mode.test.cjs`, `.agents/progress.md`, `.agents/log.md`.
+- 검증: 국대·정포지션·업적 회귀 테스트, `node --check js/league.js`, `node --check sw.js`, `git diff --check` 통과. 종료 모달에서 국대 진입 호출이 없고 세 버튼이 다음 시즌 시작 문구인지, 기존 전환 블록이 주석으로 보존됐는지 회귀 검사 추가.
+- 최종 상태: 완료. league v4.5, PWA 캐시 v398. 커밋·푸시 미실행.
+
+## 2026-09-17 — 퀴즈·포지션 변경 클라우드 저장 빈도 조정
+- 요청: 단어 퀴즈의 일반 풀이와 포지션 변경은 포인트·카드 변경으로 보지 않고, 퀴즈 5문제 완료로 포인트가 증가한 경우만 즉시 저장.
+- 원인: 카드·포인트 변경 감지의 업로드 기준값이 성공 저장 후 갱신되지 않아, 한 번 변경된 뒤 후속 일반 저장도 계속 즉시 업로드될 수 있었음. 카드 객체 전체를 비교해 보관·배치 관련 상태도 카드 변경으로 오인할 여지가 있었음.
+- 수행: 즉시 업로드 판정을 카드 보유량·각성 시그니처와 포인트로 한정하고, 성공 업로드 뒤 해당 기준값을 갱신. 일반 퀴즈 진행 및 포지션 배치·해제는 지연 저장을 명시했으며, 퀴즈 완료 보상은 포인트 변화 감지로 즉시 저장을 유지.
+- 변경 파일: `js/auth.js`, `quiz.js`, `js/squad.js`, `index.html`, `sw.js`, `tests/cloud_save_throttle.test.cjs`, `.agents/progress.md`, `.agents/log.md`.
+- 검증: 신규 클라우드 저장 제한 테스트, 국대·정포지션·업적 회귀 테스트, `node --check js/auth.js`, `node --check quiz.js`, `node --check js/squad.js`, `node --check sw.js`, `git diff --check` 통과.
+- 최종 상태: 완료. auth v2.75, quiz v1.4, squad v3.0, PWA 캐시 v399. 커밋·푸시 미실행.
+
+## 2026-09-17 — 스즈키 자이온 스페셜 카드 추가
+- 요청: 스즈키 자이온을 스페셜 등급 OVR 89로 추가.
+- 수행: 일본 국적 GK `zion_suzuki`를 OVR 89 스페셜 카드로 등록하고 제공된 `player2/스즈키 자이온.webp`를 연결. 2026년 8월 Parma Calcio 공식 발표의 이적 정보를 기준으로 소속팀은 ASTON VILLA로 설정. 선수 데이터 스크립트 버전 및 PWA 캐시 갱신.
+- 변경 파일: `player_data.js`, `index.html`, `sw.js`, `.agents/progress.md`, `.agents/log.md`.
+- 검증: 카드 ID·등급·OVR·포지션·소속·이미지 경로 검증, `node --check player_data.js`, `node --check sw.js`, 클라우드 저장·국대·정포지션·업적 회귀 테스트 통과.
+- 차단: `선수데이터.csv`가 열려 있어 변환 스크립트의 쓰기 권한 오류로 CSV 동기화 보류. 기존 조현우 미커밋 변경의 줄 끝 공백으로 전체 `git diff --check`는 해당 기존 행만 경고.
+- 최종 상태: 카드 등록 완료. player_data v1.72, PWA 캐시 v400. CSV 파일 잠금 해제 후 재생성 필요, 커밋·푸시 미실행.
+
+## 2026-09-17 — 구문 검사 및 main 푸시
+- 요청: `player_data.js`를 포함한 현재 변경의 구문 검사 후 Git 푸시.
+- 수행: 수정된 JavaScript 6개와 서비스 워커의 구문 검사, 클라우드 저장·국대·정포지션·업적 회귀 테스트를 실행. Windows CRLF 줄바꿈을 허용한 `git diff --check`도 통과 확인 후 현재 프로젝트 변경과 스즈키 자이온 이미지를 `main`에 커밋·푸시 진행.
+- 변경 파일: `.agents/progress.md`, `.agents/log.md`.
+- 검증: `node --check player_data.js`, `js/auth.js`, `quiz.js`, `js/squad.js`, `js/league.js`, `sw.js`; 테스트 4종 통과.
+- 최종 상태: `main` 커밋·푸시 완료. `선수데이터.csv`는 파일 잠금 해제 후 별도 동기화 필요.

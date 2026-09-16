@@ -679,8 +679,8 @@ function selectPlayerForPosition(cardId) {
     const cardName = CARDS_DATABASE[cardId].name;
     showToast(`${displayTitle} 자리에 ${cardName} 선수를 배치했습니다!`);
     
-    // Auto-save user data to cloud
-    saveUserProgress();
+    // 포지션 배치는 포인트·카드 보유 변화가 아니므로 60초 지연 저장을 사용한다.
+    saveUserProgress(false);
 }
 
 function releasePlayerFromPosition() {
@@ -704,8 +704,8 @@ function releasePlayerFromPosition() {
     renderSquadFormation();
     showToast(`${activeSelectorPosition} 자리의 선수를 배치 해제하였습니다.`);
     
-    // Auto-save user data to cloud
-    saveUserProgress();
+    // 포지션 배치는 포인트·카드 보유 변화가 아니므로 60초 지연 저장을 사용한다.
+    saveUserProgress(false);
 }
 
 function closeDrawer() {

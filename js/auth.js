@@ -98,6 +98,14 @@ const CLOUD_SAVE_INTERVAL = 60000; // 1 minute (60,000 ms)
 let lastUploadedPoints = null;
 let lastUploadedDeckJson = null;
 
+// 카드 보유량·각성만 즉시 업로드 기준으로 삼는다. 보관 여부나 스쿼드 배치는 카드 획득/소비가 아니므로 60초 지연 저장을 따른다.
+function getCardOwnershipSignature(deck = playerDeck) {
+    return JSON.stringify(Object.keys(deck || {}).sort().map(key => {
+        const item = deck[key] || {};
+        return [key, item.quantity || 1, item.awakening || 0];
+    }));
+}
+
 // 캐시 접속 후 최초 서버 확인만 재시도한다. 세이브 선택 완료 후에는 재검사하지 않는다.
 let pendingInitialCloudSync = null;
 let initialCloudSyncTimeoutId = null;
@@ -497,6 +505,8 @@ function saveUserProgress(forceImmediate = false) {
         dbService.saveProgress(currentUser, progressData, false)
             .then(() => {
                 lastCloudUploadTime = Date.now();
+                lastUploadedPoints = progressData.userPoints;
+                lastUploadedDeckJson = getCardOwnershipSignature(progressData.playerDeck);
                 isUploadingProgress = false;
                 console.log("☁️ [Cloud Save] Firestore 실시간 백업 완료 (v2)");
             })
@@ -511,9 +521,10 @@ function saveUserProgress(forceImmediate = false) {
             });
     };
 
+    const currentDeckOwnershipSignature = getCardOwnershipSignature(playerDeck);
     const hasPointsOrCardsChanged = 
         (lastUploadedPoints === null || userPoints !== lastUploadedPoints) ||
-        (lastUploadedDeckJson === null || JSON.stringify(playerDeck) !== lastUploadedDeckJson);
+        (lastUploadedDeckJson === null || currentDeckOwnershipSignature !== lastUploadedDeckJson);
 
     if (forceImmediate || hasPointsOrCardsChanged || timeSinceLastUpload >= CLOUD_SAVE_INTERVAL) {
         if (forceImmediate) {
@@ -697,7 +708,7 @@ function syncUserDataOnLogin(userData, forceLoad = false, requireChoice = false)
         userLevel = userData.userLevel || 1;
         playerDeck = userData.playerDeck || {};
         lastUploadedPoints = userPoints;
-        lastUploadedDeckJson = JSON.stringify(playerDeck);
+        lastUploadedDeckJson = getCardOwnershipSignature(playerDeck);
         currentFormation = userData.currentFormation || '4-4-2';
         isHardMode = userData.isHardMode || false;
         const parsedWingers = userData.wingerStyles || { LW: 'dribble', RW: 'sprint' };

@@ -29,9 +29,9 @@ function saveQuizState() {
         localStorage.setItem('fc_star_quiz_offset', quizOffset.toString());
         localStorage.setItem('fc_star_quiz_last_date', quizLastDate);
         
-        // 로그인 상태인 경우 클라우드에 즉시 백업 저장
+        // 일반 퀴즈 진행은 60초 지연 저장을 사용한다. 5문제 완료 보상은 포인트 변경 감지로 즉시 저장된다.
         if (typeof currentUser !== 'undefined' && currentUser) {
-            saveUserProgress();
+            saveUserProgress(false);
         }
     } catch (e) {
         console.warn("퀴즈 진행 상태 로컬 저장 실패:", e);
@@ -940,4 +940,3 @@ function showQuizSetToast() {
     const setName = getActiveQuizSetName();
     showToast(`📝 현재 활성화된 단어 세트: ${setName}`);
 }
-
