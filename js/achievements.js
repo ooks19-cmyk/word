@@ -134,6 +134,10 @@ const ACHIEVEMENTS_DB = {
 
 // 업적 그리드 렌더링 함수
 function renderAchievements() {
+    // 업적 탭을 열 때 현재 덱과 확정 시즌 기록을 한 번 보정한다.
+    // 보상은 자동 지급하지 않고, 기존처럼 사용자가 직접 청구한다.
+    reconcileAchievements();
+
     const grid = document.getElementById('achievementsGrid');
     if (!grid) return;
     grid.innerHTML = '';
@@ -244,7 +248,7 @@ function claimAchievementReward(id) {
 }
 
 // 업적 강제 언락 처리 공통 헬퍼
-function unlockAchievement(id) {
+function unlockAchievement(id, { silent = false, render = true, save = true } = {}) {
     if (!userAchievements[id]) {
         userAchievements[id] = { unlocked: false, rewarded: false };
     }
@@ -254,18 +258,69 @@ function unlockAchievement(id) {
             localStorage.setItem('fc_star_user_achievements', JSON.stringify(userAchievements));
         } catch(e) {}
 
-        const ach = ACHIEVEMENTS_DB[id];
-        const achName = ach ? ach.name : id;
-        showToast(`🏆 새로운 업적 달성: [${achName}]!`);
+        if (!silent) {
+            const ach = ACHIEVEMENTS_DB[id];
+            const achName = ach ? ach.name : id;
+            showToast(`🏆 새로운 업적 달성: [${achName}]!`);
+        }
         
         // 렌더 갱신
-        renderAchievements();
+        if (render) renderAchievements();
         
         // 클라우드 백업 자동 연동
-        if (typeof saveUserProgress === 'function') {
+        if (save && typeof saveUserProgress === 'function') {
             saveUserProgress();
         }
+        return true;
     }
+    return false;
+}
+
+function isHallRecordLeagueChampion(record) {
+    const rank = record && (record.userTeamRank || record.jeonbukRank);
+    return !!record && !record.resigned && rank === 1;
+}
+
+function reconcileSeasonAchievements(options = {}) {
+    const { silent = true, render = false, save = true } = options;
+    const records = (typeof hallOfFame !== 'undefined' && Array.isArray(hallOfFame)) ? hallOfFame : [];
+    let changed = false;
+    const unlock = (id) => {
+        changed = unlockAchievement(id, { silent, render: false, save: false }) || changed;
+    };
+
+    records.filter(isHallRecordLeagueChampion).forEach(record => {
+        const stats = record.userTeamStats || record.jeonbukStats || {};
+        const cupWon = typeof record.cupRecord === 'string' && record.cupRecord.includes('우승');
+        const aclWon = typeof record.aclRecord === 'string' && record.aclRecord.includes('우승');
+
+        if (Number(stats.l) === 0) unlock('invincible');
+        if (cupWon) unlock('double');
+        if (cupWon && aclWon) unlock('treble');
+    });
+
+    if (changed && save && typeof saveUserProgress === 'function') saveUserProgress();
+    if (changed && render) renderAchievements();
+    return changed;
+}
+
+// 업적 페이지 진입 시 수행하는 단일 보정 검사.
+function reconcileAchievements() {
+    let changed = reconcileSeasonAchievements({ silent: true, render: false, save: false });
+    const unlock = (id) => {
+        changed = unlockAchievement(id, { silent: true, render: false, save: false }) || changed;
+    };
+
+    if (ACHIEVEMENTS_DB.collector.checkProgress() >= ACHIEVEMENTS_DB.collector.maxVal) unlock('collector');
+
+    const currentOvr = typeof getPlayerPureOvr === 'function' ? getPlayerPureOvr() : 0;
+    if (currentOvr >= 90) {
+        if (typeof isHardMode !== 'undefined' && isHardMode) unlock('hardworldclass');
+        else unlock('worldclass');
+    }
+
+    if (changed && typeof saveUserProgress === 'function') saveUserProgress();
+    return changed;
 }
 
 // 1. 수집가 업적 검사 (6성 5장 보유)
@@ -306,11 +361,6 @@ function checkWinStreakAchievements(streak) {
 function checkLeagueEndAchievements(isWinner, losses) {
     if (!isWinner) return; // 리그 우승을 전제로 함
 
-    // 1) 무패 우승 체크
-    if (losses === 0) {
-        unlockAchievement('invincible');
-    }
-
     // 2) 3연패 & 5연패 체크
     if (consecutiveLeagueTitles >= 3) {
         unlockAchievement('threepeat');
@@ -319,14 +369,7 @@ function checkLeagueEndAchievements(isWinner, losses) {
         unlockAchievement('fivepeat');
     }
 
-    // 3) 더블 & 트레블 체크 (해당 시즌 코리아컵/아챔 동시 우승 여부)
-    const hasCupWon = typeof cupState !== 'undefined' && cupState && cupState.isWinner;
-    const hasAclWon = typeof aclState !== 'undefined' && aclState && aclState.isWinner;
-
-    if (hasCupWon) {
-        unlockAchievement('double');
-    }
-    if (hasCupWon && hasAclWon) {
-        unlockAchievement('treble');
-    }
+    // recordSeasonProgressToFame()가 먼저 확정 시즌 기록을 저장한다.
+    // 임시 컵/ACL 상태 대신 그 기록으로 무패·더블·트레블을 판정한다.
+    reconcileSeasonAchievements({ silent: false, render: true, save: true });
 }

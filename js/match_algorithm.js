@@ -578,9 +578,9 @@ function getFormationCompatibilityBonus(playerForm, oppForm) {
     };
     
     if (compatibility[pForm] === oForm) {
-        return 0.10; // 플레이어 우세 (+10% 찬스)
+        return 0.05; // 플레이어 우세 (+5% 찬스)
     } else if (compatibility[oForm] === pForm) {
-        return -0.10; // 상대 우세 (-10% 찬스)
+        return -0.05; // 상대 우세 (-5% 찬스)
     }
     
     return 0; // 상성 없음 (4-4-2 등)
@@ -612,8 +612,10 @@ function prepareOpponentMood(opponentId) {
 }
 
 // 2d. 최종 매치 OVR 통합 연산 (홈어드밴티지 및 친선전 유도 포함)
-function calculateFinalMatchOvrs(venueType, isPlayerHome, opponentBaseOvr, isFriendlyMode = false, opponentData = null) {
-    let playerOvr = getPlayerPureOvr();
+function calculateFinalMatchOvrs(venueType, isPlayerHome, opponentBaseOvr, isFriendlyMode = false, opponentData = null, playerContext = null) {
+    let playerOvr = playerContext && Number.isFinite(playerContext.playerOvr)
+        ? playerContext.playerOvr
+        : getPlayerPureOvr();
     let opponentOvr = opponentBaseOvr;
     
     // 리그 모드인 경우에만 상대팀 분위기 보정 적용
@@ -626,7 +628,9 @@ function calculateFinalMatchOvrs(venueType, isPlayerHome, opponentBaseOvr, isFri
     }
     
     // 포메이션 전술 완성 보너스 (+1~+2)는 리그/컵/친선경기 모든 모드에서 플레이어 팀에 일관되게 적용
-    const formTactic = getPlayerFormationTacticBonuses();
+    const formTactic = playerContext
+        ? getPlayerFormationTacticBonuses(playerContext.formation, playerContext.squad, playerContext.deck)
+        : getPlayerFormationTacticBonuses();
     playerOvr += formTactic.formationBonus;
     
     if (venueType === 'league') {
@@ -644,7 +648,7 @@ function calculateFinalMatchOvrs(venueType, isPlayerHome, opponentBaseOvr, isFri
 }
 
 // 3. 포메이션 세부 전술 연동 매치 코멘터리 생성 (리그 & 친선경기 시뮬레이터 공용)
-function getDetailedTacticCommentary(option, formation, isTacticActive, activePlayers, squad = squadFormation, deck = playerDeck, customWingerStyles = null, customStrikerStyles = null) {
+function getDetailedTacticCommentary(option, formation, isTacticActive, activePlayers, squad = squadFormation, deck = playerDeck, customWingerStyles = null, customStrikerStyles = null, context = null) {
     lastTacticGoalData = null; // Reset for each new commentary evaluation
     const { ST, LW, RW, CM } = activePlayers;
 
@@ -684,7 +688,7 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
     // 1) 드리블 돌파 스타일 (개인기 중심)
     const getDribbleTexts = (wingerName) => {
         const lwGoals = [
-            `골!!! ${wingerName}의 환상적인 감아차기 슛이 골문 오른쪽 구석에 정확히 꽂힙니다! ${getActiveUserShortName()} 득점!! 🎉`,
+            `골!!! ${wingerName}의 환상적인 감아차기 슛이 골문 오른쪽 구석에 정확히 꽂힙니다! ${(context && context.userShortName) || getActiveUserShortName()} 득점!! 🎉`,
             `골!!! 수비수 2명을 환상적인 드리블 돌파로 흔들어 놓은 ${wingerName}! 키퍼 가랑이 사이를 꿰뚫는 절묘한 슈팅으로 골망을 흔듭니다! ⚽`
         ];
         const selectedGoal = lwGoals[Math.floor(Math.random() * lwGoals.length)];
@@ -907,28 +911,35 @@ function getMatchEventCommentary(type, data, isFriendly = false, isDevMode = fal
         detailedTacticLabel = "",
         suitabilityLabel = "",
         playerAttackProb = 0.5,
-        compatibilityBonus = 0
+        compatibilityBonus = 0,
+        userTeamName = null,
+        userShortName = null,
+        stadiumName = null
     } = data || {};
+
+    const activeUserTeamName = userTeamName || getActiveUserTeamName();
+    const activeUserShortName = userShortName || getActiveUserShortName();
+    const activeStadiumName = stadiumName || getActiveUserStadiumName();
 
     if (type === 'PRE_ANALYZE') {
         if (isFriendly) {
-            return `⚽ 🤝 친선 경기 매칭 전력 분석 | ${getActiveUserTeamName()} OVR ${playerOvr} vs 상대 ${opponentName} OVR ${opponentOvr} (홈 ADV: 0)`;
+            return `⚽ 🤝 친선 경기 매칭 전력 분석 | ${activeUserTeamName} OVR ${playerOvr} vs 상대 ${opponentName} OVR ${opponentOvr} (홈 ADV: 0)`;
         } else {
             let moodText = "";
             if (lastOpponentMood) {
                 const modifierSign = lastOpponentMood.modifier > 0 ? `+${lastOpponentMood.modifier}` : (lastOpponentMood.modifier < 0 ? `${lastOpponentMood.modifier}` : '0');
                 moodText = ` [상대 분위기: ${lastOpponentMood.label} ${lastOpponentMood.emoji} OVR ${modifierSign}]`;
             }
-            return `경기 시작 전력 분석 | ${getActiveUserShortName()} OVR ${playerOvr} (${isPlayerHome ? '홈' : '원정'}) vs ${opponentName} OVR ${opponentOvr}${moodText}`;
+            return `경기 시작 전력 분석 | ${activeUserShortName} OVR ${playerOvr} (${isPlayerHome ? '홈' : '원정'}) vs ${opponentName} OVR ${opponentOvr}${moodText}`;
         }
     }
 
     if (type === 'TACTIC_ANALYZE') {
         let compatibilityText = "";
         if (compatibilityBonus > 0) {
-            compatibilityText = " [포메이션 상성 우세: 찬스 확률 +5.0% ⚡]";
+            compatibilityText = ` [포메이션 상성 우세: 찬스 확률 +${Math.abs(compatibilityBonus * 100).toFixed(1)}% ⚡]`;
         } else if (compatibilityBonus < 0) {
-            compatibilityText = " [포메이션 상성 열세: 찬스 확률 -5.0% ⚠️]";
+            compatibilityText = ` [포메이션 상성 열세: 찬스 확률 -${Math.abs(compatibilityBonus * 100).toFixed(1)}% ⚠️]`;
         }
         return `⚙️ <strong>[세부 전술 및 적합 분석]</strong>${detailedTacticLabel}${suitabilityLabel}${compatibilityText} 반영 완료! (공격 찬스 확률: ${Math.round(playerAttackProb * 100)}%)`;
     }
@@ -970,7 +981,7 @@ function getMatchEventCommentary(type, data, isFriendly = false, isDevMode = fal
         const isDraw = playerScoreVal === opponentScoreVal;
         if (isFriendly) {
             if (isWinner) {
-                return `승리!!! ${getActiveUserTeamName()}가 완벽한 전술 제어로 상대 ${opponentName}를 ${playerScoreVal} - ${opponentScoreVal}로 제압합니다! 🏆`;
+                return `승리!!! ${activeUserTeamName}가 완벽한 전술 제어로 상대 ${opponentName}를 ${playerScoreVal} - ${opponentScoreVal}로 제압합니다! 🏆`;
             } else if (isDraw) {
                 return `무승부! 접전 끝에 양 팀 ${playerScoreVal} - ${opponentScoreVal} 스코어로 승부를 가리지 못했습니다.`;
             } else {
@@ -978,11 +989,11 @@ function getMatchEventCommentary(type, data, isFriendly = false, isDevMode = fal
             }
         } else {
             if (isWinner) {
-                return `승리!!! ${getActiveUserTeamName()}가 완벽한 전술 장악과 에이스들의 빛나는 골 활약에 힘입어 ${playerScoreVal} - ${opponentScoreVal} 짜릿한 승리를 챙깁니다! 🏆`;
+                return `승리!!! ${activeUserTeamName}가 완벽한 전술 장악과 에이스들의 빛나는 골 활약에 힘입어 ${playerScoreVal} - ${opponentScoreVal} 짜릿한 승리를 챙깁니다! 🏆`;
             } else if (isDraw) {
                 return `무승부! 양 팀 승부를 가리지 못하며 ${playerScoreVal} - ${opponentScoreVal} 로 승점 1점씩 나누어 가집니다. 다음 라운드 반등을 노립니다.`;
             } else {
-                return `패배! ${getActiveUserTeamName()}가 분전했으나 상대의 기습 카운터 공격을 넘지 못하며 ${playerScoreVal} - ${opponentScoreVal} 아쉬운 승점 3점을 내줍니다. 피드백이 필요합니다.`;
+                return `패배! ${activeUserTeamName}가 분전했으나 상대의 기습 카운터 공격을 넘지 못하며 ${playerScoreVal} - ${opponentScoreVal} 아쉬운 승점 3점을 내줍니다. 피드백이 필요합니다.`;
             }
         }
     }
@@ -1005,7 +1016,7 @@ function getMatchEventCommentary(type, data, isFriendly = false, isDevMode = fal
     if (type === 'GK_SAVE') {
         const gkSaveTexts = [
             `${activeGk} 골키퍼의 빛나는 판단력! 침착하게 날아오는 크로스를 캐칭해 냅니다. 위기를 넘깁니다!`,
-            `미친 세이브!!! ${getActiveUserShortName()}의 수호신 ${activeGk} 골키퍼가 한 마리 새처럼 날아올라 손끝으로 공을 쳐냅니다! ${getActiveUserStadiumName()}이 열광의 도가니에 빠집니다! 🧤`
+            `미친 세이브!!! ${activeUserShortName}의 수호신 ${activeGk} 골키퍼가 한 마리 새처럼 날아올라 손끝으로 공을 쳐냅니다! ${activeStadiumName}이 열광의 도가니에 빠집니다! 🧤`
         ];
         return gkSaveTexts[Math.floor(Math.random() * gkSaveTexts.length)];
     }
@@ -1025,7 +1036,9 @@ function simulateExtraTimeEngine(data) {
         playerScorerName = "이승우",
         playerAssisterName = "송민규",
         isTeam1Jeonbuk = true,
-        opponentTeamId = null
+        opponentTeamId = null,
+        opponentScorerName = null,
+        opponentAssisterName = null
     } = data;
     
     let etScore1 = score1;
@@ -1048,9 +1061,9 @@ function simulateExtraTimeEngine(data) {
     const p2Scored = Math.random() < Math.max(0.05, Math.min(prob2, 0.5));
     
     // 상대팀 주요 선수 정보 획득
-    let oppScorerName = isTeam1Jeonbuk ? `${team2Name} 공격수` : `${team1Name} 공격수`;
-    let oppAssisterName = null;
-    if (opponentTeamId) {
+    let oppScorerName = opponentScorerName || (isTeam1Jeonbuk ? `${team2Name} 공격수` : `${team1Name} 공격수`);
+    let oppAssisterName = opponentAssisterName || null;
+    if (opponentTeamId && !opponentScorerName) {
         const oppGoalData = determineOpponentScorerAndAssister(opponentTeamId);
         oppScorerName = oppGoalData.scorerName;
         oppAssisterName = oppGoalData.assisterName;
@@ -1192,6 +1205,21 @@ function simulatePenaltyShootoutEngine(data) {
         sdRound++;
         if (sdRound > 20) break; // 무한루프 방지 안전장치
     }
+
+    // 극히 드물게 안전 제한까지 동률이면 한 번의 결정 킥으로 반드시 승자를 만든다.
+    if (pkScore1 === pkScore2) {
+        const team1Wins = Math.random() < (prob1 / (prob1 + prob2));
+        if (team1Wins) pkScore1++;
+        else pkScore2++;
+        pkEvents.push({
+            round: sdRound,
+            side: team1Wins ? "team1" : "team2",
+            success: true,
+            score1: pkScore1,
+            score2: pkScore2,
+            text: `[O] ${team1Wins ? team1Name : team2Name} 결정 킥 성공! 길었던 승부차기의 승자가 결정됩니다.`
+        });
+    }
     
     return {
         pkScore1: pkScore1,
@@ -1242,7 +1270,7 @@ function getFormationMidfielders(formation = '4-3-3', squad = squadFormation, de
 }
 
 // 7. 공격 옵션별 동적 득점자/도움자 판정 함수
-function determineScorerAndAssister(selectedOption, squad = squadFormation, formation = null) {
+function determineScorerAndAssister(selectedOption, squad = squadFormation, formation = null, deck = playerDeck) {
     if (lastTacticGoalData && lastTacticGoalData.option === selectedOption) {
         const data = {
             scorerId: lastTacticGoalData.scorerId,
@@ -1260,7 +1288,7 @@ function determineScorerAndAssister(selectedOption, squad = squadFormation, form
     
     // 포메이션별 실제 미드필더 이름 추출 (5-4-1의 CB 김민재 배제)
     const currentForm = formation || ((typeof currentFormation !== 'undefined') ? currentFormation : '4-3-3');
-    const realMfs = getFormationMidfielders(currentForm, squad);
+    const realMfs = getFormationMidfielders(currentForm, squad, deck);
     const activeCM = realMfs.length > 0 ? realMfs[0].name : ((typeof squad !== 'undefined' && squad["CM"] && CARDS_DATABASE[squad["CM"]]) ? CARDS_DATABASE[squad["CM"]].name : "무명 미드필더");
     const activeLCM = (typeof squad !== 'undefined' && squad["LCM"] && CARDS_DATABASE[squad["LCM"]]) ? CARDS_DATABASE[squad["LCM"]].name : "무명 미드필더";
     const activeRCM = (typeof squad !== 'undefined' && squad["RCM"] && CARDS_DATABASE[squad["RCM"]]) ? CARDS_DATABASE[squad["RCM"]].name : "무명 미드필더";
@@ -1467,8 +1495,8 @@ function calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentRating, 
     return prob;
 }
 
-function calculateOpponentScoreProb(activeDiff, opponentOvr, playerGkStat) {
-    const playerDef = getGoalTeamAverageStat('def');
+function calculateOpponentScoreProb(activeDiff, opponentOvr, playerGkStat, formation = currentFormation, squad = squadFormation, deck = playerDeck) {
+    const playerDef = getGoalTeamAverageStat('def', formation, squad, deck);
     const playerDefBonus = Math.max(0, (playerDef - 70) * 0.01);
     const gkBonus = Math.max(0, (playerGkStat + 5 - opponentOvr) * 0.01);
     const calculated = 0.40 - (activeDiff * 0.026) - playerDefBonus - gkBonus;

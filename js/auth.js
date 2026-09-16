@@ -204,6 +204,15 @@ function saveAllToLocalStorage() {
         localStorage.setItem('fc_star_max_win_streak', maxWinStreak.toString());
         localStorage.setItem('fc_star_winger_styles', JSON.stringify(wingerStyles));
         localStorage.setItem('fc_star_striker_styles', JSON.stringify(strikerStyles));
+        if (typeof nationalModeState !== 'undefined' && nationalModeState) {
+            localStorage.setItem('fc_star_national_mode_state', JSON.stringify(nationalModeState));
+        }
+        if (typeof nationalSquadPresets !== 'undefined') {
+            localStorage.setItem('fc_star_national_squad_presets', JSON.stringify(nationalSquadPresets));
+        }
+        if (typeof nationalNationSelections !== 'undefined') {
+            localStorage.setItem('fc_star_national_nation_selections', JSON.stringify(nationalNationSelections));
+        }
         
         if (typeof userPvpStats !== 'undefined') {
             localStorage.setItem('fc_star_pvp_w', userPvpStats.w.toString());
@@ -451,6 +460,9 @@ function saveUserProgress(forceImmediate = false) {
             consecutiveLeagueTitles: consecutiveLeagueTitles,
             currentWinStreak: currentWinStreak,
             maxWinStreak: maxWinStreak,
+            nationalModeState: typeof nationalModeState !== 'undefined' && typeof serializeNationalModeStateForCloud === 'function' ? serializeNationalModeStateForCloud(nationalModeState) : (typeof nationalModeState !== 'undefined' ? nationalModeState : null),
+            nationalSquadPresets: typeof nationalSquadPresets !== 'undefined' ? nationalSquadPresets : {},
+            nationalNationSelections: typeof nationalNationSelections !== 'undefined' ? nationalNationSelections : {},
             wingerStyles: typeof wingerStyles !== 'undefined' ? wingerStyles : { LW: 'dribble', RW: 'sprint' },
             strikerStyles: typeof strikerStyles !== 'undefined' ? strikerStyles : { ST: 'targetman' },
             
@@ -895,6 +907,28 @@ function syncUserDataOnLogin(userData, forceLoad = false, requireChoice = false)
         consecutiveLeagueTitles = userData.consecutiveLeagueTitles || 0;
         currentWinStreak = userData.currentWinStreak || 0;
         maxWinStreak = userData.maxWinStreak || 0;
+        if (userData.nationalModeState && typeof initNationalMode === 'function') {
+            nationalModeState = typeof deserializeNationalModeStateFromCloud === 'function' ? deserializeNationalModeStateFromCloud(userData.nationalModeState) : userData.nationalModeState;
+            if (typeof nationalDevMode !== 'undefined' && nationalDevMode && typeof nationalDevState !== 'undefined') nationalDevState = nationalModeState;
+            try { localStorage.setItem('fc_star_national_mode_state', JSON.stringify(nationalModeState)); } catch(e) {}
+        }
+        if (userData.nationalSquadPresets && typeof nationalSquadPresets !== 'undefined') {
+            nationalSquadPresets = userData.nationalSquadPresets;
+            try { localStorage.setItem('fc_star_national_squad_presets', JSON.stringify(nationalSquadPresets)); } catch(e) {}
+            const activeNationalState = typeof getNationalModeState === 'function' ? getNationalModeState() : null;
+            if (activeNationalState && activeNationalState.selectedNationId && typeof applyNationalSquadPreset === 'function') {
+                applyNationalSquadPreset(activeNationalState, activeNationalState.selectedNationId);
+            }
+        }
+        if (userData.nationalNationSelections && typeof nationalNationSelections !== 'undefined') {
+            nationalNationSelections=userData.nationalNationSelections;
+            try { localStorage.setItem('fc_star_national_nation_selections',JSON.stringify(nationalNationSelections)); } catch(e) {}
+            const activeNationalState=typeof getNationalModeState==='function'?getNationalModeState():null;
+            if(activeNationalState&&typeof applySavedNationalNation==='function')applySavedNationalNation(activeNationalState);
+        }
+        if (typeof syncNationalModeYear === 'function') {
+            syncNationalModeYear(false);
+        }
         
         // 리그컵 상태 클라우드 데이터 복원 (K리그 / EPL / J리그 독립 스토리지)
         if (userData.cupStateEpl) {

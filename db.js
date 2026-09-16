@@ -150,7 +150,14 @@ const dbService = {
                 });
                 return userData;
             } catch (error) {
-                console.error("Firebase 로그인 실패:", error);
+                const isExpectedServerRetryFailure = serverOnly && (
+                    error?.code === 'unavailable' ||
+                    error?.code === 'deadline-exceeded' ||
+                    /failed to get document from server/i.test(error?.message || '')
+                );
+                if (!isExpectedServerRetryFailure) {
+                    console.error("Firebase 로그인 실패:", error);
+                }
                 throw error;
             }
         } else {

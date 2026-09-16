@@ -488,13 +488,8 @@ function initLeague() {
         initFriendlyMatchState();
     }
     
-    // 시즌 완료 후 페이지 새로고침 시 챔피언 확인 모달 자동 복구
-    const config = getActiveLeagueConfig();
-    if (leagueRound > config.totalRounds) {
-        setTimeout(() => {
-            checkSeasonChampion();
-        }, 500);
-    }
+    // 시즌 종료 모달은 실제 마지막 리그 경기 직후에만 표시한다.
+    // 로그인·새로고침 중 저장된 국대 대회를 덮어쓰는 진입 모달을 다시 열지 않는다.
 }
 
 function resetLeagueSeasonState() {
@@ -2307,7 +2302,7 @@ function checkSeasonChampion() {
                 <strong style="color: #ffd700; font-size: 1.05rem;">🎁 트레블 달성 보상: +10 FP</strong>
             </p>
             ${captainAwakenedMsg}
-            <button class="btn-open-pack" onclick="closeChampModal()" style="margin-top:1.5rem;">다음 시즌 시작하기</button>
+            <button class="btn-open-pack" onclick="closeChampModal()" style="margin-top:1.5rem;">국대 대회 진행하기</button>
         `;
     } else if (isUserTeamChamp) {
         trophyContainer.innerHTML = `
@@ -2318,7 +2313,7 @@ function checkSeasonChampion() {
                 당신이 지휘한 스쿼드가 리그 정상의 주역으로 우뚝 섰습니다.
             </p>
             ${captainAwakenedMsg}
-            <button class="btn-open-pack" onclick="closeChampModal()" style="margin-top:1.5rem;">다음 시즌 시작하기</button>
+            <button class="btn-open-pack" onclick="closeChampModal()" style="margin-top:1.5rem;">국대 대회 진행하기</button>
         `;
     } else {
         trophyContainer.innerHTML = `
@@ -2329,7 +2324,7 @@ function checkSeasonChampion() {
                 시즌 우승팀: **${champion.name}** (승점 ${champion.pts}점)<br>
                 아쉽지만 스쿼드를 더 강력하게 정비하여 다음 연도 시즌의 정상에 재도전하세요!
             </p>
-            <button class="btn-open-pack" onclick="closeChampModal()" style="margin-top:0;">다음 시즌 시작하기</button>
+            <button class="btn-open-pack" onclick="closeChampModal()" style="margin-top:0;">국대 대회 진행하기</button>
         `;
     }
     
@@ -2362,7 +2357,13 @@ function closeChampModal() {
     const celeb = document.getElementById('squadChampCelebration');
     if (celeb) celeb.remove();
     
-    // 다음 연도 시즌 시작 처리
+    // 국내 시즌 종료 후 국대 대회 창을 열고, 다음 시즌은 국대 대회 종료 다음날에 시작한다.
+    if (typeof openNationalTournamentWindow === 'function') {
+        openNationalTournamentWindow();
+        if (typeof switchTab === 'function') switchTab('match');
+        if (typeof switchMatchSubTab === 'function') switchMatchSubTab('national');
+        return;
+    }
     startNextSeason();
 }
 

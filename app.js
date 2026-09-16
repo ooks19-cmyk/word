@@ -118,7 +118,7 @@ function updateMatchSubTabsUI() {
 }
 
 // 경기진행 하위 탭 전환 함수
-function switchMatchSubTab(tabId) {
+function switchMatchSubTab(tabId, isDevEntry = false) {
     const subTabs = {
         'league': {
             btn: document.getElementById('matchSubTabLeague'),
@@ -135,6 +135,10 @@ function switchMatchSubTab(tabId) {
         'friendly': {
             btn: document.getElementById('matchSubTabFriendly'),
             layout: document.getElementById('matchLayoutFriendly')
+        },
+        'national': {
+            btn: document.getElementById('matchSubTabNational'),
+            layout: document.getElementById('matchLayoutNational')
         }
     };
 
@@ -144,7 +148,7 @@ function switchMatchSubTab(tabId) {
             if (key === tabId) {
                 item.btn.classList.add('active');
                 // 리그, 친선경기, 코리아컵, 아챔은 기존 .match-layout(flex)을 사용하므로 flex로 보여주고, 나머지는 block
-                item.layout.style.display = (key === 'league' || key === 'friendly' || key === 'cup' || key === 'acl') ? 'flex' : 'block';
+                item.layout.style.display = (key === 'league' || key === 'friendly' || key === 'cup' || key === 'acl' || key === 'national') ? 'flex' : 'block';
                 item.layout.classList.add('active');
             } else {
                 item.btn.classList.remove('active');
@@ -167,6 +171,8 @@ function switchMatchSubTab(tabId) {
         if (typeof initCupTab === 'function') initCupTab();
     } else if (tabId === 'acl') {
         if (typeof initAclTab === 'function') initAclTab();
+    } else if (tabId === 'national') {
+        if (typeof renderNationalMode === 'function') renderNationalMode();
     }
 
     // 클릭 사운드 피드백 (sound.js 연계)
@@ -359,7 +365,7 @@ function switchFameSubTab(subTabName) {
     });
     
     // layout 뷰 토글
-    const layouts = ['Normal', 'Hard', 'Hell', 'Achievements'];
+    const layouts = ['Normal', 'Hard', 'Hell', 'Achievements', 'National'];
     layouts.forEach(l => {
         const layoutEl = document.getElementById('fameLayout' + l);
         if (layoutEl) {
@@ -381,6 +387,8 @@ function switchFameSubTab(subTabName) {
         if (typeof renderAchievements === 'function') {
             renderAchievements();
         }
+    } else if (subTabName === 'national' && typeof renderNationalHallOfFame === 'function') {
+        renderNationalHallOfFame();
     }
 
     
