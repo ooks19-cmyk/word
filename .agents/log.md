@@ -2502,4 +2502,4 @@ graph TD
 - 수행: 스타일 변경 시 현재 포메이션의 LW·RW·ST 설정을 국가별 `nationalSquadPresets`에도 저장했다. 해당 프리셋은 기존 클라우드 동기화 대상이며, 로그인·시즌 재생성 뒤 프리셋 적용 시 스타일값도 시즌 상태로 복원한다. 60초 저장 제한은 유지하고 스타일 변경을 강제 즉시 업로드하지 않는다.
 - 변경 파일: `js/national_squad.js`, `index.html`, `sw.js`, `tests/national_mode.test.cjs`, `.agents/progress.md`, `.agents/log.md`.
 - 검증: LW 스프린트·ST 라인브레이커 설정이 시즌 상태, 클라우드 직렬화 상태 및 국가별 프리셋에 저장되고, 새 시즌 상태를 만든 뒤 프리셋 적용으로 그대로 복원됨을 자동 테스트로 확인. 국대·클라우드 저장·정포지션·업적 회귀 테스트, 변경 JS·서비스 워커 문법 및 Windows CRLF 허용 `git diff --check` 통과.
-- 최종 상태: 수정 완료. national_squad v2.5, PWA 캐시 v405. 커밋·푸시는 사용자 지시 대기.
+- 최종 상태: 수정 완료. national_squad v2.5, PWA 캐시 v405. 커밋 `c66f48f` (`Refine national squad style settings`)로 `origin/main` 푸시 완료.
