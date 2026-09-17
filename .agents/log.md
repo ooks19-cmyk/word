@@ -2460,3 +2460,46 @@ graph TD
 - 변경 파일: `.agents/progress.md`, `.agents/log.md`.
 - 검증: `node --check player_data.js`, `js/auth.js`, `quiz.js`, `js/squad.js`, `js/league.js`, `sw.js`; 테스트 4종 통과.
 - 최종 상태: `main` 커밋·푸시 완료. `선수데이터.csv`는 파일 잠금 해제 후 별도 동기화 필요.
+
+## 2026-09-17 — 국대 공격수 플레이스타일 및 편성 팝업 완료 버튼
+- 요청: 국대 포메이션 설정에서 스트라이커·윙어 스타일을 편성 화면 상단에서 수정하고, 선수 배치 팝업 종료 버튼을 화면 중앙으로 조정. 스타일이 실제 골 성공 확률에 반영되는지 검증.
+- 수행: 국대 상태에 포메이션별 LW·RW(`드리블 돌파`/`치고 달리기`)와 ST(`타겟맨`/`라인브레이커`) 스타일을 분리 저장하고, 편성 화면 상단에 3개 토글을 추가. 국대 매치 엔진이 이 전용 설정을 찬스 스탯과 스트라이커 히든 보너스에 전달하도록 변경. 기존 상단 X 대신 선수 선택 패널 하단 중앙에 `선수 배치 완료` 종료 버튼을 배치.
+- 변경 파일: `js/national.js`, `js/national_squad.js`, `css/global.css`, `index.html`, `sw.js`, `tests/national_mode.test.cjs`, `.agents/progress.md`, `.agents/log.md`.
+- 검증: 국대 스타일 토글 렌더링·저장·엔진 전달을 검증. 능력치가 다른 테스트 카드에서 LW의 드리블/스프린트, ST의 타겟맨/라인브레이커 변경이 각각 찬스 스탯과 `calculatePlayerScoreProb()` 최종 골 성공 확률을 변화시킴을 자동 테스트로 확인. 국대·클라우드 저장·정포지션·업적 회귀 테스트, `node --check js/national_squad.js`, `node --check js/national.js`, `node --check sw.js`, Windows CRLF 허용 `git diff --check` 통과.
+- 최종 상태: 완료. national_squad v2.1, national v3.8, global css v2.9, PWA 캐시 v401. 커밋·푸시 미실행.
+
+## 2026-09-17 — 국대 선수배치 팝업 구조 재배치
+- 요청: 선수 배치 완료 버튼을 상단에 두고, 포지션별 스타일을 포메이션 설정이 아닌 선수 선택 페이지 상단에 배치. 팝업을 `선수 배치 완료 → 선수 스타일 → 선수 선택` 순서로 구성하고 관련 레이아웃 파일도 확인.
+- 수행: 국대 편성 화면의 고정 스타일 토글을 제거했다. 드로어 최상단 중앙에 `선수 배치 완료` 버튼을 배치하고, LW·RW·ST 선택 시에만 해당 포지션의 스타일 토글을 드로어 콘텐츠 최상단에 렌더링한 뒤 `선수 선택` 목록을 표시하도록 변경했다. 기본 드로어 골격은 `css/squad.css`, 국대 전용 배치는 `css/global.css`, 동적 마크업은 `js/national_squad.js`가 담당함을 확인했다.
+- 변경 파일: `js/national_squad.js`, `css/global.css`, `tests/national_mode.test.cjs`, `.agents/progress.md`, `.agents/log.md`.
+- 검증: LW·ST에서 스타일 토글과 선택 목록의 순서, CM에서 스타일 미노출, 완료 버튼의 드로어 헤더 위치를 자동 테스트로 검증. 국대 스타일 변경이 실제 `calculatePlayerScoreProb()` 결과를 바꾸는 기존 수치 테스트를 유지했고, 국대·클라우드 저장·정포지션·업적 회귀 테스트, 변경 JS 문법 및 Windows CRLF 허용 `git diff --check` 통과.
+- 최종 상태: 완료. 기존 릴리스 버전(national_squad v2.1, national v3.8, global css v2.9, PWA 캐시 v401)에 포함된 미커밋 변경이며, 커밋·푸시는 사용자 지시 대기.
+
+## 2026-09-17 — 국대 선수배치 첨부 UI 적용 및 토글 재렌더링 제거
+- 요청: 스타일 토글 시 페이지가 다시 로드되는 듯한 동작을 없애고, `대한민국 국적 · 실제 ST 포지션 카드만 표시됩니다.` 안내를 삭제. 이어서 제공한 참조 UI처럼 상단 제목·X 닫기·한 줄 스타일 설정·배치 해제·카드 목록 구조로 조정.
+- 수행: 스타일 변경 함수에서 `renderNationalSquadEditor()` 호출을 제거해 드로어 전체 재렌더링을 중단했다. 저장 후 토글 상태와 우측 스타일명만 DOM에서 즉시 갱신하며, 토글 전환 애니메이션도 제거했다. 드로어 헤더는 `선수 배치하기 (포지션)`과 X 닫기 버튼으로 교체하고, LW/RW/ST의 한 줄 설정 영역·기존 배치 해제·카드 목록을 참조 UI 순서로 배치했다. 불필요한 국적·실제 포지션 안내와 별도 선수 선택 제목을 삭제했다.
+- 변경 파일: `js/national_squad.js`, `css/global.css`, `index.html`, `sw.js`, `tests/national_mode.test.cjs`, `.agents/progress.md`, `.agents/log.md`.
+- 검증: 스타일 변경 때 드로어 HTML이 다시 그려지지 않음을 자동 테스트로 확인. 포지션별 스타일 노출·X 닫기·안내 문구 제거, 실제 골 성공 확률 반영을 포함한 국대 테스트와 클라우드 저장·정포지션·업적 회귀 테스트, 변경 JS 문법 및 Windows CRLF 허용 `git diff --check` 통과.
+- 최종 상태: 완료. national_squad v2.2, national v3.8, global css v2.9, PWA 캐시 v402. 커밋·푸시는 사용자 지시 대기.
+
+## 2026-09-17 — 국대 선수 스타일 로컬·클라우드 저장 경로 확인
+- 요청: 국대모드 선수별 스타일 설정이 로컬과 클라우드에 저장되는지 확인.
+- 수행: 스타일 변경 함수가 국대 상태의 `wingerStyles`·`strikerStyles`를 갱신한 뒤 `saveNationalModeState()`를 호출하는 경로를 점검했다. 이 함수는 `fc_star_national_mode_state`에 즉시 로컬 저장하고, 인증·초기 동기화 완료 상태에서는 일반 클라우드 저장을 예약한다. 클라우드 전송 데이터의 `nationalModeState`는 전체 상태를 직렬화하므로 스타일 필드도 포함되며, 로그인 복원 시 같은 상태를 역직렬화해 로컬에도 되돌린다.
+- 변경 파일: `tests/national_mode.test.cjs`, `.agents/progress.md`, `.agents/log.md`.
+- 검증: LW를 `sprint`, ST를 `linebreaker`로 설정한 값이 로컬 저장값·클라우드 직렬화 데이터·역직렬화 복원값에 모두 동일하게 남는 회귀 테스트를 추가하고 통과. `node --check tests/national_mode.test.cjs`, 국대 테스트, Windows CRLF 허용 `git diff --check` 통과.
+- 최종 상태: 확인 완료. 클라우드 저장은 스타일 변경만으로는 즉시 업로드하지 않고 기존 60초 제한의 일반 지연 저장을 따른다. 커밋·푸시는 사용자 지시 대기.
+
+## 2026-09-17 — 국대 포메이션 피치 플레이스타일 배지
+- 요청: 국대 포메이션 화면의 공격수 카드에도 제공된 참조 이미지처럼 플레이스타일 표시를 출력.
+- 수행: 국대 편성 피치에서 LW·ST·RW 카드 우상단의 일반 포지션 배지를 현재 저장된 스타일 배지로 대체했다. 드리블 돌파는 초록 마법봉, 치고 달리기와 라인브레이커는 분홍 달리기·번개, 타겟맨은 금색 과녁 아이콘으로 표시한다. 다른 포지션은 기존 포지션 배지를 유지한다.
+- 변경 파일: `js/national_squad.js`, `css/global.css`, `index.html`, `sw.js`, `tests/national_mode.test.cjs`, `.agents/progress.md`, `.agents/log.md`.
+- 검증: 기본 LW·ST·RW 배지와 각 스타일 변경 후 배지 클래스·설명(치고 달리기·라인브레이커·드리블 돌파)을 자동 테스트로 확인. 국대·클라우드 저장·정포지션·업적 회귀 테스트, 변경 JS·서비스 워커 문법 및 Windows CRLF 허용 `git diff --check` 통과.
+- 최종 상태: 완료. national_squad v2.3, global css v3.0, PWA 캐시 v403. 커밋·푸시는 사용자 지시 대기.
+
+## 2026-09-17 — 재로그인 시 국대 스타일 복원 보강
+- 요청: 스타일 변경 뒤 60초를 기다려 클라우드 업로드를 확인했음에도 재로그인 시 스타일이 기본값으로 돌아가는 문제 수정.
+- 원인: 국대 스타일은 시즌 상태에 저장·전송됐지만, 로그인 뒤 국가별 국대 프리셋을 적용하거나 시즌 상태를 새로 만드는 경로에서 이를 독립적으로 다시 적용할 보장 장치가 없었음.
+- 수행: 스타일 변경 시 현재 포메이션의 LW·RW·ST 설정을 국가별 `nationalSquadPresets`에도 저장했다. 해당 프리셋은 기존 클라우드 동기화 대상이며, 로그인·시즌 재생성 뒤 프리셋 적용 시 스타일값도 시즌 상태로 복원한다. 60초 저장 제한은 유지하고 스타일 변경을 강제 즉시 업로드하지 않는다.
+- 변경 파일: `js/national_squad.js`, `index.html`, `sw.js`, `tests/national_mode.test.cjs`, `.agents/progress.md`, `.agents/log.md`.
+- 검증: LW 스프린트·ST 라인브레이커 설정이 시즌 상태, 클라우드 직렬화 상태 및 국가별 프리셋에 저장되고, 새 시즌 상태를 만든 뒤 프리셋 적용으로 그대로 복원됨을 자동 테스트로 확인. 국대·클라우드 저장·정포지션·업적 회귀 테스트, 변경 JS·서비스 워커 문법 및 Windows CRLF 허용 `git diff --check` 통과.
+- 최종 상태: 수정 완료. national_squad v2.5, PWA 캐시 v405. 커밋·푸시는 사용자 지시 대기.

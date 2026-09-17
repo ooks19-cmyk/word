@@ -50,7 +50,8 @@ const context = {
 };
 const nationalEditorRoot = { innerHTML: '' };
 const nationalModeRoot = { innerHTML: '' };
-context.document.getElementById = id => id === 'nationalSquadEditor' ? nationalEditorRoot : (id === 'nationalModeRoot' ? nationalModeRoot : null);
+const nationalDrawerContent = { innerHTML: '' };
+context.document.getElementById = id => id === 'nationalSquadEditor' ? nationalEditorRoot : (id === 'nationalModeRoot' ? nationalModeRoot : (id === 'nationalDrawerContent' ? nationalDrawerContent : null));
 const roles = { GK:'GK', LB:'LB', LCB:'CB', RCB:'CB', RB:'RB', LCM:'CM', CM:'CM', RCM:'CM', LW:'LW', ST:'ST', RW:'RW' };
 Object.entries(roles).forEach(([slot, position], index) => {
     const id = `kr_${index}`;
@@ -208,6 +209,39 @@ const cloudRoundTrip=vm.runInContext(`(()=>{const source=createNationalState(202
 assert.deepEqual(JSON.parse(JSON.stringify(cloudRoundTrip)),{encodedRoundsAreArray:false,encodedRound0IsArray:true,decodedRoundsAreArray:true,decodedLength:2,secondStatus:'completed'});
 assert.match(fs.readFileSync('js/auth.js','utf8'), /serializeNationalModeStateForCloud\(nationalModeState\)/);
 assert.match(fs.readFileSync('js/auth.js','utf8'), /syncNationalModeYear\(false\)/);
+const nationalStyleStorageCheck=vm.runInContext(`(()=>{
+    const originalState=nationalModeState;
+    const sample=createNationalState(2026);
+    sample.selectedNationId='KR';
+    nationalModeState=sample;
+    setNationalWingerStyle('LW',true);
+    setNationalStrikerStyle(true);
+    const local=JSON.parse(localStorage.getItem('fc_star_national_mode_state'));
+    const cloud=serializeNationalModeStateForCloud(sample);
+    const restored=deserializeNationalModeStateFromCloud(cloud);
+    nationalModeState=originalState;
+    return {
+        localLW:local.wingerStyles['4-3-3'].LW,
+        localST:local.strikerStyles['4-3-3'].ST,
+        cloudLW:cloud.wingerStyles['4-3-3'].LW,
+        cloudST:cloud.strikerStyles['4-3-3'].ST,
+        restoredLW:restored.wingerStyles['4-3-3'].LW,
+        restoredST:restored.strikerStyles['4-3-3'].ST
+    };
+})()`,context);
+assert.deepEqual(JSON.parse(JSON.stringify({localLW:nationalStyleStorageCheck.localLW,localST:nationalStyleStorageCheck.localST,cloudLW:nationalStyleStorageCheck.cloudLW,cloudST:nationalStyleStorageCheck.cloudST,restoredLW:nationalStyleStorageCheck.restoredLW,restoredST:nationalStyleStorageCheck.restoredST})),{localLW:'sprint',localST:'linebreaker',cloudLW:'sprint',cloudST:'linebreaker',restoredLW:'sprint',restoredST:'linebreaker'},'national player styles must persist locally and survive cloud serialization');
+const nationalStylePresetReentryCheck=vm.runInContext(`(()=>{
+    const originalState=nationalModeState,originalPresets=JSON.parse(JSON.stringify(nationalSquadPresets));
+    nationalSquadPresets={};
+    const configured=createNationalState(2026);configured.selectedNationId='KR';nationalModeState=configured;
+    setNationalWingerStyle('LW',true);setNationalStrikerStyle(true);
+    const cloudPresets=JSON.parse(JSON.stringify(nationalSquadPresets));
+    const reentered=createNationalState(2027);reentered.selectedNationId='KR';nationalSquadPresets=cloudPresets;applyNationalSquadPreset(reentered,'KR');
+    const result={version:cloudPresets.KR.styleSettingsVersion,lw:reentered.wingerStyles['4-3-3'].LW,st:reentered.strikerStyles['4-3-3'].ST};
+    nationalModeState=originalState;nationalSquadPresets=originalPresets;
+    return result;
+})()`,context);
+assert.deepEqual(JSON.parse(JSON.stringify(nationalStylePresetReentryCheck)),{version:true,lw:'sprint',st:'linebreaker'},'national style presets must survive login re-entry even when a national season state is recreated');
 for(let index=0;index<100;index++){
     const result=vm.runInContext(`(()=>{const original=nationalModeState;const sample=createNationalState(2026);sample.selectedNationId='KR';Object.keys(sample.squad).forEach((slot,i)=>sample.squad[slot]=\`kr_\${i}\`);nationalModeState=sample;const match={home:{id:'KR',name:'대한민국',rating:95,formation:'4-3-3',stars:[]},away:{id:'JP',name:'일본',rating:95,formation:'4-4-2',stars:['테스트 공격수']}};simulateNationalMatch(match);nationalModeState=original;return {status:match.status,winner:match.winner.id,resolved:match.score1!==match.score2||match.pkScore1!==match.pkScore2,gf:sample.stats.gf,ga:sample.stats.ga,home:match.score1,away:match.score2,played:sample.stats.w+sample.stats.l};})()`,context);
     assert.deepEqual({status:result.status,resolved:result.resolved,played:result.played},{status:'completed',resolved:true,played:1});
@@ -233,9 +267,53 @@ assert.equal((nationalEditorRoot.innerHTML.match(/key-player-slot/g)||[]).length
 assert.match(nationalEditorRoot.innerHTML,/national-pitch-slot key-player-slot" data-key-label="★핵심 DM"/);
 assert.match(nationalEditorRoot.innerHTML,/4-3-3 핵심 선수 <strong>DM<\/strong> · PAS 80 이상/);
 assert.match(nationalEditorRoot.innerHTML,/활성 ✓ · kr_6 95/);
+assert.doesNotMatch(nationalEditorRoot.innerHTML,/공격수 플레이스타일|선수 스타일/);
+assert.match(nationalEditorRoot.innerHTML,/national-style-badge dribble" title="드리블 돌파"/);
+assert.match(nationalEditorRoot.innerHTML,/national-style-badge targetman" title="타겟맨"/);
+assert.match(nationalEditorRoot.innerHTML,/national-style-badge sprint" title="치고 달리기"/);
+vm.runInContext("openNationalCardSelector('LW')", context);
+assert.match(nationalEditorRoot.innerHTML,/national-drawer-header[\s\S]*선수 배치하기 \(LW\)[\s\S]*national-drawer-close-button[\s\S]*fa-xmark/);
+assert.match(nationalDrawerContent.innerHTML,/LW 윙어 플레이스타일 설정/);
+assert.match(nationalDrawerContent.innerHTML,/setNationalWingerStyle\('LW', this\.checked\)/);
+assert.doesNotMatch(nationalDrawerContent.innerHTML,/국적 · 실제 .* 포지션 카드만 표시됩니다/);
+const drawerBeforeStyleToggle=nationalDrawerContent.innerHTML;
+vm.runInContext("setNationalWingerStyle('LW', true)", context);
+assert.equal(nationalDrawerContent.innerHTML,drawerBeforeStyleToggle,'style changes must not re-render the player selector');
+vm.runInContext("openNationalCardSelector('ST')", context);
+assert.match(nationalDrawerContent.innerHTML,/스트라이커 플레이스타일 설정/);
+assert.match(nationalDrawerContent.innerHTML,/setNationalStrikerStyle\(this\.checked\)/);
+vm.runInContext("openNationalCardSelector('CM')", context);
+assert.doesNotMatch(nationalDrawerContent.innerHTML,/선수 스타일/);
+const nationalPitchStyleBadgeCheck=vm.runInContext(`(()=>{
+    const state=nationalModeState,formation=normalizeNationalFormation(state.formation);normalizeNationalStyleSettings(state);const wingers=state.wingerStyles[formation],strikers=state.strikerStyles[formation],original={lw:wingers.LW,rw:wingers.RW,st:strikers.ST};
+    wingers.LW='sprint';wingers.RW='dribble';strikers.ST='linebreaker';
+    const result={lw:nationalPitchStyleBadge('LW',state,formation),st:nationalPitchStyleBadge('ST',state,formation),rw:nationalPitchStyleBadge('RW',state,formation)};
+    wingers.LW=original.lw;wingers.RW=original.rw;strikers.ST=original.st;
+    return result;
+})()`,context);
+assert.match(nationalPitchStyleBadgeCheck.lw,/national-style-badge sprint[\s\S]*치고 달리기/);
+assert.match(nationalPitchStyleBadgeCheck.st,/national-style-badge linebreaker[\s\S]*라인브레이커/);
+assert.match(nationalPitchStyleBadgeCheck.rw,/national-style-badge dribble[\s\S]*드리블 돌파/);
 assert.ok(nationalEditorRoot.innerHTML.includes("changeNationalFormation('3-4-3')"));
 assert.ok(nationalEditorRoot.innerHTML.includes("changeNationalFormation('5-4-1')"));
 assert.ok(nationalEditorRoot.innerHTML.includes("changeNationalFormation('4-2-3-1')"));
+const nationalStyleGoalProbability=vm.runInContext(`(()=>{
+    const state=nationalModeState,originalStyles={winger:JSON.stringify(state.wingerStyles||{}),striker:JSON.stringify(state.strikerStyles||{})},originalStats={...CARDS_DATABASE.kr_8.stats};
+    state.formation='4-3-3';state.squad.LW='kr_8';state.squad.ST='kr_9';
+    CARDS_DATABASE.kr_8.stats={...originalStats,pac:99,sho:80,dri:70,phy:70};
+    setNationalWingerStyle('LW',false);setNationalStrikerStyle(false);
+    const match={home:{id:'KR',name:'대한민국',rating:95,formation:'4-3-3',stars:[]},away:{id:'JP',name:'일본',rating:95,formation:'4-4-2',stars:[]}};
+    const dribbleEngine=createNationalMatchEngine(match),dribbleChance=getWingerChanceStat('LW',getAwakenedCard('kr_8'),dribbleEngine.stylesW,dribbleEngine.formation),targetChance=getStrikerChanceStat('ST',getAwakenedCard('kr_8'),dribbleEngine.stylesS,dribbleEngine.formation),dribbleScoreProb=calculatePlayerScoreProb(0,dribbleChance,80,0,0,getStrikerStyleHiddenBonus(dribbleEngine.formation,dribbleEngine.stylesS)),targetScoreProb=calculatePlayerScoreProb(0,targetChance,80,0,0,getStrikerStyleHiddenBonus(dribbleEngine.formation,dribbleEngine.stylesS));
+    setNationalWingerStyle('LW',true);setNationalStrikerStyle(true);
+    const sprintEngine=createNationalMatchEngine(match),sprintChance=getWingerChanceStat('LW',getAwakenedCard('kr_8'),sprintEngine.stylesW,sprintEngine.formation),linebreakerChance=getStrikerChanceStat('ST',getAwakenedCard('kr_8'),sprintEngine.stylesS,sprintEngine.formation),sprintScoreProb=calculatePlayerScoreProb(0,sprintChance,80,0,0,getStrikerStyleHiddenBonus(sprintEngine.formation,sprintEngine.stylesS)),linebreakerScoreProb=calculatePlayerScoreProb(0,linebreakerChance,80,0,0,getStrikerStyleHiddenBonus(sprintEngine.formation,sprintEngine.stylesS));
+    CARDS_DATABASE.kr_8.stats=originalStats;state.wingerStyles=JSON.parse(originalStyles.winger);state.strikerStyles=JSON.parse(originalStyles.striker);
+    return {dribbleStyle:dribbleEngine.stylesW.LW,sprintStyle:sprintEngine.stylesW.LW,targetStyle:dribbleEngine.stylesS.ST,linebreakerStyle:sprintEngine.stylesS.ST,dribbleChance,sprintChance,targetChance,linebreakerChance,dribbleScoreProb,sprintScoreProb,targetScoreProb,linebreakerScoreProb};
+})()`,context);
+assert.deepEqual(JSON.parse(JSON.stringify({dribbleStyle:nationalStyleGoalProbability.dribbleStyle,sprintStyle:nationalStyleGoalProbability.sprintStyle,targetStyle:nationalStyleGoalProbability.targetStyle,linebreakerStyle:nationalStyleGoalProbability.linebreakerStyle})),{dribbleStyle:'dribble',sprintStyle:'sprint',targetStyle:'targetman',linebreakerStyle:'linebreaker'});
+assert.ok(nationalStyleGoalProbability.sprintChance > nationalStyleGoalProbability.dribbleChance, 'national winger style must change its chance stat');
+assert.ok(nationalStyleGoalProbability.sprintScoreProb > nationalStyleGoalProbability.dribbleScoreProb, 'national winger style must change actual goal success probability');
+assert.ok(nationalStyleGoalProbability.linebreakerChance > nationalStyleGoalProbability.targetChance, 'national striker style must change its chance stat');
+assert.ok(nationalStyleGoalProbability.linebreakerScoreProb > nationalStyleGoalProbability.targetScoreProb, 'national striker style must change actual goal success probability');
 const formationChecks=vm.runInContext(`(()=>{
     const fillActive=()=>{
         const used=new Set();
