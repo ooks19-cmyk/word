@@ -2503,3 +2503,30 @@ graph TD
 - 변경 파일: `js/national_squad.js`, `index.html`, `sw.js`, `tests/national_mode.test.cjs`, `.agents/progress.md`, `.agents/log.md`.
 - 검증: LW 스프린트·ST 라인브레이커 설정이 시즌 상태, 클라우드 직렬화 상태 및 국가별 프리셋에 저장되고, 새 시즌 상태를 만든 뒤 프리셋 적용으로 그대로 복원됨을 자동 테스트로 확인. 국대·클라우드 저장·정포지션·업적 회귀 테스트, 변경 JS·서비스 워커 문법 및 Windows CRLF 허용 `git diff --check` 통과.
 - 최종 상태: 수정 완료. national_squad v2.5, PWA 캐시 v405. 커밋 `c66f48f` (`Refine national squad style settings`)로 `origin/main` 푸시 완료.
+
+## 2026-09-17 — 국대 종료 다음 시즌 UI·경기 시작 폴백
+- 요청: 국대모드 종료 상태에서 다음 시즌 진행 버튼이 나타나지 않는 문제 확인. 폴백으로 종료 상태의 경기 시작 버튼을 누르면 다음 시즌 진행 처리하고, 종료 당일에는 다음날 가능 토스트 출력.
+- 원인: 기존 저장 상태에 `finished=true`여도 `seasonTransitionPending`이 누락되거나 false이면 다음 시즌 UI 표시 조건을 통과하지 못했다. 종료 뒤 남아 있는 예약 경기 버튼도 `finished` 상태에서 조용히 종료됐다.
+- 수행: 종료된 대회 상태를 읽을 때 다음 시즌 대기로 자동 정규화하고 가능한 날짜가 없으면 다음날로 보정했다. 종료 패널에 자체 `다음 시즌 진행` 버튼을 추가하고, 상단 공용 버튼도 보강된 상태를 기준으로 표시한다. `startNationalMatchSimulation()`은 종료 상태에서 즉시 반환하지 않고 다음 시즌 진행 함수로 넘겨 당일 토스트·다음날 전환을 동일하게 적용한다.
+- 변경 파일: `js/national.js`, `index.html`, `sw.js`, `tests/national_mode.test.cjs`, `.agents/progress.md`, `.agents/log.md`.
+- 검증: 종료 상태의 버튼 노출·대기 상태 자동 보정, 종료 당일 `새 시즌은 YYYY-MM-DD부터 시작 가능합니다.` 토스트와 새 날짜의 다음 시즌 호출을 자동 테스트로 확인. 국대·클라우드 저장·정포지션·업적 회귀 테스트, 변경 JS·서비스 워커 문법 및 Windows CRLF 허용 `git diff --check` 통과.
+- 최종 상태: 수정 완료. national v3.9, PWA 캐시 v406. 커밋·푸시는 사용자 지시 대기.
+
+## 2026-09-17 — 국대 종료일 레코드 기반 다음 시즌 진행
+- 요청: 국대 모드 종료 뒤 종료일 DB를 만들고, 해당 기록이 있으면 리그 페이지에서 날짜에 맞춰 다음 시즌을 진행하도록 알고리즘을 정리·구현. 국대 대회 건너뛰기 경로도 추가.
+- 수행: `nationalModeState.seasonTransition`에 현재 리그 연도·대회 ID·완료 유형·`finishedOn`·`availableOn`·대기 상태를 저장했다. 대회 완료와 건너뛰기 모두 같은 전환 레코드를 만들며, 기존 종료 상태도 자동 이관한다. 리그 종료 모달은 국대모드로 이동하고, 리그 페이지의 전환 버튼은 가능 전에는 날짜만 안내하고 가능일부터 다음 시즌을 시작한다. 종료된 국대 화면의 경기 시작 폴백도 동일한 날짜 검사를 사용한다.
+- 변경 파일: `js/national.js`, `js/league.js`, `app.js`, `index.html`, `css/match.css`, `style.css`, `sw.js`, `tests/national_mode.test.cjs`, `.agents/progress.md`, `.agents/log.md`.
+- 검증: 국대 종료·건너뛰기 전환 레코드와 클라우드 직렬화, 구형 종료 데이터 이관, 당일 차단 토스트·가능일 시즌 전환을 자동 테스트. 국대·클라우드 저장·정포지션·업적 회귀 테스트 4종, 변경 JS·서비스 워커 문법, `git diff --check` 통과.
+- 최종 상태: 완료. national v3.10, PWA 캐시 v408. 커밋·푸시는 사용자 지시 대기.
+
+## 2026-09-17 — 리그 종료 모달 국대 대회 진행 및 건너뛰기 버튼 2종 제공
+- 요청: 리그 종료 모달(`checkSeasonChampion()`)에 '다음 시즌 시작' 대신 [국대 대회 진행하기] 및 [국대 건너뛰기] 2개 버튼 모두 제공.
+- 수행: `checkSeasonChampion()`의 트레블·리그 우승·일반 시즌 종료 모달에 `[🌏 국대 대회 진행하기]`(기존 `closeChampModal()`)와 `[⏭️ 국대 건너뛰기]`(`closeChampModalAndSkipNational()`)를 함께 배치. 건너뛰기 클릭 시 모달 닫기 후 `openNationalTournamentWindow()` 및 `skipNationalTournament()`를 실행하여 `seasonTransition` 건너뛰기 레코드를 생성하고 익일 대기 상태로 리그 페이지에 복귀.
+- 최종 상태: 완료. league v4.6, PWA 캐시 v409. 커밋·푸시는 사용자 지시 대기.
+
+## 2026-09-18 — 깃 푸시 및 작업 내역 원격 저장소 동기화
+- 요청: 깃 푸시
+- 수행: 국대 종료 및 건너뛰기 연동, 리그 종료 모달 2종 버튼 제공, 관련 UI 스타일 및 PWA 캐시(v409) 갱신 내역을 커밋하고 origin/main 브랜치에 푸시.
+- 변경 파일: `js/league.js`, `js/national.js`, `app.js`, `index.html`, `style.css`, `css/match.css`, `sw.js`, `tests/national_mode.test.cjs`, `콘솔코드.txt`, `.agents/progress.md`, `.agents/log.md`.
+- 검증: `git status`, `git diff --check`, origin/main 푸시 완료 확인.
+- 최종 상태: 완료. origin/main 동기화 완료.

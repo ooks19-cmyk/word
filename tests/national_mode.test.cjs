@@ -51,7 +51,9 @@ const context = {
 const nationalEditorRoot = { innerHTML: '' };
 const nationalModeRoot = { innerHTML: '' };
 const nationalDrawerContent = { innerHTML: '' };
-context.document.getElementById = id => id === 'nationalSquadEditor' ? nationalEditorRoot : (id === 'nationalModeRoot' ? nationalModeRoot : (id === 'nationalDrawerContent' ? nationalDrawerContent : null));
+const nationalNextSeasonActionBar = { style: { display: 'none' } };
+const btnNationalNextSeason = { innerHTML: '', title: '' };
+context.document.getElementById = id => id === 'nationalSquadEditor' ? nationalEditorRoot : (id === 'nationalModeRoot' ? nationalModeRoot : (id === 'nationalDrawerContent' ? nationalDrawerContent : (id === 'nationalNextSeasonActionBar' ? nationalNextSeasonActionBar : (id === 'btnNationalNextSeason' ? btnNationalNextSeason : null))));
 const roles = { GK:'GK', LB:'LB', LCB:'CB', RCB:'CB', RB:'RB', LCM:'CM', CM:'CM', RCM:'CM', LW:'LW', ST:'ST', RW:'RW' };
 Object.entries(roles).forEach(([slot, position], index) => {
     const id = `kr_${index}`;
@@ -85,12 +87,12 @@ const nationalSeasonGate=vm.runInContext(`(()=>{
     openNationalTournamentWindow();
     startNationalTournament();
     const started=!!sample.tournament;
-    sample.finished=true;sample.seasonWindowOpen=false;sample.seasonTransitionPending=true;
-    sample.nextSeasonAvailableDate=getNationalCalendarDate(1);
+    sample.finished=true;sample.seasonWindowOpen=false;sample.tournament={id:'worldcup',name:'월드컵',size:32};
+    createNationalSeasonTransition(sample);
     startNextSeasonAfterNationalTournament();
     const nextDayToast=toast;
     const nextDayBlocked=sample.seasonTransitionPending;
-    sample.nextSeasonAvailableDate=getNationalCalendarDate();
+    sample.seasonTransition.availableOn=getNationalCalendarDate();sample.nextSeasonAvailableDate=getNationalCalendarDate();
     startNextSeasonAfterNationalTournament();
     const result={blocked,toast:nextDayToast,started,nextDayBlocked,seasonWindowOpen:sample.seasonWindowOpen,seasonTransitionPending:sample.seasonTransitionPending,nextSeasonAvailableDate:sample.nextSeasonAvailableDate};
     nationalModeState=original;showToast=originalToast;
@@ -98,6 +100,33 @@ const nationalSeasonGate=vm.runInContext(`(()=>{
 })()`,context);
 assert.deepEqual(JSON.parse(JSON.stringify(nationalSeasonGate)),{blocked:true,toast:`새 시즌은 ${vm.runInContext('getNationalCalendarDate(1)',context)}부터 시작 가능합니다.`,started:true,nextDayBlocked:true,seasonWindowOpen:false,seasonTransitionPending:false,nextSeasonAvailableDate:null});
 assert.equal(nationalNextSeasonCalls,1,'the next season should start only after the national tournament finishes');
+const nationalFinishedFallbackCheck=vm.runInContext(`(()=>{
+    const originalState=nationalModeState,originalToast=showToast,originalTab=nationalActiveSubTab,originalStartNextSeason=startNextSeason;
+    let toast='',nextSeasonCalls=0;
+    const sample=createNationalState(2026);
+    sample.selectedNationId='KR';sample.tournament={id:'worldcup',name:'월드컵',size:32};sample.finished=true;sample.rounds=[];
+    nationalModeState=sample;nationalActiveSubTab='match';showToast=message=>{toast=message;};startNextSeason=()=>{nextSeasonCalls++;};
+    renderNationalMode();
+    const buttonVisible=document.getElementById('nationalNextSeasonActionBar').style.display==='flex'&&document.getElementById('btnNationalNextSeason').innerHTML.includes('진행');
+    const normalizedPending=sample.seasonTransitionPending,availableDate=sample.seasonTransition.availableOn;
+    startNationalMatchSimulation();
+    const blockedToast=toast,blockedNextSeasonCalls=nextSeasonCalls;
+    sample.seasonTransition.availableOn=getNationalCalendarDate();sample.nextSeasonAvailableDate=getNationalCalendarDate();
+    startNationalMatchSimulation();
+    const startedNextSeasonCalls=nextSeasonCalls;
+    nationalModeState=originalState;nationalActiveSubTab=originalTab;showToast=originalToast;startNextSeason=originalStartNextSeason;
+    return {buttonVisible,normalizedPending,availableDate,blockedToast,blockedNextSeasonCalls,startedNextSeasonCalls};
+})()`,context);
+assert.deepEqual(JSON.parse(JSON.stringify(nationalFinishedFallbackCheck)),{buttonVisible:true,normalizedPending:true,availableDate:vm.runInContext('getNationalCalendarDate(1)',context),blockedToast:`새 시즌은 ${vm.runInContext('getNationalCalendarDate(1)',context)}부터 시작 가능합니다.`,blockedNextSeasonCalls:0,startedNextSeasonCalls:1},'finished national mode must show a next-season action and route a stale match-start click through the next-season guard');
+const nationalSkipTransitionCheck=vm.runInContext(`(()=>{
+    const original=nationalModeState,originalToast=showToast;
+    const sample=createNationalState(2026);sample.selectedNationId='KR';nationalModeState=sample;showToast=()=>{};
+    openNationalTournamentWindow();skipNationalTournament();
+    const cloud=serializeNationalModeStateForCloud(sample);
+    const result={source:sample.seasonTransition.source,finishedOn:sample.seasonTransition.finishedOn,availableOn:sample.seasonTransition.availableOn,status:sample.seasonTransition.status,windowOpen:sample.seasonWindowOpen,cloudAvailableOn:cloud.seasonTransition.availableOn};
+    nationalModeState=original;showToast=originalToast;return result;
+})()`,context);
+assert.deepEqual(JSON.parse(JSON.stringify(nationalSkipTransitionCheck)),{source:'skipped',finishedOn:vm.runInContext('getNationalCalendarDate()',context),availableOn:vm.runInContext('getNationalCalendarDate(1)',context),status:'waiting',windowOpen:false,cloudAvailableOn:vm.runInContext('getNationalCalendarDate(1)',context)},'skipping national mode must create the same cloud-persisted next-season transition record');
 const nationalResumeCheck=vm.runInContext(`(()=>{
     const original=nationalModeState;
     const sample=createNationalState(2026);
@@ -186,6 +215,9 @@ assert.match(nationalSource,/function dismissNationalWinnerCelebrationModal\(\)/
 assert.match(nationalSource,/function configureNationalWinnerConfirmation\(\)/);
 assert.match(nationalSource,/button\.textContent='확인'/);
 assert.match(nationalSource,/function updateNationalNextSeasonAction\(\)/);
+assert.match(nationalSource,/function createNationalSeasonTransition\(state,source='completed'\)/);
+assert.match(nationalSource,/finishedOn:transition\.finishedOn,availableOn:transition\.availableOn/);
+assert.match(nationalSource,/function skipNationalTournament\(\)/);
 assert.match(nationalSource,/우승 보상[\s\S]*\+10 FP/);
 assert.match(nationalSource,/if\(champion\)showNationalWinnerCelebrationModal\(\);else showToast/);
 assert.match(nationalSource,/새 시즌은 \$\{availableDate\}부터 시작/);
@@ -194,14 +226,18 @@ assert.match(nationalSource,/function renderNationalMode\(\)[\s\S]*state=syncNat
 const appSource=fs.readFileSync('app.js','utf8');
 const leagueSource=fs.readFileSync('js/league.js','utf8');
 const indexSource=fs.readFileSync('index.html','utf8');
-const closeChampModalSource=leagueSource.match(/function closeChampModal\(\) \{([\s\S]*?)\r?\n\}\r?\n\r?\nfunction startNextSeason/);
+const closeChampModalSource=leagueSource.match(/function closeChampModal\(\) \{([\s\S]*?)\r?\n\}\r?\n\r?\nfunction closeChampModalAndSkipNational/);
 assert.ok(closeChampModalSource, 'the league champion modal close handler should exist');
 const executableCloseChampModalSource=closeChampModalSource[1].replace(/\/\*[\s\S]*?\*\//g, '');
-assert.match(executableCloseChampModalSource, /startNextSeason\(\);/, 'the league champion modal should start the next season directly');
-assert.doesNotMatch(executableCloseChampModalSource, /openNationalTournamentWindow|switchMatchSubTab\('national'\)/, 'the league champion modal must not open national mode while it is temporarily disabled');
-assert.match(closeChampModalSource[1], /기존 국대 대회 전환 흐름으로 즉시 복원/, 'the disabled national transition should be preserved for quick restoration');
-assert.equal((leagueSource.match(/>다음 시즌 시작<\/button>/g) || []).length, 3, 'every league ending result should offer the next-season action');
-assert.ok(indexSource.includes(`id="matchSubTabNational" onclick="showNationalComingSoon()"`));
+assert.match(executableCloseChampModalSource, /openNationalTournamentWindow\(\)/, 'the league champion modal should open the national-tournament window');
+assert.match(executableCloseChampModalSource, /switchMatchSubTab\('national'\)/, 'the league champion modal should move to national mode');
+assert.match(executableCloseChampModalSource, /startNextSeason\(\);/, 'a compatibility fallback should remain when the national script is unavailable');
+assert.match(closeChampModalSource[1], /종료일 레코드/, 'the league close flow should document the transition-record gate');
+assert.match(leagueSource, /function closeChampModalAndSkipNational\(\) \{[\s\S]*?skipNationalTournament\(\)/, 'the skip handler should invoke national tournament skipping');
+assert.equal((leagueSource.match(/국대 대회 진행하기/g) || []).length, 3, 'every league ending result should offer national tournament entry action');
+assert.equal((leagueSource.match(/국대 건너뛰기/g) || []).length, 3, 'every league ending result should offer national tournament skip action');
+assert.ok(indexSource.includes(`id="matchSubTabNational" onclick="switchMatchSubTab('national')"`));
+assert.match(indexSource, /id="matchLayoutLeague"[\s\S]*id="nationalNextSeasonActionBar"/, 'the next-season action belongs to the league page');
 assert.doesNotMatch(appSource,/tabId === 'national' && !isDevEntry/);
 assert.match(appSource,/else if \(tabId === 'national'\)[\s\S]*renderNationalMode\(\)/);
 assert.doesNotMatch(leagueSource,/시즌 완료 후 페이지 새로고침 시 챔피언 확인 모달 자동 복구/);

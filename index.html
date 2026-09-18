@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FC STAR CARD - 축구 카드 수집 게임</title>
     <link rel="stylesheet" href="css/global.css?v=3.0">
-    <link rel="stylesheet" href="style.css?v=2.0">
+    <link rel="stylesheet" href="style.css?v=2.1">
     <link rel="stylesheet" href="css/friend.css?v=1.2">
     <link rel="stylesheet" href="css/realtime.css?v=1.0">
     <!-- PWA Web App Manifest & iOS App Capabilities -->
@@ -417,16 +417,15 @@
                 <button class="match-sub-btn" id="matchSubTabFriendly" onclick="switchMatchSubTab('friendly')">
                     <i class="fa-solid fa-trophy" style="color: #ffd700;"></i><span>도전모드</span>
                 </button>
-                <button class="match-sub-btn" id="matchSubTabNational" onclick="showNationalComingSoon()">
+                <button class="match-sub-btn" id="matchSubTabNational" onclick="switchMatchSubTab('national')">
                     <i class="fa-solid fa-flag" style="color: #60a5fa;"></i><span>국대모드</span>
                 </button>
             </div>
-            <div id="nationalNextSeasonActionBar" class="national-next-season-action" style="display:none;">
-                <button id="btnNationalNextSeason" type="button" onclick="startNextSeasonAfterNationalTournament()"></button>
-            </div>
-
             <!-- 리그 탭 뷰 (기존 경기 진행 화면) -->
             <div class="match-layout match-layout-sub active" id="matchLayoutLeague">
+                <div id="nationalNextSeasonActionBar" class="national-next-season-action" style="display:none;">
+                    <button id="btnNationalNextSeason" type="button" onclick="startNextSeasonAfterNationalTournament()"></button>
+                </div>
                 <!-- Left panel: Match Simulator Board -->
                 <div class="match-simulator-panel">
                     <div class="squad-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding-bottom: 0.5rem; flex-wrap: wrap; gap: 6px;">
@@ -1888,13 +1887,13 @@
     <script src="js/deck.js?v=2.7"></script>
     <script src="js/squad.js?v=3.0"></script>
     <script src="js/match_algorithm.js?v=3.4"></script>
-    <script src="js/league.js?v=4.5"></script>
+    <script src="js/league.js?v=4.6"></script>
     <script src="js/cup.js?v=3.2"></script>
     <script src="js/acl.js?v=3.6"></script>
     <script src="js/friendly.js?v=4.0"></script>
     <script src="js/national_data.js?v=1.2"></script>
     <script src="js/national_squad.js?v=2.5"></script>
-    <script src="js/national.js?v=3.8"></script>
+    <script src="js/national.js?v=3.10"></script>
     <script src="js/national_hof.js?v=1.0"></script>
     <script src="js/achievements.js?v=1.1"></script>
     <!-- 수석코치 조언 플로팅 버튼 -->

@@ -7,6 +7,56 @@
 })();
 
 
+// ==========================================
+// 🌏 [국대모드] 즉시 탈락 콘솔 코드
+// ==========================================
+(() => {
+    const state = typeof getNationalModeState === 'function' ? getNationalModeState() : (typeof nationalModeState !== 'undefined' ? nationalModeState : null);
+    if (!state) return console.error("❌ 국대 상태 객체를 찾을 수 없습니다.");
+
+    if (!state.selectedNationId) {
+        if (typeof chooseNationalTeam === 'function') chooseNationalTeam('KR');
+        else state.selectedNationId = 'KR';
+    }
+
+    if (!state.tournament) {
+        if (typeof openNationalTournamentWindow === 'function') openNationalTournamentWindow();
+        if (typeof startNationalTournament === 'function') startNationalTournament();
+    }
+
+    if (state.finished) {
+        console.warn("⚠️ 이미 종료된 대회입니다.");
+        if (typeof renderNationalMode === 'function') renderNationalMode();
+        return;
+    }
+
+    const round = state.rounds[state.currentRound];
+    const playerId = state.selectedNationId;
+    const match = round ? round.find(m => m.status === 'scheduled' && (m.home.id === playerId || m.away.id === playerId)) : null;
+
+    if (!match) return console.error("❌ 현재 라운드 매치를 찾을 수 없습니다.");
+
+    const isHome = match.home.id === playerId;
+    match.score1 = isHome ? 0 : 1;
+    match.score2 = isHome ? 1 : 0;
+    match.winner = isHome ? match.away : match.home;
+    match.status = 'completed';
+    match.shootout = false;
+
+    state.stats.l = (state.stats.l || 0) + 1;
+    state.stats.ga = (state.stats.ga || 0) + 1;
+
+    if (typeof finalizeNationalPlayerMatch === 'function') finalizeNationalPlayerMatch(false);
+    if (typeof saveNationalModeState === 'function') saveNationalModeState(true);
+    if (typeof renderNationalMode === 'function') renderNationalMode();
+    if (typeof updateNationalNextSeasonAction === 'function') updateNationalNextSeasonAction();
+
+    console.log(`❌ [국대 탈락 완료] 최종 성적: ${state.finalResult || '탈락'}`);
+    console.log(`📅 다음 시즌 가능일(availableOn): ${state.seasonTransition?.availableOn}`);
+    if (typeof showToast === 'function') showToast(`❌ 국대 탈락 (${state.finalResult}) 처리 완료!`);
+})();
+
+
 resetNationalModeDev()
 
 리그 및 컵 초기화

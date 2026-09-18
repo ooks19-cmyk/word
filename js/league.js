@@ -2302,7 +2302,10 @@ function checkSeasonChampion() {
                 <strong style="color: #ffd700; font-size: 1.05rem;">🎁 트레블 달성 보상: +10 FP</strong>
             </p>
             ${captainAwakenedMsg}
-            <button class="btn-open-pack" onclick="closeChampModal()" style="margin-top:1.5rem;">다음 시즌 시작</button>
+            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem;">
+                <button class="btn-open-pack" onclick="closeChampModal()" style="margin: 0; min-width: 170px;"><i class="fa-solid fa-flag"></i> 국대 대회 진행하기</button>
+                <button class="btn-reset-quiz" onclick="closeChampModalAndSkipNational()" style="margin: 0; min-width: 170px; padding: 0.75rem 1.2rem; font-size: 0.95rem;"><i class="fa-solid fa-forward"></i> 국대 건너뛰기</button>
+            </div>
         `;
     } else if (isUserTeamChamp) {
         trophyContainer.innerHTML = `
@@ -2313,7 +2316,10 @@ function checkSeasonChampion() {
                 당신이 지휘한 스쿼드가 리그 정상의 주역으로 우뚝 섰습니다.
             </p>
             ${captainAwakenedMsg}
-            <button class="btn-open-pack" onclick="closeChampModal()" style="margin-top:1.5rem;">다음 시즌 시작</button>
+            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem;">
+                <button class="btn-open-pack" onclick="closeChampModal()" style="margin: 0; min-width: 170px;"><i class="fa-solid fa-flag"></i> 국대 대회 진행하기</button>
+                <button class="btn-reset-quiz" onclick="closeChampModalAndSkipNational()" style="margin: 0; min-width: 170px; padding: 0.75rem 1.2rem; font-size: 0.95rem;"><i class="fa-solid fa-forward"></i> 국대 건너뛰기</button>
+            </div>
         `;
     } else {
         trophyContainer.innerHTML = `
@@ -2324,7 +2330,10 @@ function checkSeasonChampion() {
                 시즌 우승팀: **${champion.name}** (승점 ${champion.pts}점)<br>
                 아쉽지만 스쿼드를 더 강력하게 정비하여 다음 연도 시즌의 정상에 재도전하세요!
             </p>
-            <button class="btn-open-pack" onclick="closeChampModal()" style="margin-top:0;">다음 시즌 시작</button>
+            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 0.5rem;">
+                <button class="btn-open-pack" onclick="closeChampModal()" style="margin: 0; min-width: 170px;"><i class="fa-solid fa-flag"></i> 국대 대회 진행하기</button>
+                <button class="btn-reset-quiz" onclick="closeChampModalAndSkipNational()" style="margin: 0; min-width: 170px; padding: 0.75rem 1.2rem; font-size: 0.95rem;"><i class="fa-solid fa-forward"></i> 국대 건너뛰기</button>
+            </div>
         `;
     }
     
@@ -2357,16 +2366,37 @@ function closeChampModal() {
     const celeb = document.getElementById('squadChampCelebration');
     if (celeb) celeb.remove();
     
-    // 임시 조치: 리그 종료 후 국대 대회 진입은 막고 바로 다음 시즌을 시작한다.
-    // 아래 블록의 주석을 해제하고 startNextSeason() 호출을 제거하면 기존 국대 대회 전환 흐름으로 즉시 복원된다.
-    /*
+    // 국대 대회 종료일 레코드가 생성되기 전에는 리그 연도를 넘기지 않는다.
     if (typeof openNationalTournamentWindow === 'function') {
         openNationalTournamentWindow();
         if (typeof switchTab === 'function') switchTab('match');
         if (typeof switchMatchSubTab === 'function') switchMatchSubTab('national');
         return;
     }
-    */
+    // 호환성 폴백: national.js가 아직 로드되지 않은 오래된 캐시에서만 바로 다음 시즌으로 진행한다.
+    startNextSeason();
+}
+
+function closeChampModalAndSkipNational() {
+    const modal = document.getElementById('revealModal');
+    if (modal) modal.classList.remove('active');
+
+    // Restore elements
+    const card3d = document.getElementById('card3dWrapper');
+    if (card3d) card3d.style.display = 'block';
+
+    const celeb = document.getElementById('squadChampCelebration');
+    if (celeb) celeb.remove();
+
+    if (typeof openNationalTournamentWindow === 'function') {
+        openNationalTournamentWindow();
+    }
+    if (typeof skipNationalTournament === 'function') {
+        skipNationalTournament();
+        if (typeof switchTab === 'function') switchTab('match');
+        if (typeof switchMatchSubTab === 'function') switchMatchSubTab('league');
+        return;
+    }
     startNextSeason();
 }
 
@@ -2400,6 +2430,7 @@ function startNextSeason() {
     renderLeagueTable();
     updateMatchPreviewBoard();
     renderLeagueStats();
+    if (typeof updateNationalNextSeasonAction === 'function') updateNationalNextSeasonAction();
     
     // Commentary clear
     const commBox = document.getElementById('commentaryScroll');

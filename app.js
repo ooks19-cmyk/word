@@ -167,6 +167,7 @@ function switchMatchSubTab(tabId, isDevEntry = false) {
         if (typeof syncJeonbukOvr === 'function') syncJeonbukOvr();
         if (typeof updateMatchPreviewBoard === 'function') updateMatchPreviewBoard();
         if (typeof renderLeagueTable === 'function') renderLeagueTable();
+        if (typeof updateNationalNextSeasonAction === 'function') updateNationalNextSeasonAction();
     } else if (tabId === 'cup') {
         if (typeof initCupTab === 'function') initCupTab();
     } else if (tabId === 'acl') {

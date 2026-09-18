@@ -630,6 +630,8 @@
 }
 
 .national-next-season-action {
+    flex: 0 0 100%;
+    order: -1;
     width: 100%;
     max-width: 600px;
     margin: -0.85rem auto 0.65rem;
@@ -1283,6 +1285,5 @@
     cursor: not-allowed;
     transform: none;
 }
-
 
 
