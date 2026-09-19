@@ -1,8 +1,21 @@
 ## 현재 작업
-- 목표: player_data.js 선수 스탯 변경 사항 및 국대 모드 포메이션 건너뛰기 버튼 삭제 내역 검증 후 main 브랜치 Git 푸시.
-- 상태: 진행 중.
-- 주요 변경·검증: 송범근, 콤파뇨, 조현우, 린가드, 김승규 스탯 수정 반영, player_data v1.73, sw v411 갱신, 선수데이터.csv 최신화, 국대 모드 건너뛰기 버튼 삭제 및 전체 회귀 테스트 통과.
-- 다음 단계: git commit 및 origin/main 푸시.
+- 목표: 인게임 내 CAM 포지션 표기를 AM으로 일괄 전환 (내부 배치 가능 포지션 및 경기 로직 100% 동일 유지).
+- 상태: 완료.
+- 주요 변경·검증:
+  1. `formatCardPosition` 전역 헬퍼 함수 추가(`CAM` ➔ `AM`).
+  2. 카드 앞면/뒷면, 스쿼드 교체 드로어/토스트/셀렉트, 국대 피치 미니카드 배지, 친선전 슈퍼카드 선택, 실시간 에이스, 어려움 모드 등 모든 인게임 UI 렌더링에 `AM` 표기 적용.
+  3. `squad.js` 및 `national_squad.js`의 배치 호환 검증(`isPositionCompatible`, `isNationalPositionCompatible`) 및 `app.js` `VALID_POSITIONS`에 `AM`을 완벽 지원하여 원본 `CAM` 카드와 기존 데이터베이스 100% 호환 보장.
+  4. PWA Service Worker 캐시(`fc-star-v413`) 및 `index.html` 스크립트 버전 상향.
+  5. JS 구문 검사(`node --check`) 및 전체 4종 회귀 테스트 패스 완료.
+- 다음 단계: 사용자 추가 지시 대기.
+
+
+
+
+
+
+
+
 
 
 

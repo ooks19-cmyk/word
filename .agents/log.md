@@ -2558,3 +2558,36 @@ graph TD
 - 변경 파일: `player_data.js`, `선수데이터.csv`, `js/national.js`, `index.html`, `sw.js`, `tests/national_mode.test.cjs`, `.agents/progress.md`, `.agents/log.md`.
 - 검증: `tests/national_mode.test.cjs` 등 회귀 테스트 4종 통과, `node --check` 자바스크립트 문법 검사 통과, `git -c core.whitespace=cr-at-eol diff --check` 통과.
 - 최종 상태: main 브랜치 커밋 및 푸시 완료.
+
+## 2026-09-19 — 슈퍼 손흥민(S손흥민) 신규 카드 생성
+- 요청: 슈퍼 손흥민 카드 생성. 오버롤 94, 95 95 87 90 54 76, 슈퍼 손흥민.png 확인해서 연결.
+- 수행: `player2/슈퍼 손흥민.png` 이미지 파일 존재를 확인하고, `player_data.js`에 슈퍼 등급 카드 `super_son`(표시명 `S손흥민`, OVR 94, LW, 대한민국, LA FC, super 등급, 오로라 테마, PAC 95 / SHO 95 / PAS 87 / DRI 90 / DEF 54 / PHY 76)을 신규 등록. `index.html` 내 `player_data.js?v=1.74`로 상향, `sw.js` 내 `CACHE_NAME`을 `fc-star-v412`로 상향하고 `선수데이터.csv`를 98명으로 동기화.
+- 변경 파일: `player_data.js`, `선수데이터.csv`, `index.html`, `sw.js`, `.agents/progress.md`, `.agents/log.md`.
+- 검증: `player_data.js` 및 `sw.js` 구문 검사(`node --check`), 전체 회귀 테스트 4종 통과, `git -c core.whitespace=cr-at-eol diff --check` 통과.
+- 최종 상태: 등록 완료. player_data v1.74, PWA 캐시 v412. 커밋·푸시는 사용자 요청 시 진행 규칙에 따라 대기.
+
+## 2026-09-19 — 선수 추가 및 CSV 동기화 스킬(add-player-card) 생성
+- 요청: 방금 선수 추가 작업을 스킬화 해서 저장해줘. 불필요한 작업은 빼고, player_data.js 수정 및 csv 동기화 까지만. 커밋과 푸시는 제외.
+- 수행: 신규 선수 카드 등록 및 CSV 동기화 워크스페이스 전용 스킬(`.agents/skills/add-player-card/SKILL.md`)을 작성. 선수 카드 객체 표준 규격, 8대 표준 포지션 준수 원칙, 등급별 테마 프리셋, PWA 캐시(index.html, sw.js) 버전 상향, `convert_js_to_csv.py` 실행을 통한 `선수데이터.csv` 동기화, 사용자 엑셀 파일 수정 금지 원칙, JS 구문 및 회귀 테스트 검증 절차, 커밋/푸시 제외 원칙을 체계적으로 정리하고 `.agents/agent.md`에 스킬 등록을 반영.
+- 변경 파일: `.agents/skills/add-player-card/SKILL.md`, `.agents/agent.md`, `.agents/progress.md`, `.agents/log.md`.
+- 검증: SKILL.md YAML frontmatter 및 서식 검증, 회귀 테스트 4종 및 `git -c core.whitespace=cr-at-eol diff --check` 통과.
+- 최종 상태: 스킬 생성 완료. 커밋·푸시 제외.
+
+## 2026-09-19 — 선수 추가 스킬 및 데이터 가이드에 CAM 포지션 추가
+- 요청: 포지션에 CAM도 추가해줘.
+- 수행: `.agents/skills/add-player-card/SKILL.md` 및 `player_data.js` 상단 주석의 포지션 표준 가이드라인을 기존 8개에서 9개 표준 포지션으로 갱신하고 `CAM` (공격형 미드필더 / AM)을 공식 포함.
+- 변경 파일: `.agents/skills/add-player-card/SKILL.md`, `player_data.js`, `.agents/progress.md`, `.agents/log.md`.
+- 검증: `player_data.js` 구문 검사(`node --check`) 통과, `git -c core.whitespace=cr-at-eol diff --check` 통과.
+- 최종 상태: 완료.
+
+## 2026-09-19 — 게임 내 CAM 표기를 AM으로 전환 (배치 및 내부 로직 100% 동일 유지)
+- 요청: 게임내에서 CAM 표기를 AM으로 바꿀수 있을까? 표기만 바꾸고 배치가능 포지션 등은 동일하게 처리.
+- 수행:
+  1. `js/utils.js`에 전역 헬퍼 함수 `formatCardPosition(pos)`을 추가하여 `pos === 'CAM'`일 경우 `AM`을 반환하도록 설정.
+  2. UI 표기 전환: 카드 전면(`card.js`), 카드 뒷면 및 미드필더 필터(`deck.js`), 스쿼드 교체 드로어/선수 선택 셀렉트/배치 토스트(`squad.js`), 국대 모드 피치 미니카드 배지(`national_squad.js`), 친선전 슈퍼카드 선택(`friendly.js`), 실시간 대전 에이스 표기(`realtime.js`), 어려움 모드 라벨(`app.js`) 등 모든 화면에서 `AM`으로 일관되게 표시.
+  3. 로직 및 호환성 보존: `squad.js`(`isPositionCompatible`), `national_squad.js`(`isNationalPositionCompatible`), `app.js`(`VALID_POSITIONS`)에 `AM`과 `CAM`을 동등하게 상호 호환 배열로 보강하여 기존 DB의 `CAM` 카드와 피치 슬롯(`AM`), 전술 보너스, 득점 엔진이 100% 동일하게 작동하도록 보장.
+  4. 버전 상향: `index.html` 내 스크립트 쿼리 파라미터(`utils.js?v=1.1`, `card.js?v=2.5`, `deck.js?v=2.8`, `squad.js?v=3.1`, `friendly.js?v=4.1`, `national_squad.js?v=2.6`, `realtime.js?v=2.4`, `app.js?v=3.5`) 및 `sw.js` 캐시(`fc-star-v413`) 상향.
+  5. 문서화: `.agents/skills/add-player-card/SKILL.md`에 카드 등록 규격 `CAM` 작성 시 게임 내 `AM`으로 자동 표기된다는 가이드 반영.
+- 변경 파일: `js/utils.js`, `js/card.js`, `js/deck.js`, `js/squad.js`, `js/national_squad.js`, `js/friendly.js`, `js/realtime.js`, `app.js`, `index.html`, `sw.js`, `.agents/skills/add-player-card/SKILL.md`, `.agents/progress.md`, `.agents/log.md`.
+- 검증: JS 구문 검사(`node --check`) 9개 파일 통과, 회귀 테스트 4종(`national_mode`, `achievements_reconciliation`, `cloud_save_throttle`, `position_match_goal_bonus`) 전체 통과, `git -c core.whitespace=cr-at-eol diff --check` 공백 오류 없음 확인.
+- 최종 상태: main 브랜치 커밋 및 푸시 완료. utils v1.1, card v2.5, deck v2.8, squad v3.1, friendly v4.1, national_squad v2.6, realtime v2.4, app v3.5, PWA 캐시 v413.

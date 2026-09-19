@@ -2,9 +2,10 @@
  * player/player_data.js - Modular Player Card Database
  * 
  * ⚠️ [중요 - 포지션 부여 가이드라인]
- * 향후 새로운 선수 카드 추가 시, position 속성에는 아래의 표준화된 8가지 값만 부여해야 합니다:
+ * 향후 새로운 선수 카드 추가 시, position 속성에는 아래의 표준화된 9가지 값만 부여해야 합니다:
  * - 'ST' (스트라이커)
  * - 'LW', 'RW' (윙어 / W)
+ * - 'CAM' (공격형 미드필더 / AM)
  * - 'CM' (미드필더 / DM, AM 포함)
  * - 'CB' (중앙 수비수)
  * - 'LB', 'RB' (측면 수비수 / L&R Back)
@@ -692,13 +693,13 @@ const CARDS_DATABASE = {
     "choi_chol_soon": {
         id: "choi_chol_soon",
         name: "최철순",
-        rating: 80,
-        position: "CB",
+        rating: 85,
+        position: "RB",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "JEONBUK",
         image: "player/최철순.png",
-        rarity: "normal",
+        rarity: "special",
         description: "전북 현대 왕조의 굳건한 기둥이자 팬들의 무한한 사랑을 받는",
         theme: {
             primary: "#005a3c",
@@ -706,11 +707,11 @@ const CARDS_DATABASE = {
             glow: "#ffd700"
         },
         stats: {
-            pac: 78,
+            pac: 85,
             sho: 55,
-            pas: 68,
-            dri: 70,
-            def: 82,
+            pas: 80,
+            dri: 75,
+            def: 87,
             phy: 82
         }
     },
@@ -2437,6 +2438,31 @@ const CARDS_DATABASE = {
             dri: 91,
             def: 52,
             phy: 90
+        }
+    },
+    "super_son": {
+        id: "super_son",
+        name: "S손흥민",
+        rating: 94,
+        position: "LW",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "LA FC",
+        image: "player2/슈퍼 손흥민.png",
+        rarity: "super",
+        description: "전설을 초월한 궁극의 캡틴이자 아시아 역대 최고의 골잡이, 슈퍼 손흥민(S손흥민)입니다. 폭발적인 스피드와 한층 더 정교해진 양발 감아차기 슈팅, 환상적인 드리블 돌파로 상대 골문을 무자비하게 폭격하는 궁극의 월드클래스 피니셔입니다.",
+        theme: {
+            primary: "#14002e",
+            secondary: "#ff007f",
+            glow: "#00f2fe"
+        },
+        stats: {
+            pac: 95,
+            sho: 95,
+            pas: 87,
+            dri: 90,
+            def: 54,
+            phy: 76
         }
     }
 };

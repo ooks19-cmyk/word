@@ -1321,7 +1321,7 @@ function showChallengeSuperCardSelectModal(season, lastMatchPlayerOvr) {
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem;">
                         <div style="display: flex; align-items: center; gap: 5px;">
                             <img src="${card.nationFlag || 'https://flagcdn.com/w40/un.png'}" alt="flag" style="width: 18px; height: 12px; object-fit: cover; border-radius: 2px;">
-                            <span style="font-size: 0.72rem; font-weight: 800; color: #cbd5e1;">${card.position}</span>
+                            <span style="font-size: 0.72rem; font-weight: 800; color: #cbd5e1;">${typeof formatCardPosition === 'function' ? formatCardPosition(card.position) : (card.position === 'CAM' ? 'AM' : card.position)}</span>
                         </div>
                         <div>
                             ${isOwned ? `

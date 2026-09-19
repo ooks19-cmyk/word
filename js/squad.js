@@ -342,13 +342,13 @@ function isPositionCompatible(displayPos, cardPos) {
         return ['ST', 'LW', 'RW'].includes(cardPos);
     }
     if (['LW', 'RW', 'LM', 'RM'].includes(displayPos)) {
-        return ['LW', 'RW', 'CAM'].includes(cardPos);
+        return ['LW', 'RW', 'CAM', 'AM'].includes(cardPos);
     }
     if (displayPos === 'AM') {
-        return ['CM', 'LW', 'RW', 'CAM'].includes(cardPos);
+        return ['CM', 'LW', 'RW', 'CAM', 'AM'].includes(cardPos);
     }
     if (['CM', 'LCM', 'RCM', 'DM'].includes(displayPos)) {
-        return ['CM', 'CAM'].includes(cardPos);
+        return ['CM', 'CAM', 'AM'].includes(cardPos);
     }
     if (['CB', 'LCB', 'RCB', 'LB', 'RB'].includes(displayPos)) {
         return ['CB', 'LB', 'RB'].includes(cardPos);
@@ -603,7 +603,7 @@ function openCardSelector(position) {
                 </div>
                 <div class="drawer-card-details">
                     <h4 style="margin: 0 0 4px 0; display: flex; align-items: center; flex-wrap: wrap; gap: 4px;">${card.name} (OVR ${ovrDisplay})${conditionArrow}${awkLabel}${recTagHtml}</h4>
-                    <p style="margin: 0 0 6px 0; font-size: 0.78rem;">${card.position} | 상태: ${statusText}</p>
+                    <p style="margin: 0 0 6px 0; font-size: 0.78rem;">${typeof formatCardPosition === 'function' ? formatCardPosition(card.position) : (card.position === 'CAM' ? 'AM' : card.position)} | 상태: ${statusText}</p>
                     <div class="drawer-card-stats" style="display: flex; gap: 4px; flex-wrap: wrap;">
                         <span style="font-size: 0.62rem; font-weight: 700; background: rgba(255, 62, 108, 0.15); border: 1px solid rgba(255, 62, 108, 0.3); padding: 1px 4px; border-radius: 4px; color: #ff3e6c;">속도 ${stats.pac}</span>
                         <span style="font-size: 0.62rem; font-weight: 700; background: rgba(255, 159, 67, 0.15); border: 1px solid rgba(255, 159, 67, 0.3); padding: 1px 4px; border-radius: 4px; color: #ff9f43;">슈팅 ${stats.sho}</span>
@@ -658,7 +658,7 @@ function selectPlayerForPosition(cardId) {
     const displayTitle = getFormationDisplayPosition(activeSelectorPosition);
     
     if (!isPositionCompatible(displayTitle, card.position)) {
-        showToast(`❌ 이 포지션(${displayTitle})에는 ${card.position} 선수를 배치할 수 없습니다!`);
+        showToast(`❌ 이 포지션(${displayTitle})에는 ${typeof formatCardPosition === 'function' ? formatCardPosition(card.position) : (card.position === 'CAM' ? 'AM' : card.position)} 선수를 배치할 수 없습니다!`);
         return;
     }
     
@@ -1041,7 +1041,7 @@ function openSquadNumberPlayerSelector(numKey) {
                 </div>
                 <div class="drawer-card-details">
                     <h4 style="margin: 0 0 4px 0; display: flex; align-items: center; flex-wrap: wrap; gap: 4px;">${card.name} (OVR ${card.rating})${awkLabel}</h4>
-                    <p style="margin: 0 0 6px 0; font-size: 0.78rem;">${card.position} | 상태: ${statusHtml}</p>
+                    <p style="margin: 0 0 6px 0; font-size: 0.78rem;">${typeof formatCardPosition === 'function' ? formatCardPosition(card.position) : (card.position === 'CAM' ? 'AM' : card.position)} | 상태: ${statusHtml}</p>
                     <div class="drawer-card-stats" style="display: flex; gap: 4px; flex-wrap: wrap;">
                         <span style="font-size: 0.62rem; font-weight: 700; background: rgba(255, 62, 108, 0.12); border: 1px solid rgba(255, 62, 108, 0.2); padding: 1px 4px; border-radius: 4px; color: #ff3e6c;">속도 ${stats.pac}</span>
                         <span style="font-size: 0.62rem; font-weight: 700; background: rgba(255, 159, 67, 0.12); border: 1px solid rgba(255, 159, 67, 0.2); padding: 1px 4px; border-radius: 4px; color: #ff9f43;">슈팅 ${stats.sho}</span>
@@ -1188,7 +1188,7 @@ function updateCaptainSelectorUI() {
         if (card) {
             const opt = document.createElement('option');
             opt.value = cardId;
-            opt.innerText = `${card.name} (${card.position})`;
+            opt.innerText = `${card.name} (${typeof formatCardPosition === 'function' ? formatCardPosition(card.position) : (card.position === 'CAM' ? 'AM' : card.position)})`;
             selectCaptainEl.appendChild(opt);
         }
     });

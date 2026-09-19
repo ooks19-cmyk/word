@@ -34,6 +34,8 @@
 ├── .agents/
 │   ├── agent.md                                        # AI 에이전트 마스터 가이드 (본 문서)
 │   └── skills/                                         # 워크스페이스 전용 자동화 스킬
+│       ├── add-player-card/                            # ⚽ 선수 카드 등록 및 CSV 동기화
+│       │   └── SKILL.md
 │       ├── add-quiz-words/                             # 📚 영단어 퀴즈 세트 추가 및 스케줄러 관리
 │       │   ├── SKILL.md
 │       │   └── quiz_vocabulary_schedule.md             # 📅 단어 DB 스케줄러 가이드 & 마일스톤

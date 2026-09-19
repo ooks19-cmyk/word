@@ -1,5 +1,11 @@
 // js/utils.js - UI 유틸리티 모듈
 
+// 카드 포지션 UI 표기 헬퍼 (CAM -> AM 표기 변환)
+function formatCardPosition(pos) {
+    if (!pos) return '';
+    return pos === 'CAM' ? 'AM' : pos;
+}
+
 // Point widgets update helper
 function renderUserPoints() {
     const ptsVal = document.getElementById('userPointsVal');

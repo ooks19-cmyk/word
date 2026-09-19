@@ -169,7 +169,7 @@ function generateCardHTML(cardData) {
         ${condBadgeHTML}
         <div class="card-header-stats">
             <div class="card-rating">${cardData.rating}</div>
-            <div class="card-position">${cardData.position}</div>
+            <div class="card-position">${typeof formatCardPosition === 'function' ? formatCardPosition(cardData.position) : (cardData.position === 'CAM' ? 'AM' : cardData.position)}</div>
             <div class="card-nation" style="background-image: url('${cardData.nationFlag}');"></div>
         </div>
         

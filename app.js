@@ -199,11 +199,11 @@ document.addEventListener('DOMContentLoaded', () => {
     renderUserPoints();     // Sync user gacha points on load
     // CARDS_DATABASE 포지션 유효성 검사 (ST, LW, RW, CM, CB, LB, RB, GK)
     try {
-        const VALID_POSITIONS = ['ST', 'LW', 'RW', 'CM', 'CB', 'LB', 'RB', 'GK', 'CAM'];
+        const VALID_POSITIONS = ['ST', 'LW', 'RW', 'CM', 'CB', 'LB', 'RB', 'GK', 'CAM', 'AM'];
         Object.keys(CARDS_DATABASE).forEach(cardId => {
             const card = CARDS_DATABASE[cardId];
             if (card && card.position && !VALID_POSITIONS.includes(card.position)) {
-                console.error(`[FC STAR 포지션 제한 오류] 카드 ID '${cardId}' (${card.name})의 포지션 '${card.position}'은(는) 허용되지 않는 값입니다. 'ST, LW, RW, CM, CB, LB, RB, GK, CAM' 중 하나여야 합니다.`);
+                console.error(`[FC STAR 포지션 제한 오류] 카드 ID '${cardId}' (${card.name})의 포지션 '${card.position}'은(는) 허용되지 않는 값입니다. 'ST, LW, RW, CM, CB, LB, RB, GK, CAM, AM' 중 하나여야 합니다.`);
             }
         });
     } catch (e) {
@@ -458,7 +458,7 @@ function openHardModeEntryModal() {
                 <label style="display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); padding: 0.65rem 1rem; border-radius: 12px; cursor: pointer; transition: all 0.2s;" class="hard-mode-checkbox-label">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <input type="checkbox" name="hardModeSquadCards" value="${cardId}" onchange="onHardModeCardSelectChange()" style="width: 18px; height: 18px; cursor: pointer; accent-color: #ff3e6c;">
-                        <span style="font-size: 0.9rem; font-weight: 700; color: #fff;">${cardData.name} (${cardData.position})${awakeningText}</span>
+                        <span style="font-size: 0.9rem; font-weight: 700; color: #fff;">${cardData.name} (${typeof formatCardPosition === 'function' ? formatCardPosition(cardData.position) : (cardData.position === 'CAM' ? 'AM' : cardData.position)})${awakeningText}</span>
                     </div>
                     <span style="font-size: 0.8rem; font-weight: 800; color: #ffd700;">OVR ${cardData.rating + (cardObj.awakening * 2)}</span>
                 </label>

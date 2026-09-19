@@ -91,7 +91,7 @@ function getSquadAcePlayerName(formation, deck) {
             }
             if (rating > maxRating) {
                 maxRating = rating;
-                bestPlayerName = `${card.name} (${card.position})`;
+                bestPlayerName = `${card.name} (${typeof formatCardPosition === 'function' ? formatCardPosition(card.position) : (card.position === 'CAM' ? 'AM' : card.position)})`;
             }
         }
     });

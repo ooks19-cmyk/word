@@ -132,9 +132,9 @@ function isNationalPositionCompatible(displayPosition, cardPosition) {
     if (typeof isPositionCompatible === 'function') return isPositionCompatible(displayPosition, cardPosition);
     if (displayPosition === 'GK') return cardPosition === 'GK';
     if (displayPosition === 'ST') return ['ST', 'LW', 'RW'].includes(cardPosition);
-    if (['LW', 'RW', 'LM', 'RM'].includes(displayPosition)) return ['LW', 'RW', 'CAM'].includes(cardPosition);
-    if (displayPosition === 'AM') return ['CM', 'LW', 'RW', 'CAM'].includes(cardPosition);
-    if (['CM', 'LCM', 'RCM', 'DM'].includes(displayPosition)) return ['CM', 'CAM'].includes(cardPosition);
+    if (['LW', 'RW', 'LM', 'RM'].includes(displayPosition)) return ['LW', 'RW', 'CAM', 'AM'].includes(cardPosition);
+    if (displayPosition === 'AM') return ['CM', 'LW', 'RW', 'CAM', 'AM'].includes(cardPosition);
+    if (['CM', 'LCM', 'RCM', 'DM'].includes(displayPosition)) return ['CM', 'CAM', 'AM'].includes(cardPosition);
     if (['CB', 'LCB', 'RCB', 'LB', 'RB'].includes(displayPosition)) return ['CB', 'LB', 'RB'].includes(cardPosition);
     return false;
 }
@@ -221,7 +221,7 @@ function nationalPitchCard(slot,state) {
     const formation=normalizeNationalFormation(state.formation),cardId=state.squad[slot],base=cardId&&CARDS_DATABASE[cardId],card=base&&getAwakenedCard(cardId),coord=NATIONAL_PITCH_COORDINATES[formation][slot];
     const keyRule=NATIONAL_KEY_PLAYER_RULES[formation],isKeyPlayerSlot=keyRule&&(keyRule.slots||[keyRule.slot]).includes(slot);
     const styleBadge=card?nationalPitchStyleBadge(slot,state,formation):'';
-    const positionBadge=styleBadge||`<div class="mini-card-position-badge">${base&&base.position||slot}</div>`;
+    const positionBadge=styleBadge||`<div class="mini-card-position-badge">${typeof formatCardPosition === 'function' ? formatCardPosition(base&&base.position||slot) : (base&&base.position||slot)}</div>`;
     const content=card?`<div class="mini-player-card active-placed"><div class="mini-card-ovr-badge">${card.rating}</div>${positionBadge}<div class="mini-card-portrait"><img src="${base.image}" alt="${base.name}" onerror="this.style.display='none'"></div><div class="mini-card-name">${base.name}</div></div>`:`<div class="mini-player-card anonymous"><div class="mini-card-ovr-badge">70</div><div class="mini-card-portrait"><i class="fa-solid fa-user-ninja"></i></div><div class="mini-card-name">무명 선수</div></div>`;
     const keyClass=isKeyPlayerSlot?' key-player-slot':'';
     const keyAttrs=isKeyPlayerSlot?` data-key-label="★핵심 ${getNationalSlotLabel(slot,formation)}" title="${formation} 핵심 선수: ${getNationalSlotLabel(slot,formation)} ${keyRule.statLabel} ${keyRule.minimum} 이상 (OVR +1)"`:'';

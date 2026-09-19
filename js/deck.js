@@ -9,7 +9,7 @@ function matchPositionCategory(playerPos, category) {
     if (!category || category === 'ALL') return true;
     const pos = (playerPos || '').toUpperCase().trim();
     if (category === 'FW') return ['ST', 'LW', 'RW', 'CF'].includes(pos);
-    if (category === 'MF') return ['CM', 'CAM', 'LM', 'RM', 'CDM', 'DM'].includes(pos);
+    if (category === 'MF') return ['CM', 'CAM', 'AM', 'LM', 'RM', 'CDM', 'DM'].includes(pos);
     if (category === 'DF') return ['CB', 'LB', 'RB', 'LWB', 'RWB'].includes(pos);
     if (category === 'GK') return pos === 'GK';
     return false;
@@ -139,7 +139,7 @@ function createCardDOM(key, awakened) {
         <span>${awakened.club}</span>
         <span style="display: flex; align-items: center; gap: 4px;">
             <img src="${awakened.nationFlag}" style="width: 12px; height: 8px; border-radius: 1px; object-fit: cover;">
-            ${awakened.position}
+            ${typeof formatCardPosition === 'function' ? formatCardPosition(awakened.position) : (awakened.position === 'CAM' ? 'AM' : awakened.position)}
         </span>
     `;
     cardBack.appendChild(footer);
