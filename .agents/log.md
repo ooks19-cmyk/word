@@ -2591,3 +2591,10 @@ graph TD
 - 변경 파일: `js/utils.js`, `js/card.js`, `js/deck.js`, `js/squad.js`, `js/national_squad.js`, `js/friendly.js`, `js/realtime.js`, `app.js`, `index.html`, `sw.js`, `.agents/skills/add-player-card/SKILL.md`, `.agents/progress.md`, `.agents/log.md`.
 - 검증: JS 구문 검사(`node --check`) 9개 파일 통과, 회귀 테스트 4종(`national_mode`, `achievements_reconciliation`, `cloud_save_throttle`, `position_match_goal_bonus`) 전체 통과, `git -c core.whitespace=cr-at-eol diff --check` 공백 오류 없음 확인.
 - 최종 상태: main 브랜치 커밋 및 푸시 완료. utils v1.1, card v2.5, deck v2.8, squad v3.1, friendly v4.1, national_squad v2.6, realtime v2.4, app v3.5, PWA 캐시 v413.
+
+## 2026-09-19 — 박지성 카드 스탯·포지션 상향 반영, CSV 동기화 및 깃 푸시
+- 요청: 깃푸시 (사용자의 player_data.js 내 박지성 카드 스탯 및 포지션 AM 변경 수동 편집 반영).
+- 수행: `player_data.js` 내 박지성(`park_ji_sung`) 카드 스탯 변경(OVR 88 ➔ 89, position CM ➔ AM, PAC 87 ➔ 91, SHO 80 ➔ 88, PAS 85 ➔ 89, DRI 85 ➔ 90, DEF 82 ➔ 85, PHY 88 ➔ 82)을 확인하고, `convert_js_to_csv.py`를 실행하여 `선수데이터.csv` 98명을 최신 동기화. `index.html` 내 `player_data.js?v=1.75` 및 `sw.js` 내 `CACHE_NAME`을 `fc-star-v414`로 상향. main 브랜치에 커밋 및 원격 저장소(`origin/main`)로 푸시 완료.
+- 변경 파일: `player_data.js`, `선수데이터.csv`, `index.html`, `sw.js`, `.agents/progress.md`, `.agents/log.md`.
+- 검증: JS 구문 검사(`node --check`) 통과, 전체 회귀 테스트 4종(`national_mode`, `achievements_reconciliation`, `cloud_save_throttle`, `position_match_goal_bonus`) 통과, `git -c core.whitespace=cr-at-eol diff --check` 통과.
+- 최종 상태: main 브랜치 커밋 및 푸시 완료. player_data v1.75, PWA 캐시 v414.

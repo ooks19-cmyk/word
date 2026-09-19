@@ -1,12 +1,12 @@
 ## 현재 작업
-- 목표: 인게임 내 CAM 포지션 표기를 AM으로 일괄 전환 (내부 배치 가능 포지션 및 경기 로직 100% 동일 유지).
+- 목표: 박지성 카드 스탯 및 포지션(AM, OVR 89) 변경 사항 동기화 및 main 브랜치 깃 푸시.
 - 상태: 완료.
 - 주요 변경·검증:
-  1. `formatCardPosition` 전역 헬퍼 함수 추가(`CAM` ➔ `AM`).
-  2. 카드 앞면/뒷면, 스쿼드 교체 드로어/토스트/셀렉트, 국대 피치 미니카드 배지, 친선전 슈퍼카드 선택, 실시간 에이스, 어려움 모드 등 모든 인게임 UI 렌더링에 `AM` 표기 적용.
-  3. `squad.js` 및 `national_squad.js`의 배치 호환 검증(`isPositionCompatible`, `isNationalPositionCompatible`) 및 `app.js` `VALID_POSITIONS`에 `AM`을 완벽 지원하여 원본 `CAM` 카드와 기존 데이터베이스 100% 호환 보장.
-  4. PWA Service Worker 캐시(`fc-star-v413`) 및 `index.html` 스크립트 버전 상향.
-  5. JS 구문 검사(`node --check`) 및 전체 4종 회귀 테스트 패스 완료.
+  1. `player_data.js` 내 박지성 카드 변경(포지션 `AM`, OVR 89, 스탯 PAC 91 / SHO 88 / PAS 89 / DRI 90 / DEF 85 / PHY 82) 확인.
+  2. `convert_js_to_csv.py` 실행을 통한 `선수데이터.csv` 98명 자동 동기화.
+  3. `index.html`(`player_data.js?v=1.75`) 및 `sw.js`(`fc-star-v414`) 버전 상향.
+  4. JS 구문 검사(`node --check`) 및 회귀 테스트 4종 통과.
+  5. main 브랜치 커밋 및 원격 푸시 완료.
 - 다음 단계: 사용자 추가 지시 대기.
 
 

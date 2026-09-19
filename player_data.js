@@ -643,8 +643,8 @@ const CARDS_DATABASE = {
     "park_ji_sung": {
         id: "park_ji_sung",
         name: "박지성",
-        rating: 88,
-        position: "CM",
+        rating: 89,
+        position: "AM",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "MANCHESTER UTD",
@@ -657,12 +657,12 @@ const CARDS_DATABASE = {
             glow: "#ffd700"
         },
         stats: {
-            pac: 87,
-            sho: 80,
-            pas: 85,
-            dri: 85,
-            def: 82,
-            phy: 88
+            pac: 91,
+            sho: 88,
+            pas: 89,
+            dri: 90,
+            def: 85,
+            phy: 82
         }
     },
     "lee_dong_gook": {
