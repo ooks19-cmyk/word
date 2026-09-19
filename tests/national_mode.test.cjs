@@ -218,6 +218,7 @@ assert.match(nationalSource,/function updateNationalNextSeasonAction\(\)/);
 assert.match(nationalSource,/function createNationalSeasonTransition\(state,source='completed'\)/);
 assert.match(nationalSource,/finishedOn:transition\.finishedOn,availableOn:transition\.availableOn/);
 assert.match(nationalSource,/function skipNationalTournament\(\)/);
+assert.doesNotMatch(nationalSource, /national-formation-page[\s\S]*?skipNationalTournament/, 'the national formation page should not contain a skip tournament button');
 assert.match(nationalSource,/우승 보상[\s\S]*\+10 FP/);
 assert.match(nationalSource,/if\(champion\)showNationalWinnerCelebrationModal\(\);else showToast/);
 assert.match(nationalSource,/새 시즌은 \$\{availableDate\}부터 시작/);

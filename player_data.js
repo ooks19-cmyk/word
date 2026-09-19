@@ -142,7 +142,7 @@ const CARDS_DATABASE = {
     "song_bum_keun": {
         id: "song_bum_keun",
         name: "송범근",
-        rating: 82,
+        rating: 86,
         position: "GK",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
@@ -156,18 +156,18 @@ const CARDS_DATABASE = {
             glow: "#00d2ff"
         },
         stats: {
-            pac: 80,
-            sho: 79,
-            pas: 75,
-            dri: 82,
-            def: 82,
-            phy: 81
+            pac: 83,
+            sho: 82,
+            pas: 85,
+            dri: 83,
+            def: 88,
+            phy: 86
         }
     },
     "compagno": {
         id: "compagno",
         name: "콤파뇨",
-        rating: 85,
+        rating: 87,
         position: "ST",
         nation: "Italy",
         nationFlag: "https://flagcdn.com/w40/it.png",
@@ -635,7 +635,7 @@ const CARDS_DATABASE = {
             sho: 83,
             pas: 75,
             dri: 85,
-            def: 88,
+            def: 90,
             phy: 82
         }
     },
@@ -1092,7 +1092,7 @@ const CARDS_DATABASE = {
     "lingard": {
         id: "lingard",
         name: "린가드",
-        rating: 86,
+        rating: 88,
         position: "LW",
         nation: "England",
         nationFlag: "https://flagcdn.com/w40/gb-eng.png",
@@ -1107,11 +1107,11 @@ const CARDS_DATABASE = {
         },
         stats: {
             pac: 83,
-            sho: 82,
-            pas: 84,
-            dri: 86,
-            def: 55,
-            phy: 70
+            sho: 88,
+            pas: 85,
+            dri: 89,
+            def: 52,
+            phy: 75
         }
     },
     "cesinha": {
@@ -1206,10 +1206,10 @@ const CARDS_DATABASE = {
             glow: "#ff2a55"
         },
         stats: {
-            pac: 83,
+            pac: 87,
             sho: 84,
-            pas: 80,
-            dri: 84,
+            pas: 87,
+            dri: 87,
             def: 89,
             phy: 85
         }

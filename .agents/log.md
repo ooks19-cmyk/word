@@ -2530,3 +2530,31 @@ graph TD
 - 변경 파일: `js/league.js`, `js/national.js`, `app.js`, `index.html`, `style.css`, `css/match.css`, `sw.js`, `tests/national_mode.test.cjs`, `콘솔코드.txt`, `.agents/progress.md`, `.agents/log.md`.
 - 검증: `git status`, `git diff --check`, origin/main 푸시 완료 확인.
 - 최종 상태: 완료. origin/main 동기화 완료.
+
+## 2026-09-18 — ooks12 계정 클라우드 데이터 수정 (시즌·국대 완료 및 오늘 가능일)
+- 요청: ooks12 아이디를 다음 시즌 가능일을 오늘 날짜로 해서 데이터를 수정 (시즌 및 국대 대회를 모두 완료한 상태).
+- 수행: Firestore `fc_star_users/ooks12` 문서의 `nationalModeState`를 2044년 올림픽 우승 완료(`finished: true`, `tournament: { id: "olympics", name: "올림픽", size: 32 }`, `championId: "KR"`, `finalResult: "우승"`, `seasonTransitionPending: true`, `nextSeasonAvailableDate: "2026-09-18"`, `seasonTransition: { leagueYear: 2044, tournamentId: "olympics", source: "completed", finishedOn: "2026-09-17", availableOn: "2026-09-18", status: "waiting" }`)로 갱신.
+- 변경 파일: Firestore 원격 DB, `.agents/progress.md`, `.agents/log.md`.
+- 검증: Firestore REST API를 통해 해당 필드가 정상 반영되었음을 조회·검증 완료.
+- 최종 상태: 수정 완료.
+
+## 2026-09-18 — son7 계정 클라우드 데이터 availableOn 수정 (어제 날짜로 변경)
+- 요청: son7 계정도 available on 날짜를 어제 날짜로 수정.
+- 수행: Firestore `fc_star_users/son7` 문서의 `nationalModeState` 내 `nextSeasonAvailableDate`를 `"2026-09-17"`, `seasonTransition.availableOn`을 `"2026-09-17"`, `finishedOn`을 `"2026-09-16"`으로 갱신.
+- 변경 파일: Firestore 원격 DB, `.agents/progress.md`, `.agents/log.md`.
+- 검증: Firestore REST API를 통해 해당 필드가 정상 반영되었음을 조회·검증 완료.
+- 최종 상태: 수정 완료.
+
+## 2026-09-19 — 국대모드 포메이션 페이지 건너뛰기 버튼 삭제
+- 요청: 국대모드 포메이션 페이지에서 국대모드 건너뛰기 버튼은 삭제.
+- 수행: `js/national.js`의 국대모드 포메이션 설정 뷰(`formationView`) 하단 액션 버튼 그룹(`national-tournament-actions`)에서 `[국대 대회 건너뛰기]` 버튼(`skipNationalTournament()`)을 제거. 리그 종료 모달의 건너뛰기 기능과 내부 함수는 보존하고, 포메이션 설정 시 건너뛰기 버튼이 노출되지 않도록 처리. `index.html` 내 `national.js` 버전을 `v3.11`로 상향하고 `sw.js`의 `CACHE_NAME`을 `fc-star-v410`으로 상향.
+- 변경 파일: `js/national.js`, `index.html`, `sw.js`, `tests/national_mode.test.cjs`, `.agents/progress.md`, `.agents/log.md`.
+- 검증: `tests/national_mode.test.cjs`에 포메이션 페이지 내 건너뛰기 버튼 부재 assertion 추가 및 전체 회귀 테스트 4종(`national_mode`, `achievements_reconciliation`, `cloud_save_throttle`, `position_match_goal_bonus`) 통과, `node --check` 문법 검사 통과.
+- 최종 상태: 삭제 완료. national v3.11, PWA 캐시 v410.
+
+## 2026-09-19 — 선수 데이터 스탯 변경 반영 및 깃 푸시
+- 요청: playerdata.js 포함해서 깃 푸시.
+- 수행: 사용자 편집에 따른 `player_data.js` 내 선수 스탯 변경(송범근 OVR 86 및 세부 스탯 상향, 콤파뇨 OVR 87, 조현우 DEF 90, 린가드 OVR 88 및 슈팅/패스/드리블 상향, 김승규 PAC/PAS/DRI 상향 등)을 확인하고 `선수데이터.csv`를 동기화. 앞서 작업한 국대 모드 포메이션 건너뛰기 버튼 삭제 내역과 함께 `index.html`(national.js v3.11, player_data.js v1.73), `sw.js`(CACHE_NAME fc-star-v411) 버전을 상향 후 main 브랜치에 커밋 및 원격 저장소(origin/main)로 푸시.
+- 변경 파일: `player_data.js`, `선수데이터.csv`, `js/national.js`, `index.html`, `sw.js`, `tests/national_mode.test.cjs`, `.agents/progress.md`, `.agents/log.md`.
+- 검증: `tests/national_mode.test.cjs` 등 회귀 테스트 4종 통과, `node --check` 자바스크립트 문법 검사 통과, `git -c core.whitespace=cr-at-eol diff --check` 통과.
+- 최종 상태: main 브랜치 커밋 및 푸시 완료.
