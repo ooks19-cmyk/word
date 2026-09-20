@@ -379,6 +379,12 @@ function switchFameSubTab(subTabName) {
             }
         }
     });
+
+    // 리그 선택 탭 바 토글 (일반/어려움 모드에서만 표시)
+    const leagueTabs = document.querySelector('.fame-league-tabs');
+    if (leagueTabs) {
+        leagueTabs.style.display = (subTabName === 'normal' || subTabName === 'hard') ? 'flex' : 'none';
+    }
     
     if (subTabName === 'normal') {
         renderHallOfFameSub('normal');

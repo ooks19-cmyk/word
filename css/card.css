@@ -886,5 +886,296 @@
     mix-blend-mode: screen;
 }
 
+/* ==========================================================================
+   National Team Hall of Fame (국대 명예의 전당) 전용 스타일
+   ========================================================================== */
+.national-hof-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    animation: fadeIn 0.3s ease-out;
+}
 
+/* 1. 국대 선택 탭 바 */
+.national-hof-tabs {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto 0.5rem auto;
+    justify-content: center;
+}
 
+.national-hof-tab-btn {
+    flex: 1;
+    min-height: 48px;
+    padding: 0.6rem 1rem;
+    border-radius: 14px;
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(10px);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 0.92rem;
+    font-weight: 800;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.national-hof-tab-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+    color: #fff;
+}
+
+.national-hof-tab-btn.active.nation-kr {
+    border-color: rgba(200, 16, 46, 0.85);
+    background: linear-gradient(135deg, rgba(200, 16, 46, 0.25) 0%, rgba(15, 23, 42, 0.85) 100%);
+    box-shadow: 0 0 18px rgba(200, 16, 46, 0.4), inset 0 0 10px rgba(200, 16, 46, 0.2);
+    color: #fff;
+}
+
+.national-hof-tab-btn.active.nation-jp {
+    border-color: rgba(0, 80, 180, 0.85);
+    background: linear-gradient(135deg, rgba(0, 63, 135, 0.35) 0%, rgba(15, 23, 42, 0.85) 100%);
+    box-shadow: 0 0 18px rgba(0, 80, 180, 0.4), inset 0 0 10px rgba(0, 63, 135, 0.25);
+    color: #fff;
+}
+
+.national-hof-tab-flag {
+    width: 26px;
+    height: 18px;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* 2. 대표팀 메인 헤더 & 트로피 셸프 */
+.national-hof-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.2rem;
+    background: linear-gradient(135deg, rgba(8, 10, 16, 0.7) 0%, rgba(15, 23, 42, 0.7) 100%);
+    border: 1.5px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 1.2rem 1.4rem;
+    box-shadow: var(--card-shadow);
+    backdrop-filter: blur(12px);
+    position: relative;
+    overflow: hidden;
+}
+
+.national-hof-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--theme-color, #c8102e), transparent);
+}
+
+.national-hof-team-info {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    flex: 1;
+    min-width: 220px;
+}
+
+.national-hof-flag-large {
+    width: 60px;
+    height: 42px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+}
+
+.national-hof-team-title {
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.national-hof-team-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+.national-hof-meta-badge {
+    background: rgba(255, 255, 255, 0.06);
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* 트로피 셸프 */
+.national-trophy-shelf {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.national-trophy-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1.5px solid rgba(255, 255, 255, 0.06);
+    padding: 0.5rem 0.8rem;
+    border-radius: 14px;
+    min-width: 105px;
+    transition: all 0.3s;
+}
+
+.national-trophy-badge.has-trophy {
+    border-color: rgba(255, 215, 0, 0.35);
+    background: rgba(255, 215, 0, 0.04);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.12);
+}
+
+.national-trophy-badge.has-trophy i {
+    filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.6));
+}
+
+/* 3. 통산 커리어 대시보드 */
+.national-dashboard {
+    background: linear-gradient(135deg, rgba(8, 10, 16, 0.6) 0%, rgba(15, 19, 34, 0.6) 100%);
+    border: 1.5px solid rgba(255, 215, 0, 0.25);
+    border-radius: 20px;
+    padding: 1.2rem;
+    box-shadow: var(--card-shadow);
+    backdrop-filter: blur(10px);
+}
+
+.national-dashboard-title {
+    font-size: 1.1rem;
+    font-weight: 900;
+    background: var(--gold-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.national-dashboard-body {
+    display: flex;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+}
+
+.national-stats-col {
+    flex: 1.2;
+    min-width: 250px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 0.6rem;
+}
+
+.national-stat-box {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.7rem 0.6rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.national-stat-label {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    margin-bottom: 0.25rem;
+}
+
+.national-stat-value {
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: #fff;
+}
+
+.national-stat-sub {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.national-leaders-col {
+    flex: 1.1;
+    min-width: 260px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.8rem;
+}
+
+.national-leaderboard {
+    background: rgba(10, 14, 26, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 0.8rem;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.national-leader-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: #ffd700;
+    margin-bottom: 0.3rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.national-leader-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    padding: 5px 8px;
+    background: rgba(255, 255, 255, 0.025);
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.national-leader-rank {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+}
+
+/* 4. 대회 결과 카드 추가 스타일 */
+.national-tournament-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #94a3b8;
+    margin-left: 6px;
+}
