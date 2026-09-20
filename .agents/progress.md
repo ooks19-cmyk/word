@@ -1,13 +1,18 @@
 ## 현재 작업
-- 목표: 박지성 카드 스탯 및 포지션(AM, OVR 89) 변경 사항 동기화 및 main 브랜치 깃 푸시.
+- 목표: 부앙가(전설 91)·엄지성(스페셜 88) 신규 카드 생성, 황희찬·송민규·엄지성 스탯 조정 반영, CSV 동기화 및 원격 저장소(origin/main) 깃 푸시.
 - 상태: 완료.
 - 주요 변경·검증:
-  1. `player_data.js` 내 박지성 카드 변경(포지션 `AM`, OVR 89, 스탯 PAC 91 / SHO 88 / PAS 89 / DRI 90 / DEF 85 / PHY 82) 확인.
-  2. `convert_js_to_csv.py` 실행을 통한 `선수데이터.csv` 98명 자동 동기화.
-  3. `index.html`(`player_data.js?v=1.75`) 및 `sw.js`(`fc-star-v414`) 버전 상향.
-  4. JS 구문 검사(`node --check`) 및 회귀 테스트 4종 통과.
-  5. main 브랜치 커밋 및 원격 푸시 완료.
+  1. 부앙가(`bouanga`, 전설 91, LW, LA FC, `player2/부앙가.webp`) 신규 등록.
+  2. 엄지성(`eom_ji_sung`, 스페셜 88, LW, SWANSEA, DEF 58 반영, `player2/엄지성.webp`) 신규 등록.
+  3. 사용자 편집 반영: 황희찬(OVR 88, 스탯 상향), 송민규(OVR 88, special 등급 및 스탯 상향).
+  4. `index.html`(`player_data.js?v=1.77`) 및 `sw.js`(`fc-star-v416`) 버전 상향.
+  5. `convert_js_to_csv.py` 실행을 통해 `선수데이터.csv` 100명 최신 동기화 완료.
+  6. JS 구문 검사 및 회귀 테스트 4종 전체 통과, origin/main 브랜치 깃 푸시 완료.
 - 다음 단계: 사용자 추가 지시 대기.
+
+
+
+
 
 
 

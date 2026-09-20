@@ -2598,3 +2598,33 @@ graph TD
 - 변경 파일: `player_data.js`, `선수데이터.csv`, `index.html`, `sw.js`, `.agents/progress.md`, `.agents/log.md`.
 - 검증: JS 구문 검사(`node --check`) 통과, 전체 회귀 테스트 4종(`national_mode`, `achievements_reconciliation`, `cloud_save_throttle`, `position_match_goal_bonus`) 통과, `git -c core.whitespace=cr-at-eol diff --check` 통과.
 - 최종 상태: main 브랜치 커밋 및 푸시 완료. player_data v1.75, PWA 캐시 v414.
+
+## 2026-09-20 — 부앙가 신규 전설 카드(OVR 91) 생성 및 동기화
+- 요청: 부앙가 선수추가 전설카드 91으로 생성
+- 수행:
+  1. `player2/부앙가.webp` 이미지 파일 확인 및 스펙 설정(ID: `bouanga`, 이름: `부앙가`, OVR: 91, 포지션: `LW`, 국적: `Gabon`, 국기: `ga.png`, 클럽: `LA FC`, 등급: `legend`, 테마: 골드/블랙, 스탯: PAC 94 / SHO 91 / PAS 83 / DRI 89 / DEF 45 / PHY 78).
+  2. `player_data.js` 내 신규 카드 객체 등록.
+  3. `index.html` 내 `player_data.js?v=1.76`로 상향, `sw.js` 내 `CACHE_NAME`을 `fc-star-v415`로 상향.
+  4. `convert_js_to_csv.py` 실행을 통해 `선수데이터.csv` 99명 자동 동기화.
+- 변경 파일: `player_data.js`, `선수데이터.csv`, `index.html`, `sw.js`, `.agents/progress.md`, `.agents/log.md`.
+- 검증: `player_data.js`, `sw.js` 구문 검사(`node --check`) 통과, 전체 회귀 테스트 4종 통과, `git -c core.whitespace=cr-at-eol diff --check` 통과.
+- 최종 상태: 완료 (player_data v1.76, PWA 캐시 v415). Git 커밋/푸시는 사용자 요청 시 대기.
+
+## 2026-09-20 — 엄지성 신규 스페셜 카드(OVR 88) 생성 및 황희찬·송민규 스탯 동기화
+- 요청: 엄지성 오버롤 88, 스페셜등급으로 생성 (사용자 편집에 의한 황희찬/송민규 스탯 변경 사항 동시 반영)
+- 수행:
+  1. 사용자 편집 확인: 황희찬(OVR 88, PAC 90 / SHO 87 / PAS 78 / DRI 88 / DEF 52 / PHY 82), 송민규(OVR 88, special 등급, PAC 85 / SHO 87 / PAS 80 / DRI 91 / DEF 60 / PHY 79).
+  2. `player2/엄지성.webp` 이미지 파일 확인 및 스펙 설정(ID: `eom_ji_sung`, 이름: `엄지성`, OVR: 88, 포지션: `LW`, 국적: `South Korea`, 국기: `kr.png`, 클럽: `SWANSEA`, 등급: `special`, 테마: 레드/네이비/핑크, 스탯: PAC 89 / SHO 86 / PAS 82 / DRI 89 / DEF 58 / PHY 76).
+  3. `player_data.js` 내 신규 카드 객체 등록.
+  4. `index.html` 내 `player_data.js?v=1.77`로 상향, `sw.js` 내 `CACHE_NAME`을 `fc-star-v416`으로 상향.
+  5. `convert_js_to_csv.py` 실행을 통해 `선수데이터.csv` 100명 자동 동기화.
+- 변경 파일: `player_data.js`, `선수데이터.csv`, `index.html`, `sw.js`, `.agents/progress.md`, `.agents/log.md`.
+- 검증: `player_data.js`, `sw.js` 구문 검사(`node --check`) 통과, 전체 회귀 테스트 4종 통과, `git -c core.whitespace=cr-at-eol diff --check` 통과.
+- 최종 상태: 완료 (player_data v1.77, PWA 캐시 v416).
+
+## 2026-09-20 — 부앙가·엄지성 신규 카드 생성 및 선수 스탯 조정 원격 푸시
+- 요청: 깃푸시
+- 수행: 부앙가(전설 91) 및 엄지성(스페셜 88) 신규 카드 등록, 이미지 파일(`player2/부앙가.webp`, `player2/엄지성.webp`), 황희찬/송민규/엄지성 스탯 조정, `선수데이터.csv` 100명 동기화, `index.html` 및 `sw.js` PWA 캐시(v416) 갱신 내역을 main 브랜치에 커밋하고 원격 저장소(`origin/main`)로 푸시 완료.
+- 변경 파일: `player2/부앙가.webp`, `player2/엄지성.webp`, `player_data.js`, `선수데이터.csv`, `index.html`, `sw.js`, `.agents/progress.md`, `.agents/log.md`.
+- 검증: JS 구문 검사(`node --check`) 통과, 전체 회귀 테스트 4종 통과, `git diff --check` 통과, origin/main 푸시 완료.
+- 최종 상태: 완료. origin/main 동기화 완료.

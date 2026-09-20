@@ -1043,7 +1043,7 @@ const CARDS_DATABASE = {
     "hwang_hee_chan": {
         id: "hwang_hee_chan",
         name: "황희찬",
-        rating: 84,
+        rating: 88,
         position: "LW",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
@@ -1057,24 +1057,24 @@ const CARDS_DATABASE = {
             glow: "#ff2a55"
         },
         stats: {
-            pac: 88,
-            sho: 85,
-            pas: 72,
-            dri: 82,
-            def: 38,
-            phy: 79
+            pac: 90,
+            sho: 87,
+            pas: 78,
+            dri: 88,
+            def: 52,
+            phy: 82
         }
     },
     "song_min_kyu": {
         id: "song_min_kyu",
         name: "송민규",
-        rating: 83,
+        rating: 88,
         position: "LW",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "JEONBUK",
         image: "player/송민규.png",
-        rarity: "normal",
+        rarity: "special",
         description: "뛰어난 볼 키핑 능력과 측면에서의 저돌적인 온더볼 플레이로 찬스를 창출하는 전북 현대의 핵심 공격수입니다. 탄탄한 피지컬을 바탕으로 등지는 플레이와 지능적인 연계에 강점이 있습니다.",
         theme: {
             primary: "#005a3c",
@@ -1082,12 +1082,12 @@ const CARDS_DATABASE = {
             glow: "#00ff87"
         },
         stats: {
-            pac: 81,
-            sho: 82,
-            pas: 78,
-            dri: 85,
-            def: 45,
-            phy: 77
+            pac: 85,
+            sho: 87,
+            pas: 80,
+            dri: 91,
+            def: 60,
+            phy: 79
         }
     },
     "lingard": {
@@ -1782,7 +1782,7 @@ const CARDS_DATABASE = {
             glow: "#ffd700"
         },
         stats: {
-            pac: 97,
+            pac: 95,
             sho: 90,
             pas: 80,
             dri: 92,
@@ -2307,7 +2307,7 @@ const CARDS_DATABASE = {
             glow: "#00f2fe"
         },
         stats: {
-            pac: 99,
+            pac: 96,
             sho: 95,
             pas: 82,
             dri: 93,
@@ -2462,6 +2462,56 @@ const CARDS_DATABASE = {
             pas: 87,
             dri: 90,
             def: 54,
+            phy: 76
+        }
+    },
+    "bouanga": {
+        id: "bouanga",
+        name: "부앙가",
+        rating: 91,
+        position: "LW",
+        nation: "Gabon",
+        nationFlag: "https://flagcdn.com/w40/ga.png",
+        club: "LA FC",
+        image: "player2/부앙가.webp",
+        rarity: "legend",
+        description: "미국 MLS 무대를 평정한 득점왕이자 LA FC와 가봉 국가대표팀의 폭발적인 에이스 드니 부앙가입니다. 수비수를 단숨에 제치는 가공할 만한 스프린트와 화려한 드리블 돌파, 그리고 측면에서 중앙으로 파고들어 골문 구석을 꿰뚫는 치명적인 결정력을 자랑하는 전설적인 윙어입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 94,
+            sho: 91,
+            pas: 83,
+            dri: 89,
+            def: 45,
+            phy: 78
+        }
+    },
+    "eom_ji_sung": {
+        id: "eom_ji_sung",
+        name: "엄지성",
+        rating: 88,
+        position: "LW",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "SWANSEA",
+        image: "player2/엄지성.webp",
+        rarity: "special",
+        description: "잉글랜드 챔피언십 스완지 시티와 대한민국 국가대표팀의 미래를 이끄는 특급 테크니션 윙어 엄지성입니다. 번뜩이는 순간 가속도와 유려한 탈압박 드리블, 상대 측면을 허물고 감아 차는 예리한 킥력과 과감한 결정력을 지닌 스페셜 크랙입니다.",
+        theme: {
+            primary: "#da1a32",
+            secondary: "#1d2b58",
+            glow: "#ff2a55"
+        },
+        stats: {
+            pac: 89,
+            sho: 86,
+            pas: 82,
+            dri: 89,
+            def: 58,
             phy: 76
         }
     }
