@@ -2628,3 +2628,54 @@ graph TD
 - 변경 파일: `player2/부앙가.webp`, `player2/엄지성.webp`, `player_data.js`, `선수데이터.csv`, `index.html`, `sw.js`, `.agents/progress.md`, `.agents/log.md`.
 - 검증: JS 구문 검사(`node --check`) 통과, 전체 회귀 테스트 4종 통과, `git diff --check` 통과, origin/main 푸시 완료.
 - 최종 상태: 완료. origin/main 동기화 완료.
+
+## 2026-09-20 — tomy0304 유저 2046년 시즌 38라운드 복원 및 개인 기록 설정
+- 요청: tomy0304 아이디 진행상황을 2046년 시즌 38라운드로 되돌려줘 (1번 선택: 37라운드 1위 시뮬레이션 반영, 득점 1위 미토마 22골, 도움 1위 S기성용 15개)
+- 수행:
+  1. 원격 Firestore `fc_star_users/tomy0304` 원본 전체 데이터 사전 안전 백업(`scratch/tomy0304_backup.json`, 714KB).
+  2. 2046 시즌 38라운드 복원 데이터 빌드:
+     - `leagueYear`: 2046년 설정.
+     - `leagueRound` 및 `leagueRoundEpl`: 38라운드(EPL 최종전, 상대: 크리스탈 팰리스) 설정.
+     - `leagueTeams` 및 `leagueTeamsEpl`: EPL 20개 구단 37경기 시뮬레이션 순위표 구성 (리버풀 1위: 33승 3무 1패, 득점 75, 실점 11, 승점 102점 / 2위 맨체스터 시티 승점 83점).
+     - `leaguePlayerStats` 및 `leaguePlayerStatsEpl`: 득점 1위 미토마(22골), 도움 1위 S기성용(15도움), 리버풀 선수단 75골/도움 배분 및 타 구단 주요 스타 선수 성적 반영.
+     - `cupState` / `cupStateEpl` / `aclState` / `aclStateEpl` / `nationalModeState`: 연도를 2046년으로 동기화.
+     - `updatedAt` / `lastSyncedUpdatedAt`: 최신 타임스탬프로 갱신.
+  3. Firestore REST API PATCH 호출을 통해 대상 15개 필드만 선택적 안전 업데이트 실행.
+- 변경 파일: `.agents/progress.md`, `.agents/log.md`, (원격 Firestore `fc_star_users/tomy0304` 문서).
+- 검증:
+  - Firestore REST API 응답 코드 200 확인.
+  - 원격 서버 데이터 재조회 검증: 리버풀 1위(승점 102), 미토마 득점 1위(22골), S기성용 도움 1위(15도움), 리그 연도 2046년, 38R 설정 확인.
+  - 기존 보유 카드(97종), 포인트(910 FP), 레벨(Lv.270), 19연속 우승 기록의 무결성 보존 확인.
+- 최종 상태: 완료.
+
+## 2026-09-20 — 리그 종료 모달 내 국대 모드 건너뛰기 버튼 제거
+- 요청: 리그 종료 모달에서 국대 모드 건너뛰기(다음 시즌 시작하기) 버튼을 삭제해줘
+- 수행:
+  1. `js/league.js` 내 `checkSeasonChampion()`의 3개 축하/종료 모달 템플릿(트레블 달성 시, 리그 우승 시, 일반 순위 종료 시)에서 `closeChampModalAndSkipNational()` 호출 버튼(`<button class="btn-reset-quiz">국대 건너뛰기</button>`) 제거.
+  2. '국대 대회 진행하기'(`<button class="btn-open-pack">`) 버튼만 단독 배치하여 리그 종료 시 국대 모드로 자연스럽게 유도.
+  3. `index.html` 내 `league.js?v=4.7` 상향, `sw.js` 내 `CACHE_NAME`을 `fc-star-v417`로 상향.
+  4. `tests/national_mode.test.cjs` 테스트 단언문 동기화(모달 내 건너뛰기 버튼 0개 검증).
+- 변경 파일: `js/league.js`, `index.html`, `sw.js`, `tests/national_mode.test.cjs`, `.agents/progress.md`, `.agents/log.md`.
+- 검증: Node 문법 검사(`--check`) 통과, 4개 전체 회귀 테스트 패스, `git diff --check` 통과.
+- 최종 상태: 완료 (league v4.7, PWA 캐시 v417).
+
+## 2026-09-20 — tomy0304 유저 오늘 경기수(matchTodayCount) 8경기로 수정
+- 요청: tomy0304 아이디의 클라우드 데이터에서 오늘 경기수를 8경기로 수정해줘
+- 수행:
+  1. 원격 Firestore `fc_star_users/tomy0304` 문서의 `matchTodayCount`를 기존 10에서 8로 수정.
+  2. 오늘 날짜(`matchLastDate: '2026. 9. 20.'`) 및 타임스탬프(`updatedAt`, `lastSyncedUpdatedAt`) 동기화 갱신.
+- 변경 파일: `.agents/progress.md`, `.agents/log.md`, (원격 Firestore `fc_star_users/tomy0304` 문서).
+- 검증: Firestore REST API 재조회 확인 (`matchTodayCount: 8`, `matchLastDate: '2026. 9. 20.'`, `leagueYear: 2046`, `leagueRound: 38`).
+- 최종 상태: 완료.
+
+## 2026-09-20 — 리그 종료 모달 수정, 컵/챔스 우승 콘솔코드 추가 및 원격 푸시
+- 요청: 깃푸시
+- 수행:
+  1. `js/league.js` 내 리그 종료 모달 3종에서 '국대 건너뛰기' 버튼 제거 및 단독 버튼 UI 정돈.
+  2. `index.html`(`league.js?v=4.7`) 및 `sw.js`(`fc-star-v417`) PWA 캐시 상향.
+  3. `tests/national_mode.test.cjs` 테스트 단언문 동기화.
+  4. `콘솔코드.txt`에 컵대회 및 챔피언스리그 즉시 우승 콘솔코드 추가.
+  5. 변경 내역을 `main` 브랜치에 커밋하고 원격 저장소(`origin/main`)로 푸시 완료.
+- 변경 파일: `index.html`, `js/league.js`, `sw.js`, `tests/national_mode.test.cjs`, `콘솔코드.txt`, `.agents/progress.md`, `.agents/log.md`.
+- 검증: Node 문법 검사(`--check`) 통과, 4개 전체 회귀 테스트 패스, `git diff --check` 통과, origin/main 푸시 완료.
+- 최종 상태: 완료 (origin/main 동기화 완료).

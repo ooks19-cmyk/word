@@ -60,8 +60,8 @@
 resetNationalModeDev()
 
 리그 및 컵 초기화
-resetLeagueSeason() 및 
-resetCupSeason() 
+resetLeagueSeason() 및
+resetCupSeason()
 
 resetAclStateData(); initAclTab(); console.log("🏆 아챔 토너먼트가 성공적으로 초기화되었습니다!");
 
@@ -108,22 +108,22 @@ showToast("38라운드로 이동했습니다!");
 
 (function() {
     const myId = (typeof currentUser === 'string' && currentUser) ? currentUser : "ooks";
-    
+
     // 1. 전역 상태 횟수 및 대결 인덱스 초기화
     friendlyMatchesToday = 0;
     friendlyCurrentOpponentIndex = 0;
-    
+
     // 2. 로컬 스토리지 데이터 0으로 갱신
     localStorage.setItem(`fc_star_friendly_matches_today_${myId}`, '0');
     localStorage.setItem(`fc_star_friendly_current_index_${myId}`, '0');
-    
+
     // 3. UI 및 경기 프리뷰 즉시 갱신
     if (typeof updateFriendlyMatchPreview === 'function') updateFriendlyMatchPreview();
     if (typeof renderFriendlyTable === 'function') renderFriendlyTable();
-    
+
     // 4. 리셋 상태 클라우드 Firestore에 동기화 백업
     if (typeof saveUserProgress === 'function') saveUserProgress();
-    
+
     // 5. 알림 출력
     if (typeof showToast === 'function') {
         showToast("🔓 친선경기 잔여 횟수 및 대결 순서가 리셋되었습니다! (3/3)");
@@ -140,18 +140,18 @@ showToast("38라운드로 이동했습니다!");
     // 1. 어려움 모드 전역 상태 해제 및 로컬 저장소 값 변경
     isHardMode = false;
     localStorage.setItem('fc_star_is_hard_mode', 'false');
-    
+
     // 2. 인게임 엠블럼 후광(Glow) 테마 및 붉은색 보더 제거
     if (typeof updateGlowTheme === 'function') {
         updateGlowTheme();
     }
-    
+
     // 3. 리그 프리뷰 보드 내 어려움 모드 뱃지(Indicator) 숨기기
     const hardModeIndicator = document.getElementById('leagueHardModeIndicator');
     if (hardModeIndicator) {
         hardModeIndicator.style.display = 'none';
     }
-    
+
     // 4. UI 및 스쿼드, OVR 관련 수치 즉시 갱신
     if (typeof renderUserPoints === 'function') renderUserPoints();
     if (typeof renderDeck === 'function') renderDeck();
@@ -159,16 +159,152 @@ showToast("38라운드로 이동했습니다!");
     if (typeof syncJeonbukOvr === 'function') syncJeonbukOvr();
     if (typeof updateMatchPreviewBoard === 'function') updateMatchPreviewBoard();
     if (typeof renderLeagueTable === 'function') renderLeagueTable();
-    
+
     // 5. 변경된 일반 모드 상태를 Firestore 클라우드 원격 서버에 즉시 백업 저장
     if (typeof saveUserProgress === 'function') {
         saveUserProgress();
     }
-    
+
     // 6. 피드백 알림 출력
     if (typeof showToast === 'function') {
         showToast("🔓 일반 모드로 정상 전환되었습니다!");
     } else {
         alert("일반 모드로 정상 전환되었습니다!");
+    }
+})();
+
+
+// ==========================================
+// 🏆 [컵대회 & 챔피언스리그 즉시 우승] 통합 콘솔 코드 (트레블 대비)
+// ==========================================
+(() => {
+    // 1. 컵대회(코리아컵/FA컵) 즉시 우승 처리
+    if (typeof cupState !== 'undefined' && cupState) {
+        const playerTeamId = typeof getActiveCupUserTeamId === 'function' ? getActiveCupUserTeamId() : 'jeonbuk';
+        const playerTeam = cupState.teams?.find(t => t.id === playerTeamId) || { id: playerTeamId, name: "플레이어팀" };
+
+        [16, 8, 4].forEach(r => {
+            if (cupState.bracket && cupState.bracket[r]) {
+                cupState.bracket[r].forEach(m => {
+                    if (m.status !== 'completed') {
+                        const isPlayerHome = m.team1 && m.team1.id === playerTeamId;
+                        const isPlayerAway = m.team2 && m.team2.id === playerTeamId;
+                        if (isPlayerHome) { m.score1 = 3; m.score2 = 1; m.winner = 'team1'; m.status = 'completed'; }
+                        else if (isPlayerAway) { m.score1 = 1; m.score2 = 3; m.winner = 'team2'; m.status = 'completed'; }
+                        else { m.score1 = 2; m.score2 = 1; m.winner = 'team1'; m.status = 'completed'; }
+                    }
+                });
+                if (r === 16 && cupState.bracket[8]) {
+                    for (let i = 0; i < 4; i++) {
+                        const m1 = cupState.bracket[16][i * 2], m2 = cupState.bracket[16][i * 2 + 1];
+                        cupState.bracket[8][i].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
+                        cupState.bracket[8][i].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
+                        cupState.bracket[8][i].status = 'scheduled';
+                    }
+                } else if (r === 8 && cupState.bracket[4]) {
+                    for (let i = 0; i < 2; i++) {
+                        const m1 = cupState.bracket[8][i * 2], m2 = cupState.bracket[8][i * 2 + 1];
+                        cupState.bracket[4][i].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
+                        cupState.bracket[4][i].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
+                        cupState.bracket[4][i].status = 'scheduled';
+                    }
+                } else if (r === 4 && cupState.bracket[2]) {
+                    const m1 = cupState.bracket[4][0], m2 = cupState.bracket[4][1];
+                    cupState.bracket[2][0].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
+                    cupState.bracket[2][0].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
+                    cupState.bracket[2][0].status = 'scheduled';
+                }
+            }
+        });
+
+        if (cupState.bracket && cupState.bracket[2] && cupState.bracket[2][0]) {
+            const finalMatch = cupState.bracket[2][0];
+            const isPlayerHome = finalMatch.team1 && finalMatch.team1.id === playerTeamId;
+            finalMatch.score1 = isPlayerHome ? 3 : 1;
+            finalMatch.score2 = isPlayerHome ? 1 : 3;
+            finalMatch.winner = isPlayerHome ? 'team1' : 'team2';
+            finalMatch.status = 'completed';
+            cupState.bracket.winner = playerTeam;
+        }
+        cupState.round = 1;
+        cupState.isFinished = true;
+        if (typeof saveCupState === 'function') saveCupState();
+        if (typeof renderCupBracket === 'function') renderCupBracket();
+        if (typeof updateCupScoreboard === 'function') updateCupScoreboard();
+    }
+
+    // 2. 챔피언스리그(ACL/UCL) 즉시 우승 처리
+    if (typeof aclState !== 'undefined' && aclState) {
+        const playerTeamId = typeof getActiveAclUserTeamId === 'function' ? getActiveAclUserTeamId() : 'jeonbuk';
+        const isEpl = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl');
+        const playerTeam = aclState.teams?.find(t => t.id === playerTeamId) || { id: playerTeamId, name: "플레이어팀" };
+
+        [16, 8, 4].forEach(r => {
+            if (aclState.bracket && aclState.bracket[r]) {
+                aclState.bracket[r].forEach(m => {
+                    if (m.status !== 'completed') {
+                        const isPlayerHome = m.team1 && m.team1.id === playerTeamId;
+                        const isPlayerAway = m.team2 && m.team2.id === playerTeamId;
+                        if (isPlayerHome) { m.score1 = 3; m.score2 = 1; m.winner = 'team1'; m.status = 'completed'; }
+                        else if (isPlayerAway) { m.score1 = 1; m.score2 = 3; m.winner = 'team2'; m.status = 'completed'; }
+                        else { m.score1 = 2; m.score2 = 1; m.winner = 'team1'; m.status = 'completed'; }
+                    }
+                });
+                if (r === 16 && aclState.bracket[8]) {
+                    for (let i = 0; i < 4; i++) {
+                        const m1 = aclState.bracket[16][i * 2], m2 = aclState.bracket[16][i * 2 + 1];
+                        aclState.bracket[8][i].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
+                        aclState.bracket[8][i].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
+                        aclState.bracket[8][i].status = 'scheduled';
+                    }
+                } else if (r === 8 && aclState.bracket[4]) {
+                    if (isEpl) {
+                        for (let i = 0; i < 2; i++) {
+                            const m1 = aclState.bracket[8][i * 2], m2 = aclState.bracket[8][i * 2 + 1];
+                            aclState.bracket[4][i].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
+                            aclState.bracket[4][i].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
+                            aclState.bracket[4][i].status = 'scheduled';
+                        }
+                    } else {
+                        aclState.bracket[4][0].team1 = aclState.bracket[8][0].winner === 'team1' ? aclState.bracket[8][0].team1 : aclState.bracket[8][0].team2;
+                        aclState.bracket[4][0].team2 = aclState.bracket[8][2].winner === 'team1' ? aclState.bracket[8][2].team1 : aclState.bracket[8][2].team2;
+                        aclState.bracket[4][0].status = 'scheduled';
+                        aclState.bracket[4][1].team1 = aclState.bracket[8][1].winner === 'team1' ? aclState.bracket[8][1].team1 : aclState.bracket[8][1].team2;
+                        aclState.bracket[4][1].team2 = aclState.bracket[8][3].winner === 'team1' ? aclState.bracket[8][3].team1 : aclState.bracket[8][3].team2;
+                        aclState.bracket[4][1].status = 'scheduled';
+                    }
+                } else if (r === 4 && aclState.bracket[2]) {
+                    const m1 = aclState.bracket[4][0], m2 = aclState.bracket[4][1];
+                    aclState.bracket[2][0].team1 = m1.winner === 'team1' ? m1.team1 : m1.team2;
+                    aclState.bracket[2][0].team2 = m2.winner === 'team1' ? m2.team1 : m2.team2;
+                    aclState.bracket[2][0].status = 'scheduled';
+                }
+            }
+        });
+
+        if (aclState.bracket && aclState.bracket[2] && aclState.bracket[2][0]) {
+            const finalMatch = aclState.bracket[2][0];
+            const isPlayerHome = finalMatch.team1 && finalMatch.team1.id === playerTeamId;
+            finalMatch.score1 = isPlayerHome ? 3 : 1;
+            finalMatch.score2 = isPlayerHome ? 1 : 3;
+            finalMatch.winner = isPlayerHome ? 'team1' : 'team2';
+            finalMatch.status = 'completed';
+            aclState.bracket.winner = playerTeam;
+        }
+        aclState.round = 1;
+        aclState.isFinished = true;
+        if (typeof saveAclState === 'function') saveAclState();
+        if (typeof renderAclBracket === 'function') renderAclBracket();
+        if (typeof updateAclScoreboard === 'function') updateAclScoreboard();
+    }
+
+    // 3. Firestore 원격 클라우드 자동 백업
+    if (typeof saveUserProgress === 'function') saveUserProgress();
+
+    // 4. 피드백 토스트 알림
+    if (typeof showToast === 'function') {
+        showToast("🏆 컵대회 및 챔피언스리그 동시 우승 처리 완료! (트레블 준비 완료)");
+    } else {
+        console.log("🏆 컵대회 및 챔피언스리그 우승 처리 완료!");
     }
 })();

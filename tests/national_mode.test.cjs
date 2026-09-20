@@ -236,7 +236,7 @@ assert.match(executableCloseChampModalSource, /startNextSeason\(\);/, 'a compati
 assert.match(closeChampModalSource[1], /종료일 레코드/, 'the league close flow should document the transition-record gate');
 assert.match(leagueSource, /function closeChampModalAndSkipNational\(\) \{[\s\S]*?skipNationalTournament\(\)/, 'the skip handler should invoke national tournament skipping');
 assert.equal((leagueSource.match(/국대 대회 진행하기/g) || []).length, 3, 'every league ending result should offer national tournament entry action');
-assert.equal((leagueSource.match(/국대 건너뛰기/g) || []).length, 3, 'every league ending result should offer national tournament skip action');
+assert.equal((leagueSource.match(/국대 건너뛰기/g) || []).length, 0, 'every league ending result should not offer national tournament skip action in modal');
 assert.ok(indexSource.includes(`id="matchSubTabNational" onclick="switchMatchSubTab('national')"`));
 assert.match(indexSource, /id="matchLayoutLeague"[\s\S]*id="nationalNextSeasonActionBar"/, 'the next-season action belongs to the league page');
 assert.doesNotMatch(appSource,/tabId === 'national' && !isDevEntry/);

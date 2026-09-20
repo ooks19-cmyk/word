@@ -1,14 +1,33 @@
 ## 현재 작업
-- 목표: 부앙가(전설 91)·엄지성(스페셜 88) 신규 카드 생성, 황희찬·송민규·엄지성 스탯 조정 반영, CSV 동기화 및 원격 저장소(origin/main) 깃 푸시.
+- 목표: 리그 종료 모달 건너뛰기 버튼 제거, 컵/챔스 우승 콘솔코드 추가 및 원격 저장소(origin/main) 깃 푸시.
 - 상태: 완료.
 - 주요 변경·검증:
-  1. 부앙가(`bouanga`, 전설 91, LW, LA FC, `player2/부앙가.webp`) 신규 등록.
-  2. 엄지성(`eom_ji_sung`, 스페셜 88, LW, SWANSEA, DEF 58 반영, `player2/엄지성.webp`) 신규 등록.
-  3. 사용자 편집 반영: 황희찬(OVR 88, 스탯 상향), 송민규(OVR 88, special 등급 및 스탯 상향).
-  4. `index.html`(`player_data.js?v=1.77`) 및 `sw.js`(`fc-star-v416`) 버전 상향.
-  5. `convert_js_to_csv.py` 실행을 통해 `선수데이터.csv` 100명 최신 동기화 완료.
-  6. JS 구문 검사 및 회귀 테스트 4종 전체 통과, origin/main 브랜치 깃 푸시 완료.
+  1. `js/league.js` 내 트레블·리그 우승·일반 순위 3개 축하/종료 모달 템플릿에서 '국대 건너뛰기' 버튼 제거, '국대 대회 진행하기' 단독 버튼으로 정돈.
+  2. `index.html`(`league.js?v=4.7`), `sw.js`(`fc-star-v417`) PWA 캐시 버전 상향.
+  3. `tests/national_mode.test.cjs` 단언문 동기화.
+  4. `콘솔코드.txt`에 컵대회 및 챔피언스리그 즉시 우승 콘솔코드 추가.
+  5. 문법 검사 및 4대 회귀 테스트 전체 통과, origin/main 브랜치 깃 푸시 완료.
 - 다음 단계: 사용자 추가 지시 대기.
+
+
+
+
+## 이전 작업
+- 목표: tomy0304 아이디의 진행상황을 2046년 시즌 38라운드로 되돌리기 (Firestore 클라우드 유저 데이터 롤백 및 동기화)
+- 상태: 완료.
+- 주요 변경·검증:
+  1. `scratch/tomy0304_backup.json`으로 롤백 전 전체 Firestore 계정 데이터(714KB) 안전 백업.
+  2. 원격 Firestore `fc_star_users/tomy0304` 문서의 15개 핵심 필드 업데이트 완료:
+     - `leagueYear`: 2046년
+     - `leagueRound` / `leagueRoundEpl`: 38라운드 (최종전, 상대: 크리스탈 팰리스)
+     - `leagueTeams` / `leagueTeamsEpl`: 37경기 시뮬레이션 순위표 (리버풀 1위: 33승 3무 1패, 승점 102점)
+     - `leaguePlayerStats` / `leaguePlayerStatsEpl`: 득점 1위 미토마(22골), 도움 1위 S기성용(15도움) 및 타 구단 스타 선수 배분
+     - `cupState` / `cupStateEpl` / `aclState` / `aclStateEpl` / `nationalModeState`: 2046년 연도 동기화
+  3. REST API를 통해 실시간 검증 완료: 순위표 1위, 득점 1위 미토마, 도움 1위 S기성용, 보유 카드(97종) 및 FP(910) 무결성 확인.
+- 다음 단계: 완료.
+
+
+
 
 
 

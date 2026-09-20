@@ -2304,7 +2304,6 @@ function checkSeasonChampion() {
             ${captainAwakenedMsg}
             <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem;">
                 <button class="btn-open-pack" onclick="closeChampModal()" style="margin: 0; min-width: 170px;"><i class="fa-solid fa-flag"></i> 국대 대회 진행하기</button>
-                <button class="btn-reset-quiz" onclick="closeChampModalAndSkipNational()" style="margin: 0; min-width: 170px; padding: 0.75rem 1.2rem; font-size: 0.95rem;"><i class="fa-solid fa-forward"></i> 국대 건너뛰기</button>
             </div>
         `;
     } else if (isUserTeamChamp) {
@@ -2318,7 +2317,6 @@ function checkSeasonChampion() {
             ${captainAwakenedMsg}
             <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem;">
                 <button class="btn-open-pack" onclick="closeChampModal()" style="margin: 0; min-width: 170px;"><i class="fa-solid fa-flag"></i> 국대 대회 진행하기</button>
-                <button class="btn-reset-quiz" onclick="closeChampModalAndSkipNational()" style="margin: 0; min-width: 170px; padding: 0.75rem 1.2rem; font-size: 0.95rem;"><i class="fa-solid fa-forward"></i> 국대 건너뛰기</button>
             </div>
         `;
     } else {
@@ -2332,7 +2330,6 @@ function checkSeasonChampion() {
             </p>
             <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 0.5rem;">
                 <button class="btn-open-pack" onclick="closeChampModal()" style="margin: 0; min-width: 170px;"><i class="fa-solid fa-flag"></i> 국대 대회 진행하기</button>
-                <button class="btn-reset-quiz" onclick="closeChampModalAndSkipNational()" style="margin: 0; min-width: 170px; padding: 0.75rem 1.2rem; font-size: 0.95rem;"><i class="fa-solid fa-forward"></i> 국대 건너뛰기</button>
             </div>
         `;
     }
