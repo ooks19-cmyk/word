@@ -1,13 +1,11 @@
 ## 현재 작업
-- 목표: 내 컬렉션 페이지에서 슈퍼카드 더블클릭(뒤집기) 시 제자리에서 뒤집히지 않고 한 카드 정도 아래로 밀려 뒤집히는 현상 디버깅 및 수정
+- 목표: player_data.js 변경사항(CAM -> AM 포지션 변경) 반영, 선수데이터.csv 동기화, PWA 캐시 상향 및 git push origin main
 - 상태: 완료.
 - 주요 변경·검증:
-  1. 원인 파악: `css/card.css`의 `.fut-card.is-super .card-front`에 불필요하게 선언된 `position: relative;`로 인해, 뒷면 요소인 `.card-back`이 일반 흐름에서 `card-front` 높이(100% or 360px)만큼 아래의 static position으로 밀려나 회전하던 문제 확인.
-  2. 수정 조치:
-     - `css/card.css`: `.fut-card.is-super .card-front`에서 `position: relative;` 완전 제거.
-     - `css/card.css`: `.card-front, .card-back`에 `top: 0; left: 0;` 및 `-webkit-backface-visibility: hidden;` 명시하여 3D 플립 시 앞뒤면이 항상 (0,0) 좌표에 겹쳐지도록 고정.
-  3. PWA 캐시 및 버전 상향: `style.css`(`css/card.css?v=1.8`), `index.html`(`style.css?v=2.4`), `sw.js`(`fc-star-v420`).
-  4. 검증: `git diff --check` 공백 검사 통과 및 파이썬 단위 검증(CSS 위치/포지셔닝 규칙 무결성) 100% PASS.
+  1. `player_data.js`: 이승우_kr, 이강인, 세징야, 미나미노, 쿠보 선수의 포지션을 CAM에서 AM으로 표준화 완료.
+  2. `선수데이터.csv`: `convert_js_to_csv.py` 실행하여 100명 전체 선수 데이터 CSV 시트 동기화 완료.
+  3. PWA 캐시 및 버전 상향: `index.html`(`player_data.js?v=1.78`), `sw.js`(`fc-star-v421`).
+  4. `git diff --check` 공백 검사 통과 및 `origin/main` 깃 푸시 완료.
 - 다음 단계: 사용자 추가 지시 대기.
 
 

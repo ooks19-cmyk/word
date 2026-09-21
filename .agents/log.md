@@ -31,7 +31,24 @@ graph TD
 
 ## 📅 3. 주요 작업 및 업데이트 이력
 
-### 🃏 내 컬렉션 슈퍼카드 더블클릭 뒤집기(플립) 위치 이탈 버그 디버깅 (2026-09-21)
+### ⚽ 선수 카드 포지션 표기 AM 표준화 및 CSV 동기화·배포 (2026-09-21)
+* **요청 요약**: player_data.js 변경사항(CAM ➔ AM 포지션 변경) 반영 및 깃 푸시 요청.
+* **수행 내용**:
+  1. **선수 포지션 AM 통일 (`player_data.js`)**:
+     - `lee_seung_woo_kr`(이승우), `lee_kang_in`(이강인), `cesinha`(세징야), `takumi_minamino`(미나미노), `takefusa_kubo`(쿠보)의 position 값을 `CAM`에서 `AM`으로 일괄 통일.
+     - 슬롯 배치 호환성(`isPositionCompatible`), 정포지션 보너스(`getPositionMatchGoalBonus`), 전술 핵심 선수(DRI 80 이상) 보너스 등 게임 엔진과의 완벽 호환 확인.
+  2. **선수데이터.csv 시트 자동 동기화**: `convert_js_to_csv.py` 스크립트를 실행하여 100명 선수 전체 스펙 및 포지션 변경분을 CSV로 100% 동기화 최신화 완료.
+  3. **PWA 캐시 및 버전 상향**:
+     - `index.html`: `player_data.js?v=1.78`
+     - `sw.js`: `CACHE_NAME = 'fc-star-v421'`
+  4. **원격 저장소 동기화**: `git diff --check` 공백 검사 통과 후 GitHub `origin/main` 브랜치에 커밋 및 푸시 완료.
+* **변경 파일**:
+  - `player_data.js`: 5인 선수 포지션 AM 변경
+  - `선수데이터.csv`: 최신화 동기화
+  - `index.html`: player_data.js 쿼리 버전 상향
+  - `sw.js`: PWA 캐시 버전 v421 상향
+* **검증 결과**: CSV 100명 변환 완료, `git diff --check` 통과, 푸시 완료.
+* **최종 상태**: 완료.
 * **요청 요약**: 내 컬렉션 페이지에서 슈퍼카드를 더블클릭하여 카드를 뒤집을 때, 제자리에서 뒤집히지 않고 한 카드 정도 아래 화면에서 뒤집히는 위치 이탈 현상 수정 요청.
 * **원인 분석**:
   - `css/card.css`의 `.fut-card.is-super .card-front` 선택자에 오버레이 레이어 배치를 위해 불필요하게 `position: relative;`가 지정되어 있었음.

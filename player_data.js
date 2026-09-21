@@ -1,6 +1,6 @@
-/* 
+/*
  * player/player_data.js - Modular Player Card Database
- * 
+ *
  * ⚠️ [중요 - 포지션 부여 가이드라인]
  * 향후 새로운 선수 카드 추가 시, position 속성에는 아래의 표준화된 9가지 값만 부여해야 합니다:
  * - 'ST' (스트라이커)
@@ -10,7 +10,7 @@
  * - 'CB' (중앙 수비수)
  * - 'LB', 'RB' (측면 수비수 / L&R Back)
  * - 'GK' (골키퍼)
- * 
+ *
  * 그 외의 값은 포메이션 슬롯 배치 제한 시스템에 의해 배치 제한에 걸릴 수 있습니다.
  */
 
@@ -44,7 +44,7 @@ const CARDS_DATABASE = {
         id: "lee_seung_woo_kr",
         name: "이승우",
         rating: 88,
-        position: "CAM",
+        position: "AM",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
@@ -94,7 +94,7 @@ const CARDS_DATABASE = {
         id: "lee_kang_in",
         name: "이강인",
         rating: 89,
-        position: "CAM",
+        position: "AM",
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "PARIS SG",
@@ -1119,7 +1119,7 @@ const CARDS_DATABASE = {
         id: "cesinha",
         name: "세징야",
         rating: 85,
-        position: "CAM",
+        position: "AM",
         nation: "Brazil",
         nationFlag: "https://flagcdn.com/w40/br.png",
         club: "DAEGU FC",
@@ -1594,7 +1594,7 @@ const CARDS_DATABASE = {
         id: "takumi_minamino",
         name: "미나미노",
         rating: 89,
-        position: "CAM",
+        position: "AM",
         nation: "Japan",
         nationFlag: "https://flagcdn.com/w40/jp.png",
         club: "MONACO",
@@ -2219,7 +2219,7 @@ const CARDS_DATABASE = {
         id: "takefusa_kubo",
         name: "쿠보",
         rating: 91,
-        position: "CAM",
+        position: "AM",
         nation: "Japan",
         nationFlag: "https://flagcdn.com/w40/jp.png",
         club: "REAL SOCIEDAD",
