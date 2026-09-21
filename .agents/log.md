@@ -31,7 +31,95 @@ graph TD
 
 ## 📅 3. 주요 작업 및 업데이트 이력
 
-### 🏆 명예의 전당 국대 탭 디자인 전면 개편 (2026-09-20)
+### 🃏 내 컬렉션 슈퍼카드 더블클릭 뒤집기(플립) 위치 이탈 버그 디버깅 (2026-09-21)
+* **요청 요약**: 내 컬렉션 페이지에서 슈퍼카드를 더블클릭하여 카드를 뒤집을 때, 제자리에서 뒤집히지 않고 한 카드 정도 아래 화면에서 뒤집히는 위치 이탈 현상 수정 요청.
+* **원인 분석**:
+  - `css/card.css`의 `.fut-card.is-super .card-front` 선택자에 오버레이 레이어 배치를 위해 불필요하게 `position: relative;`가 지정되어 있었음.
+  - 이로 인해 `.card-front`가 일반 문서 흐름을 차지하면서, 형제 요소인 `.card-back`의 정적 기준 위치(static position)가 `.card-front`의 아래(정확히 1카드 높이만큼 아래)로 밀려나 렌더링되고 있었음.
+  - 반면 일반 카드는 `.card-front`와 `.card-back`이 둘 다 `position: absolute;`로 동일한 위치에 겹쳐져 있어 정상적으로 제자리에서 뒤집혔음.
+* **수행 내용**:
+  1. **슈퍼카드 앞면 position 정상화 (`css/card.css`)**: `.fut-card.is-super .card-front`에서 버그를 유발하던 `position: relative;` 속성을 완전 제거하여 상위 공통 규칙인 `position: absolute;`를 온전히 계승하도록 수정.
+  2. **앞/뒷면 절대 위치 방어 강화 (`css/card.css`)**: `.card-front, .card-back`에 `top: 0; left: 0;` 및 `-webkit-backface-visibility: hidden;`을 명시하여 브라우저 환경에 관계없이 항상 (0, 0) 좌표에 100% 겹쳐진 채 3D 축 중심 회전이 일어나도록 완벽 방어.
+  3. **PWA 캐시 및 버전 상향**:
+     - `style.css`: `css/card.css?v=1.8`
+     - `index.html`: `style.css?v=2.4`
+     - `sw.js`: `CACHE_NAME = 'fc-star-v420'`
+* **변경 파일**:
+  - `css/card.css`: `.fut-card.is-super .card-front` 불필요 속성 제거 및 절대 좌표 고정
+  - `style.css`: card.css 캐시 버전 상향
+  - `index.html`: style.css 캐시 버전 상향
+  - `sw.js`: PWA 캐시 버전 v420 상향
+* **검증 결과**: `git diff --check` 후행 공백 검사 통과, CSS 무결성 검증 통과(is-super relative 제거 및 top/left 0 명시 확인).
+* **최종 상태**: 완료.
+* **요청 요약**: 명예의 전당에서 일반모드~국대 탭 아래에 리그 선택 탭을 하위로 배치하고, 리그 버튼 크기를 줄여 3개 리그가 한 줄에 들어가도록 수정하며, 리그별 데이터의 시즌별 성적을 최신순으로 나열하도록 요청.
+* **수행 내용**:
+  1. **탭 순서 계층화 재배치 (`index.html`)**:
+     - 상위 메뉴: `.fame-sub-tabs` (일반 모드 / 어려움 모드 / 지옥 모드 / 업적 / 국대)
+     - 하위 메뉴: `.fame-league-tabs` (K리그1 / 프리미어리그 / J1리그)
+     - 상위 탭 선택 시 업적/국대 탭에서는 하위 리그 탭이 자동으로 숨겨지며, 일반/어려움 모드 선택 시 하위에 리그 탭이 자연스럽게 연계 노출되도록 배치 정돈.
+  2. **3개 리그 버튼 1줄 컴팩트 반응형 디자인 (`index.html`, `css/card.css`)**:
+     - `.fame-league-tabs`: `flex-wrap: nowrap; gap: 6px;` 설정으로 줄바꿈 원천 방지.
+     - `.fame-league-tab-btn`: `flex: 1 1 0; min-width: 0;` 균등 분할 및 컴팩트 패딩/폰트(0.76rem, 모바일 0.71rem), 엠블럼 아이콘 축소(16px/14px), 텍스트 한 줄 유지 (`white-space: nowrap;`).
+     - 리그별 고유 테마 컬러(K리그 초록 광채, EPL 핑크레드 광채, J1리그 스카이블루 광채) 글래스모피즘 액티브 스타일 탑재.
+     - 360px 모바일 화면에서도 3개 버튼이 줄바꿈 없이 1줄에 완벽하게 표시되도록 반응형 미디어 쿼리 최적화.
+  3. **명예의 전당 시즌별 성적 최신순 나열 (`js/league.js`)**:
+     - `renderHallOfFameSub()` 함수 내 `filteredFame` 추출 시 `.sort((a, b) => (b.year || 0) - (a.year || 0))`를 적용.
+     - 기존 과거순(2026 -> 2046)에서 최신 연도순(2046 -> ... -> 2026)으로 상단부터 정렬되어 최신 성적을 직관적으로 확인 가능.
+  4. **PWA 캐시 및 버전 상향**:
+     - `style.css`: `css/card.css?v=1.7`
+     - `index.html`: `style.css?v=2.3`, `js/league.js?v=4.8`
+     - `sw.js`: `CACHE_NAME = 'fc-star-v419'`
+* **변경 파일**:
+  - `index.html`: 탭 DOM 순서 교체 및 리그 버튼 마크업 정돈, 캐시 쿼리 버전 상향
+  - `css/card.css`: `.fame-league-tabs` 및 버튼 3종 반응형 컴팩트 1줄 스타일 신설
+  - `js/league.js`: 명예의 전당 시즌 필터링 결과 연도 내림차순(최신순) 정렬 추가
+  - `style.css`: card.css 캐시 버전 상향
+  - `sw.js`: PWA 캐시 버전 v419 상향
+* **검증 결과**: `git diff --check` 통과, DOM 계층 순서 및 3개 버튼 1줄 스타일, 최신순 정렬 알고리즘 단위 테스트(`scratch/verify_fame_layout.py`) 100% PASS.
+* **최종 상태**: 완료.
+* **요청 요약**: Firebase 클라우드 전체 데이터 백업 수행.
+* **수행 내용**:
+  1. `backup_firestore.py`를 통해 Firestore `fc_star_users` 컬렉션의 전체 14개 사용자 계정 문서를 REST API로 일괄 조회 및 JSON 직렬화 저장 (`fc_star_users_backup.json`, 약 1.6MB).
+  2. 백업 대상 계정: `et`, `fc_tokyo`, `ooks`, `ooks12`, `sea`, `son7`, `test1`, `test12`, `tomy`, `tomy0304`, `vc`, `vltlzmffjq3`, `woals510`, `xt` (총 14개).
+  3. 방금 갱신된 `tomy0304`의 2047년 1R, 2046 트레블 및 국대 월드컵 우승 데이터 정상 포함 확인.
+  4. 시점별 복원 안정성을 위해 `scratch/fc_star_users_backup_20260921_143140.json`에 타임스탬프 사본 추가 보관.
+* **변경 파일**:
+  - `fc_star_users_backup.json`: 최신 전체 백업본 갱신
+  - `scratch/fc_star_users_backup_20260921_143140.json`: 타임스탬프 보관용 사본 생성
+* **검증 결과**: 14개 계정 데이터 누락 없이 100% 저장 확인, tomy0304 최신 데이터 일치 확인.
+* **최종 상태**: 완료.
+* **요청 요약**: tomy0304 아이디의 진행상황을 2047 라운드 1로 변경하고, 명예의 전당에 2046년 트레블(리그, 컵, 챔스 우승) 및 득점왕 미토마 19골, 도움왕 S기성용 15도움 반영, 국대 2046년 월드컵 우승 및 득점/도움 순위 데이터 적절히 생성.
+* **수행 내용**:
+  1. **원본 데이터 안전 백업**: `scratch/tomy0304_current_backup.json`에 수정 전 71개 필드 계정 전체 데이터 안전 저장.
+  2. **2047년 1라운드 새 시즌 진입**:
+     - `leagueYear`: 2047, `leagueRound` / `leagueRoundEpl`: 1
+     - `leagueTeams` / `leagueTeamsEpl`: EPL 20개 구단 0경기·0승점 새 시즌 초기화 (리버풀 rating: 99 보존)
+     - `leaguePlayerStats` / `leaguePlayerStatsEpl`: 새 시즌 초기화 (`{}`)
+     - `cupState` / `cupStateEpl`: 2047년 16강 브래킷 생성 및 초기화
+     - `aclState` / `aclStateEpl`: 2047년 챔스 16강 브래킷 생성 및 초기화
+     - `consecutiveLeagueTitles`: 20연패로 상향 갱신
+  3. **명예의 전당 2046년 트레블 및 개인 타이틀 반영 (`hallOfFame`, `careerStats`)**:
+     - 2046년 프리미어리그 리버풀 우승 (1위, 34승 3무 1패, 96득점 18실점, 승점 105)
+     - 코리아/FA컵 우승 🏆, 아시아/유럽 챔피언스리그 우승 🏆 (역대급 트레블 달성)
+     - 득점왕: 미토마 (19골), 도움왕: S기성용 (15도움)
+     - `careerStats`: 통산 전적(+34승 3무 1패, +96득점 +18실점) 및 미토마 통산 골(+19골) 누적 갱신
+  4. **국대 2046년 월드컵 우승 및 기록 생성 (`nationalModeState`)**:
+     - 대한민국(KR): 2046년 월드컵 우승 🏆 (7전 전승, 21득점 5실점)
+     - 통산 득점 Top 5: 손흥민(8골), 이강인(5골), 황희찬(4골), 조규성(3골), 이승우(1골)
+     - 통산 도움 Top 5: 이강인(6도움), 손흥민(4도움), 황희찬(3도움), 이승우(2도움), 설영우(1도움)
+     - 일본(JP) 탭 대비 2046년 월드컵 4강 진출(4승 1무 1패) 및 미토마/쿠보/이토/미나미노 득점·도움 기록 연동
+     - `nationalModeState.year`: 2047년 진입 완료
+  5. **원격 Firestore 패치 및 실시간 검증**:
+     - `updateMask`를 활용해 18개 필드를 원자적으로 정밀 패치 완료 (HTTP 200).
+     - REST GET API를 통해 순위표, 명예의 전당, 국대 아카이브 무결성 100% 교차 검증 완료.
+* **변경 파일**:
+  - `scratch/tomy0304_current_backup.json`: 사전 안전 백업본
+  - `scratch/prepare_tomy0304_2047.py`: 데이터 가공 및 패치 빌드 스크립트
+  - `scratch/apply_tomy0304_2047.py`: Firestore 패치 전송 스크립트
+  - `scratch/verify_tomy0304_2047.py`: 실시간 클라우드 데이터 검증 스크립트
+  - Firestore 문서 `fc_star_users/tomy0304` 18개 필드 원격 업데이트
+* **검증 결과**: GET API 응답 검증 완료 (2047년 1R, HOF 2046년 트레블 & 미토마 19골·S기성용 15도움 일치, 국대 2046년 월드컵 우승 및 득점/도움 순위 정상 출력).
+* **최종 상태**: 완료.
 * **요청 요약**: 명예의 전당 내 국대 탭 디자인 수정 요청.
 * **수행 내용**:
   1. **국가 선택 탭 바 신설**: 대한민국(KR)과 일본(JP) 국기 및 국가명이 포함된 반응형 탭 버튼을 구성하고, 탭 전환 시 테마 글로우 효과와 부드러운 전환 구현 (switchNationalHofNation).

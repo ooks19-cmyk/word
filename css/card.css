@@ -31,9 +31,12 @@
 
 .card-front, .card-back {
     position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
     border-radius: 18px;
     box-shadow: var(--card-shadow);
 }
@@ -862,7 +865,6 @@
 
 .fut-card.is-super .card-front {
     animation: superCardSparkle 3s ease-in-out infinite !important;
-    position: relative;
 }
 
 /* 카드 전면 오로라 블링블링 오버레이 레이어 */
@@ -1178,4 +1180,99 @@
     background: rgba(255, 255, 255, 0.08);
     color: #94a3b8;
     margin-left: 6px;
+}
+
+/* ============================================================
+   명예의 전당 하위 리그 선택 탭 바 (K리그1 / 프리미어리그 / J1리그)
+   ============================================================ */
+.fame-league-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 0.9rem;
+    width: 100%;
+    max-width: 760px;
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: center;
+    flex-wrap: nowrap;
+}
+
+.fame-league-tab-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0.5rem 0.4rem;
+    border-radius: 12px;
+    border: 1.5px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-muted);
+    font-weight: 800;
+    font-size: 0.76rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    white-space: nowrap;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.fame-league-tab-icon {
+    height: 16px;
+    width: 16px;
+    object-fit: contain;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+}
+
+.fame-league-tab-btn:hover {
+    background: rgba(255, 255, 255, 0.07);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.fame-league-tab-btn:hover .fame-league-tab-icon {
+    transform: scale(1.1);
+}
+
+.fame-league-tab-btn.active {
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
+}
+
+.fame-league-tab-btn.active[data-league="kleague1"] {
+    border-color: rgba(0, 255, 135, 0.45);
+    background: linear-gradient(135deg, rgba(0, 255, 135, 0.15) 0%, rgba(0, 255, 135, 0.05) 100%);
+    box-shadow: 0 0 14px rgba(0, 255, 135, 0.25);
+}
+
+.fame-league-tab-btn.active[data-league="epl"] {
+    border-color: rgba(255, 62, 108, 0.45);
+    background: linear-gradient(135deg, rgba(255, 62, 108, 0.15) 0%, rgba(255, 62, 108, 0.05) 100%);
+    box-shadow: 0 0 14px rgba(255, 62, 108, 0.25);
+}
+
+.fame-league-tab-btn.active[data-league="jleague"] {
+    border-color: rgba(0, 210, 252, 0.45);
+    background: linear-gradient(135deg, rgba(0, 210, 252, 0.15) 0%, rgba(0, 210, 252, 0.05) 100%);
+    box-shadow: 0 0 14px rgba(0, 210, 252, 0.25);
+}
+
+@media (max-width: 480px) {
+    .fame-league-tabs {
+        gap: 4px;
+        margin-bottom: 0.75rem;
+    }
+    .fame-league-tab-btn {
+        padding: 0.42rem 0.2rem;
+        font-size: 0.71rem;
+        border-radius: 10px;
+        gap: 3px;
+    }
+    .fame-league-tab-icon {
+        height: 14px;
+        width: 14px;
+    }
 }

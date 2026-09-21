@@ -2485,7 +2485,7 @@ function renderHallOfFameSub(subTabId) {
         const matchesLeague = (record.leagueId === targetLeagueId) || (!record.leagueId && targetLeagueId === 'kleague1');
         const matchesHard = isHard ? (record.isHardMode === true) : !record.isHardMode;
         return matchesLeague && matchesHard;
-    });
+    }).sort((a, b) => (b.year || 0) - (a.year || 0));
     
     // Update count display
     if (countEl) countEl.innerText = filteredFame.length;

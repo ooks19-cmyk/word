@@ -1,13 +1,13 @@
 ## 현재 작업
-- 목표: 명예의 전당 국대 탭 디자인 전면 개편 및 원격 저장소(origin/main) 깃 푸시.
+- 목표: 내 컬렉션 페이지에서 슈퍼카드 더블클릭(뒤집기) 시 제자리에서 뒤집히지 않고 한 카드 정도 아래로 밀려 뒤집히는 현상 디버깅 및 수정
 - 상태: 완료.
 - 주요 변경·검증:
-  1. `js/national_hof.js`: 기존 원시 <select>/<p> 구조에서 대한민국/일본 국기 탭 바, 대표팀 헤더/트로피 선반, 통산 누적 전적 대시보드(4개 통계 카드 + 득점/도움 Top 5 메달 리더보드), 연도별 국제대회(월드컵/아시안컵/올림픽/아시안게임) 기록 카드 그리드(우승 황금 왕관, 준우승 실버 메달, 4강 브론즈 메달, 상세 전적/득실차/재도전 여부/종료일 배지)로 전면 리팩토링.
-  2. `css/card.css`: 국대 명예의 전당 컨테이너, 국가 선택 탭 바, 대표팀 헤더, 트로피 진열장, 대시보드 및 리더보드, 반응형 스타일 추가.
-  3. `app.js`: 명예의 전당 하위 탭 전환 시 국대/업적 탭에서는 클럽 리그 선택 탭 바를 자동 숨김 처리하여 화면 집중도 향상.
-  4. `index.html`(`style.css?v=2.2`, `js/national_hof.js?v=1.1`, `app.js?v=3.6`), `style.css`(`css/card.css?v=1.6`), `sw.js`(`fc-star-v418`) 캐시 상향.
-  5. JS 문법 검사, 후행 공백 제거, 4대 회귀 테스트(`national_mode`, `achievements_reconciliation`, `cloud_save_throttle`, `position_match_goal_bonus`) 및 국대 명예의 전당 렌더링 단위 검증 전체 통과.
-  6. GitHub 원격 저장소(`origin/main`, 커밋: `3a7bf60`) 깃 푸시 완료.
+  1. 원인 파악: `css/card.css`의 `.fut-card.is-super .card-front`에 불필요하게 선언된 `position: relative;`로 인해, 뒷면 요소인 `.card-back`이 일반 흐름에서 `card-front` 높이(100% or 360px)만큼 아래의 static position으로 밀려나 회전하던 문제 확인.
+  2. 수정 조치:
+     - `css/card.css`: `.fut-card.is-super .card-front`에서 `position: relative;` 완전 제거.
+     - `css/card.css`: `.card-front, .card-back`에 `top: 0; left: 0;` 및 `-webkit-backface-visibility: hidden;` 명시하여 3D 플립 시 앞뒤면이 항상 (0,0) 좌표에 겹쳐지도록 고정.
+  3. PWA 캐시 및 버전 상향: `style.css`(`css/card.css?v=1.8`), `index.html`(`style.css?v=2.4`), `sw.js`(`fc-star-v420`).
+  4. 검증: `git diff --check` 공백 검사 통과 및 파이썬 단위 검증(CSS 위치/포지셔닝 규칙 무결성) 100% PASS.
 - 다음 단계: 사용자 추가 지시 대기.
 
 

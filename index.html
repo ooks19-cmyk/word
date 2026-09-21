@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FC STAR CARD - 축구 카드 수집 게임</title>
     <link rel="stylesheet" href="css/global.css?v=3.0">
-    <link rel="stylesheet" href="style.css?v=2.2">
+    <link rel="stylesheet" href="style.css?v=2.4">
     <link rel="stylesheet" href="css/friend.css?v=1.2">
     <link rel="stylesheet" href="css/realtime.css?v=1.0">
     <!-- PWA Web App Manifest & iOS App Capabilities -->
@@ -944,24 +944,8 @@
 
         <!-- 명예의 전당 섹션 -->
         <section id="fameSection" class="page-section">
-            <!-- 명예의 전당 리그 선택 탭 바 (K리그1 / 프리미어리그 / J1리그) -->
-            <div class="fame-league-tabs" style="display: flex; gap: 8px; margin-bottom: 0.8rem; width: 100%; max-width: 760px; margin-left: auto; margin-right: auto; justify-content: center; flex-wrap: wrap;">
-                <button class="fame-league-tab-btn active" data-league="kleague1" onclick="switchFameLeagueTab('kleague1')" style="flex: 1; min-width: 140px; padding: 0.65rem 0.8rem; border-radius: 14px; border: 1.5px solid rgba(0, 255, 135, 0.35); background: rgba(0, 255, 135, 0.08); color: #fff; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; font-size: 0.82rem;">
-                    <img src="img/mark_jb.svg" alt="K리그1" style="height: 18px; width: 18px; object-fit: contain;">
-                    <span>🇰🇷 K리그 1</span>
-                </button>
-                <button class="fame-league-tab-btn" data-league="epl" onclick="switchFameLeagueTab('epl')" style="flex: 1; min-width: 140px; padding: 0.65rem 0.8rem; border-radius: 14px; border: 1.5px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.03); color: var(--text-muted); font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; font-size: 0.82rem;">
-                    <img src="img/mark_liverpool.png" alt="프리미어리그" style="height: 18px; width: 18px; object-fit: contain;">
-                    <span>🏴󠁧󠁢󠁥󠁮󠁧󠁿 프리미어리그</span>
-                </button>
-                <button class="fame-league-tab-btn" data-league="jleague" onclick="switchFameLeagueTab('jleague')" style="flex: 1; min-width: 140px; padding: 0.65rem 0.8rem; border-radius: 14px; border: 1.5px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.03); color: var(--text-muted); font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; font-size: 0.82rem;">
-                    <img src="img/mark_tokyo.png" alt="J1리그" style="height: 18px; width: 18px; object-fit: contain;">
-                    <span>🇯🇵 J1리그</span>
-                </button>
-            </div>
-
             <!-- 명예의 전당 모드/업적 하위 메뉴 탭 바 -->
-            <div class="fame-sub-tabs" style="display: flex; gap: 8px; margin-bottom: 1rem; width: 100%; max-width: 760px; margin-left: auto; margin-right: auto; justify-content: center;">
+            <div class="fame-sub-tabs" style="display: flex; gap: 8px; margin-bottom: 0.7rem; width: 100%; max-width: 760px; margin-left: auto; margin-right: auto; justify-content: center;">
                 <button class="fame-sub-btn active" id="fameSubTabNormal" onclick="switchFameSubTab('normal')" style="flex: 1; padding: 0.6rem; border-radius: 12px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.03); color: var(--text-muted); font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s;">
                     <i class="fa-solid fa-trophy"></i><span>일반 모드</span>
                 </button>
@@ -975,6 +959,22 @@
                     <i class="fa-solid fa-medal"></i><span>업적</span>
                 </button>
                 <button class="fame-sub-btn" id="fameSubTabNational" onclick="switchFameSubTab('national')" style="flex: 1; padding: 0.6rem; border-radius: 12px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.03); color: var(--text-muted); font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s;"><i class="fa-solid fa-flag"></i><span>국대</span></button>
+            </div>
+
+            <!-- 명예의 전당 리그 선택 탭 바 (K리그1 / 프리미어리그 / J1리그) - 하위 3개 1줄 컴팩트 배치 -->
+            <div class="fame-league-tabs" style="display: flex; gap: 6px; margin-bottom: 0.9rem; width: 100%; max-width: 760px; margin-left: auto; margin-right: auto; justify-content: center; flex-wrap: nowrap;">
+                <button class="fame-league-tab-btn active" data-league="kleague1" onclick="switchFameLeagueTab('kleague1')">
+                    <img src="img/mark_jb.svg" alt="K리그1" class="fame-league-tab-icon">
+                    <span>🇰🇷 K리그1</span>
+                </button>
+                <button class="fame-league-tab-btn" data-league="epl" onclick="switchFameLeagueTab('epl')">
+                    <img src="img/mark_liverpool.png" alt="프리미어리그" class="fame-league-tab-icon">
+                    <span>🏴󠁧󠁢󠁥󠁮󠁧󠁿 프리미어</span>
+                </button>
+                <button class="fame-league-tab-btn" data-league="jleague" onclick="switchFameLeagueTab('jleague')">
+                    <img src="img/mark_tokyo.png" alt="J1리그" class="fame-league-tab-icon">
+                    <span>🇯🇵 J1리그</span>
+                </button>
             </div>
 
             <div class="fame-container" style="width: 100%; padding: 1rem 0;">
@@ -1887,7 +1887,7 @@
     <script src="js/deck.js?v=2.8"></script>
     <script src="js/squad.js?v=3.1"></script>
     <script src="js/match_algorithm.js?v=3.4"></script>
-    <script src="js/league.js?v=4.7"></script>
+    <script src="js/league.js?v=4.8"></script>
     <script src="js/cup.js?v=3.2"></script>
     <script src="js/acl.js?v=3.6"></script>
     <script src="js/friendly.js?v=4.1"></script>
