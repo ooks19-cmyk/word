@@ -134,9 +134,9 @@ const ACHIEVEMENTS_DB = {
         id: 'goals300',
         name: '골 폭격기 (300골)',
         icon: 'fa-futbol',
-        desc: '클럽 통산 누적 300골을 달성하세요.',
+        desc: '우리팀 최다 득점 선수의 통산 득점 300골을 달성하세요.',
         checkProgress: () => {
-            return getTotalCareerGoals();
+            return getTopPlayerCareerGoals();
         },
         maxVal: 300,
         unit: '골'
@@ -145,9 +145,9 @@ const ACHIEVEMENTS_DB = {
         id: 'goals500',
         name: '골 마스터 (500골)',
         icon: 'fa-bullseye',
-        desc: '클럽 통산 누적 500골을 달성하세요.',
+        desc: '우리팀 최다 득점 선수의 통산 득점 500골을 달성하세요.',
         checkProgress: () => {
-            return getTotalCareerGoals();
+            return getTopPlayerCareerGoals();
         },
         maxVal: 500,
         unit: '골'
@@ -156,9 +156,9 @@ const ACHIEVEMENTS_DB = {
         id: 'goals1000',
         name: '천 골의 신화 (1000골)',
         icon: 'fa-fire',
-        desc: '클럽 통산 누적 1000골을 달성하세요.',
+        desc: '우리팀 최다 득점 선수의 통산 득점 1000골을 달성하세요.',
         checkProgress: () => {
-            return getTotalCareerGoals();
+            return getTopPlayerCareerGoals();
         },
         maxVal: 1000,
         unit: '골'
@@ -218,6 +218,57 @@ function getTotalCareerGoals() {
         }
     }
     return totalGoals;
+}
+
+// 우리팀 최다 득점 선수의 통산 득점 집계 헬퍼 (일반/하드 커리어 + 진행 중 시즌)
+function getTopPlayerCareerGoals() {
+    const goalsById = {};
+    const goalsByName = {};
+
+    function addGoal(id, name, count) {
+        if (!count || count <= 0) return;
+        if (id) {
+            goalsById[id] = (goalsById[id] || 0) + count;
+        }
+        if (name) {
+            goalsByName[name] = (goalsByName[name] || 0) + count;
+        }
+    }
+
+    // 1. 일반 커리어 누적 골 (careerStats.playerGoals)
+    if (typeof careerStats !== 'undefined' && careerStats && careerStats.playerGoals) {
+        Object.entries(careerStats.playerGoals).forEach(([pid, data]) => {
+            const count = (typeof data === 'number') ? data : (data && typeof data.goals === 'number' ? data.goals : 0);
+            const name = (data && typeof data.name === 'string') ? data.name : null;
+            addGoal(pid, name, count);
+        });
+    }
+
+    // 2. 어려움 커리어 누적 골 (careerStatsHard.playerGoals)
+    if (typeof careerStatsHard !== 'undefined' && careerStatsHard && careerStatsHard.playerGoals) {
+        Object.entries(careerStatsHard.playerGoals).forEach(([pid, data]) => {
+            const count = (typeof data === 'number') ? data : (data && typeof data.goals === 'number' ? data.goals : 0);
+            const name = (data && typeof data.name === 'string') ? data.name : null;
+            addGoal(pid, name, count);
+        });
+    }
+
+    // 3. 현재 진행 중인 시즌 리그 골 (leaguePlayerStats) - 우리 팀 소속 선수
+    if (typeof leaguePlayerStats !== 'undefined' && leaguePlayerStats && typeof getActiveLeagueConfig === 'function') {
+        const config = getActiveLeagueConfig();
+        const userTeamId = config ? config.userTeamId : null;
+        Object.values(leaguePlayerStats).forEach(p => {
+            if (p && (!userTeamId || p.teamId === userTeamId) && p.goals > 0) {
+                addGoal(p.id, p.name, p.goals);
+            }
+        });
+    }
+
+    const idVals = Object.values(goalsById);
+    const nameVals = Object.values(goalsByName);
+    const maxById = idVals.length > 0 ? Math.max(...idVals) : 0;
+    const maxByName = nameVals.length > 0 ? Math.max(...nameVals) : 0;
+    return Math.max(maxById, maxByName, 0);
 }
 
 // 클럽 통산 누적 승리 집계 헬퍼 (일반/하드 커리어 + 명예의 전당 + 진행 중 시즌)
@@ -440,11 +491,11 @@ function reconcileAchievements() {
         else unlock('worldclass');
     }
 
-    // 통산 득점 및 통산 승리 보정 검사
-    const goals = getTotalCareerGoals();
-    if (goals >= 300) unlock('goals300');
-    if (goals >= 500) unlock('goals500');
-    if (goals >= 1000) unlock('goals1000');
+    // 최다 득점 선수 통산 득점 및 클럽 통산 승리 보정 검사
+    const topPlayerGoals = getTopPlayerCareerGoals();
+    if (topPlayerGoals >= 300) unlock('goals300');
+    if (topPlayerGoals >= 500) unlock('goals500');
+    if (topPlayerGoals >= 1000) unlock('goals1000');
 
     const wins = getTotalCareerWins();
     if (wins >= 1000) unlock('wins1000');
@@ -488,12 +539,12 @@ function checkWinStreakAchievements(streak) {
     if (streak >= 30) unlockAchievement('streak30');
 }
 
-// 4. 통산 득점 및 통산 승리 업적 실시간 검사
+// 4. 최다 득점 선수 통산 득점 및 클럽 통산 승리 업적 실시간 검사
 function checkCareerAchievements() {
-    const goals = getTotalCareerGoals();
-    if (goals >= 300) unlockAchievement('goals300');
-    if (goals >= 500) unlockAchievement('goals500');
-    if (goals >= 1000) unlockAchievement('goals1000');
+    const topPlayerGoals = getTopPlayerCareerGoals();
+    if (topPlayerGoals >= 300) unlockAchievement('goals300');
+    if (topPlayerGoals >= 500) unlockAchievement('goals500');
+    if (topPlayerGoals >= 1000) unlockAchievement('goals1000');
 
     const wins = getTotalCareerWins();
     if (wins >= 1000) unlockAchievement('wins1000');

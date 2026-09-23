@@ -1,12 +1,13 @@
 ## 현재 작업
-- 목표: 통산 득점(300/500/1000골) 및 클럽 통산 승리(1000/2000승) 신규 업적 5종 추가 반영분 git push origin main
+- 목표: 릴리즈 노트 v3.4(v3.4.0) 업데이트 및 J1리그 개방·선수 통산 득점 업적 반영분 원격 푸시 (git push origin main)
 - 상태: 완료.
 - 주요 변경·검증:
-  1. `js/achievements.js`: goals300, goals500, goals1000, wins1000, wins2000 신규 업적 및 집계/검사 로직 구현.
-  2. `js/state.js`, `js/auth.js`, `js/league.js`: 상태 초기화, 클라우드 안전 병합 및 경기 종료 실시간 트리거 연동.
-  3. `index.html`, `sw.js`: PWA 캐시 `fc-star-v422` 및 스크립트 버전 상향.
-  4. `tests/achievements_reconciliation.test.cjs`: 검증 테스트 케이스 갱신 및 시뮬레이션 통과.
-  5. `git diff --check` 공백 검사 통과 및 `origin/main` 깃 푸시 완료.
+  1. `js/update_data.js`: v3.4.0 릴리즈 노트(J1리그 정식 개방, 신규 업적 5종, 신규 선수 카드, 명예의 전당 개편 등) 등록.
+  2. `js/league.js`: J1리그 감독 이적 임시 차단 가드 제거 및 완전 개방.
+  3. `js/achievements.js`: 우리팀 최다 득점 선수 통산 득점(300/500/1000골) 판정 엔진 개편.
+  4. `index.html`, `sw.js`: PWA 캐시 `fc-star-v425`, `league.js?v=5.0`, `achievements.js?v=1.3`, `update_data.js?v=2.79` 상향.
+  5. 구문 및 단위 시뮬레이션 테스트 100% 통과, `git diff --check` 통과.
+  6. Git 커밋 및 `origin/main` 원격 푸시 완료.
 - 다음 단계: 사용자 추가 지시 대기.
 
 

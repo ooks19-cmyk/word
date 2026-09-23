@@ -31,6 +31,58 @@ graph TD
 
 ## 📅 3. 주요 작업 및 업데이트 이력
 
+### 🚀 Release Notes v3.4.0 업데이트 및 원격 저장소 푸시 (2026-09-24)
+* **요청 요약**: Release Notes v3.4 업데이트 및 원격 푸시 (J1리그 개방, 최다 득점 선수 통산 득점 업적 개편분 반영).
+* **수행 내용**:
+  1. **Release Notes v3.4.0 등록 (`js/update_data.js`)**:
+     - `UPDATE_LOGS` 최상단에 `v3.4.0` (J1리그 개방, 선수 통산 득점 업적, 신규 선수 카드, 명예의 전당 국대 탭 개편) 공지 등록 및 최신 플래그(`latest: true`) 지정.
+  2. **PWA 캐시 및 스크립트 버전 상향**:
+     - `index.html`: `js/update_data.js?v=2.79`, `js/league.js?v=5.0`, `js/achievements.js?v=1.3`
+     - `sw.js`: `CACHE_NAME = 'fc-star-v425'`
+  3. **원격 저장소 동기화**:
+     - 변경 사항(`js/update_data.js`, `js/league.js`, `js/achievements.js`, `index.html`, `sw.js`, `tests/achievements_reconciliation.test.cjs`, 문서)을 커밋하고 `origin/main` 브랜치로 푸시 완료.
+* **변경 파일**: `js/update_data.js`, `js/league.js`, `js/achievements.js`, `index.html`, `sw.js`, `tests/achievements_reconciliation.test.cjs`, `.agents/progress.md`, `.agents/log.md`.
+* **검증 결과**: JS 문법 무결성 100% 통과, 시뮬레이션 테스트 통과, `git diff --check` 통과, origin/main 푸시 성공.
+* **최종 상태**: 완료 (v3.4.0, PWA 캐시 v425).
+
+### 🇯🇵 J1리그 감독 이적 및 리그 선택 완전 개방 (2026-09-24)
+* **요청 요약**: 리그 선택에서 J리그 개방 (기존 개발 완료된 J1리그 엔진 및 FA컵/아시아 챔피언스리그 시스템에 연결).
+* **수행 내용**:
+  1. **임시 차단 가드 제거 (`js/league.js`)**:
+     - `transferToLeague()` 및 `confirmLeagueTransfer()` 내 J1리그 이적 시도 차단 코드 `if (targetLeagueId === 'jleague') { alert("아직 준비중입니다."); return; }` 제거.
+  2. **감독 이적 모달 J1리그 카드 UI 활성화 (`js/league.js`)**:
+     - `openLeagueTransferModal()` 내 J1리그 분기를 K리그1 및 프리미어리그와 동일하게 `setCardActive(jleagueCard, btnJLeague, currentLeagueId === 'jleague', '#e60012', 'linear-gradient(135deg, #e60012, #ff8c00)')`로 정돈.
+     - 현재 리그 진행 중이 아닐 때 '준비 중 🔒' ➔ '부임하기 🚀' 활성 버튼으로 변경.
+  3. **PWA 캐시 및 스크립트 버전 상향**:
+     - `index.html`: `js/league.js?v=5.0`
+     - `sw.js`: `CACHE_NAME = 'fc-star-v424'`
+* **변경 파일**: `js/league.js`, `index.html`, `sw.js`, `.agents/progress.md`, `.agents/log.md`.
+* **검증 결과**: JS 구문 괄호/브래킷 무결성 100% PASS, `git diff --check` 통과.
+* **최종 상태**: 완료 (league v5.0, PWA 캐시 v424). Git 푸시는 사용자 요청 시 대기.
+
+### ⚽ 득점 업적 판정 기준 수정: 클럽 통산 득점 ➔ 우리팀 최다 득점 선수의 통산 득점 (2026-09-23)
+* **요청 요약**: 업적에서 클럽 전체 통산 득점이 아니라 우리팀 최다 득점 선수의 통산 득점으로 300골, 500골, 1000골 업적을 달성하도록 수정.
+* **수행 내용**:
+  1. **업적 설명 및 진행도 계산 함수 전환 (`js/achievements.js`)**:
+     - `goals300`, `goals500`, `goals1000`의 설명(`desc`)을 '우리팀 최다 득점 선수의 통산 득점 300/500/1000골을 달성하세요.'로 수정.
+     - 진행도 측정 함수(`checkProgress`)를 `getTotalCareerGoals()`에서 `getTopPlayerCareerGoals()`로 변경.
+  2. **최다 득점 선수 통산 득점 집계 헬퍼 `getTopPlayerCareerGoals()` 신설**:
+     - 일반 커리어(`careerStats.playerGoals`) + 어려움 커리어(`careerStatsHard.playerGoals`)의 선수별 통산 골 집계.
+     - 현재 진행 중인 시즌의 실시간 리그 선수 득점(`leaguePlayerStats` 내 우리팀 선수 `p.goals`) 통합 가산.
+     - 선수 ID별(`goalsById`) 및 동일 선수 카드 버전 차이 고려 이름별(`goalsByName`) 합산값 중 최댓값을 추출하여 안전하게 반환.
+  3. **보정 및 실시간 트리거 연동**:
+     - `reconcileAchievements()`: 업적 탭 진입 시 `getTopPlayerCareerGoals()`를 호출하여 300/500/1000골 달성 여부 보정.
+     - `checkCareerAchievements()`: 경기 및 리그 종료 시 최다 득점 선수 기준으로 실시간 업적 언락.
+  4. **PWA 캐시 및 스크립트 버전 상향**:
+     - `index.html`: `js/achievements.js?v=1.3`
+     - `sw.js`: `CACHE_NAME = 'fc-star-v423'`
+  5. **테스트 및 검증 동기화**:
+     - `tests/achievements_reconciliation.test.cjs`: 선수별 득점(`playerGoals`) 기반 검증 케이스로 갱신.
+     - Python 시뮬레이션 테스트 4종 및 JS 구문 괄호 무결성 100% PASS.
+* **변경 파일**: `js/achievements.js`, `index.html`, `sw.js`, `tests/achievements_reconciliation.test.cjs`, `.agents/progress.md`, `.agents/log.md`.
+* **검증 결과**: 시뮬레이션(단일 선수 501골 달성 판정, 팀 총합 1500골이어도 선수 250골 시 미달성 판정, 시즌 실시간 골 가산 및 듀얼 버전 선수 합산) 100% 통과, `git diff --check` 통과.
+* **최종 상태**: 완료 (achievements v1.3, PWA 캐시 v423). Git 푸시는 사용자 요청 시 대기.
+
 ### 🏆 통산 득점(300/500/1000골) 및 클럽 통산 승리(1000/2000승) 신규 업적 5종 추가 (2026-09-23)
 * **요청 요약**: 업적에 통산 득점 300골, 500골, 1000골 및 클럽 통산 1000승, 2000승 추가.
 * **수행 내용**:

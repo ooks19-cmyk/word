@@ -2,9 +2,20 @@
 
 const UPDATE_LOGS = [
     {
+        version: "v3.4.0",
+        date: "2026.09.24",
+        latest: true,
+        borderColor: "#e60012",
+        titleColor: "#e60012",
+        badgeText: "J1 LEAGUE & ACHIEVEMENTS",
+        items: [
+            "<strong>🇯🇵 J1리그 감독 이적 및 리그 선택 정식 개방!</strong><br>• <strong>J1리그 (FC 도쿄) 부임 오픈</strong>: K리그 1, 프리미어리그에 이어 J1리그가 완전히 개방되었습니다. 12개 구단 33라운드 정규리그와 함께 FA컵(16강 토너먼트), AFC 챔피언스리그(ACL)를 플레이할 수 있습니다.<br>• <strong>선수 통산 득점 및 클럽 통산 승리 신규 업적 5종 추가</strong>: 우리팀 최다 득점 선수의 통산 득점(300골·500골·1000골) 및 클럽 통산 누적 승리(1000승·2000승) 달성 시 각 10 FP 보너스를 획득할 수 있습니다.<br>• <strong>신규 선수 카드 출시 & 포지션 AM 표준화</strong>: S손흥민(OVR 94), 부앙가(전설 91), 엄지성(스페셜 88) 신규 카드가 출시되었으며, 공격형 미드필더 포지션 표기가 AM으로 일관되게 정돈되었습니다.<br>• <strong>명예의 전당 국대 탭 개편 & 시즌 성적 최신순 정렬</strong>: 국가대표팀 트로피 진열장, 통산 득점/도움 리더보드가 새롭게 구축되었으며 리그별 시즌 성적이 최신 연도순으로 편리하게 정렬됩니다."
+        ]
+    },
+    {
         version: "v3.3.0",
         date: "2026.09.10",
-        latest: true,
+        latest: false,
         borderColor: "#ffd700",
         titleColor: "#ffd700",
         badgeText: "SUPER REWARD",

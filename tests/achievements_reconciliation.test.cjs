@@ -69,9 +69,15 @@ vm.runInContext('reconcileAchievements()', hard.context);
 assert.equal(hard.context.userAchievements.hardworldclass.unlocked, true);
 assert.equal(hard.context.userAchievements.worldclass.unlocked, false);
 
-// 4. 통산 득점 (300, 500, 1000) 및 클럽 통산 승리 (1000, 2000) 업적 검증
+// 4. 최다 득점 선수 통산 득점 (300, 500, 1000) 및 클럽 통산 승리 (1000, 2000) 업적 검증
 const careerTest = createContext({
-    careerStats: { w: 600, d: 50, l: 50, gf: 600, ga: 100, playerGoals: {} },
+    careerStats: {
+        w: 600, d: 50, l: 50, gf: 600, ga: 100,
+        playerGoals: {
+            mbappe: { name: '음바페', goals: 501 },
+            messi: { name: '메시', goals: 261 }
+        }
+    },
     careerStatsHard: { w: 450, d: 20, l: 30, gf: 450, ga: 50, playerGoals: {} },
     leagueTeams: [{ id: 'jeonbuk', w: 10, d: 2, l: 0, gf: 30, ga: 5 }]
 });
@@ -80,17 +86,23 @@ vm.runInContext('reconcileAchievements()', careerTest.context);
 assert.equal(careerTest.context.userAchievements.wins1000.unlocked, true);
 assert.equal(careerTest.context.userAchievements.wins2000.unlocked, false);
 
-// 총 득점: 600 + 450 + 30 = 1080골 -> goals300, goals500, goals1000 모두 달성
+// 최다 득점 선수: 음바페 501골 -> goals300, goals500 달성, goals1000 미달성
 assert.equal(careerTest.context.userAchievements.goals300.unlocked, true);
 assert.equal(careerTest.context.userAchievements.goals500.unlocked, true);
-assert.equal(careerTest.context.userAchievements.goals1000.unlocked, true);
+assert.equal(careerTest.context.userAchievements.goals1000.unlocked, false);
 
-// 5. 2000승 달성 테스트
+// 5. 최다 득점 선수 1000골 및 클럽 2000승 달성 테스트
 const win2000Test = createContext({
-    careerStats: { w: 1500, d: 50, l: 50, gf: 2000, ga: 100, playerGoals: {} },
+    careerStats: {
+        w: 1500, d: 50, l: 50, gf: 2000, ga: 100,
+        playerGoals: {
+            ronaldo: { name: '호날두', goals: 1050 }
+        }
+    },
     careerStatsHard: { w: 500, d: 20, l: 30, gf: 500, ga: 50, playerGoals: {} }
 });
 vm.runInContext('reconcileAchievements()', win2000Test.context);
 assert.equal(win2000Test.context.userAchievements.wins2000.unlocked, true);
+assert.equal(win2000Test.context.userAchievements.goals1000.unlocked, true);
 
-console.log('PASS: All achievement tests (season, collector, worldclass, career goals 300/500/1000, career wins 1000/2000) passed successfully.');
+console.log('PASS: All achievement tests (season, collector, worldclass, player goals 300/500/1000, career wins 1000/2000) passed successfully.');
