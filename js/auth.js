@@ -902,7 +902,7 @@ function syncUserDataOnLogin(userData, forceLoad = false, requireChoice = false)
         localStorage.setItem('fc_star_pvp_opp_stats', JSON.stringify(userPvpOpponentStats));
         
         // 업적 및 연승 클라우드 데이터 복원
-        userAchievements = userData.userAchievements || {
+        userAchievements = {
             double: { unlocked: false, rewarded: false },
             treble: { unlocked: false, rewarded: false },
             invincible: { unlocked: false, rewarded: false },
@@ -913,7 +913,13 @@ function syncUserDataOnLogin(userData, forceLoad = false, requireChoice = false)
             hardworldclass: { unlocked: false, rewarded: false },
             streak10: { unlocked: false, rewarded: false },
             streak20: { unlocked: false, rewarded: false },
-            streak30: { unlocked: false, rewarded: false }
+            streak30: { unlocked: false, rewarded: false },
+            goals300: { unlocked: false, rewarded: false },
+            goals500: { unlocked: false, rewarded: false },
+            goals1000: { unlocked: false, rewarded: false },
+            wins1000: { unlocked: false, rewarded: false },
+            wins2000: { unlocked: false, rewarded: false },
+            ...(userData.userAchievements || {})
         };
         consecutiveLeagueTitles = userData.consecutiveLeagueTitles || 0;
         currentWinStreak = userData.currentWinStreak || 0;

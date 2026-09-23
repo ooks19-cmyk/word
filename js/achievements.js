@@ -129,8 +129,129 @@ const ACHIEVEMENTS_DB = {
         },
         maxVal: 30,
         unit: '연승'
+    },
+    goals300: {
+        id: 'goals300',
+        name: '골 폭격기 (300골)',
+        icon: 'fa-futbol',
+        desc: '클럽 통산 누적 300골을 달성하세요.',
+        checkProgress: () => {
+            return getTotalCareerGoals();
+        },
+        maxVal: 300,
+        unit: '골'
+    },
+    goals500: {
+        id: 'goals500',
+        name: '골 마스터 (500골)',
+        icon: 'fa-bullseye',
+        desc: '클럽 통산 누적 500골을 달성하세요.',
+        checkProgress: () => {
+            return getTotalCareerGoals();
+        },
+        maxVal: 500,
+        unit: '골'
+    },
+    goals1000: {
+        id: 'goals1000',
+        name: '천 골의 신화 (1000골)',
+        icon: 'fa-fire',
+        desc: '클럽 통산 누적 1000골을 달성하세요.',
+        checkProgress: () => {
+            return getTotalCareerGoals();
+        },
+        maxVal: 1000,
+        unit: '골'
+    },
+    wins1000: {
+        id: 'wins1000',
+        name: '천승 클럽 (1000승)',
+        icon: 'fa-medal',
+        desc: '클럽 통산 누적 1000승을 달성하세요.',
+        checkProgress: () => {
+            return getTotalCareerWins();
+        },
+        maxVal: 1000,
+        unit: '승'
+    },
+    wins2000: {
+        id: 'wins2000',
+        name: '불멸의 왕조 (2000승)',
+        icon: 'fa-crown',
+        desc: '클럽 통산 누적 2000승을 달성하세요.',
+        checkProgress: () => {
+            return getTotalCareerWins();
+        },
+        maxVal: 2000,
+        unit: '승'
     }
 };
+
+// 클럽 통산 누적 득점 집계 헬퍼 (일반/하드 커리어 + 명예의 전당 + 진행 중 시즌)
+function getTotalCareerGoals() {
+    let goalsFromCareer = 0;
+    if (typeof careerStats !== 'undefined' && careerStats && typeof careerStats.gf === 'number') {
+        goalsFromCareer += careerStats.gf;
+    }
+    if (typeof careerStatsHard !== 'undefined' && careerStatsHard && typeof careerStatsHard.gf === 'number') {
+        goalsFromCareer += careerStatsHard.gf;
+    }
+
+    let goalsFromFame = 0;
+    if (typeof hallOfFame !== 'undefined' && Array.isArray(hallOfFame)) {
+        hallOfFame.forEach(r => {
+            const stats = r.userTeamStats || r.jeonbukStats;
+            if (stats && typeof stats.gf === 'number') {
+                goalsFromFame += stats.gf;
+            }
+        });
+    }
+    let totalGoals = Math.max(goalsFromCareer, goalsFromFame);
+
+    if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams) && typeof getActiveLeagueConfig === 'function') {
+        const config = getActiveLeagueConfig();
+        if (config && config.userTeamId) {
+            const userTeam = leagueTeams.find(t => t.id === config.userTeamId);
+            if (userTeam && typeof userTeam.gf === 'number') {
+                totalGoals += userTeam.gf;
+            }
+        }
+    }
+    return totalGoals;
+}
+
+// 클럽 통산 누적 승리 집계 헬퍼 (일반/하드 커리어 + 명예의 전당 + 진행 중 시즌)
+function getTotalCareerWins() {
+    let winsFromCareer = 0;
+    if (typeof careerStats !== 'undefined' && careerStats && typeof careerStats.w === 'number') {
+        winsFromCareer += careerStats.w;
+    }
+    if (typeof careerStatsHard !== 'undefined' && careerStatsHard && typeof careerStatsHard.w === 'number') {
+        winsFromCareer += careerStatsHard.w;
+    }
+
+    let winsFromFame = 0;
+    if (typeof hallOfFame !== 'undefined' && Array.isArray(hallOfFame)) {
+        hallOfFame.forEach(r => {
+            const stats = r.userTeamStats || r.jeonbukStats;
+            if (stats && typeof stats.w === 'number') {
+                winsFromFame += stats.w;
+            }
+        });
+    }
+    let totalWins = Math.max(winsFromCareer, winsFromFame);
+
+    if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams) && typeof getActiveLeagueConfig === 'function') {
+        const config = getActiveLeagueConfig();
+        if (config && config.userTeamId) {
+            const userTeam = leagueTeams.find(t => t.id === config.userTeamId);
+            if (userTeam && typeof userTeam.w === 'number') {
+                totalWins += userTeam.w;
+            }
+        }
+    }
+    return totalWins;
+}
 
 // 업적 그리드 렌더링 함수
 function renderAchievements() {
@@ -319,6 +440,16 @@ function reconcileAchievements() {
         else unlock('worldclass');
     }
 
+    // 통산 득점 및 통산 승리 보정 검사
+    const goals = getTotalCareerGoals();
+    if (goals >= 300) unlock('goals300');
+    if (goals >= 500) unlock('goals500');
+    if (goals >= 1000) unlock('goals1000');
+
+    const wins = getTotalCareerWins();
+    if (wins >= 1000) unlock('wins1000');
+    if (wins >= 2000) unlock('wins2000');
+
     if (changed && typeof saveUserProgress === 'function') saveUserProgress();
     return changed;
 }
@@ -357,8 +488,23 @@ function checkWinStreakAchievements(streak) {
     if (streak >= 30) unlockAchievement('streak30');
 }
 
-// 4. 리그 종료 관련 업적 검사 (더블/트레블/무패우승/연속우승)
+// 4. 통산 득점 및 통산 승리 업적 실시간 검사
+function checkCareerAchievements() {
+    const goals = getTotalCareerGoals();
+    if (goals >= 300) unlockAchievement('goals300');
+    if (goals >= 500) unlockAchievement('goals500');
+    if (goals >= 1000) unlockAchievement('goals1000');
+
+    const wins = getTotalCareerWins();
+    if (wins >= 1000) unlockAchievement('wins1000');
+    if (wins >= 2000) unlockAchievement('wins2000');
+}
+
+// 5. 리그 종료 관련 업적 검사 (더블/트레블/무패우승/연속우승/통산기록)
 function checkLeagueEndAchievements(isWinner, losses) {
+    // 통산 기록 업적 체크
+    checkCareerAchievements();
+
     if (!isWinner) return; // 리그 우승을 전제로 함
 
     // 2) 3연패 & 5연패 체크

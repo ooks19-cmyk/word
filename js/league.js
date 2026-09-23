@@ -2817,9 +2817,12 @@ function updateLeagueWinStreak(isWin, isDraw) {
         localStorage.setItem('fc_star_max_win_streak', maxWinStreak.toString());
     } catch (e) {}
 
-    // 연승 업적 체크
+    // 연승 및 통산 업적 체크
     if (typeof checkWinStreakAchievements === 'function') {
         checkWinStreakAchievements(currentWinStreak);
+    }
+    if (typeof checkCareerAchievements === 'function') {
+        checkCareerAchievements();
     }
 }
 

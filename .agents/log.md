@@ -31,7 +31,32 @@ graph TD
 
 ## 📅 3. 주요 작업 및 업데이트 이력
 
-### ⚽ 선수 카드 포지션 표기 AM 표준화 및 CSV 동기화·배포 (2026-09-21)
+### 🏆 통산 득점(300/500/1000골) 및 클럽 통산 승리(1000/2000승) 신규 업적 5종 추가 (2026-09-23)
+* **요청 요약**: 업적에 통산 득점 300골, 500골, 1000골 및 클럽 통산 1000승, 2000승 추가.
+* **수행 내용**:
+  1. **신규 업적 5종 DB 등록 (`js/achievements.js`)**:
+     - `goals300`: 골 폭격기 (300골) - 클럽 통산 누적 300골 달성 (maxVal: 300, unit: '골')
+     - `goals500`: 골 마스터 (500골) - 클럽 통산 누적 500골 달성 (maxVal: 500, unit: '골')
+     - `goals1000`: 천 골의 신화 (1000골) - 클럽 통산 누적 1000골 달성 (maxVal: 1000, unit: '골')
+     - `wins1000`: 천승 클럽 (1000승) - 클럽 통산 누적 1000승 달성 (maxVal: 1000, unit: '승')
+     - `wins2000`: 불멸의 왕조 (2000승) - 클럽 통산 누적 2000승 달성 (maxVal: 2000, unit: '승')
+  2. **클럽 통산 누적 득점 및 승리 집계 헬퍼 구현**:
+     - `getTotalCareerGoals()`: 일반 커리어(`careerStats.gf`) + 어려움 커리어(`careerStatsHard.gf`) + 명예의 전당(`hallOfFame`) 보정 + 현재 진행 중인 시즌(`leagueTeams` 유저팀 `gf`)의 실시간 득점을 통합 집계.
+     - `getTotalCareerWins()`: 일반 커리어(`careerStats.w`) + 어려움 커리어(`careerStatsHard.w`) + 명예의 전당(`hallOfFame`) 보정 + 현재 진행 중인 시즌(`leagueTeams` 유저팀 `w`)의 실시간 승수를 통합 집계.
+     - `checkCareerAchievements()`: 통산 득점/승리 목표치 달성 시 실시간으로 업적 언락을 처리하는 헬퍼 함수 추가.
+  3. **보정 및 트리거 연동**:
+     - `reconcileAchievements()`: 업적 탭 진입 시 통산 득점 및 승수 조건을 검사하여 자동 언락 보정.
+     - `checkLeagueEndAchievements()` 및 `updateLeagueWinStreak()` (`js/league.js`): 리그 경기 종료 및 시즌 종료 시점에 통산 업적 실시간 체크 연동.
+  4. **상태 관리 및 클라우드 동기화 호환성 보장**:
+     - `js/state.js`: `userAchievements` 기본 상태에 5종 키 추가 및 로컬스토리지 복원 시 안전 병합.
+     - `js/auth.js`: Firebase 클라우드 계정 데이터 복원 시 구버전 데이터와 신규 5종 업적 키를 스프레드 병합하여 기존 업적 상태 및 보상 수령 상태 보존.
+  5. **검증 및 캐시 갱신**:
+     - `tests/achievements_reconciliation.test.cjs`: 신규 5종 업적 ID 및 통산 득점/승수 달성 검증 테스트 업데이트.
+     - Python 시뮬레이션 및 JS 구문 괄호/브래킷 무결성 100% 검증 통과.
+     - PWA 캐시 버전 `fc-star-v422`(`sw.js`) 및 스크립트 버전(`index.html`) 상향.
+* **변경 파일**: `js/achievements.js`, `js/state.js`, `js/auth.js`, `js/league.js`, `index.html`, `sw.js`, `tests/achievements_reconciliation.test.cjs`, `.agents/progress.md`, `.agents/log.md`
+* **검증 결과**: 전체 JS 문법 검사 및 통산 누적/보정 시뮬레이션 테스트 통과.
+* **최종 상태**: 완료.
 * **요청 요약**: player_data.js 변경사항(CAM ➔ AM 포지션 변경) 반영 및 깃 푸시 요청.
 * **수행 내용**:
   1. **선수 포지션 AM 통일 (`player_data.js`)**:

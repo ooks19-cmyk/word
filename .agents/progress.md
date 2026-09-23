@@ -1,11 +1,12 @@
 ## 현재 작업
-- 목표: player_data.js 변경사항(CAM -> AM 포지션 변경) 반영, 선수데이터.csv 동기화, PWA 캐시 상향 및 git push origin main
+- 목표: 통산 득점(300/500/1000골) 및 클럽 통산 승리(1000/2000승) 신규 업적 5종 추가 반영분 git push origin main
 - 상태: 완료.
 - 주요 변경·검증:
-  1. `player_data.js`: 이승우_kr, 이강인, 세징야, 미나미노, 쿠보 선수의 포지션을 CAM에서 AM으로 표준화 완료.
-  2. `선수데이터.csv`: `convert_js_to_csv.py` 실행하여 100명 전체 선수 데이터 CSV 시트 동기화 완료.
-  3. PWA 캐시 및 버전 상향: `index.html`(`player_data.js?v=1.78`), `sw.js`(`fc-star-v421`).
-  4. `git diff --check` 공백 검사 통과 및 `origin/main` 깃 푸시 완료.
+  1. `js/achievements.js`: goals300, goals500, goals1000, wins1000, wins2000 신규 업적 및 집계/검사 로직 구현.
+  2. `js/state.js`, `js/auth.js`, `js/league.js`: 상태 초기화, 클라우드 안전 병합 및 경기 종료 실시간 트리거 연동.
+  3. `index.html`, `sw.js`: PWA 캐시 `fc-star-v422` 및 스크립트 버전 상향.
+  4. `tests/achievements_reconciliation.test.cjs`: 검증 테스트 케이스 갱신 및 시뮬레이션 통과.
+  5. `git diff --check` 공백 검사 통과 및 `origin/main` 깃 푸시 완료.
 - 다음 단계: 사용자 추가 지시 대기.
 
 

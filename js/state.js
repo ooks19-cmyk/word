@@ -200,7 +200,12 @@ let userAchievements = {
     hardworldclass: { unlocked: false, rewarded: false },
     streak10: { unlocked: false, rewarded: false },
     streak20: { unlocked: false, rewarded: false },
-    streak30: { unlocked: false, rewarded: false }
+    streak30: { unlocked: false, rewarded: false },
+    goals300: { unlocked: false, rewarded: false },
+    goals500: { unlocked: false, rewarded: false },
+    goals1000: { unlocked: false, rewarded: false },
+    wins1000: { unlocked: false, rewarded: false },
+    wins2000: { unlocked: false, rewarded: false }
 };
 try {
     const savedAchievements = localStorage.getItem('fc_star_user_achievements');
