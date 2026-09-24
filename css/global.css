@@ -792,34 +792,34 @@ input:checked + .dev-slider::before {
    DATA SAVER MODE UI (글래스모피즘 배지 & 모달 설정 카드)
    ========================================================================== */
 
-/* 1. Header Data Saver Badge */
+/* 1. Header Data Saver Badge (Icon only) */
 .header-data-saver-badge {
     display: none;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
     background: rgba(16, 185, 129, 0.15);
     border: 1px solid rgba(0, 255, 135, 0.4);
     color: #00ff87;
-    padding: 0.38rem 0.8rem;
-    border-radius: 20px;
-    font-size: 0.82rem;
-    font-weight: 700;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 50%;
     cursor: pointer;
     box-shadow: 0 0 12px rgba(0, 255, 135, 0.15);
     transition: all 0.25s ease;
     user-select: none;
-    letter-spacing: -0.3px;
+    flex-shrink: 0;
 }
 
 .header-data-saver-badge:hover {
-    transform: translateY(-1px);
-    background: rgba(16, 185, 129, 0.25);
+    transform: translateY(-1px) scale(1.05);
+    background: rgba(16, 185, 129, 0.28);
     border-color: rgba(0, 255, 135, 0.7);
-    box-shadow: 0 0 16px rgba(0, 255, 135, 0.35);
+    box-shadow: 0 0 16px rgba(0, 255, 135, 0.4);
 }
 
 .header-data-saver-badge i {
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     color: #00ff87;
 }
 

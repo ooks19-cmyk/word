@@ -1,4 +1,14 @@
 ## 현재 작업
+- 목표: 상단 헤더 절약 모드 배지 텍스트 제거 및 원형 아이콘 전용 배지로 간소화 + 즉시 깃 푸시
+- 상태: 완료
+- 주요 변경·검증:
+  1. `index.html`: `#headerDataSaverBadge` 내 `<span>절약 모드</span>` 텍스트 제거, `<i class="fa-solid fa-leaf"></i>` 아이콘만 유지하고 hover 툴팁 보존.
+  2. `css/global.css`: `.header-data-saver-badge`를 32x32px 원형 컴팩트 글래스모피즘 아이콘 배지로 스타일 리팩토링.
+  3. PWA 캐시 및 스크립트 버전 상향: `index.html` (`css/global.css?v=3.2`), `sw.js` (`CACHE_NAME = 'fc-star-v431'`).
+  4. 검증: 회귀 테스트 4종 전부 PASS.
+- 다음 단계: 깃 커밋 및 푸시 실행.
+
+## 이전 작업
 - 목표: 리그별 상대팀 다이내믹 스케일링 최대 OVR 상한(Cap) 차등 적용 (K리그 95, J리그 97, EPL 99)
 - 상태: 완료
 - 주요 변경·검증:
@@ -6,8 +16,8 @@
   2. `js/league.js`: `LEAGUE_CONFIGS`에 `maxOvrCap` 속성 정의 (`kleague1: 95`, `jleague: 97`, `epl: 99`). `resetLeagueSeasonState()`에서 `Math.min(maxCap, ...)`으로 강팀 및 중하위팀의 최대 오버롤 제한 적용.
   3. `js/cup.js`: `resetCupStateData()`에서 활성 리그의 `maxOvrCap`을 준수하도록 K2 및 J리그 하부 초청팀 스케일링 로직 보강.
   4. PWA 캐시 및 스크립트 버전 상향: `index.html` (`match_algorithm.js?v=3.6`, `league.js?v=5.1`, `cup.js?v=3.3`), `sw.js` (`CACHE_NAME = 'fc-star-v430'`).
-  5. 검증: `scratch/test_league_caps.cjs`를 통해 OVR 105 덱 대상 K리그(95), J리그(97), EPL(99) 최대치 제한 100% 검증 통과 및 회귀 테스트 4종(`national_mode`, `achievements_reconciliation`, `cloud_save_throttle`, `position_match_goal_bonus`) 전부 PASS.
-- 다음 단계: 완료 보고. (Git 커밋 및 푸시는 사용자 지시 대기)
+  5. 검증: `scratch/test_league_caps.cjs`를 통해 OVR 105 덱 대상 K리그(95), J리그(97), EPL(99) 최대치 제한 100% 검증 통과 및 회귀 테스트 4종 전부 PASS.
+- 다음 단계: 완료.
 
 ## 이전 작업
 - 목표: J리그 상대팀 득점 시 주요선수 매핑 누락 버그 해결 (`[상대 공격수]` 대신 실제 스타 선수 출력)

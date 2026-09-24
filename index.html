@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FC STAR CARD - 축구 카드 수집 게임</title>
-    <link rel="stylesheet" href="css/global.css?v=3.1">
+    <link rel="stylesheet" href="css/global.css?v=3.2">
     <link rel="stylesheet" href="style.css?v=2.4">
     <link rel="stylesheet" href="css/friend.css?v=1.2">
     <link rel="stylesheet" href="css/realtime.css?v=1.0">
@@ -40,10 +40,9 @@
             </label>
         </div>
 
-        <!-- 🌱 데이터 절약 모드 배지 (절약 모드 ON 시 노출, 클릭 시 계정 설정) -->
-        <div id="headerDataSaverBadge" class="header-data-saver-badge" onclick="openAuthModal()" title="데이터 절약 모드 켜짐 (접속 시에만 클라우드 백업)">
+        <!-- 🌱 데이터 절약 모드 배지 (아이콘 전용 배지, 클릭 시 계정 설정) -->
+        <div id="headerDataSaverBadge" class="header-data-saver-badge" onclick="openAuthModal()" title="🌱 데이터 절약 모드 켜짐 (접속 시에만 클라우드 백업)">
             <i class="fa-solid fa-leaf"></i>
-            <span>절약 모드</span>
         </div>
 
         <div class="header-points" id="headerPointsWidget" onclick="developerSetPoints()">

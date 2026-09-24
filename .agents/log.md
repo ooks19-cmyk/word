@@ -31,6 +31,26 @@ graph TD
 
 ## 📅 3. 주요 작업 및 업데이트 이력
 
+### 🌱 상단 헤더 데이터 절약 모드 배지 아이콘 전용 간소화 (2026-09-24)
+* **요청 요약**: 상단 헤더에 표시되는 절약 모드 배지에서 텍스트("절약 모드")를 제거하고 아이콘만 남겨 컴팩트하게 표시.
+* **수행 내용**:
+  1. **헤더 배지 구조 간소화 (`index.html`)**:
+     - `#headerDataSaverBadge` 내 `<span>절약 모드</span>`를 제거하고 `<i class="fa-solid fa-leaf"></i>` 아이콘만 단독 배치. 마우스 호버 시 상세 툴팁(`title="🌱 데이터 절약 모드 켜짐 (접속 시에만 클라우드 백업)"`) 유지.
+  2. **원형 컴팩트 글래스모피즘 스타일 리팩토링 (`css/global.css`)**:
+     - `.header-data-saver-badge`를 32x32px 원형 배지(`border-radius: 50%`)로 디자인하여 모바일/PC 헤더 공간 효율성 극대화 및 호버 인터랙션(scale 1.05 & 글로우 이펙트) 적용.
+  3. **PWA 캐시 및 스크립트 버전 상향**:
+     - `index.html`: `css/global.css?v=3.2`
+     - `sw.js`: `CACHE_NAME = 'fc-star-v431'`
+* **변경 파일**:
+  - `index.html`
+  - `css/global.css`
+  - `sw.js`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+* **검증 결과**:
+  - 회귀 테스트 4종(`national_mode`, `achievements_reconciliation`, `cloud_save_throttle`, `position_match_goal_bonus`) 전부 PASS.
+* **최종 상태**: 작업 완료 (즉시 Git 커밋 및 푸시 완료).
+
 ### ⚡ 리그별 상대팀 다이내믹 스케일링 최대 OVR 상한(Cap) 차등 적용 (K리그 95 / J리그 97 / EPL 99) (2026-09-24)
 * **요청 요약**: 시즌 전환 시 적용되는 상대팀 다이내믹 스케일링의 최대 OVR 제한을 리그별로 차등 설정 (K리그 95, J리그 97, EPL 99).
 * **수행 내용**:
