@@ -114,9 +114,9 @@ function getPlayerPureOvr() {
     return Math.round(totalOvr / 11);
 }
 
-// 1-2. 플레이어 덱 상위 카드의 평균 OVR 계산 (최대 95 제한)
+// 1-2. 플레이어 덱 상위 카드의 평균 OVR 계산 (리그별/커스텀 최대 제한 지원, 기본 최대 99 제한)
 // ※ 함수명은 getPlayerTop20Ovr로 유지하되, 실제 기준은 상위 11개 카드 평균을 사용합니다.
-function getPlayerTop20Ovr() {
+function getPlayerTop20Ovr(customCap) {
     if (typeof playerDeck === 'undefined' || !playerDeck) return 70;
     const keys = Object.keys(playerDeck);
     if (keys.length === 0) return 70;
@@ -133,7 +133,8 @@ function getPlayerTop20Ovr() {
     const top20 = cardRatings.slice(0, 11); // 실제 기준: 상위 11개 (함수명은 하위 호환성을 위해 유지)
     const sum = top20.reduce((acc, rating) => acc + rating, 0);
     const avg = Math.round(sum / top20.length);
-    return Math.min(avg, 95);
+    const cap = (typeof customCap === 'number') ? customCap : 99;
+    return Math.min(avg, cap);
 }
 
 
@@ -1430,9 +1431,18 @@ function rollSpecialMatchEvent(activePlayers, opponentName) {
 
 // 9. 상대팀 전용 동적 득점자/도움자 판정 함수
 function determineOpponentScorerAndAssister(opponentTeamId) {
-    const allOpponentPlayers = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl' && typeof OTHER_TEAMS_PLAYERS_PRESET_EPL !== 'undefined')
-        ? OTHER_TEAMS_PLAYERS_PRESET_EPL
-        : (typeof OTHER_TEAMS_PLAYERS_PRESET !== 'undefined' ? OTHER_TEAMS_PLAYERS_PRESET : []);
+    let allOpponentPlayers = [];
+    if (typeof currentLeagueId !== 'undefined') {
+        if (currentLeagueId === 'epl' && typeof OTHER_TEAMS_PLAYERS_PRESET_EPL !== 'undefined') {
+            allOpponentPlayers = OTHER_TEAMS_PLAYERS_PRESET_EPL;
+        } else if (currentLeagueId === 'jleague' && typeof OTHER_TEAMS_PLAYERS_PRESET_JLEAGUE !== 'undefined') {
+            allOpponentPlayers = OTHER_TEAMS_PLAYERS_PRESET_JLEAGUE;
+        } else if (typeof OTHER_TEAMS_PLAYERS_PRESET !== 'undefined') {
+            allOpponentPlayers = OTHER_TEAMS_PLAYERS_PRESET;
+        }
+    } else if (typeof OTHER_TEAMS_PLAYERS_PRESET !== 'undefined') {
+        allOpponentPlayers = OTHER_TEAMS_PLAYERS_PRESET;
+    }
     
     if (allOpponentPlayers.length === 0) {
         return {

@@ -31,6 +31,149 @@ graph TD
 
 ## 📅 3. 주요 작업 및 업데이트 이력
 
+### ⚡ 리그별 상대팀 다이내믹 스케일링 최대 OVR 상한(Cap) 차등 적용 (K리그 95 / J리그 97 / EPL 99) (2026-09-24)
+* **요청 요약**: 시즌 전환 시 적용되는 상대팀 다이내믹 스케일링의 최대 OVR 제한을 리그별로 차등 설정 (K리그 95, J리그 97, EPL 99).
+* **수행 내용**:
+  1. **플레이어 상위 덱 OVR 계산 확장 (`js/match_algorithm.js`)**:
+     - `getPlayerTop20Ovr(customCap)`으로 시그니처를 확장하여 호출처에서 커스텀 상한선을 전달할 수 있도록 지원하고, 기본 시스템 상한을 95에서 99로 확장.
+  2. **리그별 최대 OVR 상한선 정의 및 스케일링 적용 (`js/league.js`)**:
+     - `LEAGUE_CONFIGS`에 `maxOvrCap` 속성 추가:
+       - `kleague1`: `95`
+       - `jleague`: `97`
+       - `epl`: `99`
+     - `resetLeagueSeasonState()`에서 상대 강팀 및 중하위팀의 rating 산출 시 `Math.min(maxCap, ...)`을 적용하여 리그별 상한선을 절대 초과하지 않도록 강제.
+  3. **컵 대회 스케일링 동기화 (`js/cup.js`)**:
+     - `resetCupStateData()`에서 활성 리그의 `maxOvrCap`을 준수하도록 K2 및 J리그 하부 초청팀(`shimizu`, `iwata`, `chiba`, `yamagata` 등)의 스케일링 로직 보강.
+  4. **PWA 캐시 및 스크립트 버전 상향**:
+     - `index.html`: `js/match_algorithm.js?v=3.6`, `js/league.js?v=5.1`, `js/cup.js?v=3.3`
+     - `sw.js`: `CACHE_NAME = 'fc-star-v430'`
+* **변경 파일**:
+  - `js/match_algorithm.js`
+  - `js/league.js`
+  - `js/cup.js`
+  - `index.html`
+  - `sw.js`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+* **검증 결과**:
+  - `scratch/test_league_caps.cjs` 단위 테스트를 통해 OVR 105 덱 환경에서 K리그 최대 95, J리그 최대 97, EPL 최대 99 제한 정확히 작동 확인.
+  - Node.js 구문 검사 오류 없음.
+  - 회귀 테스트 4종(`national_mode`, `achievements_reconciliation`, `cloud_save_throttle`, `position_match_goal_bonus`) 전부 PASS.
+* **최종 상태**: 작업 완료 (Git 커밋 및 푸시는 사용자 지시 대기).
+
+### 🇯🇵 J리그 상대팀 득점 시 주요선수 매핑 누락 해결 (`[상대 공격수]` -> 스타 선수) (2026-09-24)
+* **요청 요약**: J리그 경기 중 상대팀 득점 상황에서 상대팀 주요 선수가 매핑되지 않고 `[상대 공격수]`로 출력되는 현상 수정.
+* **원인 분석**:
+  - `js/match_algorithm.js`의 `determineOpponentScorerAndAssister`에서 EPL(`currentLeagueId === 'epl'`)만 분기되어 있어, J리그 플레이 시 K리그 프리셋(`OTHER_TEAMS_PLAYERS_PRESET`)을 조회하여 상대 선수 배열이 빈 값이 됨에 따라 fallback 문자열 `"[상대 공격수]"`가 반환되었음.
+* **수행 내용**:
+  1. **경기 알고리즘 상대 선수 매핑 보강 (`js/match_algorithm.js`)**:
+     - `determineOpponentScorerAndAssister(opponentTeamId)` 내에 `currentLeagueId === 'jleague'` 분기를 추가하여 `OTHER_TEAMS_PLAYERS_PRESET_JLEAGUE`의 11개 구단 22명 스타 플레이어(오사코, 무토, 에릭, 오세훈, 스즈키 유마, 우사미, 에우베르 등)가 득점자/도움자로 정확히 매핑되도록 구현.
+  2. **ACL 연동 보강 (`js/acl.js`)**:
+     - `getActiveAclPlayersPreset()`에서 `jleague`일 때 J리그 및 K리그 선수를 병합하여 ACL 매치에서도 상대 선수가 정상적으로 매핑되도록 지원.
+  3. **PWA 캐시 및 스크립트 버전 상향**:
+     - `index.html`: `js/match_algorithm.js?v=3.5`, `js/acl.js?v=3.7`
+     - `sw.js`: `CACHE_NAME = 'fc-star-v429'`
+* **변경 파일**:
+  - `js/match_algorithm.js`
+  - `js/acl.js`
+  - `index.html`
+  - `sw.js`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+* **검증 결과**:
+  - J리그 11개 전 구단(`kobe`, `hiroshima`, `machida`, `kashima`, `gamba`, `marinos`, `urawa`, `cerezo`, `verdy`, `kawasaki`, `nagoya`) 상대 득점자/도움자 실제 스타 선수 100% 매핑 단위 테스트 통과.
+  - Node.js 구문 검사(`match_algorithm.js`, `acl.js`, `sw.js`) 오류 없음.
+  - 회귀 테스트 4종(`national_mode`, `achievements_reconciliation`, `cloud_save_throttle`, `position_match_goal_bonus`) 전부 PASS.
+* **최종 상태**: 작업 완료 (Git 커밋 및 푸시는 사용자 지시 대기).
+
+### 🇰🇷 국대 모드 보관함(isStored) 선수 완전 제외 처리 (2026-09-24)
+* **요청 요약**: 국대 모드에서 보관함에 있는 선수들은 후보 및 스쿼드에 나오지 않도록 제외 처리.
+* **수행 내용**:
+  1. **국대 후보 선발 필터 수정 (`js/national_squad.js`)**:
+     - `getNationalEligibleCards`에 `!item.isStored` 조건을 추가하여 보관함에 보관 중인 카드가 후보 목록 및 기용 가능 목록에서 제외되도록 필터링.
+  2. **스쿼드 요약, 핵심 선수 및 피치 렌더링 검증 강화 (`js/national_squad.js`)**:
+     - `getNationalSquadSummary`, `getNationalKeyPlayerStatus`, `nationalPitchCard`에서 보관함 선수가 포함되어 있을 경우 유효하지 않은 카드(무명 선수)로 처리하여 팀 OVR 및 핵심 선수 활성화에서 배제.
+  3. **국대 OVR 및 선수 선발 로직 가드 (`js/national.js`)**:
+     - `nationalRoleOvr`, `nationalPickPlayer`에서 보관함 카드를 제외하는 유효성 가드 적용.
+  4. **보관함 이동 시 국대 스쿼드 자동 해제 (`js/deck.js`)**:
+     - `moveToStorage` 실행 시 `nationalModeState.squad` 및 `nationalSquadPresets`에서도 해당 카드를 `null`로 자동 해제하여 동기화.
+  5. **PWA 캐시 및 스크립트 버전 상향**:
+     - `index.html`: `js/deck.js?v=2.9`, `js/national_squad.js?v=2.7`, `js/national.js?v=3.12`
+     - `sw.js`: `CACHE_NAME = 'fc-star-v428'`
+* **변경 파일**:
+  - `js/national_squad.js`
+  - `js/national.js`
+  - `js/deck.js`
+  - `index.html`
+  - `sw.js`
+  - `tests/national_mode.test.cjs`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+* **검증 결과**:
+  - Node.js 구문 검사(`national_squad.js`, `national.js`, `deck.js`, `sw.js`) 오류 없음.
+  - 회귀 테스트 4종(`national_mode`, `achievements_reconciliation`, `cloud_save_throttle`, `position_match_goal_bonus`) 전부 PASS.
+* **최종 상태**: 작업 완료 (Git 커밋 및 푸시는 사용자 지시 대기).
+
+### ⚽ 신규 슈퍼 등급 'S김승규' 카드 생성 및 DB·CSV 동기화 (2026-09-24)
+* **요청 요약**: 슈퍼 김승규 선수 카드 생성 (OVR 94, DEF 94, GK).
+* **수행 내용**:
+  1. **신규 카드 등록 (`player_data.js`)**:
+     - ID: `super_kim_seung_gyu`, 이름: `S김승규`, 등급: `super`, 오버롤: `94`, 포지션: `GK`
+     - 국적: `South Korea` (`https://flagcdn.com/w40/kr.png`), 소속: `KOREA`
+     - 이미지: `player2/슈퍼 김승규.png` (사전 검증 완료)
+     - 6대 스탯: `PAC 91, SHO 88, PAS 93, DRI 91, DEF 94(요청값), PHY 90`
+     - 설명: "전설을 초월한 궁극의 수문장이자 벤투호 빌드업 축구의 황금빛 방패, 슈퍼 김승규(S김승규)입니다. 동물적인 반사신경과 경이로운 선방 능력으로 골문을 든든하게 지켜내며, 필드 플레이어 수준의 정교한 롱패스로 후방 빌드업을 완성하는 대한민국 최고의 골키퍼입니다."
+  2. **PWA 캐시 및 스크립트 버전 상향**:
+     - `index.html`: `player_data.js?v=1.79`
+     - `sw.js`: `CACHE_NAME = 'fc-star-v427'`
+  3. **`선수데이터.csv` 엑셀 시트 자동 동기화 (`convert_js_to_csv.py`)**:
+     - 총 101명 선수 데이터로 갱신 완료 (`super_kim_seung_gyu` 정상 포함 확인).
+* **변경 파일**:
+  - `player_data.js`
+  - `index.html`
+  - `sw.js`
+  - `선수데이터.csv`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+* **검증 결과**:
+  - Node.js 구문 검사(`player_data.js`, `sw.js`) 오류 없음.
+  - 회귀 테스트 4종(`national_mode`, `achievements_reconciliation`, `cloud_save_throttle`, `position_match_goal_bonus`) 전부 PASS.
+  - `선수데이터.csv` 102행(헤더+101명) 및 스탯 무결성 확인.
+* **최종 상태**: 작업 완료 (Git 커밋 및 푸시는 사용자 지시 대기).
+
+### 🚀 데이터 절약 모드(Data Saver Mode) 정식 탑재 & v3.4.1 업데이트 (2026-09-24)
+* **요청 요약**: 모바일 데이터 및 배터리 절약을 위한 '데이터 절약 모드' 설정 신설 (클라우드 백업은 오직 접속/로그인 완료 시에만 1회 수행, 플레이 중 자동 백업 완전 차단).
+* **수행 내용**:
+  1. **데이터 절약 모드 코어 로직 구현 (`js/state.js`, `js/auth.js`)**:
+     - `isDataSaverMode` 전역 상태 선언 및 로컬스토리지(`fc_star_data_saver`) 연동, `js/state.js` 내 누락된 catch 구문 복원.
+     - `saveUserProgress(forceImmediate = false, isLoginBackup = false)` 시그니처 확장 및 `isDataSaverMode && !isLoginBackup` 가드 적용: 경기 진행, 팩 개봉, 선수 각성, 퀴즈 풀이 등 플레이 중 발생하는 모든 불필요한 Firestore 클라우드 업로드 호출을 완벽하게 차단.
+     - `saveAllToLocalStorage()`는 항상 최우선으로 실행되어 모든 로컬 게임 데이터를 100% 안전하게 실시간 보존.
+     - Firestore 계정 `progressData`에 `isDataSaverMode` 필드를 추가하여 다중 기기 환경에서도 절약 모드 설정 동기화 보장.
+     - `toggleDataSaverMode(isChecked)` 및 `updateDataSaverUI()` 신설: 절약 모드를 OFF로 끌 때 즉시 최신 데이터로 1회 클라우드 동기화 수행.
+  2. **접속/로그인 완료 시점 1회 백업 보장 (`js/auth.js`)**:
+     - 수동 로그인, 자동 세션 복원, 게스트 로그인, 회원가입 완료 직후 `saveUserProgress(true, true)`를 호출하여 데이터 절약 모드 켜짐 여부와 관계없이 접속 시점 1회 백업을 확실하게 보장.
+     - `syncUserDataOnLogin`에서 원격 `userData.isDataSaverMode` 복원 및 UI 동기화.
+  3. **글래스모피즘 UI & 상단 헤더 배지 (`index.html`, `css/global.css`)**:
+     - 계정 정보 모달(`authLoggedInState`) 내부에 세련된 글래스모피즘 토글 스위치 카드(`.data-saver-card`) 배치 및 실시간 동적 상태 안내문 렌더링.
+     - 데이터 절약 모드 활성화 시 상단 헤더에 에메랄드 테마의 `🌱 절약 모드` 배지(`.header-data-saver-badge`) 노출 (클릭 시 계정 모달 즉시 오픈).
+  4. **업데이트 릴리즈 노트 & 캐시 갱신 (`js/update_data.js`, `sw.js`, `index.html`)**:
+     - `js/update_data.js`: v3.4.1 데이터 절약 모드 릴리즈 노트 등록.
+     - 서비스 워커 캐시 버전 상향: `sw.js` `CACHE_NAME = 'fc-star-v426'`.
+     - 리소스 쿼리 버전 상향: `css/global.css?v=3.1`, `js/state.js?v=3.1`, `js/auth.js?v=2.76`, `js/update_data.js?v=2.80`.
+* **변경 파일**:
+  - `js/state.js`
+  - `js/auth.js`
+  - `index.html`
+  - `css/global.css`
+  - `js/update_data.js`
+  - `sw.js`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+* **검증 결과**:
+  - `scratch/test_js_syntax.py`를 통한 모든 JS 파일(`state.js`, `auth.js`, `sw.js`, `update_data.js`) 브라켓 매칭 및 구문 검사 100% 통과 (`All OK: True`).
+  - Git 상태 및 diff 검사 무결성 확인.
+* **최종 상태**: 작업 완료 (Git 푸시는 사용자 지시 대기).
+
 ### 🚀 Release Notes v3.4.0 업데이트 및 원격 저장소 푸시 (2026-09-24)
 * **요청 요약**: Release Notes v3.4 업데이트 및 원격 푸시 (J1리그 개방, 최다 득점 선수 통산 득점 업적 개편분 반영).
 * **수행 내용**:

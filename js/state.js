@@ -243,6 +243,15 @@ try {
     }
 } catch (e) {}
 
+// 6-1. DATA SAVER MODE STATE (데이터 절약 모드 - 접속/로그인 시에만 클라우드 백업, 플레이 중 백업 차단)
+let isDataSaverMode = false;
+try {
+    const savedDataSaver = localStorage.getItem('fc_star_data_saver');
+    if (savedDataSaver !== null) {
+        isDataSaverMode = savedDataSaver === 'true';
+    }
+} catch (e) {}
+
 // 7. WINGER PLAYSTYLE CONFIGURATION STATE
 let wingerStyles = {
     '4-4-2': { LW: 'dribble', RW: 'sprint' },

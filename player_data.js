@@ -2514,6 +2514,31 @@ const CARDS_DATABASE = {
             def: 58,
             phy: 76
         }
+    },
+    "super_kim_seung_gyu": {
+        id: "super_kim_seung_gyu",
+        name: "S김승규",
+        rating: 94,
+        position: "GK",
+        nation: "South Korea",
+        nationFlag: "https://flagcdn.com/w40/kr.png",
+        club: "KOREA",
+        image: "player2/슈퍼 김승규.png",
+        rarity: "super",
+        description: "전설을 초월한 궁극의 수문장이자 벤투호 빌드업 축구의 황금빛 방패, 슈퍼 김승규(S김승규)입니다. 동물적인 반사신경과 경이로운 선방 능력으로 골문을 든든하게 지켜내며, 필드 플레이어 수준의 정교한 롱패스로 후방 빌드업을 완성하는 대한민국 최고의 골키퍼입니다.",
+        theme: {
+            primary: "#14002e",
+            secondary: "#ff007f",
+            glow: "#00f2fe"
+        },
+        stats: {
+            pac: 91,
+            sho: 88,
+            pas: 93,
+            dri: 91,
+            def: 94,
+            phy: 90
+        }
     }
 };
 

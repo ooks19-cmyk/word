@@ -89,6 +89,44 @@ function updateDevModeUI() {
 }
 
 // ==========================================================================
+// 14-1. DATA SAVER MODE UTILITIES (데이터 절약 모드 토글 & UI 헬퍼)
+// ==========================================================================
+function toggleDataSaverMode(isChecked) {
+    isDataSaverMode = isChecked;
+    try {
+        localStorage.setItem('fc_star_data_saver', isDataSaverMode ? 'true' : 'false');
+    } catch(e) {}
+    updateDataSaverUI();
+    if (isDataSaverMode) {
+        showToast("🌱 데이터 절약 모드가 켜졌습니다. (접속 시에만 클라우드 백업)");
+    } else {
+        showToast("☁️ 실시간 클라우드 백업 모드로 전환되었습니다.");
+        // 실시간 모드로 복귀 시 즉시 1회 백업 실행
+        saveUserProgress(true, true);
+    }
+}
+
+function updateDataSaverUI() {
+    const badge = document.getElementById('headerDataSaverBadge');
+    const checkbox = document.getElementById('dataSaverCheckbox');
+    const desc = document.getElementById('dataSaverStatusDesc');
+    
+    if (badge) {
+        badge.style.display = isDataSaverMode ? 'inline-flex' : 'none';
+    }
+    if (checkbox) {
+        checkbox.checked = isDataSaverMode;
+    }
+    if (desc) {
+        if (isDataSaverMode) {
+            desc.innerHTML = '<i class="fa-solid fa-circle-check" style="color: #00ff87; margin-right: 4px;"></i> <strong>절약 모드 켜짐</strong>: 접속(로그인) 시점에만 1회 백업하며, 플레이 중 네트워크 호출을 완전 차단합니다.';
+        } else {
+            desc.innerHTML = '<i class="fa-solid fa-circle-info" style="color: #94a3b8; margin-right: 4px;"></i> <strong>실시간 백업 켜짐</strong>: 경기, 팩 개봉 등 모든 플레이 데이터가 실시간으로 클라우드에 자동 저장됩니다.';
+        }
+    }
+}
+
+// ==========================================================================
 // 15. USER AUTHENTICATION & CLOUD DATA SYNC SERVICE LOGIC
 // ==========================================================================
 
@@ -281,7 +319,7 @@ function saveAllToLocalStorage() {
     }
 }
 
-function saveUserProgress(forceImmediate = false) {
+function saveUserProgress(forceImmediate = false, isLoginBackup = false) {
     if (!currentUser) return;
     if (typeof window.isSyncingData !== 'undefined' && window.isSyncingData) {
         console.log("⏳ [Save Blocked] 동기화 진행 중이므로 클라우드 저장을 건너뜁니다.");
@@ -290,6 +328,12 @@ function saveUserProgress(forceImmediate = false) {
     
     // 1. 데이터 유실 방지를 위해 즉각 로컬 저장은 항상 보장
     saveAllToLocalStorage();
+    
+    // 🌱 데이터 절약 모드 검사: 로그인/접속 완료 시점 백업(isLoginBackup)이 아닌 모든 일반 저장은 클라우드 전송 차단
+    if (isDataSaverMode && !isLoginBackup) {
+        console.log("🌱 [Data Saver] 데이터 절약 모드 작동 중: 클라우드 자동 저장을 차단하고 로컬에만 보관합니다.");
+        return;
+    }
     
     if (!isCloudDataSynced) {
         console.warn("⚠️ [Save Blocked] 클라우드 데이터가 아직 동기화되지 않았으므로 업로드를 차단합니다.");
@@ -495,6 +539,9 @@ function saveUserProgress(forceImmediate = false) {
             friendlyMatchLastDate: typeof friendlyMatchLastDate !== 'undefined' ? friendlyMatchLastDate : "",
             friendlySeasonStartDate: localStorage.getItem(`fc_star_friendly_season_start_date_${myId}`) || new Date().toISOString(),
             lastSyncedUpdatedAt: window.lastSyncedUpdatedAt,
+            
+            // 🌱 데이터 절약 모드 설정 동기화
+            isDataSaverMode: isDataSaverMode,
             
             // 동기화 조율용 최종 수정 타임스탬프
             localLastUpdated: parseInt(localStorage.getItem('fc_star_local_last_updated') || '0') || Date.now()
@@ -1110,12 +1157,24 @@ function syncUserDataOnLogin(userData, forceLoad = false, requireChoice = false)
         localStorage.setItem('fc_star_winger_styles', JSON.stringify(wingerStyles));
         localStorage.setItem('fc_star_striker_styles', JSON.stringify(strikerStyles));
         
+        // 🌱 데이터 절약 모드 설정 복원
+        if (userData.isDataSaverMode !== undefined) {
+            isDataSaverMode = !!userData.isDataSaverMode;
+            try {
+                localStorage.setItem('fc_star_data_saver', isDataSaverMode ? 'true' : 'false');
+            } catch(e) {}
+        }
+        updateDataSaverUI();
+        
         // Refresh all screens
         refreshAllScreens();
         
         // 동기화 완료 상태 마크
         isCloudDataSynced = true;
         dbService.cloudSaveUserId = currentUser;
+        
+        // 🌱 로그인/접속 완료 시점 보장 1회 클라우드 백업 (절약 모드 켜짐 여부와 상관없이 1회 확실하게 백업)
+        saveUserProgress(true, true);
         
         // 데이터 동기화 완료 후 오늘 기준 컨디션 업데이트 적용
         try {
@@ -1132,6 +1191,7 @@ function syncUserDataOnLogin(userData, forceLoad = false, requireChoice = false)
 }
 
 function updateAuthBadgeUI() {
+    updateDataSaverUI();
     const authText = document.getElementById('headerAuthText');
     const authBtn = document.getElementById('headerAuthBtn');
     
@@ -1159,6 +1219,7 @@ function openAuthModal(isForce = false) {
     const modal = document.getElementById('authModal');
     if (!modal) return;
     
+    updateDataSaverUI();
     modal.classList.add('active');
     
     const loggedInState = document.getElementById('authLoggedInState');
@@ -1314,7 +1375,7 @@ async function handleAuthSubmit() {
             startInitialCloudSync(defaultData, pw);
             
             // Backup existing local data to cloud immediately
-            saveUserProgress(true);
+            saveUserProgress(true, true);
             
             // Keep session
             localStorage.setItem('fc_star_current_user', currentUser);
@@ -1384,7 +1445,7 @@ async function handleGuestPlay() {
         if (userData) {
             startInitialCloudSync(userData, guestPw);
             // Backup existing local data to cloud immediately (just in case they had offline progress before registering)
-            saveUserProgress();
+            saveUserProgress(true, true);
         }
         
         closeAuthModal();

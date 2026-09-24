@@ -787,3 +787,129 @@ input:checked + .dev-slider::before {
         padding: 1rem;
     }
 }
+
+/* ==========================================================================
+   DATA SAVER MODE UI (글래스모피즘 배지 & 모달 설정 카드)
+   ========================================================================== */
+
+/* 1. Header Data Saver Badge */
+.header-data-saver-badge {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(0, 255, 135, 0.4);
+    color: #00ff87;
+    padding: 0.38rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(0, 255, 135, 0.15);
+    transition: all 0.25s ease;
+    user-select: none;
+    letter-spacing: -0.3px;
+}
+
+.header-data-saver-badge:hover {
+    transform: translateY(-1px);
+    background: rgba(16, 185, 129, 0.25);
+    border-color: rgba(0, 255, 135, 0.7);
+    box-shadow: 0 0 16px rgba(0, 255, 135, 0.35);
+}
+
+.header-data-saver-badge i {
+    font-size: 0.85rem;
+    color: #00ff87;
+}
+
+/* 2. Account Modal Data Saver Card */
+.data-saver-card {
+    background: rgba(15, 23, 42, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 1.1rem 1.2rem;
+    margin: 1.2rem 0;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    transition: border-color 0.2s ease;
+}
+
+.data-saver-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.data-saver-title-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 3. Modern Glassmorphism Switch */
+.data-saver-switch {
+    position: relative;
+    display: inline-block;
+    width: 46px;
+    height: 26px;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.data-saver-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.data-saver-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.12);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 26px;
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+}
+
+.data-saver-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 2px;
+    bottom: 2px;
+    background-color: #94a3b8;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.data-saver-switch input:checked + .data-saver-slider {
+    background-color: #059669;
+    border-color: #00ff87;
+    box-shadow: 0 0 12px rgba(0, 255, 135, 0.4);
+}
+
+.data-saver-switch input:checked + .data-saver-slider:before {
+    transform: translateX(20px);
+    background-color: #ffffff;
+    box-shadow: 0 0 8px rgba(0, 255, 135, 0.6);
+}
+
+/* 4. Dynamic Description Box */
+.data-saver-desc {
+    margin-top: 0.85rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 0.82rem;
+    color: #94a3b8;
+    line-height: 1.55;
+    text-align: left;
+    word-break: keep-all;
+}

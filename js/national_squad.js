@@ -144,7 +144,7 @@ function getNationalEligibleCards(nationId, slot, formation = null) {
     const displayPosition = getNationalSlotLabel(slot, formation);
     return Object.keys(playerDeck).filter(id => {
         const item = playerDeck[id], card = CARDS_DATABASE[id];
-        return item && (item.quantity ?? 1) > 0 && card && card.nation === config.playerNation && isNationalPositionCompatible(displayPosition, card.position);
+        return item && (item.quantity ?? 1) > 0 && !item.isStored && card && card.nation === config.playerNation && isNationalPositionCompatible(displayPosition, card.position);
     }).sort((a, b) => getAwakenedCard(b).rating - getAwakenedCard(a).rating);
 }
 function canBuildNationalSquad(nationId, formation = null) {
@@ -192,15 +192,17 @@ const NATIONAL_PITCH_COORDINATES = {
     }
 };
 function getNationalSquadSummary(state) {
-    const filled=NATIONAL_SQUAD_SLOTS.filter(slot=>state.squad[slot]&&CARDS_DATABASE[state.squad[slot]]).length;
-    const average=key=>Math.round(NATIONAL_SQUAD_SLOTS.reduce((sum,slot)=>{const id=state.squad[slot],card=id&&CARDS_DATABASE[id]?getAwakenedCard(id):null;return sum+(card?(card.stats?.[key]??card[key]??card.rating):70);},0)/11);
-    const ovr=Math.round(NATIONAL_SQUAD_SLOTS.reduce((sum,slot)=>{const id=state.squad[slot];return sum+(id&&CARDS_DATABASE[id]?getAwakenedCard(id).rating:70);},0)/11);
+    const isSlotValid = id => id && typeof playerDeck !== 'undefined' && playerDeck[id] && !playerDeck[id].isStored && CARDS_DATABASE[id];
+    const filled=NATIONAL_SQUAD_SLOTS.filter(slot=>isSlotValid(state.squad[slot])).length;
+    const average=key=>Math.round(NATIONAL_SQUAD_SLOTS.reduce((sum,slot)=>{const id=state.squad[slot],card=isSlotValid(id)?getAwakenedCard(id):null;return sum+(card?(card.stats?.[key]??card[key]??card.rating):70);},0)/11);
+    const ovr=Math.round(NATIONAL_SQUAD_SLOTS.reduce((sum,slot)=>{const id=state.squad[slot];return sum+(isSlotValid(id)?getAwakenedCard(id).rating:70);},0)/11);
     return {filled,ovr,stats:Object.fromEntries(['pac','sho','pas','dri','def','phy'].map(key=>[key,average(key)]))};
 }
 function getNationalKeyPlayerStatus(state) {
     const formation=normalizeNationalFormation(state&&state.formation),rule=NATIONAL_KEY_PLAYER_RULES[formation];
     const slots=rule?(rule.slots||[rule.slot]):[];
-    const candidates=slots.map(slot=>{const cardId=state&&state.squad?state.squad[slot]:null,card=cardId&&CARDS_DATABASE[cardId]?getAwakenedCard(cardId):null;return {slot,card,value:card&&card.stats?Number(card.stats[rule.stat]||0):0};});
+    const isSlotValid = id => id && typeof playerDeck !== 'undefined' && playerDeck[id] && !playerDeck[id].isStored && CARDS_DATABASE[id];
+    const candidates=slots.map(slot=>{const cardId=state&&state.squad?state.squad[slot]:null,card=isSlotValid(cardId)?getAwakenedCard(cardId):null;return {slot,card,value:card&&card.stats?Number(card.stats[rule.stat]||0):0};});
     const activeCandidate=candidates.find(item=>item.value>=rule.minimum)||candidates[0]||{card:null,value:0};
     return { ...rule, slots, formation, card:activeCandidate.card, value:activeCandidate.value, active:candidates.some(item=>item.value>=rule.minimum) };
 }
@@ -218,7 +220,9 @@ function nationalPitchStyleBadge(slot,state,formation) {
     return style?`<div class="mini-card-position-badge national-style-badge ${className}" title="${label}"><i class="fa-solid ${icon}"></i></div>`:'';
 }
 function nationalPitchCard(slot,state) {
-    const formation=normalizeNationalFormation(state.formation),cardId=state.squad[slot],base=cardId&&CARDS_DATABASE[cardId],card=base&&getAwakenedCard(cardId),coord=NATIONAL_PITCH_COORDINATES[formation][slot];
+    const formation=normalizeNationalFormation(state.formation),cardId=state.squad[slot];
+    const isSlotValid = cardId && typeof playerDeck !== 'undefined' && playerDeck[cardId] && !playerDeck[cardId].isStored && CARDS_DATABASE[cardId];
+    const base=isSlotValid&&CARDS_DATABASE[cardId],card=base&&getAwakenedCard(cardId),coord=NATIONAL_PITCH_COORDINATES[formation][slot];
     const keyRule=NATIONAL_KEY_PLAYER_RULES[formation],isKeyPlayerSlot=keyRule&&(keyRule.slots||[keyRule.slot]).includes(slot);
     const styleBadge=card?nationalPitchStyleBadge(slot,state,formation):'';
     const positionBadge=styleBadge||`<div class="mini-card-position-badge">${typeof formatCardPosition === 'function' ? formatCardPosition(base&&base.position||slot) : (base&&base.position||slot)}</div>`;

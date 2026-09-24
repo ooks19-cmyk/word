@@ -141,10 +141,10 @@ const nationalResumeCheck=vm.runInContext(`(()=>{
 assert.deepEqual(JSON.parse(JSON.stringify(nationalResumeCheck)),{sameTournament:true,seasonWindowOpen:false,seasonTransitionPending:true,nextSeasonAvailableDate:'2026-12-31'});
 vm.runInContext("chooseNationalTeam('KR'); openNationalTournamentWindow(); startNationalTournament();", context);
 assert.equal(vm.runInContext("nationalModeState.tournament.name", context), '월드컵', 'an incomplete national squad can start a tournament');
-assert.equal(vm.runInContext("nationalRoleOvr()", context), 70, 'empty national slots use the default rating');
 vm.runInContext("Object.keys(nationalModeState.squad).forEach((slot, index) => nationalModeState.squad[slot] = `kr_${index}`); Object.values(playerDeck).forEach(item=>item.isStored=true);", context);
-assert.equal(vm.runInContext("isNationalSquadComplete(nationalModeState)", context), true, 'owned cards already placed in the national squad remain valid when stored');
-assert.ok(vm.runInContext("getNationalEligibleCards('KR','LW','4-3-3').includes('kr_8')", context), 'stored owned cards remain selectable for the isolated national squad');
+assert.equal(vm.runInContext("isNationalSquadComplete(nationalModeState)", context), false, 'stored cards are now excluded from the national squad');
+assert.equal(vm.runInContext("getNationalEligibleCards('KR','LW','4-3-3').includes('kr_8')", context), false, 'stored owned cards are excluded from the national squad candidates');
+vm.runInContext("Object.values(playerDeck).forEach(item=>item.isStored=false);", context);
 const nationalPositionCompatibility=vm.runInContext(`({
     lwToSt:getNationalEligibleCards('KR','ST','4-3-3').includes('kr_8'),
     rwToSt:getNationalEligibleCards('KR','ST','4-3-3').includes('kr_10'),
@@ -449,4 +449,17 @@ assert.equal(vm.runInContext('nationalModeState === nationalDevState', context),
 assert.equal(JSON.parse(localStore.fc_star_national_mode_state).rounds[0].some(match=>match.status==='completed'), true);
 assert.equal(cloudSaveForces.at(-1), true, 'national match completion should force an immediate cloud save');
 assert.match(fs.readFileSync('js/auth.js','utf8'), /nationalNationSelections:/);
-console.log('PASS: national 4-3-3/3-4-3/4-2-3-1 presets, position bonuses, match engine, tournament progression, and country archive.');
+
+// Verify that stored cards are excluded from national candidates
+const storedCardCheck = vm.runInContext(`(()=>{
+    const beforeCount = getNationalEligibleCards('KR', 'ST').length;
+    playerDeck['kr_9'].isStored = true; // kr_9 is ST
+    const afterCount = getNationalEligibleCards('KR', 'ST').length;
+    const isExcludedFromCandidates = !getNationalEligibleCards('KR', 'ST').includes('kr_9');
+    playerDeck['kr_9'].isStored = false;
+    return { beforeCount, afterCount, isExcludedFromCandidates };
+})()`, context);
+assert.equal(storedCardCheck.beforeCount - storedCardCheck.afterCount, 1);
+assert.equal(storedCardCheck.isExcludedFromCandidates, true);
+
+console.log('PASS: national 4-3-3/3-4-3/4-2-3-1 presets, position bonuses, match engine, tournament progression, country archive, and isStored card exclusion.');

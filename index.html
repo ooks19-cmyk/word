@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FC STAR CARD - 축구 카드 수집 게임</title>
-    <link rel="stylesheet" href="css/global.css?v=3.0">
+    <link rel="stylesheet" href="css/global.css?v=3.1">
     <link rel="stylesheet" href="style.css?v=2.4">
     <link rel="stylesheet" href="css/friend.css?v=1.2">
     <link rel="stylesheet" href="css/realtime.css?v=1.0">
@@ -38,6 +38,12 @@
                 <input type="checkbox" id="devModeCheckbox" onchange="toggleDeveloperMode(this.checked)" style="opacity: 0; width: 0; height: 0;">
                 <span class="dev-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); transition: .3s; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2);"></span>
             </label>
+        </div>
+
+        <!-- 🌱 데이터 절약 모드 배지 (절약 모드 ON 시 노출, 클릭 시 계정 설정) -->
+        <div id="headerDataSaverBadge" class="header-data-saver-badge" onclick="openAuthModal()" title="데이터 절약 모드 켜짐 (접속 시에만 클라우드 백업)">
+            <i class="fa-solid fa-leaf"></i>
+            <span>절약 모드</span>
         </div>
 
         <div class="header-points" id="headerPointsWidget" onclick="developerSetPoints()">
@@ -1408,16 +1414,36 @@
             
             <div class="drawer-content auth-modal-content">
                 <!-- User Logged In State Screen (기본 숨김) -->
-                <div id="authLoggedInState" style="display: none; text-align: center; padding: 2rem 1rem;">
-                    <div class="success-icon-wrapper" style="margin-bottom: 1.5rem;">
-                        <i class="fa-solid fa-user-check" style="font-size: 4rem; color: #00ff87; filter: drop-shadow(0 0 15px rgba(0,255,135,0.4));"></i>
+                <div id="authLoggedInState" style="display: none; text-align: center; padding: 1.5rem 1rem;">
+                    <div class="success-icon-wrapper" style="margin-bottom: 1.2rem;">
+                        <i class="fa-solid fa-user-check" style="font-size: 3.5rem; color: #00ff87; filter: drop-shadow(0 0 15px rgba(0,255,135,0.4));"></i>
                     </div>
-                    <h2 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 0.8rem;">환영합니다, <span id="loggedInUserText" style="color: #00ff87;">ID</span>님!</h2>
-                    <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">
-                        현재 클라우드 동기화 모드로 안전하게 로그인되어 있습니다.<br>
-                        모든 게임 정보는 실시간으로 클라우드에 자동 세이브됩니다.
+                    <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem;">환영합니다, <span id="loggedInUserText" style="color: #00ff87;">ID</span>님!</h2>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.2rem;">
+                        현재 클라우드 동기화 모드로 안전하게 연결되어 있습니다.
                     </p>
-                    <button class="btn-open-pack" onclick="handleLogout()" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #ff6b6b; box-shadow: none; font-weight: 700; width: 100%;">
+
+                    <!-- 🌱 데이터 절약 모드 설정 카드 -->
+                    <div class="data-saver-card">
+                        <div class="data-saver-header">
+                            <div class="data-saver-title-group">
+                                <i class="fa-solid fa-leaf" style="color: #00ff87; font-size: 1.25rem;"></i>
+                                <div style="text-align: left;">
+                                    <div style="font-weight: 700; font-size: 0.95rem; color: #ffffff;">데이터 절약 모드</div>
+                                    <div style="font-size: 0.76rem; color: var(--text-muted);">접속/로그인 시점에만 클라우드 백업</div>
+                                </div>
+                            </div>
+                            <label class="data-saver-switch">
+                                <input type="checkbox" id="dataSaverCheckbox" onchange="toggleDataSaverMode(this.checked)">
+                                <span class="data-saver-slider"></span>
+                            </label>
+                        </div>
+                        <div id="dataSaverStatusDesc" class="data-saver-desc">
+                            <i class="fa-solid fa-circle-info" style="color: #94a3b8; margin-right: 4px;"></i> <strong>실시간 백업 켜짐</strong>: 경기, 팩 개봉 등 모든 플레이 데이터가 실시간으로 클라우드에 자동 저장됩니다.
+                        </div>
+                    </div>
+
+                    <button class="btn-open-pack" onclick="handleLogout()" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #ff6b6b; box-shadow: none; font-weight: 700; width: 100%; margin-top: 1rem;">
                         <i class="fa-solid fa-right-from-bracket" style="margin-right: 6px;"></i>로그아웃
                     </button>
                 </div>
@@ -1872,28 +1898,28 @@
         </div>
     </div>
 
-    <script src="player_data.js?v=1.78"></script>
+    <script src="player_data.js?v=1.79"></script>
     <script src="quiz_data.js?v=2.0"></script>
     <script src="other_teams_data.js?v=1.6"></script>
     <script src="other_teams_data_epl.js?v=1.3"></script>
     <script src="other_teams_data_jleague.js?v=1.1"></script>
     <script src="db.js?v=2.5"></script>
     <script src="sound.js?v=1.2"></script>
-    <script src="js/state.js?v=3.0"></script>
+    <script src="js/state.js?v=3.1"></script>
     <script src="js/utils.js?v=1.1"></script>
     <script src="js/card.js?v=2.5"></script>
     <script src="quiz.js?v=1.4"></script>
     <script src="js/pack.js?v=2.5"></script>
-    <script src="js/deck.js?v=2.8"></script>
+    <script src="js/deck.js?v=2.9"></script>
     <script src="js/squad.js?v=3.1"></script>
-    <script src="js/match_algorithm.js?v=3.4"></script>
-    <script src="js/league.js?v=5.0"></script>
-    <script src="js/cup.js?v=3.2"></script>
-    <script src="js/acl.js?v=3.6"></script>
+    <script src="js/match_algorithm.js?v=3.6"></script>
+    <script src="js/league.js?v=5.1"></script>
+    <script src="js/cup.js?v=3.3"></script>
+    <script src="js/acl.js?v=3.7"></script>
     <script src="js/friendly.js?v=4.1"></script>
     <script src="js/national_data.js?v=1.2"></script>
-    <script src="js/national_squad.js?v=2.6"></script>
-    <script src="js/national.js?v=3.11"></script>
+    <script src="js/national_squad.js?v=2.7"></script>
+    <script src="js/national.js?v=3.12"></script>
     <script src="js/national_hof.js?v=1.1"></script>
     <script src="js/achievements.js?v=1.3"></script>
     <!-- 수석코치 조언 플로팅 버튼 -->
@@ -2008,9 +2034,9 @@
         </div>
     </div>
 
-    <script src="js/update_data.js?v=2.79"></script>
+    <script src="js/update_data.js?v=2.80"></script>
     <script src="js/friend.js?v=1.2"></script>
-    <script src="js/auth.js?v=2.75"></script>
+    <script src="js/auth.js?v=2.76"></script>
     <script src="js/realtime.js?v=2.4"></script>
     <script src="js/coach_advisor.js?v=1.3"></script>
     <script src="app.js?v=3.6"></script>

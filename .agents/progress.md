@@ -1,14 +1,63 @@
 ## 현재 작업
-- 목표: 릴리즈 노트 v3.4(v3.4.0) 업데이트 및 J1리그 개방·선수 통산 득점 업적 반영분 원격 푸시 (git push origin main)
-- 상태: 완료.
+- 목표: 리그별 상대팀 다이내믹 스케일링 최대 OVR 상한(Cap) 차등 적용 (K리그 95, J리그 97, EPL 99)
+- 상태: 완료
 - 주요 변경·검증:
-  1. `js/update_data.js`: v3.4.0 릴리즈 노트(J1리그 정식 개방, 신규 업적 5종, 신규 선수 카드, 명예의 전당 개편 등) 등록.
-  2. `js/league.js`: J1리그 감독 이적 임시 차단 가드 제거 및 완전 개방.
-  3. `js/achievements.js`: 우리팀 최다 득점 선수 통산 득점(300/500/1000골) 판정 엔진 개편.
-  4. `index.html`, `sw.js`: PWA 캐시 `fc-star-v425`, `league.js?v=5.0`, `achievements.js?v=1.3`, `update_data.js?v=2.79` 상향.
-  5. 구문 및 단위 시뮬레이션 테스트 100% 통과, `git diff --check` 통과.
-  6. Git 커밋 및 `origin/main` 원격 푸시 완료.
-- 다음 단계: 사용자 추가 지시 대기.
+  1. `js/match_algorithm.js`: `getPlayerTop20Ovr(customCap)`에 인자 기반 상한값 전달 지원 추가 (기본 상한 99로 확장).
+  2. `js/league.js`: `LEAGUE_CONFIGS`에 `maxOvrCap` 속성 정의 (`kleague1: 95`, `jleague: 97`, `epl: 99`). `resetLeagueSeasonState()`에서 `Math.min(maxCap, ...)`으로 강팀 및 중하위팀의 최대 오버롤 제한 적용.
+  3. `js/cup.js`: `resetCupStateData()`에서 활성 리그의 `maxOvrCap`을 준수하도록 K2 및 J리그 하부 초청팀 스케일링 로직 보강.
+  4. PWA 캐시 및 스크립트 버전 상향: `index.html` (`match_algorithm.js?v=3.6`, `league.js?v=5.1`, `cup.js?v=3.3`), `sw.js` (`CACHE_NAME = 'fc-star-v430'`).
+  5. 검증: `scratch/test_league_caps.cjs`를 통해 OVR 105 덱 대상 K리그(95), J리그(97), EPL(99) 최대치 제한 100% 검증 통과 및 회귀 테스트 4종(`national_mode`, `achievements_reconciliation`, `cloud_save_throttle`, `position_match_goal_bonus`) 전부 PASS.
+- 다음 단계: 완료 보고. (Git 커밋 및 푸시는 사용자 지시 대기)
+
+## 이전 작업
+- 목표: J리그 상대팀 득점 시 주요선수 매핑 누락 버그 해결 (`[상대 공격수]` 대신 실제 스타 선수 출력)
+- 상태: 완료
+- 주요 변경·검증:
+  1. `js/match_algorithm.js`: `determineOpponentScorerAndAssister`에서 `currentLeagueId === 'jleague'` 분기를 추가하여 `OTHER_TEAMS_PLAYERS_PRESET_JLEAGUE`의 11개 구단 22명 스타 플레이어 매핑 정상화.
+  2. `js/acl.js`: `getActiveAclPlayersPreset()`에서 `jleague`일 때 J리그 선수 목록과 K리그 선수 목록을 병합하여 ACL에서도 매핑 지원.
+  3. PWA 캐시 및 스크립트 버전 상향: `index.html` (`match_algorithm.js?v=3.5`, `acl.js?v=3.7`), `sw.js` (`CACHE_NAME = 'fc-star-v429'`).
+  4. 검증: J리그 11개 전 구단 득점자/도움자 매핑 단위 검증 및 회귀 테스트 4종 전부 PASS.
+- 다음 단계: 완료.
+
+## 이전 작업
+- 목표: 국대 모드에서 보관함(isStored: true)에 있는 선수 완전 제외
+- 상태: 완료
+- 주요 변경·검증:
+  1. `js/national_squad.js`: `getNationalEligibleCards`에서 `!item.isStored` 조건을 추가하여 보관함에 보관 중인 선수가 후보 목록 및 선발 가능 목록에서 완전히 제외되도록 구현.
+  2. `js/national_squad.js`: `getNationalSquadSummary`, `getNationalKeyPlayerStatus`, `nationalPitchCard`에서 보관함 카드가 유효하지 않은 카드로 취급되어 피치 렌더링 및 팀 OVR/핵심선수 보너스에서 자동 제외되도록 개선.
+  3. `js/national.js`: `nationalRoleOvr`, `nationalPickPlayer`에서 보관함 카드가 포함되지 않도록 안전 가드 적용.
+  4. `js/deck.js`: `moveToStorage` 실행 시 국대 모드 스쿼드(`nationalModeState.squad`) 및 국대 프리셋(`nationalSquadPresets`)에서도 보관함으로 이동된 카드가 자동 해제되도록 연동.
+  5. 캐시 및 스크립트 버전 상향: `index.html` (`deck.js?v=2.9`, `national_squad.js?v=2.7`, `national.js?v=3.12`), `sw.js` (`CACHE_NAME = 'fc-star-v428'`).
+  6. 검증: 회귀 테스트 4종(`national_mode`, `achievements_reconciliation`, `cloud_save_throttle`, `position_match_goal_bonus`) 전부 PASS.
+- 다음 단계: 완료.
+
+## 이전 작업
+- 목표: 신규 슈퍼(Super) 등급 선수 카드 'S김승규' (OVR 94, DEF 94, GK) 생성 및 등록
+- 상태: 완료
+- 주요 변경·검증:
+  1. `player_data.js`: `super_kim_seung_gyu` 카드 객체 등록 완료.
+     - 이름: S김승규, 등급: super, 오버롤: 94, 포지션: GK, 국적: South Korea, 소속: KOREA
+     - 6대 스탯: PAC 91, SHO 88, PAS 93, DRI 91, DEF 94(요청값), PHY 90
+     - 이미지: `player2/슈퍼 김승규.png` (존재 확인 완료)
+  2. `index.html`: `player_data.js?v=1.79` 캐시 쿼리 버전 상향.
+  3. `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v427'` 상향.
+  4. `선수데이터.csv`: `convert_js_to_csv.py` 스크립트를 통해 총 101명 선수 데이터로 자동 동기화 완료 (102행).
+  5. 무결성 검증:
+     - Node.js 구문 검사(`player_data.js`, `sw.js`) 오류 없음.
+     - 회귀 테스트 4종 전부 PASS.
+- 다음 단계: 완료.
+
+## 이전 작업
+- 목표: 데이터 절약 모드 구현 (로그인/세션 복원 시에만 클라우드 백업, 플레이 중 자동 백업 차단, 계정 모달 토글 및 헤더 배지 UI)
+- 상태: 완료
+- 주요 변경·검증:
+  1. `js/state.js`, `js/auth.js`: `isDataSaverMode` 상태 변수 선언, 로컬스토리지(`fc_star_data_saver`) 및 클라우드 동기화 연동. `state.js` 내 누락된 catch 구문 복원.
+  2. `js/auth.js`: `saveUserProgress(forceImmediate, isLoginBackup)` 함수에 데이터 절약 모드 가드 추가. 절약 모드 가동 시 일상 플레이 중 발생하는 빈번한 Firestore 자동 백업을 완전 차단하고, 로컬 저장은 항상 안전하게 100% 실시간 보존.
+  3. `js/auth.js`: `syncUserDataOnLogin` 및 로그인/세션 복원 완료 시점에 `saveUserProgress(true, true)`를 호출하여 접속 시점 1회 클라우드 동기화 보장. 토글 해제 시 즉시 1회 백업 실행.
+  4. `index.html`, `css/global.css`: 계정 모달(`authLoggedInState`) 내 프리미엄 글래스모피즘 토글 스위치 및 상태 설명 추가. 상단 헤더에 `🌱 절약 모드` 배지(클릭 시 계정 모달 오픈) 배치.
+  5. `js/update_data.js`: v3.4.1 데이터 절약 모드 릴리즈 노트 추가.
+  6. PWA 캐시 버전 상향(`sw.js` v426, `css/global.css?v=3.1`, `js/state.js?v=3.1`, `js/auth.js?v=2.76`, `js/update_data.js?v=2.80`) 및 JS 문법 검사 통과.
+- 다음 단계: 완료 보고. (Git 푸시는 사용자 지시 대기)
 
 
 

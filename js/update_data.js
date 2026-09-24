@@ -2,9 +2,20 @@
 
 const UPDATE_LOGS = [
     {
-        version: "v3.4.0",
+        version: "v3.4.1",
         date: "2026.09.24",
         latest: true,
+        borderColor: "#00ff87",
+        titleColor: "#00ff87",
+        badgeText: "DATA SAVER MODE",
+        items: [
+            "<strong>🌱 데이터 절약 모드(Data Saver Mode) 정식 탑재!</strong><br>• <strong>클라우드 백업 접속 시 1회 제한</strong>: 데이터 절약 모드를 켜면 경기 진행, 팩 개봉, 선수 각성 등 플레이 중 빈번하게 발생하던 실시간 클라우드 업로드 호출을 완벽하게 차단하여 모바일 데이터와 배터리를 대폭 절약합니다.<br>• <strong>로컬 브라우저 100% 안전 보관</strong>: 플레이 중 모든 게임 데이터는 브라우저 내부 스토리지에 즉각 안전하게 기록되며, 다음 접속/로그인 완료 시 최신 상태로 클라우드에 1회 백업됩니다.<br>• <strong>원클릭 스위치 & 상단 절약 배지</strong>: 계정 모달에서 손쉽게 토글 스위치로 켜고 끌 수 있으며, 절약 모드 가동 중에는 상단 헤더에 '🌱 절약 모드' 배지가 노출되어 작동 상태를 언제든지 한눈에 확인할 수 있습니다."
+        ]
+    },
+    {
+        version: "v3.4.0",
+        date: "2026.09.24",
+        latest: false,
         borderColor: "#e60012",
         titleColor: "#e60012",
         badgeText: "J1 LEAGUE & ACHIEVEMENTS",

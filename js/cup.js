@@ -142,16 +142,19 @@ function initCup() {
 
 function resetCupStateData() {
     const curYear = (typeof leagueYear !== 'undefined') ? leagueYear : 2026;
-    const top20Ovr = (typeof getPlayerTop20Ovr === 'function') ? getPlayerTop20Ovr() : 70;
-    const preset = getActiveCupTeamsPreset();
+    const config = (typeof getActiveLeagueConfig === 'function') ? getActiveLeagueConfig() : null;
     const isEpl = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl');
+    const isJLeague = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'jleague');
+    const maxCap = (config && config.maxOvrCap) ? config.maxOvrCap : (isEpl ? 99 : (isJLeague ? 97 : 95));
+    const top20Ovr = (typeof getPlayerTop20Ovr === 'function') ? getPlayerTop20Ovr(maxCap) : 70;
+    const preset = getActiveCupTeamsPreset();
     
     // K2 팀의 OVR을 플레이어 상위 20개 평균 OVR - (2~10) 범위로 동적 설정, K1/EPL 팀은 리그 상대팀 OVR 적용
     const initializedTeams = preset.map(team => {
         let rating = team.rating;
-        if (!isEpl && ["suwon_samsung", "daegu_fc", "busan_ipark", "seoul_e_land"].includes(team.id)) {
+        if (!isEpl && ["suwon_samsung", "daegu_fc", "busan_ipark", "seoul_e_land", "shimizu", "iwata", "chiba", "yamagata"].includes(team.id)) {
             const offset = Math.floor(Math.random() * 9) - 10; // -10 ~ -2 범위 랜덤
-            rating = Math.max(50, top20Ovr + offset);
+            rating = Math.min(maxCap, Math.max(50, top20Ovr + offset));
         } else {
             // 리그 팀인 경우 리그의 상대팀 OVR 가져오기
             if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {

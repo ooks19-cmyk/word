@@ -36,7 +36,8 @@ const LEAGUE_CONFIGS = {
         get fixtures() { return JEONBUK_FIXTURES; },
         themeColor: '#00ff87',
         accentColor: '#ffd700',
-        strongTeams: ['ulsan', 'seoul', 'pohang', 'gimcheon']
+        strongTeams: ['ulsan', 'seoul', 'pohang', 'gimcheon'],
+        maxOvrCap: 95
     },
     epl: {
         id: 'epl',
@@ -52,7 +53,8 @@ const LEAGUE_CONFIGS = {
         get fixtures() { return (typeof LIVERPOOL_FIXTURES_EPL !== 'undefined') ? LIVERPOOL_FIXTURES_EPL : []; },
         themeColor: '#c8102e',
         accentColor: '#38003c',
-        strongTeams: ['mancity', 'arsenal', 'chelsea', 'tottenham', 'manutd']
+        strongTeams: ['mancity', 'arsenal', 'chelsea', 'tottenham', 'manutd'],
+        maxOvrCap: 99
     },
     jleague: {
         id: 'jleague',
@@ -68,7 +70,8 @@ const LEAGUE_CONFIGS = {
         get fixtures() { return (typeof J_LEAGUE_FIXTURES !== 'undefined') ? J_LEAGUE_FIXTURES : []; },
         themeColor: '#001c58',
         accentColor: '#e60012',
-        strongTeams: ['kobe', 'hiroshima', 'machida', 'marinos']
+        strongTeams: ['kobe', 'hiroshima', 'machida', 'marinos'],
+        maxOvrCap: 97
     }
 };
 
@@ -501,20 +504,21 @@ function resetLeagueSeasonState() {
     // 2번째 시즌 이후 상대 팀 OVR 다이내믹 스케일링 적용 (leagueYear > 2026)
     if (typeof leagueYear !== 'undefined' && leagueYear > 2026) {
         const pureOvr = getPlayerPureOvr();
-        const top20Ovr = getPlayerTop20Ovr();
+        const maxCap = config.maxOvrCap || (config.id === 'epl' ? 99 : (config.id === 'jleague' ? 97 : 95));
+        const top20Ovr = getPlayerTop20Ovr(maxCap);
         const strongTeams = config.strongTeams || [];
         
         leagueTeams.forEach(team => {
             if (team.id === config.userTeamId) {
                 team.rating = pureOvr;
             } else if (strongTeams.includes(team.id)) {
-                // 강팀: 플레이어 덱 상위 11개 평균 OVR - 2 ~ 0 범위 랜덤
+                // 강팀: 플레이어 덱 상위 11개 평균 OVR - 2 ~ 0 범위 랜덤 (리그별 상한 제한 적용)
                 const offset = Math.floor(Math.random() * 3) - 2; // -2, -1, 0
-                team.rating = top20Ovr + offset;
+                team.rating = Math.min(maxCap, top20Ovr + offset);
             } else {
-                // 중하위팀: 플레이어 덱 상위 11개 평균 OVR - 10 ~ -2 범위 랜덤
+                // 중하위팀: 플레이어 덱 상위 11개 평균 OVR - 10 ~ -2 범위 랜덤 (리그별 상한 제한 적용)
                 const offset = Math.floor(Math.random() * 9) - 10; // -10 ~ -2
-                team.rating = top20Ovr + offset;
+                team.rating = Math.min(maxCap, top20Ovr + offset);
             }
         });
     }

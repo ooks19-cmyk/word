@@ -418,10 +418,40 @@ function moveToStorage(cardId) {
     
     cardObj.isStored = true;
     
+    // 국대 모드 스쿼드 및 프리셋에서도 해당 카드 제외
+    if (typeof nationalModeState !== 'undefined' && nationalModeState && nationalModeState.squad) {
+        Object.keys(nationalModeState.squad).forEach(slot => {
+            if (nationalModeState.squad[slot] === cardId) {
+                nationalModeState.squad[slot] = null;
+            }
+        });
+    }
+    if (typeof nationalSquadPresets !== 'undefined' && nationalSquadPresets) {
+        Object.values(nationalSquadPresets).forEach(preset => {
+            if (preset && preset.formations) {
+                Object.values(preset.formations).forEach(formSquad => {
+                    if (formSquad) {
+                        Object.keys(formSquad).forEach(slot => {
+                            if (formSquad[slot] === cardId) {
+                                formSquad[slot] = null;
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+    
     try {
         localStorage.setItem('fc_star_player_deck', JSON.stringify(playerDeck));
         if (typeof squadFormations !== 'undefined') {
             localStorage.setItem('fc_star_squad_formations', JSON.stringify(squadFormations));
+        }
+        if (typeof nationalModeState !== 'undefined' && nationalModeState) {
+            localStorage.setItem('fc_star_national_mode_state', JSON.stringify(nationalModeState));
+        }
+        if (typeof nationalSquadPresets !== 'undefined') {
+            localStorage.setItem('fc_star_national_squad_presets', JSON.stringify(nationalSquadPresets));
         }
     } catch(e) {}
     

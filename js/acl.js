@@ -32,9 +32,15 @@ function getActiveAclTeamsPreset() {
 }
 
 function getActiveAclPlayersPreset() {
-    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
-        if (typeof UCL_PLAYERS_PRESET_EPL !== 'undefined' && UCL_PLAYERS_PRESET_EPL.length > 0) {
-            return UCL_PLAYERS_PRESET_EPL;
+    if (typeof currentLeagueId !== 'undefined') {
+        if (currentLeagueId === 'epl') {
+            if (typeof UCL_PLAYERS_PRESET_EPL !== 'undefined' && UCL_PLAYERS_PRESET_EPL.length > 0) {
+                return UCL_PLAYERS_PRESET_EPL;
+            }
+        } else if (currentLeagueId === 'jleague') {
+            const jPlayers = (typeof OTHER_TEAMS_PLAYERS_PRESET_JLEAGUE !== 'undefined') ? OTHER_TEAMS_PLAYERS_PRESET_JLEAGUE : [];
+            const kPlayers = (typeof OTHER_TEAMS_PLAYERS_PRESET !== 'undefined') ? OTHER_TEAMS_PLAYERS_PRESET : [];
+            return [...jPlayers, ...kPlayers];
         }
     }
     return (typeof OTHER_TEAMS_PLAYERS_PRESET !== 'undefined') ? OTHER_TEAMS_PLAYERS_PRESET : [];
