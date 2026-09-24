@@ -1,4 +1,23 @@
 ## 현재 작업
+- 목표: 데이터 절약 모드 시 로그아웃 버튼 클릭 시에도 클라우드 최종 저장 보장
+- 상태: 완료
+- 주요 변경·검증:
+  1. `js/auth.js`: `collectCurrentUserProgressData()` 공통 헬퍼 함수를 분리하여 데이터 직렬화 로직 일원화.
+  2. `js/auth.js`: `handleLogout()`을 비동기(`async`)로 개선하여, 로그아웃 확인 시 데이터 절약 모드 여부와 관계없이 최종 진행 데이터를 `await dbService.saveProgress(currentUser, progressData, false)`로 클라우드에 100% 저장 완료한 후 세션 정리 및 리로딩 수행.
+  3. PWA 캐시 및 스크립트 버전 상향: `index.html` (`js/auth.js?v=2.77`), `sw.js` (`CACHE_NAME = 'fc-star-v432'`).
+  4. 검증: 회귀 테스트 4종 전부 PASS 및 구문 검사 통과.
+- 다음 단계: 완료 보고. (Git 커밋 및 푸시는 사용자 지시 대기)
+
+## 이전 작업
+- 목표: Firebase Firestore 유저 데이터 백업 (`backup_firestore.py` 실행)
+- 상태: 완료
+- 주요 변경·검증:
+  1. `backup_firestore.py`를 실행하여 Firestore REST API로 `fc_star_users` 컬렉션의 전체 14개 계정 데이터 추출.
+  2. 로컬 백업 파일 `fc_star_users_backup.json` 생성 완료 (14명 유저 데이터, 1.93MB, 75,834줄).
+  3. 백업 계정 확인: `et`, `fc_tokyo`, `ooks`, `ooks12`, `sea`, `son7`, `test1`, `test12`, `tomy`, `tomy0304`, `vc`, `vltlzmffjq3`, `woals510`, `xt`.
+- 다음 단계: 완료.
+
+## 이전 작업
 - 목표: 상단 헤더 절약 모드 배지 텍스트 제거 및 원형 아이콘 전용 배지로 간소화 + 즉시 깃 푸시
 - 상태: 완료
 - 주요 변경·검증:
@@ -6,7 +25,7 @@
   2. `css/global.css`: `.header-data-saver-badge`를 32x32px 원형 컴팩트 글래스모피즘 아이콘 배지로 스타일 리팩토링.
   3. PWA 캐시 및 스크립트 버전 상향: `index.html` (`css/global.css?v=3.2`), `sw.js` (`CACHE_NAME = 'fc-star-v431'`).
   4. 검증: 회귀 테스트 4종 전부 PASS.
-- 다음 단계: 깃 커밋 및 푸시 실행.
+- 다음 단계: 완료.
 
 ## 이전 작업
 - 목표: 리그별 상대팀 다이내믹 스케일링 최대 OVR 상한(Cap) 차등 적용 (K리그 95, J리그 97, EPL 99)

@@ -31,6 +31,34 @@ graph TD
 
 ## 📅 3. 주요 작업 및 업데이트 이력
 
+### ☁️ 데이터 절약 모드 시 로그아웃 시점 클라우드 최종 백업 연동 (2026-09-24)
+* **요청 요약**: 데이터 절약 모드가 켜져 있더라도 로그아웃 버튼을 누를 때 지금까지 진행된 플레이 데이터를 클라우드에 최종 저장 후 로그아웃되도록 개선.
+* **수행 내용**:
+  1. **진행 데이터 직렬화 헬퍼 함수 분리 (`js/auth.js`)**:
+     - `collectCurrentUserProgressData()` 공통 함수를 신설하여 `saveUserProgress`와 `handleLogout`에서 데이터 직렬화 로직을 일원화.
+  2. **로그아웃 전 클라우드 강제 저장 보장 (`js/auth.js`)**:
+     - `handleLogout()`을 `async` 함수로 전환하여, 로그아웃 확인 시 절약 모드 여부와 관계없이 최종 진행 데이터를 `await dbService.saveProgress(currentUser, progressData, false)`로 클라우드에 100% 저장 완료한 후 세션 정리 및 리로딩을 수행하도록 구현.
+  3. **PWA 캐시 및 스크립트 버전 상향**:
+     - `index.html`: `js/auth.js?v=2.77`
+     - `sw.js`: `CACHE_NAME = 'fc-star-v432'`
+* **변경 파일**:
+  - `js/auth.js`
+  - `index.html`
+  - `sw.js`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+* **검증 결과**:
+  - 회귀 테스트 4종(`national_mode`, `achievements_reconciliation`, `cloud_save_throttle`, `position_match_goal_bonus`) 전부 PASS 및 Node.js 구문 검사 통과.
+* **최종 상태**: 작업 완료 (Git 커밋 및 푸시는 사용자 지시 대기).
+
+### 💾 Firebase Firestore 유저 데이터 백업 (2026-09-24)
+* **요청 요약**: Firestore 클라우드 유저 데이터 백업 (`backup_firestore.py` 실행).
+* **수행 내용**:
+  1. `backup_firestore.py`를 실행하여 Firestore REST API(`my-family-ab699`)를 통해 `fc_star_users` 컬렉션의 모든 유저 문서를 실시간으로 추출.
+  2. 로컬 백업 파일 [`fc_star_users_backup.json`](file:///g:/내%20드라이브/투자정리2/축구카드/fc_star_users_backup.json) 생성 (총 14명 유저 데이터, 1.93MB, 75,834줄).
+  3. 백업된 14개 계정 목록: `et`, `fc_tokyo`, `ooks`, `ooks12`, `sea`, `son7`, `test1`, `test12`, `tomy`, `tomy0304`, `vc`, `vltlzmffjq3`, `woals510`, `xt`.
+* **최종 상태**: 백업 완료.
+
 ### 🌱 상단 헤더 데이터 절약 모드 배지 아이콘 전용 간소화 (2026-09-24)
 * **요청 요약**: 상단 헤더에 표시되는 절약 모드 배지에서 텍스트("절약 모드")를 제거하고 아이콘만 남겨 컴팩트하게 표시.
 * **수행 내용**:
