@@ -1042,15 +1042,21 @@ function loadLocalGameData(targetUserId) {
             }
         }
         
-        // 2. 통합 키에 데이터가 없는 경우, 기존 레거시 개별 키에서 자동 마이그레이션
-        if (!loadedData) {
-            const legacyDeckStr = localStorage.getItem('fc_star_player_deck');
-            if (legacyDeckStr || localStorage.getItem('fc_star_user_points') !== null) {
-                console.log(`[Storage Migration] 기존 레거시 개별 키 데이터를 통합 구조(fc_star_user_${myId || 'guest'})로 마이그레이션합니다.`);
-                loadedData = buildLegacyProgressFromLocalStorage(myId || "guest");
-                if (myId) {
+        // 2. 통합 키에 데이터가 없는 경우, 소유자 일치 시에만 기존 레거시 개별 키에서 1회 안전 마이그레이션
+        if (!loadedData && myId) {
+            const localOwner = (localStorage.getItem('fc_star_local_data_owner') || "").trim().toLowerCase();
+            const legacyUser = (localStorage.getItem('fc_star_current_user') || "").trim().toLowerCase();
+            const isOwnerMatched = !localOwner || localOwner === myId || legacyUser === myId || (myId.startsWith('guest_') && localOwner.startsWith('guest_'));
+            if (isOwnerMatched) {
+                const legacyDeckStr = localStorage.getItem('fc_star_player_deck');
+                if (legacyDeckStr || localStorage.getItem('fc_star_user_points') !== null) {
+                    console.log(`[Storage Migration] 기존 레거시 개별 키 데이터를 통합 구조(fc_star_user_${myId})로 안전 마이그레이션합니다.`);
+                    loadedData = buildLegacyProgressFromLocalStorage(myId);
                     localStorage.setItem(`fc_star_user_${myId}`, JSON.stringify(loadedData));
+                    localStorage.setItem('fc_star_local_data_owner', myId);
                 }
+            } else {
+                console.log(`[Storage] 소유자 불일치(로컬 소유자: ${localOwner}, 접속자: ${myId}) -> 타 계정 레거시 복사 방지.`);
             }
         }
         
@@ -1495,17 +1501,7 @@ async function handleAuthSubmit() {
         return;
     }
     
-    // 계정 전환 및 충돌 유실 방지: 로그인하려는 ID와 로컬 데이터 소유자 ID가 다른 경우 로컬 데이터 강제 초기화
     const targetUserId = id.trim().toLowerCase();
-    const localOwner = localStorage.getItem('fc_star_local_data_owner');
-    if (localOwner && localOwner.trim().toLowerCase() !== targetUserId) {
-        const isLocalOwnerGuest = localOwner.startsWith('guest_');
-        // 이전 소유자가 게스트가 아닌 다른 계정이거나, 또는 일반 로그인 시도인 경우 로컬 데이터 일괄 청소
-        if (!isLocalOwnerGuest || authMode === 'login') {
-            console.warn("⚠️ [Local Data Owner Mismatch] 기존 로컬 데이터 소유자:", localOwner, "로그인 계정:", targetUserId, "-> 로컬 데이터를 초기화합니다.");
-            clearLocalGameData(localOwner);
-        }
-    }
     
     isAuthSubmitting = true;
     const btnSubmit = document.getElementById('btnSubmitAuth');
@@ -1565,15 +1561,6 @@ async function handleGuestPlay() {
         const randStr = Math.random().toString(36).substring(2, 10); // 8 random characters
         guestId = `guest_${randStr}`;
         localStorage.setItem('fc_star_guest_id', guestId);
-    }
-    
-    const localOwner = localStorage.getItem('fc_star_local_data_owner');
-    if (localOwner && localOwner.trim().toLowerCase() !== guestId.toLowerCase()) {
-        const isLocalOwnerGuest = localOwner.startsWith('guest_');
-        if (!isLocalOwnerGuest) {
-            console.warn("⚠️ [Local Data Owner Mismatch] 기존 정식 사용자 데이터를 비회원 게스트 환경으로 승계하지 않고 삭제합니다. 소유자:", localOwner);
-            clearLocalGameData(localOwner);
-        }
     }
 
     isAuthSubmitting = true;
@@ -1660,90 +1647,28 @@ async function handleGuestPlay() {
     }
 }
 
+// 로컬 게임 데이터 정리 (명시적 removeUnifiedDoc 요청 시에만 해당 유저 통합 문서 삭제)
 function clearLocalGameData(targetUserId, removeUnifiedDoc = false) {
     const rawId = (targetUserId || currentUser || localStorage.getItem('fc_star_current_user') || "").trim();
     const myId = rawId.toLowerCase();
     
-    // 1. 명시적으로 removeUnifiedDoc이 true일 때만 아이디별 통합 JSON 키 삭제
+    // 명시적으로 removeUnifiedDoc이 true일 때만 아이디별 통합 JSON 키 삭제
     if (myId && removeUnifiedDoc) {
         try { localStorage.removeItem(`fc_star_user_${myId}`); } catch(e) {}
     }
-    
-    // 2. 공용/임시 레거시 키 목록 정리
-    const keys = [
-        'fc_star_user_points',
-        'fc_star_user_level',
-        'fc_star_player_deck',
-        'fc_star_squad_formations',
-        'fc_star_squad_formation',
-        'fc_star_current_formation',
-        'fc_star_league_teams',
-        'fc_star_league_round',
-        'fc_star_quiz_offset',
-        'fc_star_quiz_last_date',
-        'fc_star_quiz_queue',
-        'fc_star_quiz_solved_count',
-        'fc_star_quiz_current_index',
-        'fc_star_match_last_date',
-        'fc_star_match_today_count',
-        'fc_star_last_login_date',
-        'fc_star_league_year',
-        'fc_star_hall_of_fame',
-        'fc_star_league_stats',
-        'fc_star_career_stats',
-        'fc_star_career_stats_hard',
-        'fc_star_squad_numbers',
-        'fc_star_is_hard_mode',
-        'fc_star_last_synced_updated_at',
-        'fc_star_user_achievements',
-        'fc_star_consecutive_titles',
-        'fc_star_current_win_streak',
-        'fc_star_max_win_streak',
-        'fc_star_winger_styles',
-        'fc_star_striker_styles',
-        'fc_star_local_last_updated',
-        'fc_star_cup_state',
-        'fc_star_acl_state',
-        'fc_star_challenge_season',
-        'fc_star_challenge_stage',
-        'fc_star_challenge_boss_ovr',
-        'fc_star_challenge_last_date',
-        'fc_star_challenge_free_used',
-        'fc_star_challenge_retry_used',
-        'fc_star_challenge_history',
-        'fc_star_challenge_season_teams',
-        'fc_star_local_data_owner'
-    ];
-    if (myId) {
-        keys.push(`fc_star_challenge_season_${myId}`);
-        keys.push(`fc_star_challenge_stage_${myId}`);
-        keys.push(`fc_star_challenge_boss_ovr_${myId}`);
-        keys.push(`fc_star_challenge_last_date_${myId}`);
-        keys.push(`fc_star_challenge_free_used_${myId}`);
-        keys.push(`fc_star_challenge_retry_used_${myId}`);
-        keys.push(`fc_star_challenge_history_${myId}`);
-        keys.push(`fc_star_challenge_season_teams_${myId}`);
-        keys.push(`fc_star_friendly_history_${myId}`);
-        keys.push(`fc_star_friendly_current_index_${myId}`);
-        keys.push(`fc_star_friendly_matches_today_${myId}`);
-        keys.push(`fc_star_friendly_match_last_date_${myId}`);
-        keys.push(`fc_star_friendly_season_start_date_${myId}`);
-    }
-    keys.forEach(k => {
-        try { localStorage.removeItem(k); } catch(e) {}
-    });
 }
+const clearActiveSessionCache = clearLocalGameData;
 
 async function handleLogout() {
     const confirmLogout = confirm("정말 로그아웃 하시겠습니까?\n로그아웃 시 비회원 로컬 모드로 전환됩니다.");
     if (confirmLogout) {
-        // 1. 로그인 상태인 경우, 데이터 절약 모드 여부와 무관하게 최종 진행 데이터를 클라우드에 강제 저장
-        if (currentUser && isCloudDataSynced) {
+        // 1. 로그인 상태인 경우, 최종 진행 데이터를 클라우드 및 로컬 통합 키에 안전 저장
+        if (currentUser) {
             try {
-                showToast("☁️ 최종 데이터를 클라우드에 안전하게 저장하는 중...");
-                saveAllToLocalStorage();
-                const progressData = collectCurrentUserProgressData();
-                if (progressData) {
+                showToast("☁️ 최종 데이터를 안전하게 저장하는 중...");
+                saveAllToLocalStorage(currentUser);
+                const progressData = collectCurrentUserProgressData(currentUser);
+                if (progressData && isCloudDataSynced) {
                     await dbService.saveProgress(currentUser, progressData, false);
                     console.log("☁️ [Logout Backup] 로그아웃 전 최종 클라우드 저장 성공!");
                 }
@@ -1756,7 +1681,6 @@ async function handleLogout() {
         currentUser = null;
         isCloudDataSynced = false;
         
-        clearLocalGameData();
         localStorage.removeItem('fc_star_current_user');
         
         showToast("성공적으로 로그아웃되었습니다! 로컬 모드로 리로딩합니다...");
