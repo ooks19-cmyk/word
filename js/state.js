@@ -2,13 +2,31 @@
 
 // CARDS_DATABASE is now loaded dynamically from player/player_data.js
 
+// 0. ACTIVE USER UNIFIED DOCUMENT PRE-LOAD (아이디별 단일 통합 JSON 문서 우선 조회)
+let preloadedUserData = null;
+try {
+    const activeOwner = (localStorage.getItem('fc_star_current_user') || localStorage.getItem('fc_star_local_data_owner') || "").trim().toLowerCase();
+    if (activeOwner) {
+        const unifiedDoc = localStorage.getItem(`fc_star_user_${activeOwner}`);
+        if (unifiedDoc) {
+            preloadedUserData = JSON.parse(unifiedDoc);
+        }
+    }
+} catch (e) {
+    preloadedUserData = null;
+}
+
 // 1. USER POINTS & LEVEL STATE (FP & Level)
 let userPoints = 0;
 try {
-    const savedPoints = localStorage.getItem('fc_star_user_points');
-    if (savedPoints !== null) {
-        userPoints = parseInt(savedPoints);
-        if (isNaN(userPoints) || userPoints < 0) userPoints = 0;
+    if (preloadedUserData && preloadedUserData.userPoints !== undefined && preloadedUserData.userPoints !== null) {
+        userPoints = parseInt(preloadedUserData.userPoints) || 0;
+    } else {
+        const savedPoints = localStorage.getItem('fc_star_user_points');
+        if (savedPoints !== null) {
+            userPoints = parseInt(savedPoints);
+            if (isNaN(userPoints) || userPoints < 0) userPoints = 0;
+        }
     }
 } catch (e) {
     userPoints = 0;
@@ -16,10 +34,14 @@ try {
 
 let userLevel = 1;
 try {
-    const savedLevel = localStorage.getItem('fc_star_user_level');
-    if (savedLevel !== null) {
-        userLevel = parseInt(savedLevel);
-        if (isNaN(userLevel) || userLevel < 1) userLevel = 1;
+    if (preloadedUserData && preloadedUserData.userLevel !== undefined && preloadedUserData.userLevel !== null) {
+        userLevel = parseInt(preloadedUserData.userLevel) || 1;
+    } else {
+        const savedLevel = localStorage.getItem('fc_star_user_level');
+        if (savedLevel !== null) {
+            userLevel = parseInt(savedLevel);
+            if (isNaN(userLevel) || userLevel < 1) userLevel = 1;
+        }
     }
 } catch (e) {
     userLevel = 1;
@@ -28,25 +50,31 @@ try {
 // 1.5 HARD MODE STATE
 let isHardMode = false;
 try {
-    const savedHardMode = localStorage.getItem('fc_star_is_hard_mode');
-    if (savedHardMode !== null) {
-        isHardMode = savedHardMode === 'true';
+    if (preloadedUserData && preloadedUserData.isHardMode !== undefined) {
+        isHardMode = !!preloadedUserData.isHardMode;
+    } else {
+        const savedHardMode = localStorage.getItem('fc_star_is_hard_mode');
+        if (savedHardMode !== null) {
+            isHardMode = savedHardMode === 'true';
+        }
     }
 } catch (e) {
     isHardMode = false;
 }
 
-// 2. PLAYER DECK STATE (Loaded from LocalStorage with robust error handling)
+// 2. PLAYER DECK STATE (Loaded from Unified Doc or LocalStorage with robust error handling)
 let playerDeck = {};
 try {
-    const savedDeck = localStorage.getItem('fc_star_player_deck');
-    if (savedDeck) {
-        playerDeck = JSON.parse(savedDeck);
-        if (!playerDeck || Array.isArray(playerDeck) || typeof playerDeck !== 'object') {
-            playerDeck = {};
+    let savedDeck = (preloadedUserData && preloadedUserData.playerDeck) ? preloadedUserData.playerDeck : null;
+    if (!savedDeck) {
+        const legacyDeckStr = localStorage.getItem('fc_star_player_deck');
+        if (legacyDeckStr) {
+            savedDeck = JSON.parse(legacyDeckStr);
         }
-        
-        // Sync structures for both players
+    }
+    if (savedDeck && typeof savedDeck === 'object' && !Array.isArray(savedDeck)) {
+        playerDeck = savedDeck;
+        // Sync structures for cards
         Object.keys(playerDeck).forEach(key => {
             if (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE[key]) {
                 playerDeck[key].card = CARDS_DATABASE[key];
@@ -55,7 +83,6 @@ try {
                 delete playerDeck[key]; // Cleanup legacy format cards
             }
         });
-        localStorage.setItem('fc_star_player_deck', JSON.stringify(playerDeck));
     }
 } catch (e) {
     console.warn("LocalStorage access blocked. Using in-memory fallback.", e);
@@ -65,36 +92,40 @@ try {
 let activePulledCard = null;
 let isFlipped = false;
 
-let quizOffset = 0;
-let quizLastDate = "";
-let matchLastDate = "";
-let matchTodayCount = 0;
-let lastLoginDate = "";
-try {
-    const savedLoginDate = localStorage.getItem('fc_star_last_login_date');
-    if (savedLoginDate) lastLoginDate = savedLoginDate;
-} catch (e) {
-    lastLoginDate = "";
+let quizOffset = (preloadedUserData && preloadedUserData.quizOffset !== undefined) ? parseInt(preloadedUserData.quizOffset) || 0 : 0;
+let quizLastDate = (preloadedUserData && preloadedUserData.quizLastDate) ? preloadedUserData.quizLastDate : "";
+let matchLastDate = (preloadedUserData && preloadedUserData.matchLastDate) ? preloadedUserData.matchLastDate : "";
+let matchTodayCount = (preloadedUserData && preloadedUserData.matchTodayCount !== undefined) ? parseInt(preloadedUserData.matchTodayCount) || 0 : 0;
+let lastLoginDate = (preloadedUserData && preloadedUserData.lastLoginDate) ? preloadedUserData.lastLoginDate : "";
+if (!lastLoginDate) {
+    try {
+        const savedLoginDate = localStorage.getItem('fc_star_last_login_date');
+        if (savedLoginDate) lastLoginDate = savedLoginDate;
+    } catch (e) {
+        lastLoginDate = "";
+    }
 }
 
 // REAL-TIME USER AUTH & DATA SYNC STATE
 let currentUser = null;
 let authMode = 'login'; // 'login' or 'register'
 let isAuthSubmitting = false;
-window.lastSyncedUpdatedAt = "";
+window.lastSyncedUpdatedAt = (preloadedUserData && preloadedUserData.lastSyncedUpdatedAt) ? preloadedUserData.lastSyncedUpdatedAt : "";
 let isCloudDataSynced = false;
-try {
-    const savedSyncedTime = localStorage.getItem('fc_star_last_synced_updated_at');
-    if (savedSyncedTime) window.lastSyncedUpdatedAt = savedSyncedTime;
-} catch (e) {
-    window.lastSyncedUpdatedAt = "";
+if (!window.lastSyncedUpdatedAt) {
+    try {
+        const savedSyncedTime = localStorage.getItem('fc_star_last_synced_updated_at');
+        if (savedSyncedTime) window.lastSyncedUpdatedAt = savedSyncedTime;
+    } catch (e) {
+        window.lastSyncedUpdatedAt = "";
+    }
 }
 
 // DEVELOPER MODE & MULTI-YEAR LEAGUE STATE VARIABLES
 let isDeveloperMode = false;
 let currentLeagueId = 'kleague1'; // 'kleague1', 'epl', 'jleague'
 try {
-    const savedLeague = localStorage.getItem('fc_star_current_league');
+    const savedLeague = (preloadedUserData && preloadedUserData.currentLeagueId) ? preloadedUserData.currentLeagueId : localStorage.getItem('fc_star_current_league');
     if (savedLeague && (savedLeague === 'kleague1' || savedLeague === 'epl' || savedLeague === 'jleague')) {
         currentLeagueId = savedLeague;
     }
@@ -103,45 +134,51 @@ try {
 }
 let currentFameLeagueTab = 'kleague1'; // 'kleague1', 'epl', 'jleague'
 
-let leagueYear = 2026;
-let hallOfFame = [];
-let careerStats = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
-let careerStatsHard = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
-try {
-    const savedStats = localStorage.getItem('fc_star_career_stats');
-    if (savedStats) careerStats = JSON.parse(savedStats);
-} catch(e) {}
-try {
-    const savedStatsHard = localStorage.getItem('fc_star_career_stats_hard');
-    if (savedStatsHard) careerStatsHard = JSON.parse(savedStatsHard);
-} catch(e) {}
-
-let userPvpStats = { w: 0, d: 0, l: 0 };
-let userPvpOpponentStats = {}; // 상대방별 PvP 전적 { opponentId: { w: 0, d: 0, l: 0 } }
-try {
-    const savedPvpW = localStorage.getItem('fc_star_pvp_w');
-    const savedPvpD = localStorage.getItem('fc_star_pvp_d');
-    const savedPvpL = localStorage.getItem('fc_star_pvp_l');
-    if (savedPvpW !== null) userPvpStats.w = parseInt(savedPvpW) || 0;
-    if (savedPvpD !== null) userPvpStats.d = parseInt(savedPvpD) || 0;
-    if (savedPvpL !== null) userPvpStats.l = parseInt(savedPvpL) || 0;
-
-    const savedPvpOpp = localStorage.getItem('fc_star_pvp_opp_stats');
-    if (savedPvpOpp) {
-        userPvpOpponentStats = JSON.parse(savedPvpOpp) || {};
-    }
-} catch (e) {
-    userPvpOpponentStats = {};
+let leagueYear = (preloadedUserData && preloadedUserData.leagueYear) ? parseInt(preloadedUserData.leagueYear) || 2026 : 2026;
+let hallOfFame = (preloadedUserData && preloadedUserData.hallOfFame) ? preloadedUserData.hallOfFame : [];
+let careerStats = (preloadedUserData && preloadedUserData.careerStats) ? preloadedUserData.careerStats : { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+let careerStatsHard = (preloadedUserData && preloadedUserData.careerStatsHard) ? preloadedUserData.careerStatsHard : { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+if (!preloadedUserData) {
+    try {
+        const savedStats = localStorage.getItem('fc_star_career_stats');
+        if (savedStats) careerStats = JSON.parse(savedStats);
+    } catch(e) {}
+    try {
+        const savedStatsHard = localStorage.getItem('fc_star_career_stats_hard');
+        if (savedStatsHard) careerStatsHard = JSON.parse(savedStatsHard);
+    } catch(e) {}
 }
 
-let currentFormation = '4-4-2';
-try {
-    const savedFormation = localStorage.getItem('fc_star_current_formation');
-    if (savedFormation) {
-        currentFormation = savedFormation;
+let userPvpStats = (preloadedUserData && preloadedUserData.pvpStats) ? preloadedUserData.pvpStats : { w: 0, d: 0, l: 0 };
+let userPvpOpponentStats = (preloadedUserData && preloadedUserData.pvpOpponentStats) ? preloadedUserData.pvpOpponentStats : {};
+if (!preloadedUserData) {
+    try {
+        const savedPvpW = localStorage.getItem('fc_star_pvp_w');
+        const savedPvpD = localStorage.getItem('fc_star_pvp_d');
+        const savedPvpL = localStorage.getItem('fc_star_pvp_l');
+        if (savedPvpW !== null) userPvpStats.w = parseInt(savedPvpW) || 0;
+        if (savedPvpD !== null) userPvpStats.d = parseInt(savedPvpD) || 0;
+        if (savedPvpL !== null) userPvpStats.l = parseInt(savedPvpL) || 0;
+
+        const savedPvpOpp = localStorage.getItem('fc_star_pvp_opp_stats');
+        if (savedPvpOpp) {
+            userPvpOpponentStats = JSON.parse(savedPvpOpp) || {};
+        }
+    } catch (e) {
+        userPvpOpponentStats = {};
     }
-} catch (e) {
-    currentFormation = '4-4-2';
+}
+
+let currentFormation = (preloadedUserData && preloadedUserData.currentFormation) ? preloadedUserData.currentFormation : '4-4-2';
+if (!preloadedUserData) {
+    try {
+        const savedFormation = localStorage.getItem('fc_star_current_formation');
+        if (savedFormation) {
+            currentFormation = savedFormation;
+        }
+    } catch (e) {
+        currentFormation = '4-4-2';
+    }
 }
 
 // 3. TTS AUTOPLAY PREFERENCE STATE (Option 1 vs Option 2 Toggle)
@@ -155,17 +192,19 @@ try {
 // 4. SQUAD NUMBERS STATE (등번호 설정 데이터 1~90)
 let squadNumbers = {};
 try {
-    const savedNumbers = localStorage.getItem('fc_star_squad_numbers');
-    if (savedNumbers) {
-        squadNumbers = JSON.parse(savedNumbers);
-        // 기존 세이브 데이터(30번까지)가 있을 경우 90번까지 채워줍니다.
+    let savedNumbers = (preloadedUserData && preloadedUserData.squadNumbers) ? preloadedUserData.squadNumbers : null;
+    if (!savedNumbers) {
+        const numbersStr = localStorage.getItem('fc_star_squad_numbers');
+        if (numbersStr) savedNumbers = JSON.parse(numbersStr);
+    }
+    if (savedNumbers && typeof savedNumbers === 'object') {
+        squadNumbers = savedNumbers;
         for (let i = 1; i <= 90; i++) {
             if (!squadNumbers[i]) {
                 squadNumbers[i] = { number: i, cardId: null };
             }
         }
     } else {
-        // 기본 1~90번 데이터셋 구성
         for (let i = 1; i <= 90; i++) {
             squadNumbers[i] = { number: i, cardId: null };
         }
@@ -178,14 +217,16 @@ try {
 }
 
 // 5. SQUAD CAPTAIN STATE (구단 주장 설정 데이터)
-let squadCaptain = null;
-try {
-    const savedCaptain = localStorage.getItem('fc_star_squad_captain');
-    if (savedCaptain) {
-        squadCaptain = savedCaptain;
+let squadCaptain = (preloadedUserData && preloadedUserData.squadCaptain !== undefined) ? preloadedUserData.squadCaptain : null;
+if (!preloadedUserData) {
+    try {
+        const savedCaptain = localStorage.getItem('fc_star_squad_captain');
+        if (savedCaptain) {
+            squadCaptain = savedCaptain;
+        }
+    } catch (e) {
+        squadCaptain = null;
     }
-} catch (e) {
-    squadCaptain = null;
 }
 
 // 6. ACHIEVEMENTS & LEAGUE WIN STREAKS STATE (업적 및 리그 연승 기록 상태)
@@ -207,50 +248,48 @@ let userAchievements = {
     wins1000: { unlocked: false, rewarded: false },
     wins2000: { unlocked: false, rewarded: false }
 };
-try {
-    const savedAchievements = localStorage.getItem('fc_star_user_achievements');
-    if (savedAchievements) {
-        const parsed = JSON.parse(savedAchievements);
-        if (parsed && typeof parsed === 'object') {
-            userAchievements = { ...userAchievements, ...parsed };
+if (preloadedUserData && preloadedUserData.userAchievements) {
+    userAchievements = { ...userAchievements, ...preloadedUserData.userAchievements };
+} else {
+    try {
+        const savedAchievements = localStorage.getItem('fc_star_user_achievements');
+        if (savedAchievements) {
+            const parsed = JSON.parse(savedAchievements);
+            if (parsed && typeof parsed === 'object') {
+                userAchievements = { ...userAchievements, ...parsed };
+            }
         }
-    }
-} catch (e) {
-    // Fallback
+    } catch (e) {}
 }
 
-let consecutiveLeagueTitles = 0;
-try {
-    const savedTitles = localStorage.getItem('fc_star_consecutive_titles');
-    if (savedTitles) {
-        consecutiveLeagueTitles = parseInt(savedTitles) || 0;
-    }
-} catch (e) {}
-
-let currentWinStreak = 0;
-try {
-    const savedCurrentStreak = localStorage.getItem('fc_star_current_win_streak');
-    if (savedCurrentStreak) {
-        currentWinStreak = parseInt(savedCurrentStreak) || 0;
-    }
-} catch (e) {}
-
-let maxWinStreak = 0;
-try {
-    const savedMaxStreak = localStorage.getItem('fc_star_max_win_streak');
-    if (savedMaxStreak) {
-        maxWinStreak = parseInt(savedMaxStreak) || 0;
-    }
-} catch (e) {}
+let consecutiveLeagueTitles = (preloadedUserData && preloadedUserData.consecutiveLeagueTitles !== undefined) ? parseInt(preloadedUserData.consecutiveLeagueTitles) || 0 : 0;
+let currentWinStreak = (preloadedUserData && preloadedUserData.currentWinStreak !== undefined) ? parseInt(preloadedUserData.currentWinStreak) || 0 : 0;
+let maxWinStreak = (preloadedUserData && preloadedUserData.maxWinStreak !== undefined) ? parseInt(preloadedUserData.maxWinStreak) || 0 : 0;
+if (!preloadedUserData) {
+    try {
+        const savedTitles = localStorage.getItem('fc_star_consecutive_titles');
+        if (savedTitles) consecutiveLeagueTitles = parseInt(savedTitles) || 0;
+    } catch (e) {}
+    try {
+        const savedCurrentStreak = localStorage.getItem('fc_star_current_win_streak');
+        if (savedCurrentStreak) currentWinStreak = parseInt(savedCurrentStreak) || 0;
+    } catch (e) {}
+    try {
+        const savedMaxStreak = localStorage.getItem('fc_star_max_win_streak');
+        if (savedMaxStreak) maxWinStreak = parseInt(savedMaxStreak) || 0;
+    } catch (e) {}
+}
 
 // 6-1. DATA SAVER MODE STATE (데이터 절약 모드 - 접속/로그인 시에만 클라우드 백업, 플레이 중 백업 차단)
-let isDataSaverMode = false;
-try {
-    const savedDataSaver = localStorage.getItem('fc_star_data_saver');
-    if (savedDataSaver !== null) {
-        isDataSaverMode = savedDataSaver === 'true';
-    }
-} catch (e) {}
+let isDataSaverMode = (preloadedUserData && preloadedUserData.isDataSaverMode !== undefined) ? !!preloadedUserData.isDataSaverMode : false;
+if (!preloadedUserData) {
+    try {
+        const savedDataSaver = localStorage.getItem('fc_star_data_saver');
+        if (savedDataSaver !== null) {
+            isDataSaverMode = savedDataSaver === 'true';
+        }
+    } catch (e) {}
+}
 
 // 7. WINGER PLAYSTYLE CONFIGURATION STATE
 let wingerStyles = {
@@ -261,20 +300,21 @@ let wingerStyles = {
     '4-2-3-1': { LW: 'dribble', RW: 'sprint' }
 };
 try {
-    const savedWingerStyles = localStorage.getItem('fc_star_winger_styles');
+    let savedWingerStyles = (preloadedUserData && preloadedUserData.wingerStyles) ? preloadedUserData.wingerStyles : null;
+    if (!savedWingerStyles) {
+        const savedStr = localStorage.getItem('fc_star_winger_styles');
+        if (savedStr) savedWingerStyles = JSON.parse(savedStr);
+    }
     if (savedWingerStyles) {
-        const parsed = JSON.parse(savedWingerStyles);
-        // 마이그레이션 검사: 기존 플랫 객체인지 중첩 객체인지 판별
-        if (parsed.LW || parsed.RW) {
-            console.log("Migrating flat wingerStyles to nested format...");
+        if (savedWingerStyles.LW || savedWingerStyles.RW) {
             Object.keys(wingerStyles).forEach(f => {
                 wingerStyles[f] = { 
-                    LW: parsed.LW || 'dribble', 
-                    RW: parsed.RW || 'sprint' 
+                    LW: savedWingerStyles.LW || 'dribble', 
+                    RW: savedWingerStyles.RW || 'sprint' 
                 };
             });
         } else {
-            wingerStyles = parsed;
+            wingerStyles = savedWingerStyles;
         }
     }
 } catch (e) {
@@ -290,19 +330,20 @@ let strikerStyles = {
     '4-2-3-1': { ST: 'targetman' }
 };
 try {
-    const savedStrikerStyles = localStorage.getItem('fc_star_striker_styles');
+    let savedStrikerStyles = (preloadedUserData && preloadedUserData.strikerStyles) ? preloadedUserData.strikerStyles : null;
+    if (!savedStrikerStyles) {
+        const savedStr = localStorage.getItem('fc_star_striker_styles');
+        if (savedStr) savedStrikerStyles = JSON.parse(savedStr);
+    }
     if (savedStrikerStyles) {
-        const parsed = JSON.parse(savedStrikerStyles);
-        // 마이그레이션 검사: 기존 플랫 객체인지 중첩 객체인지 판별
-        if (parsed.ST) {
-            console.log("Migrating flat strikerStyles to nested format...");
+        if (savedStrikerStyles.ST) {
             Object.keys(strikerStyles).forEach(f => {
                 strikerStyles[f] = { 
-                    ST: parsed.ST || 'targetman' 
+                    ST: savedStrikerStyles.ST || 'targetman' 
                 };
             });
         } else {
-            strikerStyles = parsed;
+            strikerStyles = savedStrikerStyles;
         }
     }
 } catch (e) {

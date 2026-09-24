@@ -1,12 +1,24 @@
 ## 현재 작업
-- 목표: 데이터 절약 모드 시 로그아웃 버튼 클릭 시에도 클라우드 최종 저장 보장
+- 목표: 로컬스토리지 아이디별 독립 저장 및 Firebase 1:1 일치 통합 JSON 구조(`fc_star_user_${userId}`) 변환 + 깃 푸시 완료
 - 상태: 완료
 - 주요 변경·검증:
-  1. `js/auth.js`: `collectCurrentUserProgressData()` 공통 헬퍼 함수를 분리하여 데이터 직렬화 로직 일원화.
-  2. `js/auth.js`: `handleLogout()`을 비동기(`async`)로 개선하여, 로그아웃 확인 시 데이터 절약 모드 여부와 관계없이 최종 진행 데이터를 `await dbService.saveProgress(currentUser, progressData, false)`로 클라우드에 100% 저장 완료한 후 세션 정리 및 리로딩 수행.
-  3. PWA 캐시 및 스크립트 버전 상향: `index.html` (`js/auth.js?v=2.77`), `sw.js` (`CACHE_NAME = 'fc-star-v432'`).
-  4. 검증: 회귀 테스트 4종 전부 PASS 및 구문 검사 통과.
-- 다음 단계: 완료 보고. (Git 커밋 및 푸시는 사용자 지시 대기)
+  1. `js/auth.js`:
+     - `applyUserDataToState(userData)`: 단일 JSON 객체로부터 게임 인메모리 상태를 100% 일괄 복원(하이드레이션)하는 공통 엔진 구현.
+     - `collectCurrentUserProgressData(targetUserId)`: Firestore `progressData`와 100% 동일한 통합 스키마(44개 핵심 필드) 직렬화 엔진 구축.
+     - `buildLegacyProgressFromLocalStorage(targetUserId)`: 기존 개별 localStorage 키에 저장되어 있던 레거시 데이터로부터 직접 통합 문서를 생성하는 마이그레이션 헬퍼 함수 구현.
+     - `saveAllToLocalStorage(targetUserId)`: `fc_star_user_${myId}` 단일 통합 키 저장 + 하위 호환을 위한 개별 키 동시 저장(Dual-Write) 및 안전 가드 보강.
+     - `loadLocalGameData(targetUserId)`: 통합 키 우선 로드 및 레거시 개별 키 자동 1회 안전 마이그레이션 연동.
+     - `syncUserDataOnLogin(userData)`: `applyUserDataToState` 호출로 통합 단순화.
+     - `clearLocalGameData(targetUserId, removeUnifiedDoc = false)`: 계정 전환/로그아웃 시 타 계정의 통합 데이터는 영구 보존하도록 분리.
+  2. `js/state.js`:
+     - 상단 초기화 시 `preloadedUserData` (`fc_star_user_${activeOwner}`) 우선 조회 및 즉시 주입 로직 연동.
+  3. PWA 캐시 및 스크립트 버전 상향:
+     - `index.html`: `js/state.js?v=3.2`, `js/auth.js?v=2.78`
+     - `sw.js`: `CACHE_NAME = 'fc-star-v433'`
+  4. 검증:
+     - `scratch/test_unified_storage.cjs` (멀티 유저 격리, 상태 하이드레이션, 레거시 자동 마이그레이션, Firestore 1:1 매핑 스키마 무결성) 4개 단위 테스트 100% PASS.
+     - `scratch/verify_initial_cloud_sync.cjs` 초기 클라우드 동기화 테스트 PASS.
+- 다음 단계: Git 커밋 & 원격 저장소(`main`) 푸시 진행.
 
 ## 이전 작업
 - 목표: Firebase Firestore 유저 데이터 백업 (`backup_firestore.py` 실행)

@@ -211,45 +211,755 @@ async function retryInitialCloudSync() {
 
 window.addEventListener('online', retryInitialCloudSync);
 
-// 전체 로컬 세이브 저장 수행
-function saveAllToLocalStorage() {
-    const myId = currentUser || "ooks";
+// ==========================================================================
+// 14-2. UNIFIED DATA STORAGE & HYDRATION ENGINE (Firebase 1:1 일치 단일 JSON 통합 스토리지)
+// ==========================================================================
+
+// 공통 게임 상태 하이드레이션 (로컬 저장소 로드 및 클라우드 동기화 공통)
+function applyUserDataToState(userData) {
+    if (!userData || typeof userData !== 'object') return;
+    
+    // 1. 포인트, 레벨, 하드모드
+    if (userData.userPoints !== undefined && userData.userPoints !== null) {
+        userPoints = parseInt(userData.userPoints) || 0;
+    }
+    if (userData.userLevel !== undefined && userData.userLevel !== null) {
+        userLevel = parseInt(userData.userLevel) || 1;
+    }
+    if (userData.isHardMode !== undefined) {
+        isHardMode = !!userData.isHardMode;
+    }
+    
+    // 2. 덱 복원 및 CARDS_DATABASE 정규화
+    if (userData.playerDeck && typeof userData.playerDeck === 'object') {
+        playerDeck = userData.playerDeck;
+        if (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE) {
+            Object.keys(playerDeck).forEach(key => {
+                if (CARDS_DATABASE[key]) {
+                    playerDeck[key].card = CARDS_DATABASE[key];
+                    playerDeck[key].isStored = playerDeck[key].isStored === true;
+                } else {
+                    delete playerDeck[key];
+                }
+            });
+        }
+    }
+    
+    // 3. 포메이션 복원
+    currentFormation = userData.currentFormation || '4-4-2';
+    
+    // 윙어/스트라이커 스타일 복원
+    const parsedWingers = userData.wingerStyles || { LW: 'dribble', RW: 'sprint' };
+    wingerStyles = {
+        '4-4-2': { LW: 'dribble', RW: 'sprint' },
+        '4-3-3': { LW: 'dribble', RW: 'sprint' },
+        '3-4-3': { LW: 'dribble', RW: 'sprint' },
+        '5-4-1': { LW: 'dribble', RW: 'sprint' },
+        '4-2-3-1': { LW: 'dribble', RW: 'sprint' }
+    };
+    if (parsedWingers.LW || parsedWingers.RW) {
+        Object.keys(wingerStyles).forEach(f => {
+            wingerStyles[f] = { LW: parsedWingers.LW || 'dribble', RW: parsedWingers.RW || 'sprint' };
+        });
+    } else {
+        wingerStyles = parsedWingers;
+    }
+
+    const parsedStrikers = userData.strikerStyles || { ST: 'targetman' };
+    strikerStyles = {
+        '4-4-2': { ST: 'targetman' },
+        '4-3-3': { ST: 'targetman' },
+        '3-4-3': { ST: 'targetman' },
+        '5-4-1': { ST: 'targetman' },
+        '4-2-3-1': { ST: 'targetman' }
+    };
+    if (parsedStrikers.ST) {
+        Object.keys(strikerStyles).forEach(f => {
+            strikerStyles[f] = { ST: parsedStrikers.ST || 'targetman' };
+        });
+    } else {
+        strikerStyles = parsedStrikers;
+    }
+
+    squadFormations = userData.squadFormations || {
+        '4-4-2': {},
+        '4-3-3': {},
+        '3-4-3': {},
+        '5-4-1': {},
+        '4-2-3-1': {}
+    };
+    if (!userData.squadFormations && userData.squadFormation) {
+        squadFormations[currentFormation] = userData.squadFormation;
+    }
+    ['4-4-2', '4-3-3', '3-4-3', '5-4-1', '4-2-3-1'].forEach(f => {
+        if (!squadFormations[f] || typeof squadFormations[f] !== 'object') {
+            squadFormations[f] = {};
+        }
+    });
+    squadFormation = squadFormations[currentFormation] || {};
+    squadCaptain = userData.squadCaptain || null;
+    
+    // 등번호 복원
+    squadNumbers = userData.squadNumbers || {};
+    for (let i = 1; i <= 90; i++) {
+        if (!squadNumbers[i]) {
+            squadNumbers[i] = { number: i, cardId: null };
+        }
+    }
+    
+    // 4. 활성 리그 및 리그별 데이터 복원
+    const validLeagues = (typeof LEAGUE_CONFIGS !== 'undefined') ? Object.keys(LEAGUE_CONFIGS) : ['kleague1', 'epl', 'jleague'];
+    if (userData.currentLeagueId && validLeagues.includes(userData.currentLeagueId)) {
+        currentLeagueId = userData.currentLeagueId;
+    } else {
+        currentLeagueId = 'kleague1';
+    }
+
+    // 리그별 독립 데이터 로컬 캐싱 복원
+    if (userData.leagueTeamsEpl && Array.isArray(userData.leagueTeamsEpl) && userData.leagueTeamsEpl.length > 0) {
+        try { localStorage.setItem('fc_star_league_teams_epl', JSON.stringify(userData.leagueTeamsEpl)); } catch(e) {}
+    }
+    if (userData.leagueTeamsJLeague && Array.isArray(userData.leagueTeamsJLeague) && userData.leagueTeamsJLeague.length > 0) {
+        try { localStorage.setItem('fc_star_league_teams_jleague', JSON.stringify(userData.leagueTeamsJLeague)); } catch(e) {}
+    }
+    if (userData.leagueTeamsKLeague && Array.isArray(userData.leagueTeamsKLeague) && userData.leagueTeamsKLeague.length > 0) {
+        try { localStorage.setItem('fc_star_league_teams_kleague1', JSON.stringify(userData.leagueTeamsKLeague)); } catch(e) {}
+    }
+    if (userData.leagueRoundEpl) {
+        try { localStorage.setItem('fc_star_league_round_epl', userData.leagueRoundEpl.toString()); } catch(e) {}
+    }
+    if (userData.leagueRoundJLeague) {
+        try { localStorage.setItem('fc_star_league_round_jleague', userData.leagueRoundJLeague.toString()); } catch(e) {}
+    }
+    if (userData.leagueRoundKLeague) {
+        try { localStorage.setItem('fc_star_league_round_kleague1', userData.leagueRoundKLeague.toString()); } catch(e) {}
+    }
+    if (userData.leaguePlayerStatsEpl) {
+        try { localStorage.setItem('fc_star_league_stats_epl', JSON.stringify(userData.leaguePlayerStatsEpl)); } catch(e) {}
+    }
+    if (userData.leaguePlayerStatsJLeague) {
+        try { localStorage.setItem('fc_star_league_stats_jleague', JSON.stringify(userData.leaguePlayerStatsJLeague)); } catch(e) {}
+    }
+    if (userData.leaguePlayerStatsKLeague) {
+        try { localStorage.setItem('fc_star_league_stats_kleague1', JSON.stringify(userData.leaguePlayerStatsKLeague)); } catch(e) {}
+    }
+
+    // 현재 활성 리그에 맞는 팀/라운드 데이터 선택 로드
+    let targetTeams = (currentLeagueId === 'epl') ? userData.leagueTeamsEpl : ((currentLeagueId === 'jleague') ? userData.leagueTeamsJLeague : userData.leagueTeamsKLeague);
+    if (!targetTeams || !Array.isArray(targetTeams) || targetTeams.length === 0) {
+        targetTeams = userData.leagueTeams;
+    }
+
+    let targetRound = (currentLeagueId === 'epl') ? userData.leagueRoundEpl : ((currentLeagueId === 'jleague') ? userData.leagueRoundJLeague : userData.leagueRoundKLeague);
+    if (!targetRound) {
+        targetRound = userData.leagueRound || 1;
+    }
+
+    if (targetTeams && Array.isArray(targetTeams) && targetTeams.length > 0) {
+        leagueTeams = targetTeams;
+        leagueRound = parseInt(targetRound) || 1;
+        if (typeof checkAndMigrateLeagueTeams === 'function') {
+            checkAndMigrateLeagueTeams();
+        }
+    } else {
+        if (typeof resetLeagueSeasonState === 'function') {
+            resetLeagueSeasonState();
+        }
+    }
+
+    // 5. 퀴즈 및 일일 진행
+    quizOffset = userData.quizOffset || 0;
+    quizLastDate = userData.quizLastDate || "";
+    quizQueue = userData.quizQueue || [];
+    quizSolvedCount = userData.quizSolvedCount || 0;
+    quizCurrentIndex = userData.quizCurrentIndex || 0;
+    matchLastDate = userData.matchLastDate || "";
+    matchTodayCount = userData.matchTodayCount || 0;
+    lastLoginDate = userData.lastLoginDate || "";
+
+    // 6. 리그 연도, 명예의 전당, 커리어 스탯
+    leagueYear = userData.leagueYear || 2026;
+    hallOfFame = userData.hallOfFame || [];
+    leaguePlayerStats = userData.leaguePlayerStats || {};
+    if (Object.keys(leaguePlayerStats).length === 0 && typeof initLeaguePlayerStats === 'function') {
+        initLeaguePlayerStats();
+    }
+    careerStats = userData.careerStats || { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+    careerStatsHard = userData.careerStatsHard || { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+    userPvpStats = userData.pvpStats || { w: 0, d: 0, l: 0 };
+    userPvpOpponentStats = userData.pvpOpponentStats || {};
+
+    // 7. 업적 및 연승
+    userAchievements = {
+        double: { unlocked: false, rewarded: false },
+        treble: { unlocked: false, rewarded: false },
+        invincible: { unlocked: false, rewarded: false },
+        threepeat: { unlocked: false, rewarded: false },
+        fivepeat: { unlocked: false, rewarded: false },
+        collector: { unlocked: false, rewarded: false },
+        worldclass: { unlocked: false, rewarded: false },
+        hardworldclass: { unlocked: false, rewarded: false },
+        streak10: { unlocked: false, rewarded: false },
+        streak20: { unlocked: false, rewarded: false },
+        streak30: { unlocked: false, rewarded: false },
+        goals300: { unlocked: false, rewarded: false },
+        goals500: { unlocked: false, rewarded: false },
+        goals1000: { unlocked: false, rewarded: false },
+        wins1000: { unlocked: false, rewarded: false },
+        wins2000: { unlocked: false, rewarded: false },
+        ...(userData.userAchievements || {})
+    };
+    consecutiveLeagueTitles = userData.consecutiveLeagueTitles || 0;
+    currentWinStreak = userData.currentWinStreak || 0;
+    maxWinStreak = userData.maxWinStreak || 0;
+
+    // 8. 국대 모드
+    if (userData.nationalModeState && typeof initNationalMode === 'function') {
+        nationalModeState = typeof deserializeNationalModeStateFromCloud === 'function' ? deserializeNationalModeStateFromCloud(userData.nationalModeState) : userData.nationalModeState;
+        if (typeof nationalDevMode !== 'undefined' && nationalDevMode && typeof nationalDevState !== 'undefined') nationalDevState = nationalModeState;
+        try { localStorage.setItem('fc_star_national_mode_state', JSON.stringify(nationalModeState)); } catch(e) {}
+    }
+    if (userData.nationalSquadPresets && typeof nationalSquadPresets !== 'undefined') {
+        nationalSquadPresets = userData.nationalSquadPresets;
+        try { localStorage.setItem('fc_star_national_squad_presets', JSON.stringify(nationalSquadPresets)); } catch(e) {}
+        const activeNationalState = typeof getNationalModeState === 'function' ? getNationalModeState() : null;
+        if (activeNationalState && activeNationalState.selectedNationId && typeof applyNationalSquadPreset === 'function') {
+            applyNationalSquadPreset(activeNationalState, activeNationalState.selectedNationId);
+        }
+    }
+    if (userData.nationalNationSelections && typeof nationalNationSelections !== 'undefined') {
+        nationalNationSelections = userData.nationalNationSelections;
+        try { localStorage.setItem('fc_star_national_nation_selections', JSON.stringify(nationalNationSelections)); } catch(e) {}
+        const activeNationalState = typeof getNationalModeState === 'function' ? getNationalModeState() : null;
+        if (activeNationalState && typeof applySavedNationalNation === 'function') applySavedNationalNation(activeNationalState);
+    }
+    if (typeof syncNationalModeYear === 'function') {
+        syncNationalModeYear(false);
+    }
+
+    // 9. 컵 & 아챔 상태
+    if (userData.cupStateEpl) {
+        try { localStorage.setItem('fc_star_cup_state_epl', JSON.stringify(userData.cupStateEpl)); } catch(e) {}
+    }
+    if (userData.cupStateJLeague) {
+        try { localStorage.setItem('fc_star_cup_state_jleague', JSON.stringify(userData.cupStateJLeague)); } catch(e) {}
+    }
+    if (userData.cupStateKLeague) {
+        try {
+            localStorage.setItem('fc_star_cup_state_kleague1', JSON.stringify(userData.cupStateKLeague));
+            localStorage.setItem('fc_star_cup_state', JSON.stringify(userData.cupStateKLeague));
+        } catch(e) {}
+    } else if (userData.cupState) {
+        try {
+            localStorage.setItem('fc_star_cup_state_kleague1', JSON.stringify(userData.cupState));
+            localStorage.setItem('fc_star_cup_state', JSON.stringify(userData.cupState));
+        } catch(e) {}
+    }
+    if (typeof initCup === 'function') initCup();
+
+    if (userData.aclStateEpl) {
+        try { localStorage.setItem('fc_star_acl_state_epl', JSON.stringify(userData.aclStateEpl)); } catch(e) {}
+    }
+    if (userData.aclStateJLeague) {
+        try { localStorage.setItem('fc_star_acl_state_jleague', JSON.stringify(userData.aclStateJLeague)); } catch(e) {}
+    }
+    if (userData.aclStateKLeague) {
+        try {
+            localStorage.setItem('fc_star_acl_state_kleague1', JSON.stringify(userData.aclStateKLeague));
+            localStorage.setItem('fc_star_acl_state', JSON.stringify(userData.aclStateKLeague));
+        } catch(e) {}
+    } else if (userData.aclState) {
+        try {
+            localStorage.setItem('fc_star_acl_state_kleague1', JSON.stringify(userData.aclState));
+            localStorage.setItem('fc_star_acl_state', JSON.stringify(userData.aclState));
+        } catch(e) {}
+    }
+    if (typeof initAcl === 'function') initAcl();
+
+    // 10. 도전모드
+    if (userData.challengeSeason !== undefined && !isNaN(userData.challengeSeason)) challengeSeason = parseInt(userData.challengeSeason) || 1;
+    if (userData.challengeStage !== undefined && !isNaN(userData.challengeStage)) challengeStage = parseInt(userData.challengeStage) || 1;
+    if (userData.challengeBossOvr !== undefined && !isNaN(userData.challengeBossOvr)) challengeBossOvr = parseInt(userData.challengeBossOvr) || 98;
+    if (userData.challengeLastDate) challengeLastDate = userData.challengeLastDate;
+    if (userData.challengeDailyFreeUsed !== undefined) challengeDailyFreeUsed = !!userData.challengeDailyFreeUsed;
+    if (userData.challengeDailyRetryUsed !== undefined) challengeDailyRetryUsed = !!userData.challengeDailyRetryUsed;
+    if (userData.challengeHistory) challengeHistory = userData.challengeHistory;
+    if (userData.challengeSeasonTeams) challengeSeasonTeams = userData.challengeSeasonTeams;
+    if (typeof initChallengeState === 'function') initChallengeState();
+
+    // 11. 친선 경기
+    friendlyMatchesHistory = userData.friendlyMatchesHistory || { w: 0, d: 0, l: 0, pts: 0 };
+    friendlyCurrentOpponentIndex = userData.friendlyCurrentOpponentIndex || 0;
+    friendlyMatchesToday = userData.friendlyMatchesToday || 0;
+    friendlyMatchLastDate = userData.friendlyMatchLastDate || "";
+    if (typeof initFriendlyMatchState === 'function') initFriendlyMatchState();
+
+    // 12. 절약 모드
+    if (userData.isDataSaverMode !== undefined) {
+        isDataSaverMode = !!userData.isDataSaverMode;
+        try { localStorage.setItem('fc_star_data_saver', isDataSaverMode ? 'true' : 'false'); } catch(e) {}
+    }
+}
+
+// 전체 유저 진행 데이터 수집 (Firestore 및 로컬 통합 스토리지 공통 스키마 규격)
+function collectCurrentUserProgressData(targetUserId) {
+    const rawId = (targetUserId || currentUser || localStorage.getItem('fc_star_current_user') || "guest").trim();
+    const myId = rawId.toLowerCase();
+    return {
+        id: myId,
+        userPoints: userPoints,
+        userLevel: userLevel,
+        playerDeck: (() => {
+            const minimalDeck = {};
+            Object.keys(playerDeck || {}).forEach(key => {
+                if (playerDeck[key]) {
+                    minimalDeck[key] = {
+                        quantity: playerDeck[key].quantity || 1,
+                        awakening: playerDeck[key].awakening || 0,
+                        condition: typeof playerDeck[key].condition === 'number' ? playerDeck[key].condition : 0,
+                        conditionDate: playerDeck[key].conditionDate || "",
+                        isStored: playerDeck[key].isStored === true
+                    };
+                }
+            });
+            return minimalDeck;
+        })(),
+        squadFormation: typeof squadFormation !== 'undefined' ? squadFormation : {},
+        squadFormations: typeof squadFormations !== 'undefined' ? squadFormations : { '4-4-2': {}, '4-3-3': {}, '3-4-3': {}, '5-4-1': {}, '4-2-3-1': {} },
+        currentFormation: typeof currentFormation !== 'undefined' ? currentFormation : '4-4-2',
+        currentLeagueId: typeof currentLeagueId !== 'undefined' ? currentLeagueId : 'kleague1',
+        squadNumbers: typeof squadNumbers !== 'undefined' ? squadNumbers : {},
+        squadCaptain: typeof squadCaptain !== 'undefined' ? squadCaptain : null,
+        leagueRound: typeof leagueRound !== 'undefined' ? leagueRound : 1,
+        leagueTeams: typeof leagueTeams !== 'undefined' ? leagueTeams : [],
+        leaguePlayerStats: typeof leaguePlayerStats !== 'undefined' ? leaguePlayerStats : {},
+        leagueTeamsEpl: (() => {
+            try {
+                const eplTeams = localStorage.getItem('fc_star_league_teams_epl');
+                if (eplTeams) return JSON.parse(eplTeams);
+                if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl' && typeof leagueTeams !== 'undefined') return leagueTeams;
+                return null;
+            } catch(e) { return null; }
+        })(),
+        leagueTeamsJLeague: (() => {
+            try {
+                const jTeams = localStorage.getItem('fc_star_league_teams_jleague');
+                if (jTeams) return JSON.parse(jTeams);
+                if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'jleague' && typeof leagueTeams !== 'undefined') return leagueTeams;
+                return null;
+            } catch(e) { return null; }
+        })(),
+        leagueTeamsKLeague: (() => {
+            try {
+                const kTeams = localStorage.getItem('fc_star_league_teams_kleague1') || localStorage.getItem('fc_star_league_teams');
+                if (kTeams && typeof currentLeagueId !== 'undefined' && currentLeagueId === 'kleague1') return JSON.parse(kTeams);
+                if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'kleague1' && typeof leagueTeams !== 'undefined') return leagueTeams;
+                return kTeams ? JSON.parse(kTeams) : null;
+            } catch(e) { return null; }
+        })(),
+        leagueRoundEpl: (() => {
+            try {
+                const r = localStorage.getItem('fc_star_league_round_epl');
+                if (r) return parseInt(r);
+                if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl' && typeof leagueRound !== 'undefined') return leagueRound;
+                return 1;
+            } catch(e) { return 1; }
+        })(),
+        leagueRoundJLeague: (() => {
+            try {
+                const r = localStorage.getItem('fc_star_league_round_jleague');
+                if (r) return parseInt(r);
+                if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'jleague' && typeof leagueRound !== 'undefined') return leagueRound;
+                return 1;
+            } catch(e) { return 1; }
+        })(),
+        leagueRoundKLeague: (() => {
+            try {
+                const r = localStorage.getItem('fc_star_league_round_kleague1');
+                if (r) return parseInt(r);
+                if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'kleague1' && typeof leagueRound !== 'undefined') return leagueRound;
+                return 1;
+            } catch(e) { return 1; }
+        })(),
+        leaguePlayerStatsEpl: (() => {
+            try {
+                const s = localStorage.getItem('fc_star_league_stats_epl');
+                if (s) return JSON.parse(s);
+                if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl' && typeof leaguePlayerStats !== 'undefined') return leaguePlayerStats;
+                return {};
+            } catch(e) { return {}; }
+        })(),
+        leaguePlayerStatsJLeague: (() => {
+            try {
+                const s = localStorage.getItem('fc_star_league_stats_jleague');
+                if (s) return JSON.parse(s);
+                if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'jleague' && typeof leaguePlayerStats !== 'undefined') return leaguePlayerStats;
+                return {};
+            } catch(e) { return {}; }
+        })(),
+        leaguePlayerStatsKLeague: (() => {
+            try {
+                const s = localStorage.getItem('fc_star_league_stats_kleague1');
+                if (s) return JSON.parse(s);
+                if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'kleague1' && typeof leaguePlayerStats !== 'undefined') return leaguePlayerStats;
+                return {};
+            } catch(e) { return {}; }
+        })(),
+        quizOffset: typeof quizOffset !== 'undefined' ? quizOffset : 0,
+        quizLastDate: typeof quizLastDate !== 'undefined' ? quizLastDate : "",
+        quizQueue: typeof quizQueue !== 'undefined' ? quizQueue : [],
+        quizSolvedCount: typeof quizSolvedCount !== 'undefined' ? quizSolvedCount : 0,
+        quizCurrentIndex: typeof quizCurrentIndex !== 'undefined' ? quizCurrentIndex : 0,
+        matchLastDate: typeof matchLastDate !== 'undefined' ? matchLastDate : "",
+        matchTodayCount: typeof matchTodayCount !== 'undefined' ? matchTodayCount : 0,
+        lastLoginDate: typeof lastLoginDate !== 'undefined' ? lastLoginDate : "",
+        leagueYear: typeof leagueYear !== 'undefined' ? leagueYear : 2026,
+        hallOfFame: typeof hallOfFame !== 'undefined' ? hallOfFame : [],
+        careerStats: typeof careerStats !== 'undefined' ? careerStats : { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} },
+        careerStatsHard: typeof careerStatsHard !== 'undefined' ? careerStatsHard : { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} },
+        pvpStats: typeof userPvpStats !== 'undefined' ? userPvpStats : { w: 0, d: 0, l: 0 },
+        pvpOpponentStats: typeof userPvpOpponentStats !== 'undefined' ? userPvpOpponentStats : {},
+        cupState: typeof cupState !== 'undefined' ? cupState : null,
+        cupStateEpl: (() => {
+            try {
+                const eplCup = localStorage.getItem('fc_star_cup_state_epl');
+                return eplCup ? JSON.parse(eplCup) : null;
+            } catch(e) { return null; }
+        })(),
+        cupStateJLeague: (() => {
+            try {
+                const jCup = localStorage.getItem('fc_star_cup_state_jleague');
+                return jCup ? JSON.parse(jCup) : null;
+            } catch(e) { return null; }
+        })(),
+        cupStateKLeague: (() => {
+            try {
+                const kCup = localStorage.getItem('fc_star_cup_state_kleague1') || localStorage.getItem('fc_star_cup_state');
+                return kCup ? JSON.parse(kCup) : null;
+            } catch(e) { return null; }
+        })(),
+        aclState: typeof aclState !== 'undefined' ? aclState : null,
+        aclStateEpl: (() => {
+            try {
+                const eplAcl = localStorage.getItem('fc_star_acl_state_epl');
+                return eplAcl ? JSON.parse(eplAcl) : null;
+            } catch(e) { return null; }
+        })(),
+        aclStateJLeague: (() => {
+            try {
+                const jAcl = localStorage.getItem('fc_star_acl_state_jleague');
+                return jAcl ? JSON.parse(jAcl) : null;
+            } catch(e) { return null; }
+        })(),
+        aclStateKLeague: (() => {
+            try {
+                const kAcl = localStorage.getItem('fc_star_acl_state_kleague1') || localStorage.getItem('fc_star_acl_state');
+                return kAcl ? JSON.parse(kAcl) : null;
+            } catch(e) { return null; }
+        })(),
+        isHardMode: typeof isHardMode !== 'undefined' ? !!isHardMode : false,
+        userAchievements: typeof userAchievements !== 'undefined' ? userAchievements : {},
+        consecutiveLeagueTitles: typeof consecutiveLeagueTitles !== 'undefined' ? consecutiveLeagueTitles : 0,
+        currentWinStreak: typeof currentWinStreak !== 'undefined' ? currentWinStreak : 0,
+        maxWinStreak: typeof maxWinStreak !== 'undefined' ? maxWinStreak : 0,
+        nationalModeState: typeof nationalModeState !== 'undefined' && typeof serializeNationalModeStateForCloud === 'function' ? serializeNationalModeStateForCloud(nationalModeState) : (typeof nationalModeState !== 'undefined' ? nationalModeState : null),
+        nationalSquadPresets: typeof nationalSquadPresets !== 'undefined' ? nationalSquadPresets : {},
+        nationalNationSelections: typeof nationalNationSelections !== 'undefined' ? nationalNationSelections : {},
+        wingerStyles: typeof wingerStyles !== 'undefined' ? wingerStyles : { '4-4-2': { LW: 'dribble', RW: 'sprint' }, '4-3-3': { LW: 'dribble', RW: 'sprint' }, '3-4-3': { LW: 'dribble', RW: 'sprint' }, '5-4-1': { LW: 'dribble', RW: 'sprint' }, '4-2-3-1': { LW: 'dribble', RW: 'sprint' } },
+        strikerStyles: typeof strikerStyles !== 'undefined' ? strikerStyles : { '4-4-2': { ST: 'targetman' }, '4-3-3': { ST: 'targetman' }, '3-4-3': { ST: 'targetman' }, '5-4-1': { ST: 'targetman' }, '4-2-3-1': { ST: 'targetman' } },
+        
+        // 도전모드(Challenge Mode) 동기화 필드
+        challengeSeason: (typeof challengeSeason === 'number' && challengeSeason >= 1) ? challengeSeason : (parseInt(localStorage.getItem('fc_star_challenge_season') || '1') || 1),
+        challengeStage: (typeof challengeStage === 'number' && challengeStage >= 1) ? challengeStage : (parseInt(localStorage.getItem('fc_star_challenge_stage') || '1') || 1),
+        challengeBossOvr: typeof challengeBossOvr !== 'undefined' ? challengeBossOvr : (parseInt(localStorage.getItem('fc_star_challenge_boss_ovr') || '98') || 98),
+        challengeLastDate: typeof challengeLastDate !== 'undefined' ? challengeLastDate : (localStorage.getItem('fc_star_challenge_last_date') || ""),
+        challengeDailyFreeUsed: typeof challengeDailyFreeUsed !== 'undefined' ? challengeDailyFreeUsed : (localStorage.getItem('fc_star_challenge_free_used') === 'true'),
+        challengeDailyRetryUsed: typeof challengeDailyRetryUsed !== 'undefined' ? challengeDailyRetryUsed : (localStorage.getItem('fc_star_challenge_retry_used') === 'true'),
+        challengeHistory: typeof challengeHistory !== 'undefined' ? challengeHistory : (() => {
+            try { return JSON.parse(localStorage.getItem('fc_star_challenge_history')) || { w: 0, d: 0, l: 0, totalGames: 0 }; } catch(e) { return { w: 0, d: 0, l: 0, totalGames: 0 }; }
+        })(),
+        challengeSeasonTeams: (typeof challengeSeasonTeams !== 'undefined' && Array.isArray(challengeSeasonTeams)) ? challengeSeasonTeams : (() => {
+            try { return JSON.parse(localStorage.getItem('fc_star_challenge_season_teams')); } catch(e) { return null; }
+        })(),
+        
+        // 친선경기 ID별 실시간 클라우드 전적 연동 필드
+        friendlyMatchesHistory: typeof friendlyMatchesHistory !== 'undefined' ? friendlyMatchesHistory : { w: 0, d: 0, l: 0, pts: 0 },
+        friendlyCurrentOpponentIndex: typeof friendlyCurrentOpponentIndex !== 'undefined' ? friendlyCurrentOpponentIndex : 0,
+        friendlyMatchesToday: typeof friendlyMatchesToday !== 'undefined' ? friendlyMatchesToday : 0,
+        friendlyMatchLastDate: typeof friendlyMatchLastDate !== 'undefined' ? friendlyMatchLastDate : "",
+        friendlySeasonStartDate: localStorage.getItem(`fc_star_friendly_season_start_date_${myId}`) || new Date().toISOString(),
+        lastSyncedUpdatedAt: typeof window !== 'undefined' ? window.lastSyncedUpdatedAt : "",
+        
+        // 🌱 데이터 절약 모드 설정 동기화
+        isDataSaverMode: typeof isDataSaverMode !== 'undefined' ? isDataSaverMode : false,
+        
+        // 동기화 조율용 최종 수정 타임스탬프
+        localLastUpdated: parseInt(localStorage.getItem('fc_star_local_last_updated') || '0') || Date.now()
+    };
+}
+
+// 레거시 개별 localStorage 키들로부터 진행 데이터를 직접 구성하는 헬퍼 함수
+function buildLegacyProgressFromLocalStorage(targetUserId) {
+    const rawId = (targetUserId || currentUser || localStorage.getItem('fc_star_current_user') || "guest").trim();
+    const myId = rawId.toLowerCase();
+    
+    let deck = {};
     try {
-        localStorage.setItem('fc_star_user_points', userPoints.toString());
-        localStorage.setItem('fc_star_user_level', userLevel.toString());
-        localStorage.setItem('fc_star_player_deck', JSON.stringify(playerDeck));
-        localStorage.setItem('fc_star_squad_formations', JSON.stringify(squadFormations));
-        localStorage.setItem('fc_star_squad_formation', JSON.stringify(squadFormation));
-        localStorage.setItem('fc_star_current_formation', currentFormation);
+        const d = localStorage.getItem('fc_star_player_deck');
+        if (d) deck = JSON.parse(d);
+    } catch(e) {}
+
+    let squadForms = { '4-4-2': {}, '4-3-3': {}, '3-4-3': {}, '5-4-1': {}, '4-2-3-1': {} };
+    try {
+        const sf = localStorage.getItem('fc_star_squad_formations');
+        if (sf) squadForms = JSON.parse(sf);
+    } catch(e) {}
+
+    let singleSquad = {};
+    try {
+        const sq = localStorage.getItem('fc_star_squad_formation');
+        if (sq) singleSquad = JSON.parse(sq);
+    } catch(e) {}
+
+    let curFormation = localStorage.getItem('fc_star_current_formation') || '4-4-2';
+    let curLeague = localStorage.getItem('fc_star_current_league') || 'kleague1';
+
+    let legTeams = [];
+    try {
+        const lt = localStorage.getItem(`fc_star_league_teams_${curLeague}`) || localStorage.getItem('fc_star_league_teams');
+        if (lt) legTeams = JSON.parse(lt);
+    } catch(e) {}
+
+    let legRound = parseInt(localStorage.getItem(`fc_star_league_round_${curLeague}`) || localStorage.getItem('fc_star_league_round') || '1') || 1;
+
+    let legStats = {};
+    try {
+        const ls = localStorage.getItem(`fc_star_league_stats_${curLeague}`) || localStorage.getItem('fc_star_league_stats');
+        if (ls) legStats = JSON.parse(ls);
+    } catch(e) {}
+
+    let qQueue = [];
+    try {
+        const qq = localStorage.getItem('fc_star_quiz_queue');
+        if (qq) qQueue = JSON.parse(qq);
+    } catch(e) {}
+
+    let hof = [];
+    try {
+        const h = localStorage.getItem('fc_star_hall_of_fame');
+        if (h) hof = JSON.parse(h);
+    } catch(e) {}
+
+    let cStats = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+    try {
+        const cs = localStorage.getItem('fc_star_career_stats');
+        if (cs) cStats = JSON.parse(cs);
+    } catch(e) {}
+
+    let cStatsHard = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+    try {
+        const csh = localStorage.getItem('fc_star_career_stats_hard');
+        if (csh) cStatsHard = JSON.parse(csh);
+    } catch(e) {}
+
+    let sqNumbers = {};
+    try {
+        const sn = localStorage.getItem('fc_star_squad_numbers');
+        if (sn) sqNumbers = JSON.parse(sn);
+    } catch(e) {}
+
+    let uAchievements = {};
+    try {
+        const ua = localStorage.getItem('fc_star_user_achievements');
+        if (ua) uAchievements = JSON.parse(ua);
+    } catch(e) {}
+
+    let wStyles = { '4-4-2': { LW: 'dribble', RW: 'sprint' }, '4-3-3': { LW: 'dribble', RW: 'sprint' }, '3-4-3': { LW: 'dribble', RW: 'sprint' }, '5-4-1': { LW: 'dribble', RW: 'sprint' }, '4-2-3-1': { LW: 'dribble', RW: 'sprint' } };
+    try {
+        const ws = localStorage.getItem('fc_star_winger_styles');
+        if (ws) wStyles = JSON.parse(ws);
+    } catch(e) {}
+
+    let sStyles = { '4-4-2': { ST: 'targetman' }, '4-3-3': { ST: 'targetman' }, '3-4-3': { ST: 'targetman' }, '5-4-1': { ST: 'targetman' }, '4-2-3-1': { ST: 'targetman' } };
+    try {
+        const ss = localStorage.getItem('fc_star_striker_styles');
+        if (ss) sStyles = JSON.parse(ss);
+    } catch(e) {}
+
+    let natState = null;
+    try {
+        const ns = localStorage.getItem('fc_star_national_mode_state');
+        if (ns) natState = JSON.parse(ns);
+    } catch(e) {}
+
+    let natPresets = {};
+    try {
+        const np = localStorage.getItem('fc_star_national_squad_presets');
+        if (np) natPresets = JSON.parse(np);
+    } catch(e) {}
+
+    let natSelections = {};
+    try {
+        const nsel = localStorage.getItem('fc_star_national_nation_selections');
+        if (nsel) natSelections = JSON.parse(nsel);
+    } catch(e) {}
+
+    let pvpW = parseInt(localStorage.getItem('fc_star_pvp_w') || '0') || 0;
+    let pvpD = parseInt(localStorage.getItem('fc_star_pvp_d') || '0') || 0;
+    let pvpL = parseInt(localStorage.getItem('fc_star_pvp_l') || '0') || 0;
+    let pvpOpp = {};
+    try {
+        const po = localStorage.getItem('fc_star_pvp_opp_stats');
+        if (po) pvpOpp = JSON.parse(po);
+    } catch(e) {}
+
+    let frHistory = { w: 0, d: 0, l: 0, pts: 0 };
+    try {
+        const fh = localStorage.getItem(`fc_star_friendly_history_${myId}`);
+        if (fh) frHistory = JSON.parse(fh);
+    } catch(e) {}
+
+    let chalHistory = { w: 0, d: 0, l: 0, totalGames: 0 };
+    try {
+        const ch = localStorage.getItem(`fc_star_challenge_history_${myId}`) || localStorage.getItem('fc_star_challenge_history');
+        if (ch) chalHistory = JSON.parse(ch);
+    } catch(e) {}
+
+    let chalTeams = null;
+    try {
+        const ct = localStorage.getItem('fc_star_challenge_season_teams');
+        if (ct) chalTeams = JSON.parse(ct);
+    } catch(e) {}
+
+    return {
+        id: myId,
+        userPoints: parseInt(localStorage.getItem('fc_star_user_points') || '0') || 0,
+        userLevel: parseInt(localStorage.getItem('fc_star_user_level') || '1') || 1,
+        playerDeck: deck,
+        squadFormation: singleSquad,
+        squadFormations: squadForms,
+        currentFormation: curFormation,
+        currentLeagueId: curLeague,
+        squadNumbers: sqNumbers,
+        squadCaptain: localStorage.getItem('fc_star_squad_captain') || null,
+        leagueRound: legRound,
+        leagueTeams: legTeams,
+        leaguePlayerStats: legStats,
+        leagueTeamsEpl: (() => { try { return JSON.parse(localStorage.getItem('fc_star_league_teams_epl')); } catch(e) { return null; } })(),
+        leagueTeamsJLeague: (() => { try { return JSON.parse(localStorage.getItem('fc_star_league_teams_jleague')); } catch(e) { return null; } })(),
+        leagueTeamsKLeague: (() => { try { return JSON.parse(localStorage.getItem('fc_star_league_teams_kleague1') || localStorage.getItem('fc_star_league_teams')); } catch(e) { return null; } })(),
+        leagueRoundEpl: parseInt(localStorage.getItem('fc_star_league_round_epl') || '1') || 1,
+        leagueRoundJLeague: parseInt(localStorage.getItem('fc_star_league_round_jleague') || '1') || 1,
+        leagueRoundKLeague: parseInt(localStorage.getItem('fc_star_league_round_kleague1') || '1') || 1,
+        leaguePlayerStatsEpl: (() => { try { return JSON.parse(localStorage.getItem('fc_star_league_stats_epl')) || {}; } catch(e) { return {}; } })(),
+        leaguePlayerStatsJLeague: (() => { try { return JSON.parse(localStorage.getItem('fc_star_league_stats_jleague')) || {}; } catch(e) { return {}; } })(),
+        leaguePlayerStatsKLeague: (() => { try { return JSON.parse(localStorage.getItem('fc_star_league_stats_kleague1')) || {}; } catch(e) { return {}; } })(),
+        quizOffset: parseInt(localStorage.getItem('fc_star_quiz_offset') || '0') || 0,
+        quizLastDate: localStorage.getItem('fc_star_quiz_last_date') || "",
+        quizQueue: qQueue,
+        quizSolvedCount: parseInt(localStorage.getItem('fc_star_quiz_solved_count') || '0') || 0,
+        quizCurrentIndex: parseInt(localStorage.getItem('fc_star_quiz_current_index') || '0') || 0,
+        matchLastDate: localStorage.getItem('fc_star_match_last_date') || "",
+        matchTodayCount: parseInt(localStorage.getItem('fc_star_match_today_count') || '0') || 0,
+        lastLoginDate: localStorage.getItem('fc_star_last_login_date') || "",
+        leagueYear: parseInt(localStorage.getItem('fc_star_league_year') || '2026') || 2026,
+        hallOfFame: hof,
+        careerStats: cStats,
+        careerStatsHard: cStatsHard,
+        pvpStats: { w: pvpW, d: pvpD, l: pvpL },
+        pvpOpponentStats: pvpOpp,
+        cupState: (() => { try { return JSON.parse(localStorage.getItem('fc_star_cup_state')); } catch(e) { return null; } })(),
+        cupStateEpl: (() => { try { return JSON.parse(localStorage.getItem('fc_star_cup_state_epl')); } catch(e) { return null; } })(),
+        cupStateJLeague: (() => { try { return JSON.parse(localStorage.getItem('fc_star_cup_state_jleague')); } catch(e) { return null; } })(),
+        cupStateKLeague: (() => { try { return JSON.parse(localStorage.getItem('fc_star_cup_state_kleague1') || localStorage.getItem('fc_star_cup_state')); } catch(e) { return null; } })(),
+        aclState: (() => { try { return JSON.parse(localStorage.getItem('fc_star_acl_state')); } catch(e) { return null; } })(),
+        aclStateEpl: (() => { try { return JSON.parse(localStorage.getItem('fc_star_acl_state_epl')); } catch(e) { return null; } })(),
+        aclStateJLeague: (() => { try { return JSON.parse(localStorage.getItem('fc_star_acl_state_jleague')); } catch(e) { return null; } })(),
+        aclStateKLeague: (() => { try { return JSON.parse(localStorage.getItem('fc_star_acl_state_kleague1') || localStorage.getItem('fc_star_acl_state')); } catch(e) { return null; } })(),
+        isHardMode: localStorage.getItem('fc_star_is_hard_mode') === 'true',
+        userAchievements: uAchievements,
+        consecutiveLeagueTitles: parseInt(localStorage.getItem('fc_star_consecutive_titles') || '0') || 0,
+        currentWinStreak: parseInt(localStorage.getItem('fc_star_current_win_streak') || '0') || 0,
+        maxWinStreak: parseInt(localStorage.getItem('fc_star_max_win_streak') || '0') || 0,
+        nationalModeState: natState,
+        nationalSquadPresets: natPresets,
+        nationalNationSelections: natSelections,
+        wingerStyles: wStyles,
+        strikerStyles: sStyles,
+        challengeSeason: parseInt(localStorage.getItem(`fc_star_challenge_season_${myId}`) || localStorage.getItem('fc_star_challenge_season') || '1') || 1,
+        challengeStage: parseInt(localStorage.getItem(`fc_star_challenge_stage_${myId}`) || localStorage.getItem('fc_star_challenge_stage') || '1') || 1,
+        challengeBossOvr: parseInt(localStorage.getItem(`fc_star_challenge_boss_ovr_${myId}`) || localStorage.getItem('fc_star_challenge_boss_ovr') || '98') || 98,
+        challengeLastDate: localStorage.getItem(`fc_star_challenge_last_date_${myId}`) || localStorage.getItem('fc_star_challenge_last_date') || "",
+        challengeDailyFreeUsed: (localStorage.getItem(`fc_star_challenge_free_used_${myId}`) || localStorage.getItem('fc_star_challenge_free_used')) === 'true',
+        challengeDailyRetryUsed: (localStorage.getItem(`fc_star_challenge_retry_used_${myId}`) || localStorage.getItem('fc_star_challenge_retry_used')) === 'true',
+        challengeHistory: chalHistory,
+        challengeSeasonTeams: chalTeams,
+        friendlyMatchesHistory: frHistory,
+        friendlyCurrentOpponentIndex: parseInt(localStorage.getItem(`fc_star_friendly_current_index_${myId}`) || '0') || 0,
+        friendlyMatchesToday: parseInt(localStorage.getItem(`fc_star_friendly_matches_today_${myId}`) || '0') || 0,
+        friendlyMatchLastDate: localStorage.getItem(`fc_star_friendly_match_last_date_${myId}`) || "",
+        friendlySeasonStartDate: localStorage.getItem(`fc_star_friendly_season_start_date_${myId}`) || new Date().toISOString(),
+        lastSyncedUpdatedAt: localStorage.getItem('fc_star_last_synced_updated_at') || "",
+        isDataSaverMode: localStorage.getItem('fc_star_data_saver') === 'true',
+        localLastUpdated: parseInt(localStorage.getItem('fc_star_local_last_updated') || '0') || Date.now()
+    };
+}
+
+// 전체 로컬 세이브 저장 수행 (Firebase 1:1 일치 단일 JSON + 레거시 개별 키 듀얼 라이트)
+function saveAllToLocalStorage(targetUserId) {
+    const rawId = (targetUserId || currentUser || localStorage.getItem('fc_star_current_user') || "guest").trim();
+    const myId = rawId.toLowerCase();
+    const progressData = collectCurrentUserProgressData(myId);
+    if (!progressData) return;
+
+    try {
+        // ⭐ 1. Firebase Firestore와 100% 동일한 통합 단일 JSON 문서 저장 (아이디별 키)
+        localStorage.setItem(`fc_star_user_${myId}`, JSON.stringify(progressData));
+        localStorage.setItem('fc_star_local_last_updated', Date.now().toString());
+        localStorage.setItem('fc_star_local_data_owner', myId);
+
+        // ⭐ 2. 하위 호환성을 위한 개별 키 동시 저장 (Dual-Write)
+        if (typeof userPoints !== 'undefined') localStorage.setItem('fc_star_user_points', userPoints.toString());
+        if (typeof userLevel !== 'undefined') localStorage.setItem('fc_star_user_level', userLevel.toString());
+        if (typeof playerDeck !== 'undefined') localStorage.setItem('fc_star_player_deck', JSON.stringify(playerDeck));
+        if (typeof squadFormations !== 'undefined') localStorage.setItem('fc_star_squad_formations', JSON.stringify(squadFormations));
+        if (typeof squadFormation !== 'undefined') localStorage.setItem('fc_star_squad_formation', JSON.stringify(squadFormation));
+        if (typeof currentFormation !== 'undefined') localStorage.setItem('fc_star_current_formation', currentFormation);
         const activeLeague = (typeof currentLeagueId !== 'undefined' && typeof LEAGUE_CONFIGS !== 'undefined' && LEAGUE_CONFIGS[currentLeagueId]) ? currentLeagueId : ((typeof currentLeagueId !== 'undefined' && (currentLeagueId === 'epl' || currentLeagueId === 'jleague' || currentLeagueId === 'kleague1')) ? currentLeagueId : 'kleague1');
         localStorage.setItem('fc_star_current_league', activeLeague);
-        localStorage.setItem(`fc_star_league_teams_${activeLeague}`, JSON.stringify(leagueTeams));
-        localStorage.setItem('fc_star_league_teams', JSON.stringify(leagueTeams));
-        localStorage.setItem(`fc_star_league_round_${activeLeague}`, leagueRound.toString());
-        localStorage.setItem('fc_star_league_round', leagueRound.toString());
-        localStorage.setItem(`fc_star_league_stats_${activeLeague}`, JSON.stringify(leaguePlayerStats));
-        localStorage.setItem('fc_star_league_stats', JSON.stringify(leaguePlayerStats));
-        localStorage.setItem('fc_star_quiz_offset', quizOffset.toString());
-        localStorage.setItem('fc_star_quiz_last_date', quizLastDate);
-        localStorage.setItem('fc_star_quiz_queue', JSON.stringify(quizQueue));
-        localStorage.setItem('fc_star_quiz_solved_count', quizSolvedCount.toString());
-        localStorage.setItem('fc_star_quiz_current_index', quizCurrentIndex.toString());
-        localStorage.setItem('fc_star_match_last_date', matchLastDate);
-        localStorage.setItem('fc_star_match_today_count', matchTodayCount.toString());
-        localStorage.setItem('fc_star_last_login_date', lastLoginDate);
-        localStorage.setItem('fc_star_league_year', leagueYear.toString());
-        localStorage.setItem('fc_star_hall_of_fame', JSON.stringify(hallOfFame));
-        localStorage.setItem('fc_star_career_stats', JSON.stringify(careerStats));
-        localStorage.setItem('fc_star_career_stats_hard', JSON.stringify(careerStatsHard));
-        localStorage.setItem('fc_star_squad_numbers', JSON.stringify(squadNumbers));
-        localStorage.setItem('fc_star_is_hard_mode', isHardMode.toString());
-        localStorage.setItem('fc_star_last_synced_updated_at', lastSyncedUpdatedAt);
-        localStorage.setItem('fc_star_user_achievements', JSON.stringify(userAchievements));
-        localStorage.setItem('fc_star_consecutive_titles', consecutiveLeagueTitles.toString());
-        localStorage.setItem('fc_star_current_win_streak', currentWinStreak.toString());
-        localStorage.setItem('fc_star_max_win_streak', maxWinStreak.toString());
-        localStorage.setItem('fc_star_winger_styles', JSON.stringify(wingerStyles));
-        localStorage.setItem('fc_star_striker_styles', JSON.stringify(strikerStyles));
+        if (typeof leagueTeams !== 'undefined') {
+            localStorage.setItem(`fc_star_league_teams_${activeLeague}`, JSON.stringify(leagueTeams));
+            localStorage.setItem('fc_star_league_teams', JSON.stringify(leagueTeams));
+        }
+        if (typeof leagueRound !== 'undefined') {
+            localStorage.setItem(`fc_star_league_round_${activeLeague}`, leagueRound.toString());
+            localStorage.setItem('fc_star_league_round', leagueRound.toString());
+        }
+        if (typeof leaguePlayerStats !== 'undefined') {
+            localStorage.setItem(`fc_star_league_stats_${activeLeague}`, JSON.stringify(leaguePlayerStats));
+            localStorage.setItem('fc_star_league_stats', JSON.stringify(leaguePlayerStats));
+        }
+        if (typeof quizOffset !== 'undefined') localStorage.setItem('fc_star_quiz_offset', quizOffset.toString());
+        if (typeof quizLastDate !== 'undefined') localStorage.setItem('fc_star_quiz_last_date', quizLastDate);
+        if (typeof quizQueue !== 'undefined') localStorage.setItem('fc_star_quiz_queue', JSON.stringify(quizQueue));
+        if (typeof quizSolvedCount !== 'undefined') localStorage.setItem('fc_star_quiz_solved_count', quizSolvedCount.toString());
+        if (typeof quizCurrentIndex !== 'undefined') localStorage.setItem('fc_star_quiz_current_index', quizCurrentIndex.toString());
+        if (typeof matchLastDate !== 'undefined') localStorage.setItem('fc_star_match_last_date', matchLastDate);
+        if (typeof matchTodayCount !== 'undefined') localStorage.setItem('fc_star_match_today_count', matchTodayCount.toString());
+        if (typeof lastLoginDate !== 'undefined') localStorage.setItem('fc_star_last_login_date', lastLoginDate);
+        if (typeof leagueYear !== 'undefined') localStorage.setItem('fc_star_league_year', leagueYear.toString());
+        if (typeof hallOfFame !== 'undefined') localStorage.setItem('fc_star_hall_of_fame', JSON.stringify(hallOfFame));
+        if (typeof careerStats !== 'undefined') localStorage.setItem('fc_star_career_stats', JSON.stringify(careerStats));
+        if (typeof careerStatsHard !== 'undefined') localStorage.setItem('fc_star_career_stats_hard', JSON.stringify(careerStatsHard));
+        if (typeof squadNumbers !== 'undefined') localStorage.setItem('fc_star_squad_numbers', JSON.stringify(squadNumbers));
+        if (typeof isHardMode !== 'undefined') localStorage.setItem('fc_star_is_hard_mode', isHardMode.toString());
+        if (typeof lastSyncedUpdatedAt !== 'undefined') localStorage.setItem('fc_star_last_synced_updated_at', lastSyncedUpdatedAt);
+        if (typeof userAchievements !== 'undefined') localStorage.setItem('fc_star_user_achievements', JSON.stringify(userAchievements));
+        if (typeof consecutiveLeagueTitles !== 'undefined') localStorage.setItem('fc_star_consecutive_titles', consecutiveLeagueTitles.toString());
+        if (typeof currentWinStreak !== 'undefined') localStorage.setItem('fc_star_current_win_streak', currentWinStreak.toString());
+        if (typeof maxWinStreak !== 'undefined') localStorage.setItem('fc_star_max_win_streak', maxWinStreak.toString());
+        if (typeof wingerStyles !== 'undefined') localStorage.setItem('fc_star_winger_styles', JSON.stringify(wingerStyles));
+        if (typeof strikerStyles !== 'undefined') localStorage.setItem('fc_star_striker_styles', JSON.stringify(strikerStyles));
         if (typeof nationalModeState !== 'undefined' && nationalModeState) {
             localStorage.setItem('fc_star_national_mode_state', JSON.stringify(nationalModeState));
         }
@@ -299,220 +1009,60 @@ function saveAllToLocalStorage() {
         if (typeof saveChallengeState === 'function') {
             saveChallengeState();
         } else {
-            const rawId = currentUser || "ooks";
-            const cId = rawId.toLowerCase();
-            localStorage.setItem(`fc_star_challenge_season_${cId}`, (typeof challengeSeason !== 'undefined' ? challengeSeason : 1).toString());
-            localStorage.setItem(`fc_star_challenge_stage_${cId}`, (typeof challengeStage !== 'undefined' ? challengeStage : 1).toString());
-            localStorage.setItem(`fc_star_challenge_boss_ovr_${cId}`, (typeof challengeBossOvr !== 'undefined' ? challengeBossOvr : 98).toString());
-            localStorage.setItem(`fc_star_challenge_last_date_${cId}`, (typeof challengeLastDate !== 'undefined' ? challengeLastDate : ""));
-            localStorage.setItem(`fc_star_challenge_free_used_${cId}`, (typeof challengeDailyFreeUsed !== 'undefined' && challengeDailyFreeUsed) ? 'true' : 'false');
-            localStorage.setItem(`fc_star_challenge_retry_used_${cId}`, (typeof challengeDailyRetryUsed !== 'undefined' && challengeDailyRetryUsed) ? 'true' : 'false');
-            localStorage.setItem(`fc_star_challenge_history_${cId}`, JSON.stringify(typeof challengeHistory !== 'undefined' ? challengeHistory : { w: 0, d: 0, l: 0, totalGames: 0 }));
-        }
-        
-        localStorage.setItem('fc_star_local_last_updated', Date.now().toString());
-        if (currentUser) {
-            localStorage.setItem('fc_star_local_data_owner', currentUser);
+            localStorage.setItem(`fc_star_challenge_season_${myId}`, (typeof challengeSeason !== 'undefined' ? challengeSeason : 1).toString());
+            localStorage.setItem(`fc_star_challenge_stage_${myId}`, (typeof challengeStage !== 'undefined' ? challengeStage : 1).toString());
+            localStorage.setItem(`fc_star_challenge_boss_ovr_${myId}`, (typeof challengeBossOvr !== 'undefined' ? challengeBossOvr : 98).toString());
+            localStorage.setItem(`fc_star_challenge_last_date_${myId}`, (typeof challengeLastDate !== 'undefined' ? challengeLastDate : ""));
+            localStorage.setItem(`fc_star_challenge_free_used_${myId}`, (typeof challengeDailyFreeUsed !== 'undefined' && challengeDailyFreeUsed) ? 'true' : 'false');
+            localStorage.setItem(`fc_star_challenge_retry_used_${myId}`, (typeof challengeDailyRetryUsed !== 'undefined' && challengeDailyRetryUsed) ? 'true' : 'false');
+            localStorage.setItem(`fc_star_challenge_history_${myId}`, JSON.stringify(typeof challengeHistory !== 'undefined' ? challengeHistory : { w: 0, d: 0, l: 0, totalGames: 0 }));
         }
     } catch (e) {
         console.warn("⚠️ 로컬 세이브 저장 중 에러 발생:", e);
     }
 }
 
-function collectCurrentUserProgressData() {
-    if (!currentUser) return null;
-    const myId = currentUser;
-    return {
-        userPoints: userPoints,
-        userLevel: userLevel,
-        playerDeck: (() => {
-            const minimalDeck = {};
-            Object.keys(playerDeck).forEach(key => {
-                if (playerDeck[key]) {
-                    minimalDeck[key] = {
-                        quantity: playerDeck[key].quantity || 1,
-                        awakening: playerDeck[key].awakening || 0,
-                        condition: typeof playerDeck[key].condition === 'number' ? playerDeck[key].condition : 0,
-                        conditionDate: playerDeck[key].conditionDate || "",
-                        isStored: playerDeck[key].isStored === true
-                    };
+// 아이디별 로컬 게임 데이터 로드 및 하이드레이션
+function loadLocalGameData(targetUserId) {
+    const rawId = (targetUserId || currentUser || localStorage.getItem('fc_star_current_user') || "").trim();
+    const myId = rawId ? rawId.toLowerCase() : "";
+    
+    try {
+        let loadedData = null;
+        
+        // 1. 아이디별 통합 JSON 키 우선 조회
+        if (myId) {
+            const unifiedDataStr = localStorage.getItem(`fc_star_user_${myId}`);
+            if (unifiedDataStr) {
+                try {
+                    loadedData = JSON.parse(unifiedDataStr);
+                } catch(e) {
+                    console.warn(`[Storage] 통합 데이터 파싱 실패 (fc_star_user_${myId}):`, e);
                 }
-            });
-            return minimalDeck;
-        })(),
-        squadFormation: squadFormation,
-        squadFormations: squadFormations,
-        currentFormation: currentFormation,
-        currentLeagueId: typeof currentLeagueId !== 'undefined' ? currentLeagueId : 'kleague1',
-        squadNumbers: squadNumbers,
-        squadCaptain: squadCaptain,
-        leagueRound: leagueRound,
-        leagueTeams: leagueTeams,
-        leaguePlayerStats: leaguePlayerStats,
-        leagueTeamsEpl: (() => {
-            try {
-                const eplTeams = localStorage.getItem('fc_star_league_teams_epl');
-                if (eplTeams) return JSON.parse(eplTeams);
-                if (currentLeagueId === 'epl') return leagueTeams;
-                return null;
-            } catch(e) { return null; }
-        })(),
-        leagueTeamsJLeague: (() => {
-            try {
-                const jTeams = localStorage.getItem('fc_star_league_teams_jleague');
-                if (jTeams) return JSON.parse(jTeams);
-                if (currentLeagueId === 'jleague') return leagueTeams;
-                return null;
-            } catch(e) { return null; }
-        })(),
-        leagueTeamsKLeague: (() => {
-            try {
-                const kTeams = localStorage.getItem('fc_star_league_teams_kleague1') || localStorage.getItem('fc_star_league_teams');
-                if (kTeams && currentLeagueId === 'kleague1') return JSON.parse(kTeams);
-                if (currentLeagueId === 'kleague1') return leagueTeams;
-                return kTeams ? JSON.parse(kTeams) : null;
-            } catch(e) { return null; }
-        })(),
-        leagueRoundEpl: (() => {
-            try {
-                const r = localStorage.getItem('fc_star_league_round_epl');
-                if (r) return parseInt(r);
-                if (currentLeagueId === 'epl') return leagueRound;
-                return 1;
-            } catch(e) { return 1; }
-        })(),
-        leagueRoundJLeague: (() => {
-            try {
-                const r = localStorage.getItem('fc_star_league_round_jleague');
-                if (r) return parseInt(r);
-                if (currentLeagueId === 'jleague') return leagueRound;
-                return 1;
-            } catch(e) { return 1; }
-        })(),
-        leagueRoundKLeague: (() => {
-            try {
-                const r = localStorage.getItem('fc_star_league_round_kleague1');
-                if (r) return parseInt(r);
-                if (currentLeagueId === 'kleague1') return leagueRound;
-                return 1;
-            } catch(e) { return 1; }
-        })(),
-        leaguePlayerStatsEpl: (() => {
-            try {
-                const s = localStorage.getItem('fc_star_league_stats_epl');
-                if (s) return JSON.parse(s);
-                if (currentLeagueId === 'epl') return leaguePlayerStats;
-                return {};
-            } catch(e) { return {}; }
-        })(),
-        leaguePlayerStatsJLeague: (() => {
-            try {
-                const s = localStorage.getItem('fc_star_league_stats_jleague');
-                if (s) return JSON.parse(s);
-                if (currentLeagueId === 'jleague') return leaguePlayerStats;
-                return {};
-            } catch(e) { return {}; }
-        })(),
-        leaguePlayerStatsKLeague: (() => {
-            try {
-                const s = localStorage.getItem('fc_star_league_stats_kleague1');
-                if (s) return JSON.parse(s);
-                if (currentLeagueId === 'kleague1') return leaguePlayerStats;
-                return {};
-            } catch(e) { return {}; }
-        })(),
-        quizOffset: quizOffset,
-        quizLastDate: quizLastDate,
-        quizQueue: quizQueue,
-        quizSolvedCount: quizSolvedCount,
-        quizCurrentIndex: quizCurrentIndex,
-        matchLastDate: matchLastDate,
-        matchTodayCount: matchTodayCount,
-        lastLoginDate: lastLoginDate,
-        leagueYear: leagueYear,
-        hallOfFame: hallOfFame,
-        leaguePlayerStats: leaguePlayerStats,
-        careerStats: careerStats,
-        careerStatsHard: careerStatsHard,
-        pvpStats: typeof userPvpStats !== 'undefined' ? userPvpStats : { w: 0, d: 0, l: 0 },
-        pvpOpponentStats: typeof userPvpOpponentStats !== 'undefined' ? userPvpOpponentStats : {},
-        cupState: typeof cupState !== 'undefined' ? cupState : null,
-        cupStateEpl: (() => {
-            try {
-                const eplCup = localStorage.getItem('fc_star_cup_state_epl');
-                return eplCup ? JSON.parse(eplCup) : null;
-            } catch(e) { return null; }
-        })(),
-        cupStateJLeague: (() => {
-            try {
-                const jCup = localStorage.getItem('fc_star_cup_state_jleague');
-                return jCup ? JSON.parse(jCup) : null;
-            } catch(e) { return null; }
-        })(),
-        cupStateKLeague: (() => {
-            try {
-                const kCup = localStorage.getItem('fc_star_cup_state_kleague1') || localStorage.getItem('fc_star_cup_state');
-                return kCup ? JSON.parse(kCup) : null;
-            } catch(e) { return null; }
-        })(),
-        aclState: typeof aclState !== 'undefined' ? aclState : null,
-        aclStateEpl: (() => {
-            try {
-                const eplAcl = localStorage.getItem('fc_star_acl_state_epl');
-                return eplAcl ? JSON.parse(eplAcl) : null;
-            } catch(e) { return null; }
-        })(),
-        aclStateJLeague: (() => {
-            try {
-                const jAcl = localStorage.getItem('fc_star_acl_state_jleague');
-                return jAcl ? JSON.parse(jAcl) : null;
-            } catch(e) { return null; }
-        })(),
-        aclStateKLeague: (() => {
-            try {
-                const kAcl = localStorage.getItem('fc_star_acl_state_kleague1') || localStorage.getItem('fc_star_acl_state');
-                return kAcl ? JSON.parse(kAcl) : null;
-            } catch(e) { return null; }
-        })(),
-        isHardMode: isHardMode,
-        userAchievements: userAchievements,
-        consecutiveLeagueTitles: consecutiveLeagueTitles,
-        currentWinStreak: currentWinStreak,
-        maxWinStreak: maxWinStreak,
-        nationalModeState: typeof nationalModeState !== 'undefined' && typeof serializeNationalModeStateForCloud === 'function' ? serializeNationalModeStateForCloud(nationalModeState) : (typeof nationalModeState !== 'undefined' ? nationalModeState : null),
-        nationalSquadPresets: typeof nationalSquadPresets !== 'undefined' ? nationalSquadPresets : {},
-        nationalNationSelections: typeof nationalNationSelections !== 'undefined' ? nationalNationSelections : {},
-        wingerStyles: typeof wingerStyles !== 'undefined' ? wingerStyles : { LW: 'dribble', RW: 'sprint' },
-        strikerStyles: typeof strikerStyles !== 'undefined' ? strikerStyles : { ST: 'targetman' },
+            }
+        }
         
-        // 도전모드(Challenge Mode) 동기화 필드 - 포인트와 동일한 공통 로컬스토리지 영역 우선 보장
-        challengeSeason: (typeof challengeSeason === 'number' && challengeSeason >= 1) ? challengeSeason : (parseInt(localStorage.getItem('fc_star_challenge_season') || '1') || 1),
-        challengeStage: (typeof challengeStage === 'number' && challengeStage >= 1) ? challengeStage : (parseInt(localStorage.getItem('fc_star_challenge_stage') || '1') || 1),
-        challengeBossOvr: typeof challengeBossOvr !== 'undefined' ? challengeBossOvr : (parseInt(localStorage.getItem('fc_star_challenge_boss_ovr') || '98') || 98),
-        challengeLastDate: typeof challengeLastDate !== 'undefined' ? challengeLastDate : (localStorage.getItem('fc_star_challenge_last_date') || ""),
-        challengeDailyFreeUsed: typeof challengeDailyFreeUsed !== 'undefined' ? challengeDailyFreeUsed : (localStorage.getItem('fc_star_challenge_free_used') === 'true'),
-        challengeDailyRetryUsed: typeof challengeDailyRetryUsed !== 'undefined' ? challengeDailyRetryUsed : (localStorage.getItem('fc_star_challenge_retry_used') === 'true'),
-        challengeHistory: typeof challengeHistory !== 'undefined' ? challengeHistory : (() => {
-            try { return JSON.parse(localStorage.getItem('fc_star_challenge_history')) || { w: 0, d: 0, l: 0, totalGames: 0 }; } catch(e) { return { w: 0, d: 0, l: 0, totalGames: 0 }; }
-        })(),
-        challengeSeasonTeams: (typeof challengeSeasonTeams !== 'undefined' && Array.isArray(challengeSeasonTeams)) ? challengeSeasonTeams : (() => {
-            try { return JSON.parse(localStorage.getItem('fc_star_challenge_season_teams')); } catch(e) { return null; }
-        })(),
+        // 2. 통합 키에 데이터가 없는 경우, 기존 레거시 개별 키에서 자동 마이그레이션
+        if (!loadedData) {
+            const legacyDeckStr = localStorage.getItem('fc_star_player_deck');
+            if (legacyDeckStr || localStorage.getItem('fc_star_user_points') !== null) {
+                console.log(`[Storage Migration] 기존 레거시 개별 키 데이터를 통합 구조(fc_star_user_${myId || 'guest'})로 마이그레이션합니다.`);
+                loadedData = buildLegacyProgressFromLocalStorage(myId || "guest");
+                if (myId) {
+                    localStorage.setItem(`fc_star_user_${myId}`, JSON.stringify(loadedData));
+                }
+            }
+        }
         
-        // 친선경기 ID별 실시간 클라우드 전적 연동 필드
-        friendlyMatchesHistory: typeof friendlyMatchesHistory !== 'undefined' ? friendlyMatchesHistory : { w: 0, d: 0, l: 0, pts: 0 },
-        friendlyCurrentOpponentIndex: typeof friendlyCurrentOpponentIndex !== 'undefined' ? friendlyCurrentOpponentIndex : 0,
-        friendlyMatchesToday: typeof friendlyMatchesToday !== 'undefined' ? friendlyMatchesToday : 0,
-        friendlyMatchLastDate: typeof friendlyMatchLastDate !== 'undefined' ? friendlyMatchLastDate : "",
-        friendlySeasonStartDate: localStorage.getItem(`fc_star_friendly_season_start_date_${myId}`) || new Date().toISOString(),
-        lastSyncedUpdatedAt: window.lastSyncedUpdatedAt,
-        
-        // 🌱 데이터 절약 모드 설정 동기화
-        isDataSaverMode: isDataSaverMode,
-        
-        // 동기화 조율용 최종 수정 타임스탬프
-        localLastUpdated: parseInt(localStorage.getItem('fc_star_local_last_updated') || '0') || Date.now()
-    };
+        // 3. 데이터가 존재하면 인메모리 상태에 일괄 적용 (하이드레이션)
+        if (loadedData) {
+            applyUserDataToState(loadedData);
+            return loadedData;
+        }
+    } catch (e) {
+        console.error("로컬 게임 데이터 로드 중 에러:", e);
+    }
+    return null;
 }
 
 function saveUserProgress(forceImmediate = false, isLoginBackup = false) {
@@ -756,173 +1306,13 @@ function syncUserDataOnLogin(userData, forceLoad = false, requireChoice = false)
             return;
         }
 
-        // Restore progress
+        // 1. 공통 하이드레이션 함수로 인메모리 상태 일괄 복원
+        applyUserDataToState(userData);
         window.lastSyncedUpdatedAt = userData.updatedAt || "";
-        userPoints = userData.userPoints || 0;
-        userLevel = userData.userLevel || 1;
-        playerDeck = userData.playerDeck || {};
         lastUploadedPoints = userPoints;
         lastUploadedDeckJson = getCardOwnershipSignature(playerDeck);
-        currentFormation = userData.currentFormation || '4-4-2';
-        isHardMode = userData.isHardMode || false;
-        const parsedWingers = userData.wingerStyles || { LW: 'dribble', RW: 'sprint' };
-        wingerStyles = {
-            '4-4-2': { LW: 'dribble', RW: 'sprint' },
-            '4-3-3': { LW: 'dribble', RW: 'sprint' },
-            '3-4-3': { LW: 'dribble', RW: 'sprint' },
-            '5-4-1': { LW: 'dribble', RW: 'sprint' },
-            '4-2-3-1': { LW: 'dribble', RW: 'sprint' }
-        };
-        if (parsedWingers.LW || parsedWingers.RW) {
-            Object.keys(wingerStyles).forEach(f => {
-                wingerStyles[f] = { LW: parsedWingers.LW || 'dribble', RW: parsedWingers.RW || 'sprint' };
-            });
-        } else {
-            wingerStyles = parsedWingers;
-        }
-        localStorage.setItem('fc_star_winger_styles', JSON.stringify(wingerStyles));
-        
-        const parsedStrikers = userData.strikerStyles || { ST: 'targetman' };
-        strikerStyles = {
-            '4-4-2': { ST: 'targetman' },
-            '4-3-3': { ST: 'targetman' },
-            '3-4-3': { ST: 'targetman' },
-            '5-4-1': { ST: 'targetman' },
-            '4-2-3-1': { ST: 'targetman' }
-        };
-        if (parsedStrikers.ST) {
-            Object.keys(strikerStyles).forEach(f => {
-                strikerStyles[f] = { ST: parsedStrikers.ST || 'targetman' };
-            });
-        } else {
-            strikerStyles = parsedStrikers;
-        }
-        localStorage.setItem('fc_star_striker_styles', JSON.stringify(strikerStyles));
-        
-        squadFormations = userData.squadFormations || {
-            '4-4-2': {},
-            '4-3-3': {},
-            '3-4-3': {},
-            '5-4-1': {},
-            '4-2-3-1': {}
-        };
-        // Migrate old flat format if necessary
-        if (!userData.squadFormations && userData.squadFormation) {
-            squadFormations[currentFormation] = userData.squadFormation;
-        }
-        // Ensure all are objects
-        ['4-4-2', '4-3-3', '3-4-3', '5-4-1', '4-2-3-1'].forEach(f => {
-            if (!squadFormations[f] || typeof squadFormations[f] !== 'object') {
-                squadFormations[f] = {};
-            }
-        });
-        squadFormation = squadFormations[currentFormation];
-        squadCaptain = userData.squadCaptain || null;
-        leagueRound = userData.leagueRound || 1;
-        
-        squadNumbers = userData.squadNumbers || {};
-        // 기존 세이브 데이터가 있거나 없는 경우 모두 90번까지 슬롯을 채워줍니다.
-        for (let i = 1; i <= 90; i++) {
-            if (!squadNumbers[i]) {
-                squadNumbers[i] = { number: i, cardId: null };
-            }
-        }
-        
-        // CARDS_DATABASE 기준 최신 구조 동기화 (하이드레이션)
-        if (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE) {
-            Object.keys(playerDeck).forEach(key => {
-                if (CARDS_DATABASE[key]) {
-                    playerDeck[key].card = CARDS_DATABASE[key];
-                    playerDeck[key].isStored = playerDeck[key].isStored === true;
-                } else {
-                    delete playerDeck[key];
-                }
-            });
-        }
-        
-        // 활성 리그 최우선 복원 (leagueTeams 검증에 필수)
-        const validLeagues = (typeof LEAGUE_CONFIGS !== 'undefined') ? Object.keys(LEAGUE_CONFIGS) : ['kleague1', 'epl', 'jleague'];
-        if (userData.currentLeagueId && validLeagues.includes(userData.currentLeagueId)) {
-            currentLeagueId = userData.currentLeagueId;
-        } else {
-            currentLeagueId = 'kleague1';
-        }
-        localStorage.setItem('fc_star_current_league', currentLeagueId);
 
-        // 리그별 독립 데이터 로컬 캐싱 복원
-        if (userData.leagueTeamsEpl && Array.isArray(userData.leagueTeamsEpl) && userData.leagueTeamsEpl.length > 0) {
-            try {
-                localStorage.setItem('fc_star_league_teams_epl', JSON.stringify(userData.leagueTeamsEpl));
-            } catch(e) {}
-        }
-        if (userData.leagueTeamsJLeague && Array.isArray(userData.leagueTeamsJLeague) && userData.leagueTeamsJLeague.length > 0) {
-            try {
-                localStorage.setItem('fc_star_league_teams_jleague', JSON.stringify(userData.leagueTeamsJLeague));
-            } catch(e) {}
-        }
-        if (userData.leagueTeamsKLeague && Array.isArray(userData.leagueTeamsKLeague) && userData.leagueTeamsKLeague.length > 0) {
-            try {
-                localStorage.setItem('fc_star_league_teams_kleague1', JSON.stringify(userData.leagueTeamsKLeague));
-            } catch(e) {}
-        }
-        if (userData.leagueRoundEpl) {
-            localStorage.setItem('fc_star_league_round_epl', userData.leagueRoundEpl.toString());
-        }
-        if (userData.leagueRoundJLeague) {
-            localStorage.setItem('fc_star_league_round_jleague', userData.leagueRoundJLeague.toString());
-        }
-        if (userData.leagueRoundKLeague) {
-            localStorage.setItem('fc_star_league_round_kleague1', userData.leagueRoundKLeague.toString());
-        }
-        if (userData.leaguePlayerStatsEpl) {
-            try {
-                localStorage.setItem('fc_star_league_stats_epl', JSON.stringify(userData.leaguePlayerStatsEpl));
-            } catch(e) {}
-        }
-        if (userData.leaguePlayerStatsJLeague) {
-            try {
-                localStorage.setItem('fc_star_league_stats_jleague', JSON.stringify(userData.leaguePlayerStatsJLeague));
-            } catch(e) {}
-        }
-        if (userData.leaguePlayerStatsKLeague) {
-            try {
-                localStorage.setItem('fc_star_league_stats_kleague1', JSON.stringify(userData.leaguePlayerStatsKLeague));
-            } catch(e) {}
-        }
-
-        // 현재 활성 리그에 맞는 팀/라운드 데이터 선택 로드
-        let targetTeams = (currentLeagueId === 'epl') ? userData.leagueTeamsEpl : ((currentLeagueId === 'jleague') ? userData.leagueTeamsJLeague : userData.leagueTeamsKLeague);
-        if (!targetTeams || !Array.isArray(targetTeams) || targetTeams.length === 0) {
-            targetTeams = userData.leagueTeams;
-        }
-
-        let targetRound = (currentLeagueId === 'epl') ? userData.leagueRoundEpl : ((currentLeagueId === 'jleague') ? userData.leagueRoundJLeague : userData.leagueRoundKLeague);
-        if (!targetRound) {
-            targetRound = userData.leagueRound || 1;
-        }
-
-        if (targetTeams && Array.isArray(targetTeams) && targetTeams.length > 0) {
-            leagueTeams = targetTeams;
-            leagueRound = parseInt(targetRound) || 1;
-            if (typeof checkAndMigrateLeagueTeams === 'function') {
-                checkAndMigrateLeagueTeams();
-            }
-        } else {
-            // Fallback: reset teams if none exists
-            resetLeagueSeasonState();
-        }
-        
-        // Firebase에 보관된 퀴즈 진도 데이터 동기화
-        quizOffset = userData.quizOffset || 0;
-        quizLastDate = userData.quizLastDate || "";
-        quizQueue = userData.quizQueue || [];
-        quizSolvedCount = userData.quizSolvedCount || 0;
-        quizCurrentIndex = userData.quizCurrentIndex || 0;
-        matchLastDate = userData.matchLastDate || "";
-        matchTodayCount = userData.matchTodayCount || 0;
-        lastLoginDate = userData.lastLoginDate || "";
-        
-        // 하루 최초 로그인 시 포인트 3점 지급 판정
+        // 2. 하루 최초 로그인 시 포인트 3점 지급 판정
         const todayStr = new Date().toLocaleDateString('ko-KR');
         if (lastLoginDate !== todayStr) {
             userPoints += 3;
@@ -936,244 +1326,11 @@ function syncUserDataOnLogin(userData, forceLoad = false, requireChoice = false)
                 saveUserProgress();
             }, 2500);
         }
-        
-        // 리그 연도 및 명예의 전당 클라우드 데이터 복원
-        leagueYear = userData.leagueYear || 2026;
-        hallOfFame = userData.hallOfFame || [];
-        leaguePlayerStats = userData.leaguePlayerStats || {};
-        if (Object.keys(leaguePlayerStats).length === 0) {
-            initLeaguePlayerStats();
-        }
-        
-        careerStats = userData.careerStats || { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
-        careerStatsHard = userData.careerStatsHard || { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
-        userPvpStats = userData.pvpStats || { w: 0, d: 0, l: 0 };
-        userPvpOpponentStats = userData.pvpOpponentStats || {};
 
-        localStorage.setItem('fc_star_pvp_w', userPvpStats.w.toString());
-        localStorage.setItem('fc_star_pvp_d', userPvpStats.d.toString());
-        localStorage.setItem('fc_star_pvp_l', userPvpStats.l.toString());
-        localStorage.setItem('fc_star_pvp_opp_stats', JSON.stringify(userPvpOpponentStats));
-        
-        // 업적 및 연승 클라우드 데이터 복원
-        userAchievements = {
-            double: { unlocked: false, rewarded: false },
-            treble: { unlocked: false, rewarded: false },
-            invincible: { unlocked: false, rewarded: false },
-            threepeat: { unlocked: false, rewarded: false },
-            fivepeat: { unlocked: false, rewarded: false },
-            collector: { unlocked: false, rewarded: false },
-            worldclass: { unlocked: false, rewarded: false },
-            hardworldclass: { unlocked: false, rewarded: false },
-            streak10: { unlocked: false, rewarded: false },
-            streak20: { unlocked: false, rewarded: false },
-            streak30: { unlocked: false, rewarded: false },
-            goals300: { unlocked: false, rewarded: false },
-            goals500: { unlocked: false, rewarded: false },
-            goals1000: { unlocked: false, rewarded: false },
-            wins1000: { unlocked: false, rewarded: false },
-            wins2000: { unlocked: false, rewarded: false },
-            ...(userData.userAchievements || {})
-        };
-        consecutiveLeagueTitles = userData.consecutiveLeagueTitles || 0;
-        currentWinStreak = userData.currentWinStreak || 0;
-        maxWinStreak = userData.maxWinStreak || 0;
-        if (userData.nationalModeState && typeof initNationalMode === 'function') {
-            nationalModeState = typeof deserializeNationalModeStateFromCloud === 'function' ? deserializeNationalModeStateFromCloud(userData.nationalModeState) : userData.nationalModeState;
-            if (typeof nationalDevMode !== 'undefined' && nationalDevMode && typeof nationalDevState !== 'undefined') nationalDevState = nationalModeState;
-            try { localStorage.setItem('fc_star_national_mode_state', JSON.stringify(nationalModeState)); } catch(e) {}
-        }
-        if (userData.nationalSquadPresets && typeof nationalSquadPresets !== 'undefined') {
-            nationalSquadPresets = userData.nationalSquadPresets;
-            try { localStorage.setItem('fc_star_national_squad_presets', JSON.stringify(nationalSquadPresets)); } catch(e) {}
-            const activeNationalState = typeof getNationalModeState === 'function' ? getNationalModeState() : null;
-            if (activeNationalState && activeNationalState.selectedNationId && typeof applyNationalSquadPreset === 'function') {
-                applyNationalSquadPreset(activeNationalState, activeNationalState.selectedNationId);
-            }
-        }
-        if (userData.nationalNationSelections && typeof nationalNationSelections !== 'undefined') {
-            nationalNationSelections=userData.nationalNationSelections;
-            try { localStorage.setItem('fc_star_national_nation_selections',JSON.stringify(nationalNationSelections)); } catch(e) {}
-            const activeNationalState=typeof getNationalModeState==='function'?getNationalModeState():null;
-            if(activeNationalState&&typeof applySavedNationalNation==='function')applySavedNationalNation(activeNationalState);
-        }
-        if (typeof syncNationalModeYear === 'function') {
-            syncNationalModeYear(false);
-        }
-        
-        // 리그컵 상태 클라우드 데이터 복원 (K리그 / EPL / J리그 독립 스토리지)
-        if (userData.cupStateEpl) {
-            localStorage.setItem('fc_star_cup_state_epl', JSON.stringify(userData.cupStateEpl));
-        }
-        if (userData.cupStateJLeague) {
-            localStorage.setItem('fc_star_cup_state_jleague', JSON.stringify(userData.cupStateJLeague));
-        }
-        if (userData.cupStateKLeague) {
-            localStorage.setItem('fc_star_cup_state_kleague1', JSON.stringify(userData.cupStateKLeague));
-            localStorage.setItem('fc_star_cup_state', JSON.stringify(userData.cupStateKLeague));
-        } else if (userData.cupState) {
-            localStorage.setItem('fc_star_cup_state_kleague1', JSON.stringify(userData.cupState));
-            localStorage.setItem('fc_star_cup_state', JSON.stringify(userData.cupState));
-        }
-        if (typeof initCup === 'function') {
-            initCup();
-        }
-        
-        // 아챔 및 챔스 상태 클라우드 데이터 복원 (K리그 / EPL / J리그 독립 스토리지)
-        if (userData.aclStateEpl) {
-            localStorage.setItem('fc_star_acl_state_epl', JSON.stringify(userData.aclStateEpl));
-        }
-        if (userData.aclStateJLeague) {
-            localStorage.setItem('fc_star_acl_state_jleague', JSON.stringify(userData.aclStateJLeague));
-        }
-        if (userData.aclStateKLeague) {
-            localStorage.setItem('fc_star_acl_state_kleague1', JSON.stringify(userData.aclStateKLeague));
-            localStorage.setItem('fc_star_acl_state', JSON.stringify(userData.aclStateKLeague));
-        } else if (userData.aclState) {
-            localStorage.setItem('fc_star_acl_state_kleague1', JSON.stringify(userData.aclState));
-            localStorage.setItem('fc_star_acl_state', JSON.stringify(userData.aclState));
-        }
-        if (typeof initAcl === 'function') {
-            initAcl();
-        }
-        
-        // 클라우드에서 도전모드(Challenge Mode) 및 친선경기 상태 복원
-        const rawId = (typeof currentUser === 'string' && currentUser) ? currentUser.trim() : (localStorage.getItem('fc_star_current_user') || "");
-        const myId = rawId.toLowerCase();
+        // 3. 통합 로컬스토리지 및 개별 키 듀얼 라이트 즉시 반영
+        saveAllToLocalStorage();
 
-        // 로컬에 기존 진행 데이터가 남아있는지 확인 (공통 키 1순위 조회, ID별 키 fallback)
-        const localSeasonStr = localStorage.getItem('fc_star_challenge_season') || (myId ? localStorage.getItem(`fc_star_challenge_season_${myId}`) : null) || (rawId && rawId !== myId ? localStorage.getItem(`fc_star_challenge_season_${rawId}`) : null);
-        const localStageStr = localStorage.getItem('fc_star_challenge_stage') || (myId ? localStorage.getItem(`fc_star_challenge_stage_${myId}`) : null) || (rawId && rawId !== myId ? localStorage.getItem(`fc_star_challenge_stage_${rawId}`) : null);
-        const localSeason = (localSeasonStr && !isNaN(localSeasonStr)) ? parseInt(localSeasonStr) : null;
-        const localStage = (localStageStr && !isNaN(localStageStr)) ? parseInt(localStageStr) : null;
-
-        const cloudSeason = (userData.challengeSeason !== undefined && userData.challengeSeason !== null && !isNaN(userData.challengeSeason)) ? parseInt(userData.challengeSeason) : null;
-        const cloudStage = (userData.challengeStage !== undefined && userData.challengeStage !== null && !isNaN(userData.challengeStage)) ? parseInt(userData.challengeStage) : null;
-
-        let needsChallengeCloudSync = false;
-        if (cloudSeason !== null && localSeason !== null) {
-            if (cloudSeason > localSeason) {
-                challengeSeason = cloudSeason;
-                challengeStage = (cloudStage !== null) ? cloudStage : 1;
-            } else if (localSeason > cloudSeason) {
-                challengeSeason = localSeason;
-                challengeStage = (localStage !== null) ? localStage : 1;
-                needsChallengeCloudSync = true;
-            } else {
-                challengeSeason = cloudSeason;
-                challengeStage = Math.max(localStage || 1, cloudStage || 1);
-                if (localStage && cloudStage && localStage > cloudStage) {
-                    needsChallengeCloudSync = true;
-                }
-            }
-        } else if (cloudSeason !== null) {
-            challengeSeason = cloudSeason;
-            challengeStage = (cloudStage !== null) ? cloudStage : 1;
-        } else if (localSeason !== null) {
-            challengeSeason = localSeason;
-            challengeStage = (localStage !== null) ? localStage : 1;
-            needsChallengeCloudSync = true;
-        } else {
-            challengeSeason = 1;
-            challengeStage = 1;
-        }
-
-        challengeBossOvr = userData.challengeBossOvr || parseInt(localStorage.getItem('fc_star_challenge_boss_ovr') || (myId ? localStorage.getItem(`fc_star_challenge_boss_ovr_${myId}`) : '98') || '98') || 98;
-        challengeLastDate = userData.challengeLastDate || localStorage.getItem('fc_star_challenge_last_date') || (myId ? localStorage.getItem(`fc_star_challenge_last_date_${myId}`) : "") || "";
-        challengeDailyFreeUsed = (userData.challengeDailyFreeUsed !== undefined) ? userData.challengeDailyFreeUsed : (localStorage.getItem('fc_star_challenge_free_used') === 'true' || (myId && localStorage.getItem(`fc_star_challenge_free_used_${myId}`) === 'true'));
-        challengeDailyRetryUsed = (userData.challengeDailyRetryUsed !== undefined) ? userData.challengeDailyRetryUsed : (localStorage.getItem('fc_star_challenge_retry_used') === 'true' || (myId && localStorage.getItem(`fc_star_challenge_retry_used_${myId}`) === 'true'));
-        challengeHistory = userData.challengeHistory || (() => {
-            try {
-                const h = localStorage.getItem('fc_star_challenge_history') || (myId ? localStorage.getItem(`fc_star_challenge_history_${myId}`) : null);
-                return h ? JSON.parse(h) : { w: 0, d: 0, l: 0, totalGames: 0 };
-            } catch(e) { return { w: 0, d: 0, l: 0, totalGames: 0 }; }
-        })();
-
-        if (userData.challengeSeasonTeams && Array.isArray(userData.challengeSeasonTeams) && userData.challengeSeasonTeams.length === 10) {
-            challengeSeasonTeams = userData.challengeSeasonTeams;
-        } else {
-            const savedTeams = localStorage.getItem('fc_star_challenge_season_teams') || (myId ? localStorage.getItem(`fc_star_challenge_season_teams_${myId}`) : null);
-            if (savedTeams) {
-                try { challengeSeasonTeams = JSON.parse(savedTeams); } catch(e) { challengeSeasonTeams = null; }
-            }
-        }
-
-        // 공통 로컬스토리지 및 ID별 스토리지에 동시 영구 저장
-        if (typeof saveChallengeState === 'function') {
-            saveChallengeState();
-        }
-        if (typeof initChallengeState === 'function') {
-            initChallengeState();
-        }
-        if (needsChallengeCloudSync) {
-            setTimeout(() => {
-                saveUserProgress(true);
-            }, 1000);
-        }
-
-        // 클라우드에서 친선경기 전적 및 릴레이 인덱스 상태 복원
-        friendlyMatchesHistory = userData.friendlyMatchesHistory || { w: 0, d: 0, l: 0, pts: 0 };
-        friendlyCurrentOpponentIndex = userData.friendlyCurrentOpponentIndex || 0;
-        friendlyMatchesToday = userData.friendlyMatchesToday || 0;
-        friendlyMatchLastDate = userData.friendlyMatchLastDate || "";
-        
-        localStorage.setItem(`fc_star_friendly_history_${myId}`, JSON.stringify(friendlyMatchesHistory));
-        localStorage.setItem(`fc_star_friendly_current_index_${myId}`, friendlyCurrentOpponentIndex.toString());
-        localStorage.setItem(`fc_star_friendly_matches_today_${myId}`, friendlyMatchesToday.toString());
-        localStorage.setItem(`fc_star_friendly_match_last_date_${myId}`, friendlyMatchLastDate);
-        if (userData.friendlySeasonStartDate) {
-            localStorage.setItem(`fc_star_friendly_season_start_date_${myId}`, userData.friendlySeasonStartDate);
-        }
-        if (typeof initFriendlyMatchState === 'function') {
-            initFriendlyMatchState();
-        }
-        
-        // Sync local storage so it serves as offline cache
-        localStorage.setItem('fc_star_user_points', userPoints.toString());
-        localStorage.setItem('fc_star_user_level', userLevel.toString());
-        localStorage.setItem('fc_star_player_deck', JSON.stringify(playerDeck));
-        localStorage.setItem('fc_star_squad_formations', JSON.stringify(squadFormations));
-        localStorage.setItem('fc_star_squad_formation', JSON.stringify(squadFormation));
-        localStorage.setItem('fc_star_current_formation', currentFormation);
-        localStorage.setItem('fc_star_league_teams', JSON.stringify(leagueTeams));
-        localStorage.setItem('fc_star_league_round', leagueRound.toString());
-        localStorage.setItem('fc_star_quiz_offset', quizOffset.toString());
-        localStorage.setItem('fc_star_quiz_last_date', quizLastDate);
-        localStorage.setItem('fc_star_quiz_queue', JSON.stringify(quizQueue));
-        localStorage.setItem('fc_star_quiz_solved_count', quizSolvedCount.toString());
-        localStorage.setItem('fc_star_quiz_current_index', quizCurrentIndex.toString());
-        localStorage.setItem('fc_star_match_last_date', matchLastDate);
-        localStorage.setItem('fc_star_match_today_count', matchTodayCount.toString());
-        localStorage.setItem('fc_star_last_login_date', lastLoginDate);
-        localStorage.setItem('fc_star_league_year', leagueYear.toString());
-        localStorage.setItem('fc_star_hall_of_fame', JSON.stringify(hallOfFame));
-        localStorage.setItem('fc_star_league_stats', JSON.stringify(leaguePlayerStats));
-        localStorage.setItem('fc_star_career_stats', JSON.stringify(careerStats));
-        localStorage.setItem('fc_star_career_stats_hard', JSON.stringify(careerStatsHard));
-        localStorage.setItem('fc_star_squad_numbers', JSON.stringify(squadNumbers));
-        localStorage.setItem('fc_star_is_hard_mode', isHardMode.toString());
-        localStorage.setItem('fc_star_last_synced_updated_at', window.lastSyncedUpdatedAt);
-        localStorage.setItem('fc_star_local_last_updated', (userData.localLastUpdated || Date.now()).toString());
-        if (myId) {
-            localStorage.setItem('fc_star_local_data_owner', myId);
-        }
-        localStorage.setItem('fc_star_user_achievements', JSON.stringify(userAchievements));
-        localStorage.setItem('fc_star_consecutive_titles', consecutiveLeagueTitles.toString());
-        localStorage.setItem('fc_star_current_win_streak', currentWinStreak.toString());
-        localStorage.setItem('fc_star_max_win_streak', maxWinStreak.toString());
-        localStorage.setItem('fc_star_winger_styles', JSON.stringify(wingerStyles));
-        localStorage.setItem('fc_star_striker_styles', JSON.stringify(strikerStyles));
-        
-        // 🌱 데이터 절약 모드 설정 복원
-        if (userData.isDataSaverMode !== undefined) {
-            isDataSaverMode = !!userData.isDataSaverMode;
-            try {
-                localStorage.setItem('fc_star_data_saver', isDataSaverMode ? 'true' : 'false');
-            } catch(e) {}
-        }
-        updateDataSaverUI();
-        
-        // Refresh all screens
+        // 4. 전체 화면 렌더링 갱신
         refreshAllScreens();
         
         // 동기화 완료 상태 마크
@@ -1346,7 +1503,7 @@ async function handleAuthSubmit() {
         // 이전 소유자가 게스트가 아닌 다른 계정이거나, 또는 일반 로그인 시도인 경우 로컬 데이터 일괄 청소
         if (!isLocalOwnerGuest || authMode === 'login') {
             console.warn("⚠️ [Local Data Owner Mismatch] 기존 로컬 데이터 소유자:", localOwner, "로그인 계정:", targetUserId, "-> 로컬 데이터를 초기화합니다.");
-            clearLocalGameData();
+            clearLocalGameData(localOwner);
         }
     }
     
@@ -1363,12 +1520,13 @@ async function handleAuthSubmit() {
             const userData = await dbService.login(id, pw);
             currentUser = (userData.id || targetUserId).trim().toLowerCase();
             localStorage.setItem('fc_star_local_data_owner', currentUser);
-            
-            // Sync and refresh
-            startInitialCloudSync(userData, pw);
-            
-            // Keep session
             localStorage.setItem('fc_star_current_user', currentUser);
+            
+            // ⭐ 1. 해당 유저의 로컬 통합 데이터가 있으면 먼저 로드
+            loadLocalGameData(currentUser);
+            
+            // ⭐ 2. 클라우드 서버 데이터 동기화 시작
+            startInitialCloudSync(userData, pw);
             
             closeAuthModal();
             showToast(`환영합니다! ${currentUser.toUpperCase()} 계정으로 로그인되었습니다.`);
@@ -1377,15 +1535,14 @@ async function handleAuthSubmit() {
             const defaultData = await dbService.register(id, pw);
             currentUser = (defaultData.id || targetUserId).trim().toLowerCase();
             localStorage.setItem('fc_star_local_data_owner', currentUser);
+            localStorage.setItem('fc_star_current_user', currentUser);
             
             // Sync & automatically save existing local progress (if any) as first upload
             startInitialCloudSync(defaultData, pw);
             
             // Backup existing local data to cloud immediately
+            saveAllToLocalStorage(currentUser);
             saveUserProgress(true, true);
-            
-            // Keep session
-            localStorage.setItem('fc_star_current_user', currentUser);
             
             closeAuthModal();
             showToast(`축하합니다! ${currentUser.toUpperCase()} 계정이 생성 및 연동되었습니다!`);
@@ -1415,7 +1572,7 @@ async function handleGuestPlay() {
         const isLocalOwnerGuest = localOwner.startsWith('guest_');
         if (!isLocalOwnerGuest) {
             console.warn("⚠️ [Local Data Owner Mismatch] 기존 정식 사용자 데이터를 비회원 게스트 환경으로 승계하지 않고 삭제합니다. 소유자:", localOwner);
-            clearLocalGameData();
+            clearLocalGameData(localOwner);
         }
     }
 
@@ -1445,13 +1602,17 @@ async function handleGuestPlay() {
             }
         }
         
-        currentUser = guestId;
-        localStorage.setItem('fc_star_current_user', guestId);
+        currentUser = guestId.toLowerCase();
+        localStorage.setItem('fc_star_current_user', currentUser);
+        localStorage.setItem('fc_star_local_data_owner', currentUser);
+        
+        // ⭐ 게스트 로컬 통합 데이터 우선 로드
+        loadLocalGameData(currentUser);
         
         // Sync and refresh
         if (userData) {
             startInitialCloudSync(userData, guestPw);
-            // Backup existing local data to cloud immediately (just in case they had offline progress before registering)
+            saveAllToLocalStorage(currentUser);
             saveUserProgress(true, true);
         }
         
@@ -1460,8 +1621,10 @@ async function handleGuestPlay() {
     } catch (err) {
         console.warn("⚠️ 클라우드 게스트 생성 실패 (오프라인 모드 진입):", err);
         // Offline / network fallback: directly start guest mode locally
-        currentUser = guestId;
-        localStorage.setItem('fc_star_current_user', guestId);
+        currentUser = guestId.toLowerCase();
+        localStorage.setItem('fc_star_current_user', currentUser);
+        localStorage.setItem('fc_star_local_data_owner', currentUser);
+        loadLocalGameData(currentUser);
         
         // Trigger UI rendering
         isCloudDataSynced = false;
@@ -1497,7 +1660,16 @@ async function handleGuestPlay() {
     }
 }
 
-function clearLocalGameData() {
+function clearLocalGameData(targetUserId, removeUnifiedDoc = false) {
+    const rawId = (targetUserId || currentUser || localStorage.getItem('fc_star_current_user') || "").trim();
+    const myId = rawId.toLowerCase();
+    
+    // 1. 명시적으로 removeUnifiedDoc이 true일 때만 아이디별 통합 JSON 키 삭제
+    if (myId && removeUnifiedDoc) {
+        try { localStorage.removeItem(`fc_star_user_${myId}`); } catch(e) {}
+    }
+    
+    // 2. 공용/임시 레거시 키 목록 정리
     const keys = [
         'fc_star_user_points',
         'fc_star_user_level',
@@ -1542,7 +1714,6 @@ function clearLocalGameData() {
         'fc_star_challenge_season_teams',
         'fc_star_local_data_owner'
     ];
-    const myId = currentUser || localStorage.getItem('fc_star_current_user') || "";
     if (myId) {
         keys.push(`fc_star_challenge_season_${myId}`);
         keys.push(`fc_star_challenge_stage_${myId}`);
