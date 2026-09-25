@@ -5,7 +5,7 @@
   1. 원본 Firestore 데이터 백업: `scratch/son7_backup_20260925_221803.json`으로 백업 완료.
   2. Firestore REST API PATCH: `fc_star_users/son7` 문서의 `challengeSeason: 2`, `challengeStage: 6`, 최신 `updatedAt` 및 `localLastUpdated` 타임스탬프 갱신 완료.
   3. 실시간 검증: `patch_son7_challenge.py` 실행 결과 Firestore 정상 반영 확인.
-- 다음 단계: 완료 보고.
+- 다음 단계: 깃 푸시 완료 (`76ea35e`).
 
 ## 이전 작업
 - 목표: Firebase Firestore 유저 데이터 백업 (`backup_firestore.py` 실행)
