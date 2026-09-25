@@ -1,18 +1,11 @@
 ## 현재 작업
-- 목표: 로컬 데이터 삭제 로직 완전 폐지 및 순수 아이디별 통합 스토리지(`fc_star_user_${userId}`) 체계 확정
+- 목표: son7 계정의 도전모드 진도를 시즌 2 스테이지 6 (`challengeSeason: 2`, `challengeStage: 6`)으로 변경
 - 상태: 완료
 - 주요 변경·검증:
-  1. `js/auth.js`:
-     - **로컬 삭제 로직 완전 폐지**: 계정 전환/게스트 진입/로그아웃 시 공용 키 삭제 루프를 영구히 폐지하고, `clearLocalGameData`는 명시적 단일 유저 문서 삭제 요청 시에만 동작하도록 단순화.
-     - **오너 일치 기반 레거시 마이그레이션 (`loadLocalGameData`)**: 통합 문서가 없는 신규/기존 계정 접근 시, 로컬 데이터 소유자(`fc_star_local_data_owner`)가 현재 계정과 일치할 때만 1회 마이그레이션하도록 안전 가드를 적용하여 타 계정 데이터 복사 위험을 원천 차단.
-     - **간소화된 로그인/로그아웃 흐름**: 불필요한 mismatch 경고 및 삭제 호출 없이 `loadLocalGameData(currentUser)`로 직행.
-  2. PWA 캐시 및 스크립트 버전 상향:
-     - `index.html`: `js/auth.js?v=2.79`
-     - `sw.js`: `CACHE_NAME = 'fc-star-v434'`
-  3. 검증:
-     - `scratch/test_unified_storage.cjs` 4개 단위 테스트 100% PASS.
-     - `scratch/verify_initial_cloud_sync.cjs` 초기 클라우드 동기화 테스트 PASS.
-- 다음 단계: Git 커밋 & 원격 저장소(`main`) 푸시 완료.
+  1. 원본 Firestore 데이터 백업: `scratch/son7_backup_20260925_221803.json`으로 백업 완료.
+  2. Firestore REST API PATCH: `fc_star_users/son7` 문서의 `challengeSeason: 2`, `challengeStage: 6`, 최신 `updatedAt` 및 `localLastUpdated` 타임스탬프 갱신 완료.
+  3. 실시간 검증: `patch_son7_challenge.py` 실행 결과 Firestore 정상 반영 확인.
+- 다음 단계: 완료 보고.
 
 ## 이전 작업
 - 목표: Firebase Firestore 유저 데이터 백업 (`backup_firestore.py` 실행)

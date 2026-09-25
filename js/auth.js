@@ -505,6 +505,14 @@ function applyUserDataToState(userData) {
 function collectCurrentUserProgressData(targetUserId) {
     const rawId = (targetUserId || currentUser || localStorage.getItem('fc_star_current_user') || "guest").trim();
     const myId = rawId.toLowerCase();
+    
+    // 현재 계정의 로컬 통합 문서 캐시 조회 (비활성 리그/모드 데이터의 안전한 소유권 격리 유지)
+    let cachedUserDoc = null;
+    try {
+        const uDocStr = localStorage.getItem(`fc_star_user_${myId}`);
+        if (uDocStr) cachedUserDoc = JSON.parse(uDocStr);
+    } catch(e) {}
+
     return {
         id: myId,
         userPoints: userPoints,
@@ -534,76 +542,49 @@ function collectCurrentUserProgressData(targetUserId) {
         leagueTeams: typeof leagueTeams !== 'undefined' ? leagueTeams : [],
         leaguePlayerStats: typeof leaguePlayerStats !== 'undefined' ? leaguePlayerStats : {},
         leagueTeamsEpl: (() => {
-            try {
-                const eplTeams = localStorage.getItem('fc_star_league_teams_epl');
-                if (eplTeams) return JSON.parse(eplTeams);
-                if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl' && typeof leagueTeams !== 'undefined') return leagueTeams;
-                return null;
-            } catch(e) { return null; }
+            if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl' && typeof leagueTeams !== 'undefined') return leagueTeams;
+            if (cachedUserDoc && cachedUserDoc.leagueTeamsEpl) return cachedUserDoc.leagueTeamsEpl;
+            return null;
         })(),
         leagueTeamsJLeague: (() => {
-            try {
-                const jTeams = localStorage.getItem('fc_star_league_teams_jleague');
-                if (jTeams) return JSON.parse(jTeams);
-                if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'jleague' && typeof leagueTeams !== 'undefined') return leagueTeams;
-                return null;
-            } catch(e) { return null; }
+            if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'jleague' && typeof leagueTeams !== 'undefined') return leagueTeams;
+            if (cachedUserDoc && cachedUserDoc.leagueTeamsJLeague) return cachedUserDoc.leagueTeamsJLeague;
+            return null;
         })(),
         leagueTeamsKLeague: (() => {
-            try {
-                const kTeams = localStorage.getItem('fc_star_league_teams_kleague1') || localStorage.getItem('fc_star_league_teams');
-                if (kTeams && typeof currentLeagueId !== 'undefined' && currentLeagueId === 'kleague1') return JSON.parse(kTeams);
-                if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'kleague1' && typeof leagueTeams !== 'undefined') return leagueTeams;
-                return kTeams ? JSON.parse(kTeams) : null;
-            } catch(e) { return null; }
+            if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'kleague1' && typeof leagueTeams !== 'undefined') return leagueTeams;
+            if (cachedUserDoc && cachedUserDoc.leagueTeamsKLeague) return cachedUserDoc.leagueTeamsKLeague;
+            return null;
         })(),
         leagueRoundEpl: (() => {
-            try {
-                const r = localStorage.getItem('fc_star_league_round_epl');
-                if (r) return parseInt(r);
-                if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl' && typeof leagueRound !== 'undefined') return leagueRound;
-                return 1;
-            } catch(e) { return 1; }
+            if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl' && typeof leagueRound !== 'undefined') return leagueRound;
+            if (cachedUserDoc && cachedUserDoc.leagueRoundEpl) return parseInt(cachedUserDoc.leagueRoundEpl) || 1;
+            return 1;
         })(),
         leagueRoundJLeague: (() => {
-            try {
-                const r = localStorage.getItem('fc_star_league_round_jleague');
-                if (r) return parseInt(r);
-                if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'jleague' && typeof leagueRound !== 'undefined') return leagueRound;
-                return 1;
-            } catch(e) { return 1; }
+            if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'jleague' && typeof leagueRound !== 'undefined') return leagueRound;
+            if (cachedUserDoc && cachedUserDoc.leagueRoundJLeague) return parseInt(cachedUserDoc.leagueRoundJLeague) || 1;
+            return 1;
         })(),
         leagueRoundKLeague: (() => {
-            try {
-                const r = localStorage.getItem('fc_star_league_round_kleague1');
-                if (r) return parseInt(r);
-                if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'kleague1' && typeof leagueRound !== 'undefined') return leagueRound;
-                return 1;
-            } catch(e) { return 1; }
+            if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'kleague1' && typeof leagueRound !== 'undefined') return leagueRound;
+            if (cachedUserDoc && cachedUserDoc.leagueRoundKLeague) return parseInt(cachedUserDoc.leagueRoundKLeague) || 1;
+            return 1;
         })(),
         leaguePlayerStatsEpl: (() => {
-            try {
-                const s = localStorage.getItem('fc_star_league_stats_epl');
-                if (s) return JSON.parse(s);
-                if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl' && typeof leaguePlayerStats !== 'undefined') return leaguePlayerStats;
-                return {};
-            } catch(e) { return {}; }
+            if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl' && typeof leaguePlayerStats !== 'undefined') return leaguePlayerStats;
+            if (cachedUserDoc && cachedUserDoc.leaguePlayerStatsEpl) return cachedUserDoc.leaguePlayerStatsEpl;
+            return {};
         })(),
         leaguePlayerStatsJLeague: (() => {
-            try {
-                const s = localStorage.getItem('fc_star_league_stats_jleague');
-                if (s) return JSON.parse(s);
-                if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'jleague' && typeof leaguePlayerStats !== 'undefined') return leaguePlayerStats;
-                return {};
-            } catch(e) { return {}; }
+            if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'jleague' && typeof leaguePlayerStats !== 'undefined') return leaguePlayerStats;
+            if (cachedUserDoc && cachedUserDoc.leaguePlayerStatsJLeague) return cachedUserDoc.leaguePlayerStatsJLeague;
+            return {};
         })(),
         leaguePlayerStatsKLeague: (() => {
-            try {
-                const s = localStorage.getItem('fc_star_league_stats_kleague1');
-                if (s) return JSON.parse(s);
-                if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'kleague1' && typeof leaguePlayerStats !== 'undefined') return leaguePlayerStats;
-                return {};
-            } catch(e) { return {}; }
+            if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'kleague1' && typeof leaguePlayerStats !== 'undefined') return leaguePlayerStats;
+            if (cachedUserDoc && cachedUserDoc.leaguePlayerStatsKLeague) return cachedUserDoc.leaguePlayerStatsKLeague;
+            return {};
         })(),
         quizOffset: typeof quizOffset !== 'undefined' ? quizOffset : 0,
         quizLastDate: typeof quizLastDate !== 'undefined' ? quizLastDate : "",
@@ -621,41 +602,37 @@ function collectCurrentUserProgressData(targetUserId) {
         pvpOpponentStats: typeof userPvpOpponentStats !== 'undefined' ? userPvpOpponentStats : {},
         cupState: typeof cupState !== 'undefined' ? cupState : null,
         cupStateEpl: (() => {
-            try {
-                const eplCup = localStorage.getItem('fc_star_cup_state_epl');
-                return eplCup ? JSON.parse(eplCup) : null;
-            } catch(e) { return null; }
+            if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl' && typeof cupState !== 'undefined') return cupState;
+            if (cachedUserDoc && cachedUserDoc.cupStateEpl) return cachedUserDoc.cupStateEpl;
+            return null;
         })(),
         cupStateJLeague: (() => {
-            try {
-                const jCup = localStorage.getItem('fc_star_cup_state_jleague');
-                return jCup ? JSON.parse(jCup) : null;
-            } catch(e) { return null; }
+            if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'jleague' && typeof cupState !== 'undefined') return cupState;
+            if (cachedUserDoc && cachedUserDoc.cupStateJLeague) return cachedUserDoc.cupStateJLeague;
+            return null;
         })(),
         cupStateKLeague: (() => {
-            try {
-                const kCup = localStorage.getItem('fc_star_cup_state_kleague1') || localStorage.getItem('fc_star_cup_state');
-                return kCup ? JSON.parse(kCup) : null;
-            } catch(e) { return null; }
+            if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'kleague1' && typeof cupState !== 'undefined') return cupState;
+            if (cachedUserDoc && cachedUserDoc.cupStateKLeague) return cachedUserDoc.cupStateKLeague;
+            if (cachedUserDoc && cachedUserDoc.cupState) return cachedUserDoc.cupState;
+            return null;
         })(),
         aclState: typeof aclState !== 'undefined' ? aclState : null,
         aclStateEpl: (() => {
-            try {
-                const eplAcl = localStorage.getItem('fc_star_acl_state_epl');
-                return eplAcl ? JSON.parse(eplAcl) : null;
-            } catch(e) { return null; }
+            if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl' && typeof aclState !== 'undefined') return aclState;
+            if (cachedUserDoc && cachedUserDoc.aclStateEpl) return cachedUserDoc.aclStateEpl;
+            return null;
         })(),
         aclStateJLeague: (() => {
-            try {
-                const jAcl = localStorage.getItem('fc_star_acl_state_jleague');
-                return jAcl ? JSON.parse(jAcl) : null;
-            } catch(e) { return null; }
+            if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'jleague' && typeof aclState !== 'undefined') return aclState;
+            if (cachedUserDoc && cachedUserDoc.aclStateJLeague) return cachedUserDoc.aclStateJLeague;
+            return null;
         })(),
         aclStateKLeague: (() => {
-            try {
-                const kAcl = localStorage.getItem('fc_star_acl_state_kleague1') || localStorage.getItem('fc_star_acl_state');
-                return kAcl ? JSON.parse(kAcl) : null;
-            } catch(e) { return null; }
+            if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'kleague1' && typeof aclState !== 'undefined') return aclState;
+            if (cachedUserDoc && cachedUserDoc.aclStateKLeague) return cachedUserDoc.aclStateKLeague;
+            if (cachedUserDoc && cachedUserDoc.aclState) return cachedUserDoc.aclState;
+            return null;
         })(),
         isHardMode: typeof isHardMode !== 'undefined' ? !!isHardMode : false,
         userAchievements: typeof userAchievements !== 'undefined' ? userAchievements : {},
@@ -668,33 +645,29 @@ function collectCurrentUserProgressData(targetUserId) {
         wingerStyles: typeof wingerStyles !== 'undefined' ? wingerStyles : { '4-4-2': { LW: 'dribble', RW: 'sprint' }, '4-3-3': { LW: 'dribble', RW: 'sprint' }, '3-4-3': { LW: 'dribble', RW: 'sprint' }, '5-4-1': { LW: 'dribble', RW: 'sprint' }, '4-2-3-1': { LW: 'dribble', RW: 'sprint' } },
         strikerStyles: typeof strikerStyles !== 'undefined' ? strikerStyles : { '4-4-2': { ST: 'targetman' }, '4-3-3': { ST: 'targetman' }, '3-4-3': { ST: 'targetman' }, '5-4-1': { ST: 'targetman' }, '4-2-3-1': { ST: 'targetman' } },
         
-        // 도전모드(Challenge Mode) 동기화 필드
-        challengeSeason: (typeof challengeSeason === 'number' && challengeSeason >= 1) ? challengeSeason : (parseInt(localStorage.getItem('fc_star_challenge_season') || '1') || 1),
-        challengeStage: (typeof challengeStage === 'number' && challengeStage >= 1) ? challengeStage : (parseInt(localStorage.getItem('fc_star_challenge_stage') || '1') || 1),
-        challengeBossOvr: typeof challengeBossOvr !== 'undefined' ? challengeBossOvr : (parseInt(localStorage.getItem('fc_star_challenge_boss_ovr') || '98') || 98),
-        challengeLastDate: typeof challengeLastDate !== 'undefined' ? challengeLastDate : (localStorage.getItem('fc_star_challenge_last_date') || ""),
-        challengeDailyFreeUsed: typeof challengeDailyFreeUsed !== 'undefined' ? challengeDailyFreeUsed : (localStorage.getItem('fc_star_challenge_free_used') === 'true'),
-        challengeDailyRetryUsed: typeof challengeDailyRetryUsed !== 'undefined' ? challengeDailyRetryUsed : (localStorage.getItem('fc_star_challenge_retry_used') === 'true'),
-        challengeHistory: typeof challengeHistory !== 'undefined' ? challengeHistory : (() => {
-            try { return JSON.parse(localStorage.getItem('fc_star_challenge_history')) || { w: 0, d: 0, l: 0, totalGames: 0 }; } catch(e) { return { w: 0, d: 0, l: 0, totalGames: 0 }; }
-        })(),
-        challengeSeasonTeams: (typeof challengeSeasonTeams !== 'undefined' && Array.isArray(challengeSeasonTeams)) ? challengeSeasonTeams : (() => {
-            try { return JSON.parse(localStorage.getItem('fc_star_challenge_season_teams')); } catch(e) { return null; }
-        })(),
+        // 도전모드(Challenge Mode) 동기화 필드 - 인메모리 및 해당 계정 캐시 기준
+        challengeSeason: (typeof challengeSeason === 'number' && challengeSeason >= 1) ? challengeSeason : (cachedUserDoc && cachedUserDoc.challengeSeason ? parseInt(cachedUserDoc.challengeSeason) : 1),
+        challengeStage: (typeof challengeStage === 'number' && challengeStage >= 1) ? challengeStage : (cachedUserDoc && cachedUserDoc.challengeStage ? parseInt(cachedUserDoc.challengeStage) : 1),
+        challengeBossOvr: typeof challengeBossOvr !== 'undefined' ? challengeBossOvr : (cachedUserDoc && cachedUserDoc.challengeBossOvr ? parseInt(cachedUserDoc.challengeBossOvr) : 98),
+        challengeLastDate: typeof challengeLastDate !== 'undefined' ? challengeLastDate : (cachedUserDoc && cachedUserDoc.challengeLastDate ? cachedUserDoc.challengeLastDate : ""),
+        challengeDailyFreeUsed: typeof challengeDailyFreeUsed !== 'undefined' ? challengeDailyFreeUsed : (cachedUserDoc && cachedUserDoc.challengeDailyFreeUsed !== undefined ? !!cachedUserDoc.challengeDailyFreeUsed : false),
+        challengeDailyRetryUsed: typeof challengeDailyRetryUsed !== 'undefined' ? challengeDailyRetryUsed : (cachedUserDoc && cachedUserDoc.challengeDailyRetryUsed !== undefined ? !!cachedUserDoc.challengeDailyRetryUsed : false),
+        challengeHistory: typeof challengeHistory !== 'undefined' ? challengeHistory : (cachedUserDoc && cachedUserDoc.challengeHistory ? cachedUserDoc.challengeHistory : { w: 0, d: 0, l: 0, totalGames: 0 }),
+        challengeSeasonTeams: (typeof challengeSeasonTeams !== 'undefined' && Array.isArray(challengeSeasonTeams)) ? challengeSeasonTeams : (cachedUserDoc && cachedUserDoc.challengeSeasonTeams ? cachedUserDoc.challengeSeasonTeams : null),
         
         // 친선경기 ID별 실시간 클라우드 전적 연동 필드
-        friendlyMatchesHistory: typeof friendlyMatchesHistory !== 'undefined' ? friendlyMatchesHistory : { w: 0, d: 0, l: 0, pts: 0 },
-        friendlyCurrentOpponentIndex: typeof friendlyCurrentOpponentIndex !== 'undefined' ? friendlyCurrentOpponentIndex : 0,
-        friendlyMatchesToday: typeof friendlyMatchesToday !== 'undefined' ? friendlyMatchesToday : 0,
-        friendlyMatchLastDate: typeof friendlyMatchLastDate !== 'undefined' ? friendlyMatchLastDate : "",
-        friendlySeasonStartDate: localStorage.getItem(`fc_star_friendly_season_start_date_${myId}`) || new Date().toISOString(),
+        friendlyMatchesHistory: typeof friendlyMatchesHistory !== 'undefined' ? friendlyMatchesHistory : (cachedUserDoc && cachedUserDoc.friendlyMatchesHistory ? cachedUserDoc.friendlyMatchesHistory : { w: 0, d: 0, l: 0, pts: 0 }),
+        friendlyCurrentOpponentIndex: typeof friendlyCurrentOpponentIndex !== 'undefined' ? friendlyCurrentOpponentIndex : (cachedUserDoc && cachedUserDoc.friendlyCurrentOpponentIndex ? cachedUserDoc.friendlyCurrentOpponentIndex : 0),
+        friendlyMatchesToday: typeof friendlyMatchesToday !== 'undefined' ? friendlyMatchesToday : (cachedUserDoc && cachedUserDoc.friendlyMatchesToday ? cachedUserDoc.friendlyMatchesToday : 0),
+        friendlyMatchLastDate: typeof friendlyMatchLastDate !== 'undefined' ? friendlyMatchLastDate : (cachedUserDoc && cachedUserDoc.friendlyMatchLastDate ? cachedUserDoc.friendlyMatchLastDate : ""),
+        friendlySeasonStartDate: localStorage.getItem(`fc_star_friendly_season_start_date_${myId}`) || (cachedUserDoc && cachedUserDoc.friendlySeasonStartDate ? cachedUserDoc.friendlySeasonStartDate : new Date().toISOString()),
         lastSyncedUpdatedAt: typeof window !== 'undefined' ? window.lastSyncedUpdatedAt : "",
         
         // 🌱 데이터 절약 모드 설정 동기화
-        isDataSaverMode: typeof isDataSaverMode !== 'undefined' ? isDataSaverMode : false,
+        isDataSaverMode: typeof isDataSaverMode !== 'undefined' ? isDataSaverMode : (cachedUserDoc && cachedUserDoc.isDataSaverMode !== undefined ? !!cachedUserDoc.isDataSaverMode : false),
         
-        // 동기화 조율용 최종 수정 타임스탬프
-        localLastUpdated: parseInt(localStorage.getItem('fc_star_local_last_updated') || '0') || Date.now()
+        // 동기화 조율용 최종 수정 타임스탬프 (해당 유저 통합 문서 시점 또는 현재 시간)
+        localLastUpdated: (cachedUserDoc && cachedUserDoc.localLastUpdated) ? cachedUserDoc.localLastUpdated : Date.now()
     };
 }
 
@@ -1027,10 +1000,15 @@ function loadLocalGameData(targetUserId) {
     const rawId = (targetUserId || currentUser || localStorage.getItem('fc_star_current_user') || "").trim();
     const myId = rawId ? rawId.toLowerCase() : "";
     
+    // 1. 인메모리 전역 상태를 순수 기본값으로 완전 리셋 (이전 계정의 메모리 잔여물 완전 차단)
+    if (typeof resetStateToDefault === 'function') {
+        resetStateToDefault();
+    }
+    
     try {
         let loadedData = null;
         
-        // 1. 아이디별 통합 JSON 키 우선 조회
+        // 2. 아이디별 통합 JSON 키 우선 조회
         if (myId) {
             const unifiedDataStr = localStorage.getItem(`fc_star_user_${myId}`);
             if (unifiedDataStr) {
@@ -1042,11 +1020,11 @@ function loadLocalGameData(targetUserId) {
             }
         }
         
-        // 2. 통합 키에 데이터가 없는 경우, 소유자 일치 시에만 기존 레거시 개별 키에서 1회 안전 마이그레이션
+        // 3. 통합 키에 데이터가 없는 경우, 소유자 일치 시에만 기존 레거시 개별 키에서 1회 안전 마이그레이션
         if (!loadedData && myId) {
             const localOwner = (localStorage.getItem('fc_star_local_data_owner') || "").trim().toLowerCase();
             const legacyUser = (localStorage.getItem('fc_star_current_user') || "").trim().toLowerCase();
-            const isOwnerMatched = !localOwner || localOwner === myId || legacyUser === myId || (myId.startsWith('guest_') && localOwner.startsWith('guest_'));
+            const isOwnerMatched = (localOwner === myId || legacyUser === myId || (myId.startsWith('guest_') && localOwner.startsWith('guest_')));
             if (isOwnerMatched) {
                 const legacyDeckStr = localStorage.getItem('fc_star_player_deck');
                 if (legacyDeckStr || localStorage.getItem('fc_star_user_points') !== null) {
@@ -1060,7 +1038,7 @@ function loadLocalGameData(targetUserId) {
             }
         }
         
-        // 3. 데이터가 존재하면 인메모리 상태에 일괄 적용 (하이드레이션)
+        // 4. 데이터가 존재하면 인메모리 상태에 일괄 적용 (하이드레이션)
         if (loadedData) {
             applyUserDataToState(loadedData);
             return loadedData;
@@ -1273,27 +1251,23 @@ function syncUserDataOnLogin(userData, forceLoad = false, requireChoice = false)
     
     window.isSyncingData = true;
     try {
-        // 로컬스토리지 타임스탬프와 클라우드 타임스탬프 비교
-        const localLastUpdated = parseInt(localStorage.getItem('fc_star_local_last_updated') || '0') || 0;
-        const cloudLastUpdated = userData.localLastUpdated || 0;
+        const targetUserId = (userData.id || currentUser || "").trim().toLowerCase();
         
-        // 🛡️ 모달 표시 여부와 상관없이, 서버에 더 앞선 도전모드 진도가 있으면 즉시 안전하게 확보
-        if (userData.challengeSeason || userData.challengeStage) {
-            const sSeason = parseInt(userData.challengeSeason) || 1;
-            const sStage = parseInt(userData.challengeStage) || 1;
-            if (challengeSeason < sSeason || (challengeSeason === sSeason && challengeStage < sStage)) {
-                console.log(`🛡️ [Safety Pre-Sync] 서버의 도전모드 진도(시즌 ${sSeason} 스테이지 ${sStage})를 로컬에 안전하게 선반영합니다.`);
-                challengeSeason = sSeason;
-                challengeStage = sStage;
-                if (userData.challengeBossOvr) challengeBossOvr = userData.challengeBossOvr;
-                if (userData.challengeSeasonTeams) challengeSeasonTeams = userData.challengeSeasonTeams;
-                if (userData.challengeHistory) challengeHistory = userData.challengeHistory;
-                if (typeof saveChallengeState === 'function') saveChallengeState();
-            }
+        // 로컬스토리지 해당 유저 타임스탬프와 클라우드 타임스탬프 비교
+        let localLastUpdated = 0;
+        if (targetUserId) {
+            try {
+                const userDocStr = localStorage.getItem(`fc_star_user_${targetUserId}`);
+                if (userDocStr) {
+                    const uDoc = JSON.parse(userDocStr);
+                    localLastUpdated = parseInt(uDoc.localLastUpdated || '0') || 0;
+                }
+            } catch(e) {}
         }
+        const cloudLastUpdated = userData.localLastUpdated || 0;
 
         // 로컬 진행 내역과 클라우드 데이터 시점이 다르고 강제 로드가 아닐 시 -> 사용자에게 선택 모달 표시
-        if (!forceLoad && (requireChoice || localLastUpdated > cloudLastUpdated)) {
+        if (!forceLoad && (requireChoice || (localLastUpdated > 0 && localLastUpdated > cloudLastUpdated))) {
             console.log("⚠️ [Sync Info] 로컬 장치에 업로드되지 않은 최신 게임 진행 내역이 감지되었습니다. 사용자 선택을 대기합니다.");
             isCloudDataSynced = false; // 사용자가 선택하기 전까지 자동 클라우드 업로드 전면 차단
             window.isSyncingData = false;
@@ -1334,7 +1308,7 @@ function syncUserDataOnLogin(userData, forceLoad = false, requireChoice = false)
         }
 
         // 3. 통합 로컬스토리지 및 개별 키 듀얼 라이트 즉시 반영
-        saveAllToLocalStorage();
+        saveAllToLocalStorage(targetUserId);
 
         // 4. 전체 화면 렌더링 갱신
         refreshAllScreens();
@@ -1348,7 +1322,9 @@ function syncUserDataOnLogin(userData, forceLoad = false, requireChoice = false)
         
         // 데이터 동기화 완료 후 오늘 기준 컨디션 업데이트 적용
         try {
-            updateDeckConditions();
+            if (typeof updateDeckConditions === 'function') {
+                updateDeckConditions();
+            }
         } catch (e) {
             console.warn("동기화 완료 후 컨디션 업데이트 실패:", e);
         }
@@ -1518,7 +1494,7 @@ async function handleAuthSubmit() {
             localStorage.setItem('fc_star_local_data_owner', currentUser);
             localStorage.setItem('fc_star_current_user', currentUser);
             
-            // ⭐ 1. 해당 유저의 로컬 통합 데이터가 있으면 먼저 로드
+            // ⭐ 1. 해당 유저의 로컬 통합 데이터가 있으면 먼저 로드 (내부에서 resetStateToDefault 자동 호출)
             loadLocalGameData(currentUser);
             
             // ⭐ 2. 클라우드 서버 데이터 동기화 시작
@@ -1528,6 +1504,9 @@ async function handleAuthSubmit() {
             showToast(`환영합니다! ${currentUser.toUpperCase()} 계정으로 로그인되었습니다.`);
         } else {
             // REGISTER PROCESS
+            // 이전 계정 인메모리 잔여물 완전 리셋
+            if (typeof resetStateToDefault === 'function') resetStateToDefault();
+            
             const defaultData = await dbService.register(id, pw);
             currentUser = (defaultData.id || targetUserId).trim().toLowerCase();
             localStorage.setItem('fc_star_local_data_owner', currentUser);
@@ -1536,7 +1515,7 @@ async function handleAuthSubmit() {
             // Sync & automatically save existing local progress (if any) as first upload
             startInitialCloudSync(defaultData, pw);
             
-            // Backup existing local data to cloud immediately
+            // Backup fresh default local data to cloud immediately
             saveAllToLocalStorage(currentUser);
             saveUserProgress(true, true);
             
@@ -1593,7 +1572,7 @@ async function handleGuestPlay() {
         localStorage.setItem('fc_star_current_user', currentUser);
         localStorage.setItem('fc_star_local_data_owner', currentUser);
         
-        // ⭐ 게스트 로컬 통합 데이터 우선 로드
+        // ⭐ 게스트 로컬 통합 데이터 우선 로드 (내부에서 resetStateToDefault 자동 호출)
         loadLocalGameData(currentUser);
         
         // Sync and refresh
@@ -1682,6 +1661,11 @@ async function handleLogout() {
         isCloudDataSynced = false;
         
         localStorage.removeItem('fc_star_current_user');
+        
+        // 로그아웃 시 메모리 전역 상태 안전 리셋
+        if (typeof resetStateToDefault === 'function') {
+            resetStateToDefault();
+        }
         
         showToast("성공적으로 로그아웃되었습니다! 로컬 모드로 리로딩합니다...");
         

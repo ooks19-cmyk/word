@@ -29,7 +29,53 @@ graph TD
 
 ---
 
-## 📅 3. 주요 작업 및 업데이트 이력
+### 🏆 son7 계정 도전모드 진도 업데이트 (시즌 2 스테이지 6) (2026-09-25)
+* **요청 요약**: `son7` 계정의 도전모드 진도를 시즌 2 스테이지 6으로 변경.
+* **수행 내용**:
+  1. 원본 Firestore 계정 데이터 백업 (`scratch/son7_backup_20260925_221803.json`).
+  2. Firestore REST API PATCH를 통해 `fc_star_users/son7` 문서의 `challengeSeason`을 `2`, `challengeStage`를 `6`으로 업데이트하고 `updatedAt` 및 `localLastUpdated` 타임스탬프를 실시간으로 갱신.
+* **변경 파일**:
+  - `fc_star_users/son7` (Firestore 클라우드 문서)
+  - `scratch/get_firestore_son7.py`
+  - `scratch/patch_son7_challenge.py`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+* **검증 결과**:
+  - Firestore REST API 응답 확인: `challengeSeason: 2`, `challengeStage: 6`, `updatedAt: 2026-09-25T13:18:17.924835Z` 정상 반영 확인.
+* **최종 상태**: 완료.
+
+### 🛡️ 다중 아이디 간 진행상황 교차 오염 차단 및 Safety Pre-Sync 레거시 코드 완전 제거 (2026-09-25)
+* **요청 요약**: 여러 아이디 간 진행상황(FP, 덱, 도전모드 진도 등) 교차 오염(Cross-Contamination) 발생 문제 해결 및 `syncUserDataOnLogin` 내 `[Safety Pre-Sync]` 레거시 코드 검토·제거.
+* **검토 및 분석 결과**:
+  1. `[Safety Pre-Sync]` 검토 결과: 과거 단일 로컬스토리지 시절의 임시 코드였으며, 현재 `applyUserDataToState`가 서버의 전체 도전모드 필드를 완전하게 복원하고 있으므로 완전히 불필요함. 오히려 로그인 시점 이전 계정 메모리와 새 계정 서버 데이터를 비교하여 로컬스토리지를 덮어씀으로써 계정 간 오염을 유발하는 원인으로 확인되어 **완전 삭제**.
+  2. 다중 계정 교차 오염 원인:
+     - 계정 전환/로그아웃/게스트 진입 시 인메모리 전역 변수가 리셋되지 않아 직전 계정의 데이터가 새 계정 문서로 복사됨.
+     - 공용 타임스탬프(`fc_star_local_last_updated`)로 인해 다른 계정의 최근 플레이가 새 계정의 동기화 충돌 모달을 오작동시키고, 로컬 선택 시 직전 계정 데이터로 클라우드를 덮어씀.
+     - `collectCurrentUserProgressData` 및 `loadChallengeState`의 공용 키 fallback으로 타 계정 데이터가 혼입됨.
+* **수행 내용**:
+  1. **전역 상태 완전 초기화 (`resetStateToDefault`) 구현 (`js/state.js`)**:
+     - FP(0), 레벨(1), 덱({}), 포메이션, 스탯, 업적, 국대, 컵/아챔, 도전모드(시즌1 스테이지1), 친선 등 모든 인메모리 전역 상태를 순수 기본값으로 리셋하는 함수 구현.
+     - `loadLocalGameData()`, `handleAuthSubmit()`, `handleGuestPlay()`, `handleLogout()` 시작 시점에 호출하여 인메모리 잔여 오염 100% 원천 차단.
+  2. **`syncUserDataOnLogin` 내 `[Safety Pre-Sync]` 완전 삭제 및 타임스탬프 격리 (`js/auth.js`)**:
+     - `[Safety Pre-Sync]` 코드 블록(1253~1266) 완전 삭제.
+     - `localLastUpdated`를 공용 키 대신 해당 유저의 통합 문서(`fc_star_user_${targetUserId}.localLastUpdated`)에서만 추출하도록 격리하여 엉뚱한 충돌 모달 발생 방지.
+  3. **공용 키 Fallback 완전 배제 (`js/auth.js`, `js/state.js`)**:
+     - `collectCurrentUserProgressData` 및 `loadChallengeState`에서 공용 키 fallback 조회를 제거하고 인메모리 및 해당 계정 통합 문서 캐시만 사용하도록 일원화.
+  4. **PWA 캐시 및 스크립트 버전 상향**:
+     - `index.html`: `js/state.js?v=3.3`, `js/auth.js?v=2.80`
+     - `sw.js`: `CACHE_NAME = 'fc-star-v435'`
+* **변경 파일**:
+  - `js/state.js`
+  - `js/auth.js`
+  - `index.html`
+  - `sw.js`
+  - `scratch/test_unified_storage.cjs`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+* **검증 결과**:
+  - `scratch/test_unified_storage.cjs` (멀티 유저 격리, 상태 하이드레이션, 레거시 마이그레이션, Firestore 1:1 매핑, 다중 계정 교차 오염 차단 시뮬레이션) 5개 단위 테스트 100% PASS.
+  - `scratch/verify_initial_cloud_sync.cjs` 초기 클라우드 동기화 테스트 PASS.
+* **최종 상태**: 작업 완료.
 
 ### 🗑️ 로컬 삭제 로직 완전 폐지 및 오너 일치 기반 통합 스토리지 체계 확정 (2026-09-24)
 * **요청 요약**: 로컬 데이터 삭제 기능의 존속 여부 검토 후, 계정 전환/로그아웃 시 공용키를 지우던 위험한 로컬 삭제 로직을 완전 폐지하고 순수 아이디별 통합 스토리지(`fc_star_user_${userId}`) 체계로 확정.

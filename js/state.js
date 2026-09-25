@@ -422,7 +422,7 @@ try {
 }
 
 // ==========================================
-// 🏆 CHALLENGE MODE STATE (도전모드 스테이지 시스템 - 포인트와 동일한 공통 로컬 스토리지 영역 연동)
+// 🏆 CHALLENGE MODE STATE (도전모드 스테이지 시스템 - 아이디별 격리 스토리지 연동)
 // ==========================================
 let challengeSeason = 1;
 let challengeStage = 1;
@@ -441,30 +441,163 @@ function getChallengeTodayDateString() {
     return `${year}-${month}-${day}`;
 }
 
+// 🔄 전역 상태를 순수 기본값으로 완전 초기화 (계정 전환/로그아웃/게스트 진입 시 이전 계정 메모리 오염 원천 차단)
+function resetStateToDefault() {
+    userPoints = 0;
+    userLevel = 1;
+    isHardMode = false;
+    playerDeck = {};
+    activePulledCard = null;
+    isFlipped = false;
+    quizOffset = 0;
+    quizLastDate = "";
+    quizQueue = [];
+    quizSolvedCount = 0;
+    quizCurrentIndex = 0;
+    matchLastDate = "";
+    matchTodayCount = 0;
+    lastLoginDate = "";
+    if (typeof window !== 'undefined') {
+        window.lastSyncedUpdatedAt = "";
+    }
+    isCloudDataSynced = false;
+    currentLeagueId = 'kleague1';
+    currentFameLeagueTab = 'kleague1';
+    leagueYear = 2026;
+    hallOfFame = [];
+    leaguePlayerStats = {};
+    careerStats = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+    careerStatsHard = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+    userPvpStats = { w: 0, d: 0, l: 0 };
+    userPvpOpponentStats = {};
+    currentFormation = '4-4-2';
+    squadFormation = {};
+    squadFormations = {
+        '4-4-2': {},
+        '4-3-3': {},
+        '3-4-3': {},
+        '5-4-1': {},
+        '4-2-3-1': {}
+    };
+    squadCaptain = null;
+    squadNumbers = {};
+    for (let i = 1; i <= 90; i++) {
+        squadNumbers[i] = { number: i, cardId: null };
+    }
+    userAchievements = {
+        double: { unlocked: false, rewarded: false },
+        treble: { unlocked: false, rewarded: false },
+        invincible: { unlocked: false, rewarded: false },
+        threepeat: { unlocked: false, rewarded: false },
+        fivepeat: { unlocked: false, rewarded: false },
+        collector: { unlocked: false, rewarded: false },
+        worldclass: { unlocked: false, rewarded: false },
+        hardworldclass: { unlocked: false, rewarded: false },
+        streak10: { unlocked: false, rewarded: false },
+        streak20: { unlocked: false, rewarded: false },
+        streak30: { unlocked: false, rewarded: false },
+        goals300: { unlocked: false, rewarded: false },
+        goals500: { unlocked: false, rewarded: false },
+        goals1000: { unlocked: false, rewarded: false },
+        wins1000: { unlocked: false, rewarded: false },
+        wins2000: { unlocked: false, rewarded: false }
+    };
+    consecutiveLeagueTitles = 0;
+    currentWinStreak = 0;
+    maxWinStreak = 0;
+    isDataSaverMode = false;
+    wingerStyles = {
+        '4-4-2': { LW: 'dribble', RW: 'sprint' },
+        '4-3-3': { LW: 'dribble', RW: 'sprint' },
+        '3-4-3': { LW: 'dribble', RW: 'sprint' },
+        '5-4-1': { LW: 'dribble', RW: 'sprint' },
+        '4-2-3-1': { LW: 'dribble', RW: 'sprint' }
+    };
+    strikerStyles = {
+        '4-4-2': { ST: 'targetman' },
+        '4-3-3': { ST: 'targetman' },
+        '3-4-3': { ST: 'targetman' },
+        '5-4-1': { ST: 'targetman' },
+        '4-2-3-1': { ST: 'targetman' }
+    };
+    if (typeof nationalModeState !== 'undefined') nationalModeState = null;
+    if (typeof nationalSquadPresets !== 'undefined') nationalSquadPresets = {};
+    if (typeof nationalNationSelections !== 'undefined') nationalNationSelections = {};
+    if (typeof cupState !== 'undefined') cupState = null;
+    if (typeof aclState !== 'undefined') aclState = null;
+    
+    // 도전모드 기본값 리셋
+    challengeSeason = 1;
+    challengeStage = 1;
+    challengeBossOvr = 98;
+    challengeLastDate = "";
+    challengeDailyFreeUsed = false;
+    challengeDailyRetryUsed = false;
+    challengeHistory = { w: 0, d: 0, l: 0, totalGames: 0 };
+    challengeSeasonTeams = null;
+    
+    // 친선경기 기본값 리셋
+    friendlyMatchesHistory = { w: 0, d: 0, l: 0, pts: 0 };
+    friendlyCurrentOpponentIndex = 0;
+    friendlyMatchesToday = 0;
+    friendlyMatchLastDate = "";
+    
+    if (typeof resetLeagueSeasonState === 'function') resetLeagueSeasonState();
+}
+
 function loadChallengeState() {
     const rawId = (typeof currentUser === 'string' && currentUser) ? currentUser.trim() : (localStorage.getItem('fc_star_current_user') || "");
     const myId = rawId.toLowerCase();
     try {
-        // 1. 공통 키 우선 조회 (포인트와 동일한 1급 공통 저장 영역)
-        let savedSeason = localStorage.getItem('fc_star_challenge_season');
-        let savedStage = localStorage.getItem('fc_star_challenge_stage');
-        let savedBossOvr = localStorage.getItem('fc_star_challenge_boss_ovr');
-        let savedDate = localStorage.getItem('fc_star_challenge_last_date');
-        let savedFreeUsed = localStorage.getItem('fc_star_challenge_free_used');
-        let savedRetryUsed = localStorage.getItem('fc_star_challenge_retry_used');
-        let savedHistory = localStorage.getItem('fc_star_challenge_history');
-        let savedSeasonTeams = localStorage.getItem('fc_star_challenge_season_teams');
+        let savedSeason = null;
+        let savedStage = null;
+        let savedBossOvr = null;
+        let savedDate = null;
+        let savedFreeUsed = null;
+        let savedRetryUsed = null;
+        let savedHistory = null;
+        let savedSeasonTeams = null;
 
-        // 2. ID별 기존 키 마이그레이션 호환 (공통 키에 없을 때 기존 키 참조)
+        // 1. 현재 계정의 통합 문서(`fc_star_user_${myId}`) 우선 조회
         if (myId) {
-            if (!savedSeason) savedSeason = localStorage.getItem(`fc_star_challenge_season_${myId}`) || (rawId !== myId ? localStorage.getItem(`fc_star_challenge_season_${rawId}`) : null);
-            if (!savedStage) savedStage = localStorage.getItem(`fc_star_challenge_stage_${myId}`) || (rawId !== myId ? localStorage.getItem(`fc_star_challenge_stage_${rawId}`) : null);
-            if (!savedBossOvr) savedBossOvr = localStorage.getItem(`fc_star_challenge_boss_ovr_${myId}`) || (rawId !== myId ? localStorage.getItem(`fc_star_challenge_boss_ovr_${rawId}`) : null);
-            if (!savedDate) savedDate = localStorage.getItem(`fc_star_challenge_last_date_${myId}`) || (rawId !== myId ? localStorage.getItem(`fc_star_challenge_last_date_${rawId}`) : null);
-            if (savedFreeUsed === null) savedFreeUsed = localStorage.getItem(`fc_star_challenge_free_used_${myId}`) || (rawId !== myId ? localStorage.getItem(`fc_star_challenge_free_used_${rawId}`) : null);
-            if (savedRetryUsed === null) savedRetryUsed = localStorage.getItem(`fc_star_challenge_retry_used_${myId}`) || (rawId !== myId ? localStorage.getItem(`fc_star_challenge_retry_used_${rawId}`) : null);
-            if (!savedHistory) savedHistory = localStorage.getItem(`fc_star_challenge_history_${myId}`) || (rawId !== myId ? localStorage.getItem(`fc_star_challenge_history_${rawId}`) : null);
-            if (!savedSeasonTeams) savedSeasonTeams = localStorage.getItem(`fc_star_challenge_season_teams_${myId}`) || (rawId !== myId ? localStorage.getItem(`fc_star_challenge_season_teams_${rawId}`) : null);
+            const userDocStr = localStorage.getItem(`fc_star_user_${myId}`);
+            if (userDocStr) {
+                try {
+                    const uDoc = JSON.parse(userDocStr);
+                    if (uDoc.challengeSeason !== undefined) savedSeason = uDoc.challengeSeason.toString();
+                    if (uDoc.challengeStage !== undefined) savedStage = uDoc.challengeStage.toString();
+                    if (uDoc.challengeBossOvr !== undefined) savedBossOvr = uDoc.challengeBossOvr.toString();
+                    if (uDoc.challengeLastDate) savedDate = uDoc.challengeLastDate;
+                    if (uDoc.challengeDailyFreeUsed !== undefined) savedFreeUsed = uDoc.challengeDailyFreeUsed ? 'true' : 'false';
+                    if (uDoc.challengeDailyRetryUsed !== undefined) savedRetryUsed = uDoc.challengeDailyRetryUsed ? 'true' : 'false';
+                    if (uDoc.challengeHistory) savedHistory = JSON.stringify(uDoc.challengeHistory);
+                    if (uDoc.challengeSeasonTeams) savedSeasonTeams = JSON.stringify(uDoc.challengeSeasonTeams);
+                } catch(e) {}
+            }
+        }
+
+        // 2. ID별 키 조회 (통합 문서에 없는 경우)
+        if (myId) {
+            if (!savedSeason) savedSeason = localStorage.getItem(`fc_star_challenge_season_${myId}`);
+            if (!savedStage) savedStage = localStorage.getItem(`fc_star_challenge_stage_${myId}`);
+            if (!savedBossOvr) savedBossOvr = localStorage.getItem(`fc_star_challenge_boss_ovr_${myId}`);
+            if (!savedDate) savedDate = localStorage.getItem(`fc_star_challenge_last_date_${myId}`);
+            if (savedFreeUsed === null) savedFreeUsed = localStorage.getItem(`fc_star_challenge_free_used_${myId}`);
+            if (savedRetryUsed === null) savedRetryUsed = localStorage.getItem(`fc_star_challenge_retry_used_${myId}`);
+            if (!savedHistory) savedHistory = localStorage.getItem(`fc_star_challenge_history_${myId}`);
+            if (!savedSeasonTeams) savedSeasonTeams = localStorage.getItem(`fc_star_challenge_season_teams_${myId}`);
+        }
+
+        // 3. 미로그인 단독 상태에서만 공통 키 폴백 허용 (타 계정 오염 방지)
+        if (!myId) {
+            if (!savedSeason) savedSeason = localStorage.getItem('fc_star_challenge_season');
+            if (!savedStage) savedStage = localStorage.getItem('fc_star_challenge_stage');
+            if (!savedBossOvr) savedBossOvr = localStorage.getItem('fc_star_challenge_boss_ovr');
+            if (!savedDate) savedDate = localStorage.getItem('fc_star_challenge_last_date');
+            if (savedFreeUsed === null) savedFreeUsed = localStorage.getItem('fc_star_challenge_free_used');
+            if (savedRetryUsed === null) savedRetryUsed = localStorage.getItem('fc_star_challenge_retry_used');
+            if (!savedHistory) savedHistory = localStorage.getItem('fc_star_challenge_history');
+            if (!savedSeasonTeams) savedSeasonTeams = localStorage.getItem('fc_star_challenge_season_teams');
         }
 
         if (savedSeason) {
@@ -501,20 +634,6 @@ function loadChallengeState() {
         if (savedHistory) {
             try { challengeHistory = JSON.parse(savedHistory); } catch(e) {}
         }
-
-        // 공통 키로 자동 동기화 승격 (마이그레이션 반영)
-        try {
-            localStorage.setItem('fc_star_challenge_season', challengeSeason.toString());
-            localStorage.setItem('fc_star_challenge_stage', challengeStage.toString());
-            localStorage.setItem('fc_star_challenge_boss_ovr', (challengeBossOvr || 98).toString());
-            localStorage.setItem('fc_star_challenge_last_date', challengeLastDate);
-            localStorage.setItem('fc_star_challenge_free_used', challengeDailyFreeUsed ? 'true' : 'false');
-            localStorage.setItem('fc_star_challenge_retry_used', challengeDailyRetryUsed ? 'true' : 'false');
-            localStorage.setItem('fc_star_challenge_history', JSON.stringify(challengeHistory));
-            if (challengeSeasonTeams && Array.isArray(challengeSeasonTeams)) {
-                localStorage.setItem('fc_star_challenge_season_teams', JSON.stringify(challengeSeasonTeams));
-            }
-        } catch(e) {}
     } catch (e) {
         console.warn("도전모드 로드 에러:", e);
     }
@@ -524,19 +643,7 @@ function saveChallengeState() {
     const rawId = (typeof currentUser === 'string' && currentUser) ? currentUser.trim() : (localStorage.getItem('fc_star_current_user') || "");
     const myId = rawId.toLowerCase();
     try {
-        // 1. 공통 키 저장 (포인트/카드와 동일한 1급 영구 저장 영역)
-        localStorage.setItem('fc_star_challenge_season', challengeSeason.toString());
-        localStorage.setItem('fc_star_challenge_stage', challengeStage.toString());
-        localStorage.setItem('fc_star_challenge_boss_ovr', (challengeBossOvr || 98).toString());
-        localStorage.setItem('fc_star_challenge_last_date', challengeLastDate || getChallengeTodayDateString());
-        localStorage.setItem('fc_star_challenge_free_used', challengeDailyFreeUsed ? 'true' : 'false');
-        localStorage.setItem('fc_star_challenge_retry_used', challengeDailyRetryUsed ? 'true' : 'false');
-        localStorage.setItem('fc_star_challenge_history', JSON.stringify(challengeHistory));
-        if (challengeSeasonTeams && Array.isArray(challengeSeasonTeams)) {
-            localStorage.setItem('fc_star_challenge_season_teams', JSON.stringify(challengeSeasonTeams));
-        }
-
-        // 2. ID별 키에도 하위 호환을 위해 동시 저장
+        // 1. ID별 전용 키 저장
         if (myId) {
             localStorage.setItem(`fc_star_challenge_season_${myId}`, challengeSeason.toString());
             localStorage.setItem(`fc_star_challenge_stage_${myId}`, challengeStage.toString());
@@ -547,6 +654,18 @@ function saveChallengeState() {
             localStorage.setItem(`fc_star_challenge_history_${myId}`, JSON.stringify(challengeHistory));
             if (challengeSeasonTeams && Array.isArray(challengeSeasonTeams)) {
                 localStorage.setItem(`fc_star_challenge_season_teams_${myId}`, JSON.stringify(challengeSeasonTeams));
+            }
+        } else {
+            // 미로그인 단독 상태일 때만 공통 키 저장
+            localStorage.setItem('fc_star_challenge_season', challengeSeason.toString());
+            localStorage.setItem('fc_star_challenge_stage', challengeStage.toString());
+            localStorage.setItem('fc_star_challenge_boss_ovr', (challengeBossOvr || 98).toString());
+            localStorage.setItem('fc_star_challenge_last_date', challengeLastDate || getChallengeTodayDateString());
+            localStorage.setItem('fc_star_challenge_free_used', challengeDailyFreeUsed ? 'true' : 'false');
+            localStorage.setItem('fc_star_challenge_retry_used', challengeDailyRetryUsed ? 'true' : 'false');
+            localStorage.setItem('fc_star_challenge_history', JSON.stringify(challengeHistory));
+            if (challengeSeasonTeams && Array.isArray(challengeSeasonTeams)) {
+                localStorage.setItem('fc_star_challenge_season_teams', JSON.stringify(challengeSeasonTeams));
             }
         }
     } catch (e) {
