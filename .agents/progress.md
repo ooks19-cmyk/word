@@ -1,11 +1,30 @@
 ## 현재 작업
-- 목표: son7 계정의 도전모드 진도를 시즌 2 스테이지 6 (`challengeSeason: 2`, `challengeStage: 6`)으로 변경
+- 목표: v3.4.2 버전 업데이트 및 PWA 서비스 워커/스크립트 캐시 상향
 - 상태: 완료
 - 주요 변경·검증:
-  1. 원본 Firestore 데이터 백업: `scratch/son7_backup_20260925_221803.json`으로 백업 완료.
-  2. Firestore REST API PATCH: `fc_star_users/son7` 문서의 `challengeSeason: 2`, `challengeStage: 6`, 최신 `updatedAt` 및 `localLastUpdated` 타임스탬프 갱신 완료.
-  3. 실시간 검증: `patch_son7_challenge.py` 실행 결과 Firestore 정상 반영 확인.
-- 다음 단계: 깃 푸시 완료 (`76ea35e`).
+  1. 릴리즈 노트 추가: `js/update_data.js`에 `v3.4.2` (2026.09.27) 항목 추가 (도전모드 무결성 개편, S김승규 출시, 리그별 다이내믹 OVR 캡, 국대 보관함 제외 등).
+  2. 스크립트 쿼리 버전 상향: `index.html` 내 `js/update_data.js?v=2.81` 반영.
+  3. PWA 서비스 워커 캐시 상향: `sw.js` 내 `CACHE_NAME = 'fc-star-v437'` 상향.
+  4. 검증: `node --check` 문법 검사 및 실전 시나리오 테스트 100% 통과.
+- 다음 단계: 완료 보고.
+
+## 이전 작업
+- 목표: 도전모드 세이브/로드/동기화 알고리즘 무결성 정밀 점검 및 롤백/불일치 결함 수정
+- 상태: 완료
+- 주요 변경·검증:
+  1. 원인 규명:
+     - `applyUserDataToState`에서 서버의 도전모드 진도를 인메모리에 주입한 직후 `initChallengeState()`와 `initFriendlyMatchState()`가 호출되어, 내부에서 `loadChallengeState()`를 실행함으로써 로컬스토리지의 구버전 진도로 즉각 롤백(덮어쓰기)되는 치명적 결함 발견.
+     - `saveChallengeState()`가 통합 문서(`fc_star_user_${myId}`)를 갱신하지 않고 개별 키만 저장하여, `loadLocalGameData()` 시 통합 문서의 구버전 데이터가 우선 로드되는 단편화/불일치 결함 발견.
+     - `loadChallengeState()` 날짜 변경 시 불필요한 `saveChallengeState()` 쓰기 부수효과 및 레거시 공통 키 폴백으로 인한 타 계정 교차 오염 위험 발견.
+  2. 코드 수정:
+     - `js/friendly.js`: `initChallengeState(skipLoad = false)` 및 `initFriendlyMatchState(skipLoad = false)`에 `skipLoad` 플래그를 추가하여 하이드레이션 시 로컬 재조회 방지.
+     - `js/auth.js`: `applyUserDataToState`에서 `skipLoad = true` 전달, `buildLegacyProgressFromLocalStorage`에서 `myId` 미존재 시에만 공통 키 폴백을 허용하여 계정 간 교차 오염 완전 격리.
+     - `js/state.js`: `saveChallengeState()` 시 `fc_star_user_${myId}` 통합 문서도 실시간 동시 갱신(Dual-Write), `loadChallengeState()`의 날짜 변경 시 `saveChallengeState()` 호출 부수효과 제거.
+     - `index.html` (`state.js?v=3.4`, `friendly.js?v=4.2`, `auth.js?v=2.81`), `sw.js` (`CACHE_NAME = 'fc-star-v436'`) 상향.
+  3. 무결성 검증:
+     - 실전 시나리오 단위 검증(`scratch/test_production_integrity.cjs`, `scratch/test_challenge_full_fix.cjs`, `scratch/test_unified_storage.cjs`) 100% 통과.
+     - Node.js 구문 검사 및 `git diff --check` 통과.
+- 다음 단계: 완료.
 
 ## 이전 작업
 - 목표: Firebase Firestore 유저 데이터 백업 (`backup_firestore.py` 실행)

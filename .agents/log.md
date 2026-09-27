@@ -29,6 +29,61 @@ graph TD
 
 ---
 
+### 🚀 v3.4.2 버전 업데이트 및 PWA 서비스 워커/스크립트 캐시 상향 (2026-09-27)
+* **요청 요약**: 버전 업데이트.
+* **수행 내용**:
+  1. js/update_data.js: v3.4.2 (2026.09.27) 릴리즈 노트 등록 (도전모드 세이브 무결성 개편, S김승규 정식 출시, 리그별 다이내믹 OVR 상한 차등 적용, 국대 보관함 제외 등).
+  2. index.html: js/update_data.js?v=2.81 캐시 버전 상향.
+  3. sw.js: PWA 서비스 워커 CACHE_NAME = 'fc-star-v437' 상향.
+* **변경 파일**:
+  - js/update_data.js
+  - index.html
+  - sw.js
+* **검증 결과**:
+  - Node.js 구문 검사 및 실전 시나리오 테스트 100% 통과.
+* **최종 상태**: 완료
+
+---
+
+### 🏆 son7 계정 도전모드 진도 업데이트 (시즌 2 스테이지 7) (2026-09-27)
+* **요청 요약**: son7 계정의 도전모드 진행상황을 시즌 2 스테이지 7로 수정.
+* **수행 내용**:
+  1. 원본 데이터 백업: scratch/son7_backup_before_stage7.json에 변경 전 Firestore 데이터 보관 완료.
+  2. Firestore REST API PATCH: fc_star_users/son7 문서의 challengeSeason을 2, challengeStage를 7, challengeBossOvr를 98로 설정하고 updatedAt과 localLastUpdated를 최신 타임스탬프로 갱신 완료.
+  3. 실시간 검증: check_user_challenge.py son7을 통해 원격 Firestore에 시즌 2 스테이지 7(상대팀: 아스날 FC)이 정상 반영되었음을 확인.
+* **변경 파일**:
+  - fc_star_users/son7 (Firestore 클라우드 문서)
+  - scratch/patch_son7_challenge.py
+* **최종 상태**: 완료
+
+---
+
+### 🛡️ 도전모드 세이브/로드/동기화 알고리즘 무결성 점검 및 롤백/불일치 결함 수정 (2026-09-27)
+* **요청 요약**: 도전모드 세이브 데이터 알고리즘에 문제가 없는지 확인 및 무결성 검증.
+* **발견된 문제점**:
+  1. **[Hydration 로컬 덮어쓰기 롤백]**: applyUserDataToState에서 서버의 도전모드 진도를 인메모리에 주입한 직후 initChallengeState()와 initFriendlyMatchState()가 호출되어, 내부에서 loadChallengeState()를 실행함으로써 로컬스토리지의 구버전 진도로 즉각 롤백(강등)되는 치명적 결함 규명.
+  2. **[저장 단편화 및 불일치(Desync)]**: saveChallengeState()가 통합 문서(fc_star_user_)를 갱신하지 않고 개별 키만 저장하여, loadLocalGameData() 시 통합 문서의 구버전 데이터가 우선 로드되어 경기 승리 결과가 유실되는 현상 규명.
+  3. **[읽기 함수의 쓰기 부수효과]**: loadChallengeState() 날짜 변경 시 인메모리 불완전 상태에서 saveChallengeState()를 호출하던 문제 규명.
+  4. **[레거시 공통 키 폴백의 타 계정 교차 오염]**: buildLegacyProgressFromLocalStorage에서 아이디별 키 미존재 시 공통 키로 폴백되어 타 계정의 도전모드 진도가 유출되던 문제 규명.
+* **수행 내용**:
+  1. js/friendly.js: initChallengeState(skipLoad = false) 및 initFriendlyMatchState(skipLoad = false)에 skipLoad 플래그를 추가하여 하이드레이션 시 로컬스토리지 재조회 차단.
+  2. js/auth.js: applyUserDataToState에서 skipLoad = true 전달, buildLegacyProgressFromLocalStorage에서 myId 미존재(게스트) 시에만 공통 키 폴백을 허용하여 계정 간 교차 오염 완전 차단.
+  3. js/state.js: saveChallengeState() 실행 시 fc_star_user_ 통합 문서도 실시간 동시 갱신(Dual-Write)하도록 보강, loadChallengeState() 날짜 변경 시 saveChallengeState() 호출 부수효과 제거.
+  4. index.html (state.js?v=3.4, friendly.js?v=4.2, auth.js?v=2.81), sw.js (CACHE_NAME = 'fc-star-v436') 상향.
+* **변경 파일**:
+  - js/friendly.js
+  - js/auth.js
+  - js/state.js
+  - index.html
+  - sw.js
+  - scratch/test_production_integrity.cjs
+* **검증 결과**:
+  - 실전 시나리오 단위 검증(scratch/test_production_integrity.cjs, scratch/test_challenge_full_fix.cjs, scratch/test_unified_storage.cjs) 100% 통과.
+  - Node.js 구문 검사(node --check) 및 git diff --check 통과.
+* **최종 상태**: 완료
+
+---
+
 ### 🏆 son7 계정 도전모드 진도 업데이트 (시즌 2 스테이지 6) (2026-09-25)
 * **요청 요약**: `son7` 계정의 도전모드 진도를 시즌 2 스테이지 6으로 변경.
 * **수행 내용**:

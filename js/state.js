@@ -624,11 +624,10 @@ function loadChallengeState() {
             challengeDailyFreeUsed = savedFreeUsed === 'true';
             challengeDailyRetryUsed = savedRetryUsed === 'true';
         } else {
-            // 새 날짜인 경우 일일 사용량 리셋
+            // 새 날짜인 경우 인메모리 일일 사용량 안전 리셋 (부수효과 저장 방지)
             challengeDailyFreeUsed = false;
             challengeDailyRetryUsed = false;
             challengeLastDate = todayStr;
-            saveChallengeState();
         }
 
         if (savedHistory) {
@@ -654,6 +653,26 @@ function saveChallengeState() {
             localStorage.setItem(`fc_star_challenge_history_${myId}`, JSON.stringify(challengeHistory));
             if (challengeSeasonTeams && Array.isArray(challengeSeasonTeams)) {
                 localStorage.setItem(`fc_star_challenge_season_teams_${myId}`, JSON.stringify(challengeSeasonTeams));
+            }
+
+            // 통합 단일 문서(fc_star_user_${myId})가 존재하면 함께 동기화하여 불일치(Desync) 원천 방지
+            const userDocStr = localStorage.getItem(`fc_star_user_${myId}`);
+            if (userDocStr) {
+                try {
+                    const uDoc = JSON.parse(userDocStr);
+                    uDoc.challengeSeason = challengeSeason;
+                    uDoc.challengeStage = challengeStage;
+                    uDoc.challengeBossOvr = challengeBossOvr || 98;
+                    uDoc.challengeLastDate = challengeLastDate || getChallengeTodayDateString();
+                    uDoc.challengeDailyFreeUsed = !!challengeDailyFreeUsed;
+                    uDoc.challengeDailyRetryUsed = !!challengeDailyRetryUsed;
+                    uDoc.challengeHistory = challengeHistory;
+                    if (challengeSeasonTeams && Array.isArray(challengeSeasonTeams)) {
+                        uDoc.challengeSeasonTeams = challengeSeasonTeams;
+                    }
+                    uDoc.localLastUpdated = Date.now();
+                    localStorage.setItem(`fc_star_user_${myId}`, JSON.stringify(uDoc));
+                } catch(e) {}
             }
         } else {
             // 미로그인 단독 상태일 때만 공통 키 저장

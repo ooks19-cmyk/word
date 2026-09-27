@@ -261,9 +261,9 @@ function closeChallengeBossLockedModal() {
     if (modal) modal.style.display = 'none';
 }
 
-// 도전모드 상태 초기화 및 날짜 동기화
-function initChallengeState() {
-    if (typeof loadChallengeState === 'function') {
+// 도전모드 상태 초기화 및 날짜 동기화 (skipLoad = true 시 인메모리 하이드레이션 상태 보존)
+function initChallengeState(skipLoad = false) {
+    if (!skipLoad && typeof loadChallengeState === 'function') {
         loadChallengeState();
     }
     
@@ -277,8 +277,8 @@ function initChallengeState() {
 }
 
 // 하위 호환 별칭
-function initFriendlyMatchState() {
-    initChallengeState();
+function initFriendlyMatchState(skipLoad = false) {
+    initChallengeState(skipLoad);
 }
 
 // 도전모드 특정 스테이지 상대 구단 OVR 동적 산출

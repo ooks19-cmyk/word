@@ -2,9 +2,20 @@
 
 const UPDATE_LOGS = [
     {
+        version: "v3.4.2",
+        date: "2026.09.27",
+        latest: true,
+        borderColor: "#ffd700",
+        titleColor: "#ffd700",
+        badgeText: "CHALLENGE SYNC & SUPER GK",
+        items: [
+            "<strong>🛡️ 도전모드 세이브·클라우드 동기화 무결성 개편 & 신규 슈퍼 GK 'S김승규' 카드 출시!</strong><br>• <strong>도전모드 진도 롤백 및 동기화 불일치 원천 해결</strong>: 로그인 및 클라우드 동기화 시 서버의 최신 도전모드 진도(시즌·스테이지)가 로컬 구버전 데이터로 덮어써지던 롤백 현상을 완전 차단(수화 보호)했습니다. 경기 승리 시 개별 키와 계정 통합 문서를 실시간 동시 갱신(Dual-Write)하여 브라우저 새로고침이나 재접속 후에도 스테이지 클리어 상태가 100% 안전하게 유지됩니다.<br>• <strong>⚡ 신규 슈퍼(SUPER) 등급 'S김승규' (OVR 94, GK) 카드 정식 출시</strong>: 철벽 방어력(DEF 94)과 안정적인 빌드업 패스(PAS 93), 뛰어난 다이빙 반사신경을 보유한 대한민국 국가대표 수문장 슈퍼 김승규 카드가 카드 팩 및 도전모드 우승 보상에 추가되었습니다.<br>• <strong>리그별 상대팀 최대 OVR 상한 차등 적용</strong>: K리그 1(최대 95), J리그(최대 97), 프리미어리그(최대 99)로 차등 상한(Cap)을 적용하여 리그별 현실적인 밸런스를 강화했습니다.<br>• <strong>국대 모드 보관함 선수 자동 제외</strong>: 보관함에 보관된 카드가 국가대표 후보 및 선발 목록에서 완전히 제외되어 스쿼드 관리가 쾌적해졌습니다."
+        ]
+    },
+    {
         version: "v3.4.1",
         date: "2026.09.24",
-        latest: true,
+        latest: false,
         borderColor: "#00ff87",
         titleColor: "#00ff87",
         badgeText: "DATA SAVER MODE",

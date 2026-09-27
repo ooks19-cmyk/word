@@ -485,14 +485,14 @@ function applyUserDataToState(userData) {
     if (userData.challengeDailyRetryUsed !== undefined) challengeDailyRetryUsed = !!userData.challengeDailyRetryUsed;
     if (userData.challengeHistory) challengeHistory = userData.challengeHistory;
     if (userData.challengeSeasonTeams) challengeSeasonTeams = userData.challengeSeasonTeams;
-    if (typeof initChallengeState === 'function') initChallengeState();
+    if (typeof initChallengeState === 'function') initChallengeState(true);
 
     // 11. 친선 경기
     friendlyMatchesHistory = userData.friendlyMatchesHistory || { w: 0, d: 0, l: 0, pts: 0 };
     friendlyCurrentOpponentIndex = userData.friendlyCurrentOpponentIndex || 0;
     friendlyMatchesToday = userData.friendlyMatchesToday || 0;
     friendlyMatchLastDate = userData.friendlyMatchLastDate || "";
-    if (typeof initFriendlyMatchState === 'function') initFriendlyMatchState();
+    if (typeof initFriendlyMatchState === 'function') initFriendlyMatchState(true);
 
     // 12. 절약 모드
     if (userData.isDataSaverMode !== undefined) {
@@ -859,8 +859,8 @@ function buildLegacyProgressFromLocalStorage(targetUserId) {
         nationalNationSelections: natSelections,
         wingerStyles: wStyles,
         strikerStyles: sStyles,
-        challengeSeason: parseInt(localStorage.getItem(`fc_star_challenge_season_${myId}`) || localStorage.getItem('fc_star_challenge_season') || '1') || 1,
-        challengeStage: parseInt(localStorage.getItem(`fc_star_challenge_stage_${myId}`) || localStorage.getItem('fc_star_challenge_stage') || '1') || 1,
+        challengeSeason: parseInt(localStorage.getItem(`fc_star_challenge_season_${myId}`) || (!myId ? localStorage.getItem('fc_star_challenge_season') : '') || '1') || 1,
+        challengeStage: parseInt(localStorage.getItem(`fc_star_challenge_stage_${myId}`) || (!myId ? localStorage.getItem('fc_star_challenge_stage') : '') || '1') || 1,
         challengeBossOvr: parseInt(localStorage.getItem(`fc_star_challenge_boss_ovr_${myId}`) || localStorage.getItem('fc_star_challenge_boss_ovr') || '98') || 98,
         challengeLastDate: localStorage.getItem(`fc_star_challenge_last_date_${myId}`) || localStorage.getItem('fc_star_challenge_last_date') || "",
         challengeDailyFreeUsed: (localStorage.getItem(`fc_star_challenge_free_used_${myId}`) || localStorage.getItem('fc_star_challenge_free_used')) === 'true',
