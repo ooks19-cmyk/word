@@ -6,7 +6,7 @@
     <title>FC STAR CARD - 축구 카드 수집 게임</title>
     <link rel="stylesheet" href="css/global.css?v=3.2">
     <link rel="stylesheet" href="style.css?v=2.4">
-    <link rel="stylesheet" href="css/friend.css?v=1.2">
+    <link rel="stylesheet" href="css/friend.css?v=1.3">
     <link rel="stylesheet" href="css/realtime.css?v=1.0">
     <!-- PWA Web App Manifest & iOS App Capabilities -->
     <link rel="manifest" href="manifest.json">
@@ -1053,17 +1053,34 @@
 
             <!-- 1. 친구 정보 탭 뷰 (기존 화면) -->
             <div class="friend-container-v2 friend-layout-sub active" id="friendLayoutInfo">
-                <!-- 1. Top Section: 검색 및 유저 목록 (가로형 캐러셀) -->
+                <!-- 1. Top Section: 유저 랭킹 순위표 (포인트 순위표) -->
                 <div class="friend-top-panel">
-                    <div class="friend-search-box-v2">
-                        <input type="text" id="friendSearchInput" placeholder="유저 ID 검색...">
-                        <button id="btnFriendSearch" onclick="searchFriend()"><i class="fa-solid fa-magnifying-glass"></i></button>
-                        <button id="btnFriendRefresh" onclick="initFriendTab(true)" title="유저 목록 새로고침 (클라우드 동기화)" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #cbd5e1; width: 38px; height: 38px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; border: 1px solid rgba(255, 255, 255, 0.15); transition: all 0.2s;"><i class="fa-solid fa-arrows-rotate"></i></button>
-                    </div>
-                    <div class="friend-carousel-wrapper">
-                        <div class="friend-carousel-list" id="friendListScroll">
-                            <!-- 유저 목록이 가로 방향으로 동적 삽입되는 영역 -->
+                    <div class="friend-ranking-header">
+                        <div class="friend-ranking-title-group">
+                            <span class="friend-ranking-title"><i class="fa-solid fa-ranking-star"></i> 전체 유저 순위표</span>
+                            <span class="friend-ranking-subtitle">포인트(FP) 기준 랭킹</span>
                         </div>
+                        <div class="friend-search-box-v2">
+                            <input type="text" id="friendSearchInput" placeholder="유저 ID 검색..." onkeyup="if(event.key==='Enter') searchFriend()" oninput="searchFriend()">
+                            <button id="btnFriendSearch" onclick="searchFriend()" title="검색"><i class="fa-solid fa-magnifying-glass"></i></button>
+                            <button id="btnFriendRefresh" onclick="initFriendTab(true)" title="유저 목록 새로고침 (클라우드 동기화)"><i class="fa-solid fa-arrows-rotate"></i></button>
+                        </div>
+                    </div>
+                    <div class="friend-ranking-table-wrapper">
+                        <table class="friend-ranking-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-rank">순위</th>
+                                    <th class="col-user">구단주 (유저 ID)</th>
+                                    <th class="col-points">포인트</th>
+                                    <th class="col-level">레벨</th>
+                                    <th class="col-ovr">팀 OVR</th>
+                                </tr>
+                            </thead>
+                            <tbody id="friendListScroll">
+                                <!-- 유저 순위표 행이 동적으로 삽입되는 영역 -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 
@@ -2034,7 +2051,7 @@
     </div>
 
     <script src="js/update_data.js?v=2.81"></script>
-    <script src="js/friend.js?v=1.2"></script>
+    <script src="js/friend.js?v=1.3"></script>
     <script src="js/auth.js?v=2.81"></script>
     <script src="js/realtime.js?v=2.4"></script>
     <script src="js/coach_advisor.js?v=1.3"></script>

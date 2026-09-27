@@ -29,6 +29,45 @@ graph TD
 
 ---
 
+### 🥇 친구 탭 상단 유저 순위표(포인트 기준) 개편 (2026-09-27)
+* **요청 요약**: 친구 탭 상단 화면 구성을 순위표 형식으로 변경 (레벨, 포인트, 오버롤 표시) 및 포인트(FP) 기준 정렬 적용.
+* **수행 내용**:
+  1. `index.html`: 상단 가로 캐러셀 영역을 포인트 순위표 테이블(`table.friend-ranking-table`, `tbody#friendListScroll`)로 개편하고, 순위표 헤더 및 ID 실시간 검색창(`oninput="searchFriend()"`), 클라우드 동기화 새로고침 버튼 배치. 하단 스쿼드 대형 피치 및 상세 전적 영역은 100% 원본 유지.
+  2. `js/friend.js`:
+     - 전체 유저 정렬 기준을 **포인트(`userPoints`) 내림차순**으로 구현 (동점 시 레벨, 팀 OVR 순).
+     - 각 유저 객체에 고유 순위(`_rank`)를 계산하여 부여 (검색 필터 시에도 원래 랭킹 유지).
+     - 팀 OVR 계산 헬퍼 함수(`calculateUserTeamOvr`) 구현.
+     - 1~3위 메달 배지(🥇, 🥈, 🥉) 및 4위 이상 숫자 배지 표시.
+     - 순위표 행 클릭 시 하단 대형 스쿼드 피치 바인딩(`selectFriend`) 및 `.active` 하이라이트 연동.
+  3. `css/friend.css`:
+     - 글래스모피즘 순위표 테이블, 스티키 헤더, 골드 스크롤바, 메달 배지, OVR 배지, 포인트 골드 폰트, 내 계정(`my-account`) 전용 하이라이트 스타일 구현.
+  4. 버전 상향 및 검증:
+     - `index.html` (`friend.css?v=1.3`, `friend.js?v=1.3`), `sw.js` (`CACHE_NAME = 'fc-star-v438'`).
+     - `node --check` 구문 검사 및 프로덕션 무결성 검증 테스트 전원 PASS.
+* **변경 파일**:
+  - `index.html`
+  - `js/friend.js`
+  - `css/friend.css`
+  - `sw.js`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+* **최종 상태**: 완료
+
+---
+
+### 🏆 tomy0304 계정 도전모드 진도 업데이트 (시즌 3 8R 대기중) (2026-09-27)
+* **요청 요약**: tomy0304 도전모드 상태를 8R 대기중으로 변경.
+* **수행 내용**:
+  1. 원본 데이터 백업: scratch/tomy0304_backup_before_stage8.json에 변경 전 Firestore 데이터 보관 완료.
+  2. Firestore REST API PATCH: fc_star_users/tomy0304 문서의 challengeStage를 8(8R 맨체스터 시티 대기중)로 설정하고, 7R 승리를 반영하여 challengeHistory를 17승 2패(19전), challengeDailyFreeUsed를 False(즉시 무료 도전 가능)로 갱신 완료.
+  3. 실시간 검증: check_user_challenge.py tomy0304를 통해 시즌 3 스테이지 8 정상 반영 및 무료 도전권 활성화 확인.
+* **변경 파일**:
+  - fc_star_users/tomy0304 (Firestore 클라우드 문서)
+  - scratch/patch_tomy_challenge_stage8.py
+* **최종 상태**: 완료
+
+---
+
 ### 📦 깃 커밋 및 푸시 완료 (852b226) - 도전모드 무결성 개편 및 v3.4.2 배포 (2026-09-27)
 * **요청 요약**: 깃 푸시 및 로그 기록.
 * **수행 내용**:

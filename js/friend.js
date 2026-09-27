@@ -4,14 +4,45 @@ let friendUsersList = [];
 let selectedFriendId = null;
 
 // 친구 탭 진입 시 초기화 함수
+// 팀 OVR 계산 헬퍼 함수
+function calculateUserTeamOvr(user) {
+    if (!user) return 70;
+    if (user.squadFormation && typeof user.squadFormation === 'object' && Object.keys(user.squadFormation).length > 0) {
+        let totalOvr = 0;
+        let count = 0;
+        const positions = ["ST", "LW", "RW", "CM", "LCM", "RCM", "LB", "LCB", "RCB", "RB", "GK"];
+        positions.forEach(pos => {
+            const cardId = user.squadFormation[pos];
+            if (cardId) {
+                let cardRating = 70;
+                if (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE && CARDS_DATABASE[cardId]) {
+                    cardRating = CARDS_DATABASE[cardId].rating;
+                    if (user.playerDeck && user.playerDeck[cardId] && typeof user.playerDeck[cardId].awakening === 'number') {
+                        cardRating += user.playerDeck[cardId].awakening;
+                    }
+                }
+                totalOvr += cardRating;
+                count++;
+            }
+        });
+        if (count > 0) {
+            return Math.round(totalOvr / count);
+        }
+    }
+    const lvl = parseInt(user.userLevel) || 1;
+    return 70 + (lvl > 15 ? 15 : lvl);
+}
+
 // 친구 탭 진입 시 초기화 함수 (24시간 로컬 캐싱 적용)
 async function initFriendTab(forceRefresh = false) {
     const listScrollEl = document.getElementById('friendListScroll');
     if (listScrollEl) {
         listScrollEl.innerHTML = `
-            <div style="text-align: center; color: var(--text-muted); padding: 2rem 0; font-size: 0.82rem;">
-                <i class="fa-solid fa-spinner fa-spin" style="margin-right: 6px; color: #ffd700;"></i> 유저 목록을 불러오는 중...
-            </div>
+            <tr>
+                <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem 0; font-size: 0.85rem;">
+                    <i class="fa-solid fa-spinner fa-spin" style="margin-right: 6px; color: #ffd700;"></i> 순위표를 불러오는 중...
+                </td>
+            </tr>
         `;
     }
 
@@ -53,7 +84,7 @@ async function initFriendTab(forceRefresh = false) {
                     localStorage.setItem(CACHE_KEY, JSON.stringify(cachePayload));
                     console.log("💾 [Friend Cache] 최신 유저 목록 로컬 캐싱 완료 (24시간 보관)");
                     if (forceRefresh && typeof showToast === 'function') {
-                        showToast("🔄 실시간 유저 동기화가 완료되었습니다.");
+                        showToast("🔄 실시간 순위표 동기화가 완료되었습니다.");
                     }
                 } catch (saveErr) {
                     console.warn("⚠️ 로컬 캐시 저장 실패:", saveErr);
@@ -62,59 +93,87 @@ async function initFriendTab(forceRefresh = false) {
         } else {
             // 캐시 로드 성공 피드백 알림
             if (typeof showToast === 'function') {
-                showToast("⚡ 로컬 유저 정보를 불러왔습니다.");
+                showToast("⚡ 로컬 순위표 정보를 불러왔습니다.");
             }
         }
         
         if (!allUsers || allUsers.length === 0) {
             friendUsersList = [];
         } else {
-            // 레벨 순 내림차순 정렬
-            allUsers.sort((a, b) => {
-                const lvlA = parseInt(a.userLevel) || 1;
-                const lvlB = parseInt(b.userLevel) || 1;
-                return lvlB - lvlA;
+            const myId = typeof currentUser !== 'undefined' ? currentUser : '';
+            const normalizedMyId = myId ? myId.trim().toLowerCase() : '';
+
+            // 각 유저의 수치 계산 및 내 계정 최신 로컬 상태 동기화
+            allUsers.forEach(u => {
+                const isMe = normalizedMyId && u.id && u.id.trim().toLowerCase() === normalizedMyId;
+                if (isMe) {
+                    if (typeof userPoints !== 'undefined') u.userPoints = userPoints;
+                    if (typeof userLevel !== 'undefined') u.userLevel = userLevel;
+                    if (typeof squadFormation !== 'undefined') u.squadFormation = squadFormation;
+                    if (typeof playerDeck !== 'undefined') u.playerDeck = playerDeck;
+                    if (typeof isHardMode !== 'undefined') u.isHardMode = isHardMode;
+                }
+                u._calcPoints = parseInt(u.userPoints ?? u.points ?? 0) || 0;
+                u._calcLevel = parseInt(u.userLevel ?? 1) || 1;
+                u._calcOvr = calculateUserTeamOvr(u);
             });
 
-            // 내 계정이 목록에 있다면 가장 상단으로 고정 정렬
-            const myId = typeof currentUser !== 'undefined' ? currentUser : '';
-            if (myId) {
-                const normalizedMyId = myId.trim().toLowerCase();
-                const myIndex = allUsers.findIndex(u => u.id && u.id.trim().toLowerCase() === normalizedMyId);
-                if (myIndex !== -1) {
-                    const myData = allUsers.splice(myIndex, 1)[0];
-                    allUsers.unshift(myData);
+            // 🎯 포인트(FP) 기준 내림차순 정렬 (동점 시 레벨, OVR 순)
+            allUsers.sort((a, b) => {
+                if (b._calcPoints !== a._calcPoints) {
+                    return b._calcPoints - a._calcPoints;
                 }
-            }
+                if (b._calcLevel !== a._calcLevel) {
+                    return b._calcLevel - a._calcLevel;
+                }
+                return b._calcOvr - a._calcOvr;
+            });
+
+            // 순위 부여 (1위부터 순차 부여)
+            allUsers.forEach((u, idx) => {
+                u._rank = idx + 1;
+            });
 
             friendUsersList = allUsers;
         }
 
         renderFriendList(friendUsersList);
+
+        // 기본 선택: 기존 선택이 없으면 1위 유저 또는 내 계정 자동 선택
+        if (friendUsersList.length > 0) {
+            const targetId = selectedFriendId && friendUsersList.some(u => u.id === selectedFriendId)
+                ? selectedFriendId
+                : friendUsersList[0].id;
+            selectFriend(targetId);
+        }
     } catch (error) {
-        console.error("친구 목록 조회 에러:", error);
+        console.error("순위표 조회 에러:", error);
         if (listScrollEl) {
             listScrollEl.innerHTML = `
-                <div style="text-align: center; color: #ff8888; padding: 2rem 0; font-size: 0.82rem;">
-                    <i class="fa-solid fa-triangle-exclamation" style="margin-right: 6px;"></i> 목록을 불러오지 못했습니다.
-                </div>
+                <tr>
+                    <td colspan="5" style="text-align: center; color: #ff8888; padding: 2rem 0; font-size: 0.85rem;">
+                        <i class="fa-solid fa-triangle-exclamation" style="margin-right: 6px;"></i> 순위표를 불러오지 못했습니다.
+                    </td>
+                </tr>
             `;
         }
     }
 }
 
-// 친구 목록 렌더링
+// 친구 순위표 테이블 렌더링
 function renderFriendList(users) {
     const listScrollEl = document.getElementById('friendListScroll');
     if (!listScrollEl) return;
 
     listScrollEl.innerHTML = '';
 
-    if (users.length === 0) {
+    if (!users || users.length === 0) {
         listScrollEl.innerHTML = `
-            <div style="text-align: center; color: var(--text-muted); padding: 2rem 0; font-size: 0.82rem;">
-                검색 결과가 없습니다.
-            </div>
+            <tr>
+                <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2.5rem 0; font-size: 0.85rem;">
+                    검색 결과가 없습니다.
+                </td>
+            </tr>
         `;
         return;
     }
@@ -124,54 +183,58 @@ function renderFriendList(users) {
 
     users.forEach(user => {
         const userId = user.id || 'unknown';
-        const userLvl = user.userLevel || 1;
+        const userLvl = user._calcLevel ?? (user.userLevel || 1);
+        const userPts = user._calcPoints ?? (parseInt(user.userPoints ?? user.points ?? 0) || 0);
+        const userOvr = user._calcOvr ?? calculateUserTeamOvr(user);
         const isMe = userId.trim().toLowerCase() === normalizedMyId;
-        
-        // 유저 팀의 임시 OVR 계산
-        let tempOvr = 70;
-        if (user.squadFormation && typeof user.squadFormation === 'object' && Object.keys(user.squadFormation).length > 0) {
-            let totalOvr = 0;
-            let count = 0;
-            const positions = ["ST", "LW", "RW", "CM", "LCM", "RCM", "LB", "LCB", "RCB", "RB", "GK"];
-            
-            positions.forEach(pos => {
-                const cardId = user.squadFormation[pos];
-                if (cardId) {
-                    let cardRating = 70;
-                    if (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE && CARDS_DATABASE[cardId]) {
-                        cardRating = CARDS_DATABASE[cardId].rating;
-                        if (user.playerDeck && user.playerDeck[cardId] && typeof user.playerDeck[cardId].awakening === 'number') {
-                            cardRating += user.playerDeck[cardId].awakening;
-                        }
-                    }
-                    totalOvr += cardRating;
-                    count++;
-                }
-            });
-            if (count > 0) {
-                tempOvr = Math.round(totalOvr / count);
-            }
+        const isHard = user.isHardMode === true;
+        const rank = user._rank || '-';
+
+        // 순위 메달/배지
+        let rankBadgeHtml = '';
+        if (rank === 1) {
+            rankBadgeHtml = `<span class="rank-badge rank-1"><i class="fa-solid fa-medal"></i> 1</span>`;
+        } else if (rank === 2) {
+            rankBadgeHtml = `<span class="rank-badge rank-2"><i class="fa-solid fa-medal"></i> 2</span>`;
+        } else if (rank === 3) {
+            rankBadgeHtml = `<span class="rank-badge rank-3"><i class="fa-solid fa-medal"></i> 3</span>`;
         } else {
-            tempOvr = 70 + (parseInt(userLvl) > 15 ? 15 : parseInt(userLvl));
+            rankBadgeHtml = `<span class="rank-badge rank-normal">${rank}</span>`;
         }
 
-        const isHard = user.isHardMode === true;
+        const meBadge = isMe ? `<span class="friend-my-badge">나</span>` : '';
         const hardBadge = isHard ? `<span class="friend-hard-badge">HARD</span>` : '';
 
-        const itemEl = document.createElement('div');
-        itemEl.className = 'friend-item' + (isMe ? ' my-account' : '') + (isHard ? ' hard-mode' : '') + (selectedFriendId === userId ? ' active' : '');
-        itemEl.id = `friend-item-${userId}`;
-        itemEl.onclick = () => selectFriend(userId);
+        const rowEl = document.createElement('tr');
+        rowEl.className = 'friend-ranking-row' 
+            + (isMe ? ' my-account' : '') 
+            + (isHard ? ' hard-mode' : '') 
+            + (selectedFriendId === userId ? ' active' : '');
+        rowEl.id = `friend-row-${userId}`;
+        rowEl.onclick = () => selectFriend(userId);
 
-        itemEl.innerHTML = `
-            <div class="friend-item-info">
-                <span class="friend-item-name">${userId}${hardBadge}</span>
-                <span class="friend-item-level">레벨 ${userLvl}</span>
-            </div>
-            <span class="friend-item-badge">OVR ${tempOvr}</span>
+        rowEl.innerHTML = `
+            <td class="col-rank">${rankBadgeHtml}</td>
+            <td class="col-user">
+                <div class="ranking-user-wrapper">
+                    <span class="ranking-user-name">${userId}</span>
+                    ${meBadge}
+                    ${hardBadge}
+                </div>
+            </td>
+            <td class="col-points">
+                <span class="ranking-points-num">${userPts.toLocaleString()}</span>
+                <span class="ranking-points-unit">FP</span>
+            </td>
+            <td class="col-level">
+                <span class="ranking-level-badge">Lv.${userLvl}</span>
+            </td>
+            <td class="col-ovr">
+                <span class="ranking-ovr-badge">${userOvr}</span>
+            </td>
         `;
 
-        listScrollEl.appendChild(itemEl);
+        listScrollEl.appendChild(rowEl);
     });
 }
 
@@ -195,13 +258,13 @@ function searchFriend() {
 function selectFriend(userId) {
     selectedFriendId = userId;
 
-    // 리스트 아이템 active 스타일 갱신
-    const items = document.querySelectorAll('.friend-item');
-    items.forEach(it => it.classList.remove('active'));
+    // 리스트 아이템 active 스타일 갱신 (테이블 행 및 기존 아이템 모두 호환)
+    const rows = document.querySelectorAll('.friend-ranking-row, .friend-item');
+    rows.forEach(it => it.classList.remove('active'));
     
-    const activeItem = document.getElementById(`friend-item-${userId}`);
-    if (activeItem) {
-        activeItem.classList.add('active');
+    const activeRow = document.getElementById(`friend-row-${userId}`) || document.getElementById(`friend-item-${userId}`);
+    if (activeRow) {
+        activeRow.classList.add('active');
     }
 
     // 대상 유저 데이터 획득
