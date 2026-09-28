@@ -441,6 +441,19 @@ function getChallengeTodayDateString() {
     return `${year}-${month}-${day}`;
 }
 
+// 📅 도전모드 일일 기회 만료 검사 및 안전 리셋 (날짜가 바뀌면 무료/재도전 기회 자동 초기화)
+function checkAndResetChallengeDailyState() {
+    const todayStr = getChallengeTodayDateString();
+    if (!challengeLastDate || challengeLastDate !== todayStr) {
+        challengeDailyFreeUsed = false;
+        challengeDailyRetryUsed = false;
+        challengeLastDate = todayStr;
+        saveChallengeState();
+        return true;
+    }
+    return false;
+}
+
 // 🔄 전역 상태를 순수 기본값으로 완전 초기화 (계정 전환/로그아웃/게스트 진입 시 이전 계정 메모리 오염 원천 차단)
 function resetStateToDefault() {
     userPoints = 0;
@@ -624,10 +637,11 @@ function loadChallengeState() {
             challengeDailyFreeUsed = savedFreeUsed === 'true';
             challengeDailyRetryUsed = savedRetryUsed === 'true';
         } else {
-            // 새 날짜인 경우 인메모리 일일 사용량 안전 리셋 (부수효과 저장 방지)
+            // 새 날짜인 경우 인메모리 일일 사용량 안전 리셋 및 로컬 저장소 즉시 동기화
             challengeDailyFreeUsed = false;
             challengeDailyRetryUsed = false;
             challengeLastDate = todayStr;
+            saveChallengeState();
         }
 
         if (savedHistory) {
@@ -642,6 +656,9 @@ function saveChallengeState() {
     const rawId = (typeof currentUser === 'string' && currentUser) ? currentUser.trim() : (localStorage.getItem('fc_star_current_user') || "");
     const myId = rawId.toLowerCase();
     try {
+        const todayStr = getChallengeTodayDateString();
+        challengeLastDate = challengeLastDate || todayStr;
+
         // 1. ID별 전용 키 저장
         if (myId) {
             localStorage.setItem(`fc_star_challenge_season_${myId}`, challengeSeason.toString());

@@ -480,11 +480,24 @@ function applyUserDataToState(userData) {
     if (userData.challengeSeason !== undefined && !isNaN(userData.challengeSeason)) challengeSeason = parseInt(userData.challengeSeason) || 1;
     if (userData.challengeStage !== undefined && !isNaN(userData.challengeStage)) challengeStage = parseInt(userData.challengeStage) || 1;
     if (userData.challengeBossOvr !== undefined && !isNaN(userData.challengeBossOvr)) challengeBossOvr = parseInt(userData.challengeBossOvr) || 98;
-    if (userData.challengeLastDate) challengeLastDate = userData.challengeLastDate;
-    if (userData.challengeDailyFreeUsed !== undefined) challengeDailyFreeUsed = !!userData.challengeDailyFreeUsed;
-    if (userData.challengeDailyRetryUsed !== undefined) challengeDailyRetryUsed = !!userData.challengeDailyRetryUsed;
+    
+    const todayChalDate = (typeof getChallengeTodayDateString === 'function') ? getChallengeTodayDateString() : new Date().toISOString().slice(0, 10);
+    const serverChalDate = userData.challengeLastDate || "";
+
+    if (serverChalDate === todayChalDate) {
+        challengeLastDate = todayChalDate;
+        challengeDailyFreeUsed = (userData.challengeDailyFreeUsed !== undefined) ? !!userData.challengeDailyFreeUsed : false;
+        challengeDailyRetryUsed = (userData.challengeDailyRetryUsed !== undefined) ? !!userData.challengeDailyRetryUsed : false;
+    } else {
+        // 서버의 마지막 플레이 날짜가 오늘이 아니면(과거 날짜이거나 비어있으면) 오늘 무료/재도전 기회 자동 초기화
+        challengeLastDate = todayChalDate;
+        challengeDailyFreeUsed = false;
+        challengeDailyRetryUsed = false;
+    }
+
     if (userData.challengeHistory) challengeHistory = userData.challengeHistory;
     if (userData.challengeSeasonTeams) challengeSeasonTeams = userData.challengeSeasonTeams;
+    if (typeof saveChallengeState === 'function') saveChallengeState();
     if (typeof initChallengeState === 'function') initChallengeState(true);
 
     // 11. 친선 경기
@@ -648,10 +661,22 @@ function collectCurrentUserProgressData(targetUserId) {
         // 도전모드(Challenge Mode) 동기화 필드 - 인메모리 및 해당 계정 캐시 기준
         challengeSeason: (typeof challengeSeason === 'number' && challengeSeason >= 1) ? challengeSeason : (cachedUserDoc && cachedUserDoc.challengeSeason ? parseInt(cachedUserDoc.challengeSeason) : 1),
         challengeStage: (typeof challengeStage === 'number' && challengeStage >= 1) ? challengeStage : (cachedUserDoc && cachedUserDoc.challengeStage ? parseInt(cachedUserDoc.challengeStage) : 1),
-        challengeBossOvr: typeof challengeBossOvr !== 'undefined' ? challengeBossOvr : (cachedUserDoc && cachedUserDoc.challengeBossOvr ? parseInt(cachedUserDoc.challengeBossOvr) : 98),
-        challengeLastDate: typeof challengeLastDate !== 'undefined' ? challengeLastDate : (cachedUserDoc && cachedUserDoc.challengeLastDate ? cachedUserDoc.challengeLastDate : ""),
-        challengeDailyFreeUsed: typeof challengeDailyFreeUsed !== 'undefined' ? challengeDailyFreeUsed : (cachedUserDoc && cachedUserDoc.challengeDailyFreeUsed !== undefined ? !!cachedUserDoc.challengeDailyFreeUsed : false),
-        challengeDailyRetryUsed: typeof challengeDailyRetryUsed !== 'undefined' ? challengeDailyRetryUsed : (cachedUserDoc && cachedUserDoc.challengeDailyRetryUsed !== undefined ? !!cachedUserDoc.challengeDailyRetryUsed : false),
+        challengeLastDate: (() => {
+            const todayStr = (typeof getChallengeTodayDateString === 'function') ? getChallengeTodayDateString() : new Date().toISOString().slice(0, 10);
+            return challengeLastDate || (cachedUserDoc && cachedUserDoc.challengeLastDate) || todayStr;
+        })(),
+        challengeDailyFreeUsed: (() => {
+            const todayStr = (typeof getChallengeTodayDateString === 'function') ? getChallengeTodayDateString() : new Date().toISOString().slice(0, 10);
+            const targetDate = challengeLastDate || (cachedUserDoc && cachedUserDoc.challengeLastDate) || "";
+            if (targetDate !== todayStr) return false;
+            return typeof challengeDailyFreeUsed !== 'undefined' ? challengeDailyFreeUsed : (cachedUserDoc && cachedUserDoc.challengeDailyFreeUsed !== undefined ? !!cachedUserDoc.challengeDailyFreeUsed : false);
+        })(),
+        challengeDailyRetryUsed: (() => {
+            const todayStr = (typeof getChallengeTodayDateString === 'function') ? getChallengeTodayDateString() : new Date().toISOString().slice(0, 10);
+            const targetDate = challengeLastDate || (cachedUserDoc && cachedUserDoc.challengeLastDate) || "";
+            if (targetDate !== todayStr) return false;
+            return typeof challengeDailyRetryUsed !== 'undefined' ? challengeDailyRetryUsed : (cachedUserDoc && cachedUserDoc.challengeDailyRetryUsed !== undefined ? !!cachedUserDoc.challengeDailyRetryUsed : false);
+        })(),
         challengeHistory: typeof challengeHistory !== 'undefined' ? challengeHistory : (cachedUserDoc && cachedUserDoc.challengeHistory ? cachedUserDoc.challengeHistory : { w: 0, d: 0, l: 0, totalGames: 0 }),
         challengeSeasonTeams: (typeof challengeSeasonTeams !== 'undefined' && Array.isArray(challengeSeasonTeams)) ? challengeSeasonTeams : (cachedUserDoc && cachedUserDoc.challengeSeasonTeams ? cachedUserDoc.challengeSeasonTeams : null),
         
@@ -862,9 +887,22 @@ function buildLegacyProgressFromLocalStorage(targetUserId) {
         challengeSeason: parseInt(localStorage.getItem(`fc_star_challenge_season_${myId}`) || (!myId ? localStorage.getItem('fc_star_challenge_season') : '') || '1') || 1,
         challengeStage: parseInt(localStorage.getItem(`fc_star_challenge_stage_${myId}`) || (!myId ? localStorage.getItem('fc_star_challenge_stage') : '') || '1') || 1,
         challengeBossOvr: parseInt(localStorage.getItem(`fc_star_challenge_boss_ovr_${myId}`) || localStorage.getItem('fc_star_challenge_boss_ovr') || '98') || 98,
-        challengeLastDate: localStorage.getItem(`fc_star_challenge_last_date_${myId}`) || localStorage.getItem('fc_star_challenge_last_date') || "",
-        challengeDailyFreeUsed: (localStorage.getItem(`fc_star_challenge_free_used_${myId}`) || localStorage.getItem('fc_star_challenge_free_used')) === 'true',
-        challengeDailyRetryUsed: (localStorage.getItem(`fc_star_challenge_retry_used_${myId}`) || localStorage.getItem('fc_star_challenge_retry_used')) === 'true',
+        challengeLastDate: (() => {
+            const todayStr = (typeof getChallengeTodayDateString === 'function') ? getChallengeTodayDateString() : new Date().toISOString().slice(0, 10);
+            return (localStorage.getItem(`fc_star_challenge_last_date_${myId}`) || localStorage.getItem('fc_star_challenge_last_date')) || todayStr;
+        })(),
+        challengeDailyFreeUsed: (() => {
+            const todayStr = (typeof getChallengeTodayDateString === 'function') ? getChallengeTodayDateString() : new Date().toISOString().slice(0, 10);
+            const savedDate = localStorage.getItem(`fc_star_challenge_last_date_${myId}`) || localStorage.getItem('fc_star_challenge_last_date');
+            if (savedDate !== todayStr) return false;
+            return (localStorage.getItem(`fc_star_challenge_free_used_${myId}`) || localStorage.getItem('fc_star_challenge_free_used')) === 'true';
+        })(),
+        challengeDailyRetryUsed: (() => {
+            const todayStr = (typeof getChallengeTodayDateString === 'function') ? getChallengeTodayDateString() : new Date().toISOString().slice(0, 10);
+            const savedDate = localStorage.getItem(`fc_star_challenge_last_date_${myId}`) || localStorage.getItem('fc_star_challenge_last_date');
+            if (savedDate !== todayStr) return false;
+            return (localStorage.getItem(`fc_star_challenge_retry_used_${myId}`) || localStorage.getItem('fc_star_challenge_retry_used')) === 'true';
+        })(),
         challengeHistory: chalHistory,
         challengeSeasonTeams: chalTeams,
         friendlyMatchesHistory: frHistory,

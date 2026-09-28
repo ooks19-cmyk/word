@@ -160,8 +160,10 @@ function switchMatchSubTab(tabId, isDevEntry = false) {
 
     // 하위 탭 진입 시 전용 연동 호출
     if (tabId === 'friendly') {
-        if (typeof initFriendlyMatchTab === 'function') {
-            initFriendlyMatchTab();
+        if (typeof initChallengeState === 'function') {
+            initChallengeState();
+        } else if (typeof initFriendlyMatchState === 'function') {
+            initFriendlyMatchState();
         }
     } else if (tabId === 'league') {
         if (typeof syncJeonbukOvr === 'function') syncJeonbukOvr();

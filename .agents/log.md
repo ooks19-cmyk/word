@@ -29,6 +29,45 @@ graph TD
 
 ---
 
+### 🐛 도전모드 상시 완료 상태 고착 버그 수정 및 PWA v442 배포 (2026-09-29)
+* **요청 요약**: 도전모드에서 항상 도전 완료된 상태로 고착되어 있는 버그 해결.
+* **원인 규명**:
+  1. `js/auth.js`의 `applyUserDataToState(userData)`에서 클라우드(Firestore) 데이터 적용 시 `challengeLastDate`가 오늘 날짜(`getChallengeTodayDateString()`)인지 검증하지 않고, 과거에 완료했던 `challengeDailyFreeUsed`, `challengeDailyRetryUsed` 값(`true`)을 그대로 덮어씀.
+  2. 직후 `initChallengeState(true)`를 호출하여 `loadChallengeState()` 내부의 날짜 검사 로직까지 건너뛰어져, 과거에 한 번이라도 완료한 유저는 로그인할 때마다 영구히 "오늘의 도전 완료 (내일 다음 경기 가능)"로 잠기게 됨.
+  3. `app.js`의 `switchMatchSubTab('friendly')`에서 존재하지 않는 함수명(`initFriendlyMatchTab()`)을 호출하여, 친선/도전 서브탭을 눌러도 상태 초기화 및 날짜 검사가 실행되지 않음.
+  4. 자정 경과 시 일일 도전권을 자동으로 초기화하는 공통 헬퍼(`checkAndResetChallengeDailyState`)가 부재하였고, 경기 시작/승리/패배/우승 시 `challengeLastDate`가 오늘 날짜로 명시적 동기화되지 않음.
+* **수행 내용**:
+  1. **`js/state.js`**:
+     - 오늘 날짜와 다르면 무료/재도전 기회를 자동으로 `false`로 리셋하고 로컬스토리지 및 통합 문서(`fc_star_user_${myId}`)에 실시간 저장하는 공통 헬퍼 `checkAndResetChallengeDailyState()` 신규 구현.
+     - `loadChallengeState()`에서 새 날짜 감지 시 `saveChallengeState()`를 호출하여 스토리지 불일치 해소.
+     - `saveChallengeState()` 시작 시 `challengeLastDate`가 비어있을 경우 오늘 날짜로 자동 보장.
+  2. **`js/auth.js`**:
+     - `applyUserDataToState(userData)`에서 `userData.challengeLastDate`가 오늘 날짜가 아니면 무료/재도전 사용 여부를 즉시 `false`로 안전 리셋하고 로컬 스토리지에 동기화.
+     - `collectCurrentUserProgressData` 및 `buildLegacyProgressFromLocalStorage`에서 과거 날짜의 일일 완료 기록이 클라우드나 레거시 스토리지로 잘못 수집되지 않도록 날짜 유효성 가드 적용.
+  3. **`js/friendly.js`**:
+     - `initChallengeState()`, `updateChallengeButtonState()`, `startChallengeMatchSimulation()` 시작 시점에 `checkAndResetChallengeDailyState()`를 호출하여 항상 최신 당일 기회 상태를 기반으로 UI와 경기 진행이 동작하도록 보장.
+     - 재도전 시작, 경기 승리, 경기 패배, 10R 우승, 슈퍼카드 선택 영입 완료 시 `challengeLastDate`를 오늘 날짜로 명시적 갱신.
+  4. **`app.js`**:
+     - `switchMatchSubTab('friendly')` 진입 시 `initChallengeState()`가 정상 호출되도록 함수 연결 수정.
+  5. **캐시 및 스크립트 버전 상향**:
+     - `index.html`: `js/state.js?v=3.5`, `js/friendly.js?v=4.3`, `js/auth.js?v=2.82`, `app.js?v=3.7`.
+     - `sw.js`: `CACHE_NAME = 'fc-star-v442'`.
+* **변경 파일**:
+  - `js/state.js`
+  - `js/auth.js`
+  - `js/friendly.js`
+  - `app.js`
+  - `index.html`
+  - `sw.js`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+* **검증 결과**:
+  - 수정한 5개 파일 구문 및 괄호 무결성 검사(Syntax OK) 통과.
+  - `scratch/test_challenge_daily_reset.py`를 통해 5대 핵심 시나리오(과거 완료 유저 로그인 시 일일 도전권 자동 초기화, 당일 완료 상태 보존, 자정 경과 시 자동 리셋, app.js 탭 연동, PWA 캐시 버전 일치) 100% 통과 확인.
+* **최종 상태**: 완료 (커밋·푸시는 사용자 지시 대기)
+
+---
+
 ### 📦 깃 커밋 및 푸시 완료 (07c8091) - 혼다 케이스케 포지션 수정(RW -> AM) 및 v441 배포 (2026-09-28)
 * **요청 요약**: 깃 푸시 (혼다 케이스케 선수 포지션 AM 변경 반영).
 * **수행 내용**:

@@ -1,15 +1,23 @@
 ## 현재 작업
-- 목표: '혼다 케이스케' 선수 카드 포지션 수정 (RW -> AM) 반영 및 DB/CSV 동기화, PWA v441 배포, 깃 푸시
+- 목표: 도전모드에서 항상 '도전 완료' 상태로 잠겨있는 버그 원인 분석 및 완벽 해결
 - 상태: 완료
-- 주요 변경·검증:
-  1. `player_data.js`: `keisuke_honda` 카드 포지션을 `AM`으로 수정하고, 상단 포지션 가이드라인 주석 업데이트.
-  2. `index.html`: `player_data.js?v=1.82` 캐시 쿼리 버전 상향.
-  3. `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v441'` 상향.
-  4. `선수데이터.csv`: `convert_js_to_csv.py` 스크립트를 통해 총 102명 선수 데이터 동기화 완료 (혼다 케이스케 포지션 AM 반영).
-  5. 무결성 검증:
-     - Node.js 구문 검사(`player_data.js`, `sw.js`) 오류 없음.
-     - 회귀 테스트 4종(`national_mode`, `achievements_reconciliation`, `cloud_save_throttle`, `position_match_goal_bonus`) 전부 PASS.
-- 다음 단계: 완료 및 GitHub 원격 저장소 푸시 완료 (`07c8091`).
+- 주요 분석 및 변경 내역:
+  1. 원인 규명:
+     - `auth.js`의 `applyUserDataToState(userData)`에서 클라우드(Firestore) 데이터를 로드할 때 `challengeLastDate`가 오늘 날짜(`getChallengeTodayDateString()`)인지 검증하지 않고 `challengeDailyFreeUsed`, `challengeDailyRetryUsed`를 과거 저장값(`true`) 그대로 덮어씀.
+     - 직후 `initChallengeState(true)`를 호출하여 `loadChallengeState()` 내부의 날짜 검사 로직까지 우회됨. 이로 인해 과거에 1회라도 완료한 유저는 로그인할 때마다 영구히 "오늘의 도전 완료" 상태로 고착됨.
+     - `app.js`의 `switchMatchSubTab('friendly')`에서 존재하지 않는 함수 `initFriendlyMatchTab()`을 호출하여 친선/도전 서브탭 진입 시 상태 초기화 및 날짜 검사가 실행되지 않음.
+     - `checkAndResetChallengeDailyState()` 공통 헬퍼 부재 및 데이터 수집(`collectCurrentUserProgressData`, `buildLegacyProgressFromLocalStorage`) 시 날짜 만료 검증 누락.
+     - `loadChallengeState()`에서 날짜 변경 시 로컬스토리지 미반영(Dual-write 누락).
+  2. 코드 수정:
+     - `js/state.js`: 날짜 검증 및 일일 기회 자동 리셋 공통 헬퍼 `checkAndResetChallengeDailyState()` 구현, `loadChallengeState()` 및 `saveChallengeState()`에서 오늘 날짜 동기화 보강.
+     - `js/auth.js`: `applyUserDataToState`에서 `userData.challengeLastDate`가 오늘 날짜가 아니면 즉시 `challengeDailyFreeUsed = false`, `challengeDailyRetryUsed = false`, `challengeLastDate = todayStr`로 안전 초기화. `collectCurrentUserProgressData` 및 `buildLegacyProgressFromLocalStorage`에도 날짜 만료 가드 적용.
+     - `js/friendly.js`: `initChallengeState`, `updateChallengeButtonState`, `startChallengeMatchSimulation` 진입 시 `checkAndResetChallengeDailyState()` 호출, 경기 시작/승리/패배/우승 시 `challengeLastDate`를 오늘 날짜로 정확히 설정.
+     - `app.js`: `switchMatchSubTab('friendly')`에서 `initChallengeState()` 정상 호출 연동.
+     - `index.html` 캐시 쿼리 버전 상향(`state.js?v=3.5`, `friendly.js?v=4.3`, `auth.js?v=2.82`, `app.js?v=3.7`) 및 `sw.js` PWA 서비스 워커 캐시 버전 상향(`CACHE_NAME = 'fc-star-v442'`).
+  3. 무결성 검증:
+     - 수정한 전체 파일 문법 및 괄호 무결성 검사(Syntax OK) 100% 통과.
+     - `scratch/test_challenge_daily_reset.py`를 통해 5개 핵심 시나리오(과거 완료 유저 로그인 시 일일 도전권 자동 초기화, 당일 완료 유저 상태 보존, 자정 경과 시 자동 리셋, app.js 탭 연동, PWA 캐시 버전 일치) 100% 통과.
+- 다음 단계: 완료 보고 및 사용자 확인. (Git 커밋·푸시는 사용자 지시 대기)
 
 ## 이전 작업
 - 목표: '혼다 케이스케' 선수 카드 스펙 수정 (오버롤 91, 포지션 RW, 스탯 밸런싱) 및 DB/CSV 동기화

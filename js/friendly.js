@@ -267,6 +267,11 @@ function initChallengeState(skipLoad = false) {
         loadChallengeState();
     }
     
+    // 일일 기회 만료(새로운 날짜) 검사 및 안전 리셋
+    if (typeof checkAndResetChallengeDailyState === 'function') {
+        checkAndResetChallengeDailyState();
+    }
+
     // 현재 스테이지 상대팀 자동 선택
     const teams = getChallengeStageTeams();
     const stageIdx = Math.max(1, Math.min(10, challengeStage)) - 1;
@@ -436,6 +441,11 @@ function updateFriendlyMatchPreview() {
 
 // 도전모드 버튼 상태 제어 함수
 function updateChallengeButtonState() {
+    // 일일 기회 만료(새로운 날짜) 검사 및 안전 리셋
+    if (typeof checkAndResetChallengeDailyState === 'function') {
+        checkAndResetChallengeDailyState();
+    }
+
     const startBtn = document.getElementById('btnStartFriendlyMatch');
     if (!startBtn) return;
 
@@ -631,6 +641,11 @@ function startChallengeMatchSimulation(isRetry = false) {
         return;
     }
 
+    // 일일 기회 만료(새로운 날짜) 검사 및 안전 리셋
+    if (typeof checkAndResetChallengeDailyState === 'function') {
+        checkAndResetChallengeDailyState();
+    }
+
     // 시즌 2 이상 10R 최종 보스전 잠금 검사 (업데이트 준비 중)
     if (isChallengeBossLocked()) {
         showChallengeBossLockedModal();
@@ -666,6 +681,7 @@ function startChallengeMatchSimulation(isRetry = false) {
         } catch(e) {}
         if (typeof renderUserPoints === 'function') renderUserPoints();
         challengeDailyRetryUsed = true;
+        challengeLastDate = (typeof getChallengeTodayDateString === 'function') ? getChallengeTodayDateString() : getFriendlyTodayDateString();
         saveChallengeState();
         if (typeof saveUserProgress === 'function') saveUserProgress(true);
         showToast("🔥 5 FP를 소모하여 찬스 확률 +5% 보너스를 받고 당일 1회 재도전을 시작합니다!");
@@ -886,6 +902,7 @@ function startChallengeMatchSimulation(isRetry = false) {
             // 승리 시에는 무료든 재도전이든 당일 도전이 즉시 완료됨 (패배 시에만 5 FP 추가도전 가능)
             challengeDailyFreeUsed = true;
             challengeDailyRetryUsed = true;
+            challengeLastDate = (typeof getChallengeTodayDateString === 'function') ? getChallengeTodayDateString() : getFriendlyTodayDateString();
 
             // 10스테이지 전승 달성 시 시즌 우승 (10R 경기 시점 플레이어 OVR 전달)
             if (challengeStage === 10) {
@@ -913,6 +930,7 @@ function startChallengeMatchSimulation(isRetry = false) {
             challengeHistory.totalGames += 1;
             
             // 패배 시: 무료 도전이었다면 retry 기회 보존, 재도전이었다면 소진
+            challengeLastDate = (typeof getChallengeTodayDateString === 'function') ? getChallengeTodayDateString() : getFriendlyTodayDateString();
             if (!isRetry) challengeDailyFreeUsed = true;
             else challengeDailyRetryUsed = true;
             
@@ -1215,6 +1233,7 @@ function triggerChallengeSeasonVictory(season, lastMatchPlayerOvr) {
     challengeSeasonTeams = generateChallengeSeasonTeams(challengeSeason);
     challengeDailyFreeUsed = true; // 오늘 우승 완료
     challengeDailyRetryUsed = true;
+    challengeLastDate = (typeof getChallengeTodayDateString === 'function') ? getChallengeTodayDateString() : getFriendlyTodayDateString();
     saveChallengeState();
     
     if (typeof saveUserProgress === 'function') {
@@ -1544,6 +1563,7 @@ function executeChallengeSuperCardReward(selectedCardId, season, lastMatchPlayer
     challengeSeasonTeams = generateChallengeSeasonTeams(challengeSeason);
     challengeDailyFreeUsed = true; // 오늘 우승 완료
     challengeDailyRetryUsed = true;
+    challengeLastDate = (typeof getChallengeTodayDateString === 'function') ? getChallengeTodayDateString() : getFriendlyTodayDateString();
     saveChallengeState();
     
     if (typeof saveUserProgress === 'function') {
