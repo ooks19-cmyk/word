@@ -5,7 +5,7 @@
  * 향후 새로운 선수 카드 추가 시, position 속성에는 아래의 표준화된 9가지 값만 부여해야 합니다:
  * - 'ST' (스트라이커)
  * - 'LW', 'RW' (윙어 / W)
- * - 'CAM' (공격형 미드필더 / AM)
+ * - 'AM' (공격형 미드필더 / AM)
  * - 'CM' (미드필더 / DM, AM 포함)
  * - 'CB' (중앙 수비수)
  * - 'LB', 'RB' (측면 수비수 / L&R Back)
@@ -2544,7 +2544,7 @@ const CARDS_DATABASE = {
         id: "keisuke_honda",
         name: "혼다 케이스케",
         rating: 91,
-        position: "RW",
+        position: "AM",
         nation: "Japan",
         nationFlag: "https://flagcdn.com/w40/jp.png",
         club: "AC MILAN",

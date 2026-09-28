@@ -1,4 +1,17 @@
 ## 현재 작업
+- 목표: '혼다 케이스케' 선수 카드 포지션 수정 (RW -> AM) 반영 및 DB/CSV 동기화, PWA v441 배포, 깃 푸시
+- 상태: 진행 중 (검증 완료, 깃 푸시 대기)
+- 주요 변경·검증:
+  1. `player_data.js`: `keisuke_honda` 카드 포지션을 `AM`으로 수정하고, 상단 포지션 가이드라인 주석 업데이트.
+  2. `index.html`: `player_data.js?v=1.82` 캐시 쿼리 버전 상향.
+  3. `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v441'` 상향.
+  4. `선수데이터.csv`: `convert_js_to_csv.py` 스크립트를 통해 총 102명 선수 데이터 동기화 완료 (혼다 케이스케 포지션 AM 반영).
+  5. 무결성 검증:
+     - Node.js 구문 검사(`player_data.js`, `sw.js`) 오류 없음.
+     - 회귀 테스트 4종(`national_mode`, `achievements_reconciliation`, `cloud_save_throttle`, `position_match_goal_bonus`) 전부 PASS.
+- 다음 단계: git commit 및 origin/main 푸시, 최종 상태 기록.
+
+## 이전 작업
 - 목표: '혼다 케이스케' 선수 카드 스펙 수정 (오버롤 91, 포지션 RW, 스탯 밸런싱) 및 DB/CSV 동기화
 - 상태: 완료
 - 주요 변경·검증:
