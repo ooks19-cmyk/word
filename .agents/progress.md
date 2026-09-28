@@ -1,4 +1,20 @@
 ## 현재 작업
+- 목표: '혼다 케이스케' 선수 카드 스펙 수정 (오버롤 91, 포지션 RW, 스탯 밸런싱) 및 DB/CSV 동기화
+- 상태: 완료
+- 주요 변경·검증:
+  1. `player_data.js`: `keisuke_honda` 카드 객체 수정 완료.
+     - 이름: 혼다 케이스케, 등급: legend, 오버롤: 91, 포지션: RW, 국적: Japan, 소속: AC MILAN
+     - 6대 스탯: PAC 88, SHO 92, PAS 91, DRI 89, DEF 60, PHY 87
+     - 이미지: `player2/혼다.jpg`
+  2. `index.html`: `player_data.js?v=1.81` 캐시 쿼리 버전 상향.
+  3. `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v440'` 상향.
+  4. `선수데이터.csv`: `convert_js_to_csv.py` 스크립트를 통해 총 102명 선수 데이터 동기화 완료 (103행).
+  5. 무결성 검증:
+     - Node.js 구문 검사(`player_data.js`, `sw.js`) 오류 없음.
+     - 회귀 테스트 4종(`national_mode`, `achievements_reconciliation`, `cloud_save_throttle`, `position_match_goal_bonus`) 전부 PASS.
+- 다음 단계: 완료 보고 및 사용자 피드백 대기.
+
+## 이전 작업
 - 목표: 친구 탭 상단 유저 목록 화면을 포인트(FP) 기준 순위표(Leaderboard) 형식으로 개편 (순위, 유저 ID, 포인트, 레벨, 팀 OVR 표시)
 - 상태: 완료
 - 주요 변경·검증:

@@ -29,6 +29,35 @@ graph TD
 
 ---
 
+### ⚽ 전설 등급 '혼다 케이스케' 카드 스펙 조정 (OVR 91, RW) 및 DB·CSV 동기화 (2026-09-28)
+* **요청 요약**: 혼다 케이스케 선수 오버롤 91로 수정 및 포지션 RW로 변경.
+* **수행 내용**:
+  1. **카드 데이터 수정 (`player_data.js`)**:
+     - ID: `keisuke_honda`, 이름: `혼다 케이스케`, 등급: `legend`, 오버롤: `91`, 포지션: `RW`
+     - 국적: `Japan` (`https://flagcdn.com/w40/jp.png`), 소속: `AC MILAN`
+     - 이미지: `player2/혼다.jpg`
+     - 6대 스탯: `PAC 88, SHO 92, PAS 91, DRI 89, DEF 60, PHY 87`
+     - 설명: "아시아 축구의 상징이자 독보적인 왼발 무회전 프리킥 마스터, 전설의 공격수 혼다 케이스케입니다. AC 밀란의 10번이자 세 차례 월드컵에서 연속 골과 도움을 기록한 불굴의 승부사로, 강력한 피지컬과 날카로운 왼발 킥, 정교한 플레이메이킹으로 측면과 중앙을 지배하는 레전드 윙어입니다."
+  2. **PWA 캐시 및 스크립트 버전 상향**:
+     - `index.html`: `player_data.js?v=1.81`
+     - `sw.js`: `CACHE_NAME = 'fc-star-v440'`
+  3. **`선수데이터.csv` 엑셀 시트 자동 동기화 (`convert_js_to_csv.py`)**:
+     - 총 102명 선수 데이터로 동기화 완료 (103행).
+* **변경 파일**:
+  - `player_data.js`
+  - `index.html`
+  - `sw.js`
+  - `선수데이터.csv`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+* **검증 결과**:
+  - Node.js 구문 검사(`player_data.js`, `sw.js`) 오류 없음.
+  - 회귀 테스트 4종(`national_mode`, `achievements_reconciliation`, `cloud_save_throttle`, `position_match_goal_bonus`) 전부 PASS.
+  - `선수데이터.csv` 103행(헤더+102명) 및 스탯 무결성 확인.
+* **최종 상태**: 작업 완료 (Git 커밋 및 푸시는 사용자 지시 대기).
+
+---
+
 ### 📦 깃 커밋 및 푸시 완료 (257e12f) - 친구 탭 포인트 순위표 개편 및 v438 배포 (2026-09-27)
 * **요청 요약**: 깃푸시.
 * **수행 내용**:

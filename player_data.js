@@ -2539,6 +2539,31 @@ const CARDS_DATABASE = {
             def: 94,
             phy: 90
         }
+    },
+    "keisuke_honda": {
+        id: "keisuke_honda",
+        name: "혼다 케이스케",
+        rating: 91,
+        position: "RW",
+        nation: "Japan",
+        nationFlag: "https://flagcdn.com/w40/jp.png",
+        club: "AC MILAN",
+        image: "player2/혼다.jpg",
+        rarity: "legend",
+        description: "아시아 축구의 상징이자 독보적인 왼발 무회전 프리킥 마스터, 전설의 공격수 혼다 케이스케입니다. AC 밀란의 10번이자 세 차례 월드컵에서 연속 골과 도움을 기록한 불굴의 승부사로, 강력한 피지컬과 날카로운 왼발 킥, 정교한 플레이메이킹으로 측면과 중앙을 지배하는 레전드 윙어입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 88,
+            sho: 92,
+            pas: 91,
+            dri: 89,
+            def: 60,
+            phy: 87
+        }
     }
 };
 
