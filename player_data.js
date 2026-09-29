@@ -2564,6 +2564,31 @@ const CARDS_DATABASE = {
             def: 60,
             phy: 87
         }
+    },
+    "mohamed_salah": {
+        id: "mohamed_salah",
+        name: "모하메드 살라",
+        rating: 91,
+        position: "RW",
+        nation: "Egypt",
+        nationFlag: "https://flagcdn.com/w40/eg.png",
+        club: "LIVERPOOL",
+        image: "player2/살라.webp",
+        rarity: "legend",
+        description: "이집트의 파라오이자 안필드의 영원한 전설, 리버풀의 특급 윙어 모하메드 살라입니다. 폭발적인 가속력과 정교한 왼발 감아차기, 수비진을 허무는 탁월한 드리블로 프리미어리그 득점왕과 챔피언스리그를 제패한 세계 최고의 월드클래스 골잡이입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 93,
+            sho: 91,
+            pas: 86,
+            dri: 91,
+            def: 45,
+            phy: 77
+        }
     }
 };
 

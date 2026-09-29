@@ -29,6 +29,39 @@ graph TD
 
 ---
 
+### 📦 깃 커밋 및 푸시 완료 (915a8cc) - '모하메드 살라' 전설 등급 (OVR 91, RW, LIVERPOOL) 신규 카드 등록 및 PWA v443 배포 (2026-09-29)
+* **요청 요약**: 모하메드 살라 선수 생성 (전설등급, 오버롤 91) 및 깃 푸시.
+* **수행 내용**:
+  1. main 브랜치 커밋 및 origin/main 원격 저장소 푸시 완료 (커밋 해시: `915a8cc`).
+  2. **신규 카드 데이터 등록 (`player_data.js`)**:
+     - 카드 ID: `mohamed_salah`
+     - 선수명: `모하메드 살라`
+     - 오버롤(OVR): `91`
+     - 포지션: `RW`
+     - 국적: `Egypt` (`https://flagcdn.com/w40/eg.png`)
+     - 소속 클럽: `LIVERPOOL`
+     - 이미지: `player2/살라.webp` (존재 파일 연결)
+     - 희귀도: `legend`
+     - 테마: primary: `"#000000"`, secondary: `"#c39e5c"`, glow: `"#ffd700"`
+     - 6대 스탯: `PAC 93, SHO 91, PAS 86, DRI 91, DEF 45, PHY 77`
+     - 선수 설명: 이집트의 파라오이자 안필드의 영원한 전설, 리버풀의 특급 윙어 모하메드 살라입니다. 폭발적인 가속력과 정교한 왼발 감아차기, 수비진을 허무는 탁월한 드리블로 프리미어리그 득점왕과 챔피언스리그를 제패한 세계 최고의 월드클래스 골잡이입니다.
+  3. **PWA 캐시 및 브라우저 버전 상향**:
+     - `index.html`: `player_data.js?v=1.83` 상향.
+     - `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v443'` 상향.
+  4. **엑셀 시트 동기화 (`선수데이터.csv`)**:
+     - `convert_js_to_csv.py` 스크립트를 통해 총 103명 선수 데이터 일괄 변환 동기화 완료.
+* **변경 파일**:
+  - `player_data.js`
+  - `index.html`
+  - `sw.js`
+  - `선수데이터.csv`
+  - `player2/살라.webp`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+* **검증 결과**:
+  - `scratch/verify_salah.py`를 통해 선수 이미지 파일 존재, `player_data.js` 문법/괄호 무결성, `선수데이터.csv` 데이터 및 스탯 일치, `index.html`/`sw.js` 캐시 버전 일치 검증 100% 통과 (ALL TESTS PASSED).
+* **최종 상태**: 완료 (origin/main 푸시 완료)
+
 ### 📦 깃 커밋 및 푸시 완료 (cc9407b) - 도전모드 상시 완료 상태 고착 버그 수정 및 PWA v442 배포 (2026-09-29)
 * **요청 요약**: 도전모드에서 항상 도전 완료된 상태로 고착되어 있는 버그 해결 및 깃 푸시.
 * **수행 내용**:

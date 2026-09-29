@@ -1,4 +1,20 @@
 ## 현재 작업
+- 목표: '모하메드 살라' 전설 등급 선수 카드 생성 (오버롤 91, 포지션 RW, 스탯 밸런싱) 및 DB/CSV 동기화
+- 상태: 완료
+- 주요 변경·검증:
+  1. `player_data.js`: `mohamed_salah` 카드 객체 등록 완료.
+     - 이름: 모하메드 살라, 등급: legend, 오버롤: 91, 포지션: RW, 국적: Egypt, 소속: LIVERPOOL
+     - 6대 스탯: PAC 93, SHO 91, PAS 86, DRI 91, DEF 45, PHY 77
+     - 테마: primary: "#000000", secondary: "#c39e5c", glow: "#ffd700"
+     - 이미지: `player2/살라.webp` (존재 확인 완료)
+  2. `index.html`: `player_data.js?v=1.83` 캐시 쿼리 버전 상향.
+  3. `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v443'` 상향.
+  4. `선수데이터.csv`: `convert_js_to_csv.py` 스크립트를 통해 총 103명 선수 데이터 동기화 완료 (104행).
+  5. 무결성 검증:
+     - `scratch/verify_salah.py`를 통해 JS 문법/괄호 무결성, CSV 데이터 및 스탯 일치, HTML/SW 버전 일치 100% PASS.
+- 다음 단계: GitHub 원격 저장소 푸시 완료 (`915a8cc`). 완료 보고.
+
+## 이전 작업
 - 목표: 도전모드에서 항상 '도전 완료' 상태로 잠겨있는 버그 원인 분석 및 완벽 해결
 - 상태: 완료
 - 주요 분석 및 변경 내역:
