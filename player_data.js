@@ -2589,6 +2589,31 @@ const CARDS_DATABASE = {
             def: 45,
             phy: 77
         }
+    },
+    "ademola_lookman": {
+        id: "ademola_lookman",
+        name: "루크먼",
+        rating: 89,
+        position: "LW",
+        nation: "Nigeria",
+        nationFlag: "https://flagcdn.com/w40/ng.png",
+        club: "ATLETICO MADRID",
+        image: "player2/루크먼.webp",
+        rarity: "special",
+        description: "폭발적인 순간 가속도와 화려한 양발 드리블, 치명적인 결정력으로 유럽 무대를 평정한 아틀레티코 마드리드의 나이지리아 특급 윙어 루크먼입니다. 수비진의 타이밍을 빼앗는 감각적인 탈압박과 날카로운 감아차기로 경기의 판도를 뒤바꾸는 스페셜 크랙입니다.",
+        theme: {
+            primary: "#cb3524",
+            secondary: "#272e61",
+            glow: "#ff3e6c"
+        },
+        stats: {
+            pac: 92,
+            sho: 88,
+            pas: 83,
+            dri: 90,
+            def: 44,
+            phy: 75
+        }
     }
 };
 

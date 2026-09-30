@@ -27,6 +27,37 @@ graph TD
 - **`db.js`**: Firebase Firestore 기반 원격 저장 및 미지원 시 LocalStorage 기반의 가상 로컬 클라우드 전환 처리.
 - **`player/player_data.js`**: 전체 축구선수 카드 스펙(오버롤, 세부 능력치, 포지션 등)을 동적으로 로드.
 
+### 🌟 '루크먼' 스페셜 등급 (OVR 89, LW, ATLETICO MADRID) 신규 카드 등록 및 PWA v445 배포 (2026-09-30)
+* **요청 요약**: 루크먼 선수 생성 (스페셜 등급, 오버롤 89, 아틀레티코 마드리드) 및 깃 푸시.
+* **수행 내용**:
+  1. **신규 카드 데이터 등록 및 수정 (`player_data.js`)**:
+     - 카드 ID: `ademola_lookman`
+     - 선수명: `루크먼`
+     - 오버롤(OVR): `89`
+     - 포지션: `LW`
+     - 국적: `Nigeria` (`https://flagcdn.com/w40/ng.png`)
+     - 소속 클럽: `ATLETICO MADRID`
+     - 이미지: `player2/루크먼.webp` (존재 파일 연결)
+     - 희귀도: `special`
+     - 테마: primary: `"#cb3524"`, secondary: `"#272e61"`, glow: `"#ff3e6c"` (아틀레티코 마드리드 로히블랑코 테마)
+     - 6대 스탯: `PAC 92, SHO 88, PAS 83, DRI 90, DEF 44, PHY 75`
+     - 선수 설명: 폭발적인 순간 가속도와 화려한 양발 드리블, 치명적인 결정력으로 유럽 무대를 평정한 아틀레티코 마드리드의 나이지리아 특급 윙어 루크먼입니다. 수비진의 타이밍을 빼앗는 감각적인 탈압박과 날카로운 감아차기로 경기의 판도를 뒤바꾸는 스페셜 크랙입니다.
+  2. **PWA 캐시 및 브라우저 버전 상향**:
+     - `index.html`: `player_data.js?v=1.85` 상향.
+     - `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v445'` 상향.
+  3. **엑셀 시트 동기화 (`선수데이터.csv`)**:
+     - `convert_js_to_csv.py` 스크립트를 통해 총 104명 선수 데이터 일괄 변환 동기화 완료 (105행).
+  4. **무결성 검증**:
+     - `scratch/verify_lookman.py` 실행: 이미지 존재, JS 구문 및 괄호 무결성, CSV 데이터/스탯 일치, HTML 및 SW 버전 일치 100% PASS.
+* **변경 파일**:
+  - `player_data.js`
+  - `index.html`
+  - `sw.js`
+  - `선수데이터.csv`
+  - `player2/루크먼.webp`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+
 ---
 
 ### 📦 깃 커밋 및 푸시 완료 (915a8cc) - '모하메드 살라' 전설 등급 (OVR 91, RW, LIVERPOOL) 신규 카드 등록 및 PWA v443 배포 (2026-09-29)

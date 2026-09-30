@@ -1,4 +1,16 @@
 ## 현재 작업
+- 목표: '루크먼' 선수 카드 소속 클럽 'ATLETICO MADRID' 수정 및 DB/CSV 동기화, Git 커밋/푸시
+- 상태: 완료
+- 주요 변경·검증:
+  1. `player_data.js`: `ademola_lookman` 클럽 `ATLETICO MADRID` 수정, 로히블랑코 테마(`#cb3524`, `#272e61`, `#ff3e6c`) 및 설명문 반영.
+  2. `index.html`: `player_data.js?v=1.85` 캐시 쿼리 버전 상향.
+  3. `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v445'` 상향.
+  4. `선수데이터.csv`: `convert_js_to_csv.py` 스크립트를 통해 총 104명 선수 데이터 동기화 완료 (105행).
+  5. 무결성 검증:
+     - `scratch/verify_lookman.py`를 통해 JS 문법/괄호 무결성, CSV 데이터 및 스탯 일치, HTML/SW 버전 일치 100% PASS.
+- 다음 단계: Git 커밋 및 푸시.
+
+## 이전 작업
 - 목표: '모하메드 살라' 전설 등급 선수 카드 생성 (오버롤 91, 포지션 RW, 스탯 밸런싱) 및 DB/CSV 동기화
 - 상태: 완료
 - 주요 변경·검증:
