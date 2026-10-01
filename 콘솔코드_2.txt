@@ -199,7 +199,7 @@ matchTodayCount = 0; matchLastDate = new Date().toLocaleDateString('ko-KR'); loc
 
 ---
 
-### 3. 👑 10스테이지(최종 보스: 레알 마드리드)로 즉시 점프 (우승 테스트용)
+### 3. 👑 10스테이지(최종 보스전)로 즉시 점프 (우승 테스트용)
 
 ```javascript
 (() => {
@@ -218,7 +218,7 @@ matchTodayCount = 0; matchLastDate = new Date().toLocaleDateString('ko-KR'); loc
 
     if (typeof initChallengeState === 'function') initChallengeState();
     if (typeof saveUserProgress === 'function') saveUserProgress();
-    console.log("🏆 [완료] Stage 10 (FINAL BOSS: 레알 마드리드)로 이동 완료! 승리 시 슈퍼 메시(6각성)가 지급됩니다.");
+    console.log(`🏆 [완료] 시즌 ${challengeSeason} · Stage 10 (FINAL BOSS)로 이동 완료! 승리 시 ★6각성 슈퍼 카드 영입이 가능합니다.`);
 })();
 ```
 

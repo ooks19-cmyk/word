@@ -2,9 +2,42 @@
 
 const UPDATE_LOGS = [
     {
+        version: "v3.4.5",
+        date: "2026.10.01",
+        latest: true,
+        borderColor: "#ffd700",
+        titleColor: "#ffd700",
+        badgeText: "CAPTAIN OVR BOOST",
+        items: [
+            "<strong>👑 구단 주장(Captain) 선발 출전 시 OVR +1 & 6대 핵심 스탯 +1 보너스 시스템 도입!</strong><br>• <strong>선발 베스트 11 주장 버프 발동</strong>: 구단 주장이 선발 베스트 11에 기용되어 경기에 출전하면, 주장 개인의 <strong>OVR +1</strong> 및 <strong>6대 핵심 스탯(PAC, SHO, PAS, DRI, DEF, PHY) 전원 +1 보너스</strong>가 실시간으로 적용됩니다.<br>• <strong>피치 위 OVR 및 팀 평균 능력치 완벽 연동</strong>: 포메이션 피치 위 주장 미니 카드에 OVR +1이 즉각 반영되며, 팀 평균 OVR 및 6대 평균 스탯 현황판에도 완벽하게 동기화됩니다.<br>• <strong>실시간 매치 시뮬레이션 엔진 반영</strong>: 리그, 컵대회, 친선경기, ACL 등 모든 경기에서 주장의 찬스 메이킹, 득점 슈팅, 빌드업 패스, 수비 저지 성공률 산출 시 주장 보너스가 즉각 적용되어 팀의 승리를 견인합니다.<br>• <strong>주장 상태 UI 및 안내 고도화</strong>: 선발 출전 중일 때 '👑 주장 버프 활성' 배지가 표시되며, 선발에서 제외되어 출전 대기(⏳) 중일 때는 안전하게 버프가 일시 해제됩니다."
+        ]
+    },
+    {
+        version: "v3.4.4",
+        date: "2026.10.01",
+        latest: false,
+        borderColor: "#ffd700",
+        titleColor: "#ffd700",
+        badgeText: "DYNAMIC SUPER BOSS LOCK",
+        items: [
+            "<strong>👑 도전모드 슈퍼(SUPER) 카드 수집 기반 최종 보스전 동적 개방 시스템 탑재!</strong><br>• <strong>슈퍼 카드 컬렉션 연동 자동 개방/잠금</strong>: 고정된 시즌 번호 대신, 플레이어의 슈퍼(SUPER) 등급 카드 보유 현황을 실시간으로 감지하여 미보유 슈퍼 카드가 남아있다면 시즌에 관계없이 10R 최종 결전에 도전하여 새로운 슈퍼스타를 영입할 수 있습니다.<br>• <strong>전종 수집 시 차기 업데이트 보호</strong>: 현재 공개된 모든 슈퍼 카드를 보유한 경우 10R 최종 보스전이 '준비 중'으로 안전하게 잠기며, 추후 신규 슈퍼 카드가 출시되면 별도 업데이트 대기 없이 10R가 자동으로 개방됩니다.<br>• <strong>로드맵 슈퍼 컬렉션 UI 고도화</strong>: 슈퍼 카드 전종 수집 달성 시 '👑 슈퍼 컬렉션 완성 (ALL CLEAR)' 골드 배지와 함께 영광스러운 컬렉션 완료 안내가 표출됩니다."
+        ]
+    },
+    {
+        version: "v3.4.3",
+        date: "2026.10.01",
+        latest: false,
+        borderColor: "#a855f7",
+        titleColor: "#a855f7",
+        badgeText: "CHALLENGE SEASON 3 BOSS UNLOCK",
+        items: [
+            "<strong>🏆 도전모드 시즌 3 10R 최종 보스전 정식 개방 & 슈퍼카드 선택 영입 확장!</strong><br>• <strong>시즌 3 최종 보스 결전 오픈</strong>: 업데이트 준비 중으로 잠겨있던 도전모드 시즌 3의 10R 최종 결전이 완전히 개방되어 10경기 전승에 도전할 수 있습니다.<br>• <strong>시즌 3 우승 시 슈퍼(SUPER) 선수 카드 자유 선택 영입</strong>: 시즌 3 10R 승리 시 S메시, S음바페, S기성용, S손흥민, S김승규 등 원하는 모든 슈퍼 등급 카드를 직접 비교·선택하여 ★6각성(실질 OVR 100)으로 즉시 덱에 영입할 수 있습니다.<br>• <strong>도전모드 로드맵 쇼케이스 UI 갱신</strong>: 시즌 2~3 진행 시 슈퍼카드 선택 영입 안내와 주요 혜택이 직관적으로 표출되도록 쇼케이스 패널이 개선되었습니다."
+        ]
+    },
+    {
         version: "v3.4.2",
         date: "2026.09.27",
-        latest: true,
+        latest: false,
         borderColor: "#ffd700",
         titleColor: "#ffd700",
         badgeText: "CHALLENGE SYNC & SUPER GK",

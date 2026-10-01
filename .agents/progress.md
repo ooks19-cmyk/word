@@ -1,4 +1,25 @@
 ## 현재 작업
+- 목표: 구단 주장(Captain) 선발 출전 시 OVR +1 및 6대 능력치 +1 보너스 시스템 구현
+- 상태: 완료
+- 주요 변경·검증:
+  1. `js/match_algorithm.js` & `js/utils.js`:
+     - `getCaptainStatBonus()` 헬퍼 구현: 선발 베스트 11 기용 여부 실시간 판별.
+     - `getPlayerPureOvr()`: 선발 주장 순수 OVR +1 반영.
+     - `getTeamAverageStat()` & `getGoalTeamAverageStat()`: 선발 주장 6대 스탯 +1 반영하여 팀 평균 산출.
+     - `getGoalCalculationStat()`: 경기 득점/도움/수비 찬스 산출 시 선발 주장 스탯 +1 적용.
+  2. `js/squad.js`:
+     - `renderSquadFormation()`: 피치 위 미니 카드 OVR 배지 및 `totalOvr`에 주장 보너스 +1 반영.
+     - `updateCaptainSelectorUI()`: 주장 선발 출전 시 `👑 주장 버프 활성(OVR+1 Buff)` 표기, 출전대기 시 안전 해제.
+  3. `index.html` & `sw.js` & `js/update_data.js`:
+     - 주장 현황판 안내 배너 및 설명 문구 보강.
+     - `js/update_data.js` v3.4.5 (`CAPTAIN OVR BOOST`) 릴리즈 노트 등록.
+     - `sw.js` PWA 서비스 워커 `CACHE_NAME = 'fc-star-v448'` 상향.
+     - `index.html` 스크립트 캐시 쿼리 버전 상향 (`squad.js?v=3.2`, `match_algorithm.js?v=3.7`, `utils.js?v=1.2`, `update_data.js?v=2.84`).
+  4. 무결성 검증:
+     - `scratch/verify_captain_boost.py`를 통해 주장 선발 출전 시 OVR/스탯 +1, 출전대기 시 미적용, HTML/SW 버전 일치 100% PASS.
+- 다음 단계: 작업 완료 보고.
+
+## 이전 작업
 - 목표: '루크먼' 선수 카드 소속 클럽 'ATLETICO MADRID' 수정 및 DB/CSV 동기화, Git 커밋/푸시
 - 상태: 완료
 - 주요 변경·검증:

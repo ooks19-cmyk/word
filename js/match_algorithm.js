@@ -11,9 +11,23 @@ function getPositionMatchGoalBonus(position, card, formation = currentFormation)
     return validRoles.includes(slotRole) && slotRole === cardRole ? 1 : 0;
 }
 
+// 👑 선발 출전 구단 주장(Captain) 능력치 +1 보너스 판정 헬퍼
+function getCaptainStatBonus(card, cardId = null) {
+    const cid = cardId || (card && card.id);
+    if (!cid || typeof squadCaptain === 'undefined' || !squadCaptain) return 0;
+    if (cid !== squadCaptain) return 0;
+    // 선발 스쿼드에 실제로 배치되어 출전 중인지 검사
+    if (typeof squadFormation !== 'undefined' && squadFormation) {
+        const isPlaced = Object.values(squadFormation).includes(cid);
+        return isPlaced ? 1 : 0;
+    }
+    return 1;
+}
+
 function getGoalCalculationStat(position, card, statName, formation = currentFormation, fallback = 75) {
     const baseStat = (card && card.stats && card.stats[statName]) || fallback;
-    return baseStat + getPositionMatchGoalBonus(position, card, formation);
+    const captainBonus = getCaptainStatBonus(card);
+    return baseStat + getPositionMatchGoalBonus(position, card, formation) + captainBonus;
 }
 
 function getGoalTeamAverageStat(statName, formation = currentFormation, squad = squadFormation, deck = playerDeck) {
@@ -21,8 +35,10 @@ function getGoalTeamAverageStat(statName, formation = currentFormation, squad = 
     TACTICAL_POSITIONS.forEach(position => {
         const cardId = squad[position];
         const card = cardId && CARDS_DATABASE[cardId] ? getAwakenedCard(cardId, deck) : null;
+        const isCaptain = (typeof squadCaptain !== 'undefined' && squadCaptain && cardId === squadCaptain);
+        const captainBonus = isCaptain ? 1 : 0;
         total += card && card.stats && card.stats[statName] !== undefined
-            ? card.stats[statName] + getPositionMatchGoalBonus(position, card, formation)
+            ? card.stats[statName] + getPositionMatchGoalBonus(position, card, formation) + captainBonus
             : 70;
     });
     return Math.round(total / TACTICAL_POSITIONS.length);
@@ -100,13 +116,17 @@ function getStrikerStyleHiddenBonus(formation = currentFormation, customStyles =
     return 0.0;
 }
 
-// 1. 활성화된 베이스 스쿼드의 순수 평균 OVR 계산
+// 1. 활성화된 베이스 스쿼드의 순수 평균 OVR 계산 (선발 주장 OVR +1 보너스 반영)
 function getPlayerPureOvr() {
     let totalOvr = 0;
     TACTICAL_POSITIONS.forEach(pos => {
         const cardId = squadFormation[pos];
         if (cardId && CARDS_DATABASE[cardId]) {
-            totalOvr += getAwakenedCard(cardId).rating;
+            let rating = getAwakenedCard(cardId).rating;
+            if (typeof squadCaptain !== 'undefined' && squadCaptain && cardId === squadCaptain) {
+                rating += 1; // 👑 선발 출전 주장 OVR +1
+            }
+            totalOvr += rating;
         } else {
             totalOvr += 70;
         }

@@ -27,6 +27,114 @@ graph TD
 - **`db.js`**: Firebase Firestore 기반 원격 저장 및 미지원 시 LocalStorage 기반의 가상 로컬 클라우드 전환 처리.
 - **`player/player_data.js`**: 전체 축구선수 카드 스펙(오버롤, 세부 능력치, 포지션 등)을 동적으로 로드.
 
+### 👑 구단 주장(Captain) 선발 출전 OVR +1 & 6대 스탯 +1 보너스 시스템 구축 및 PWA v448 배포 (2026-10-01)
+* **요청 요약**: 구단 주장(Captain)이 선발 베스트 11에 출전할 때 OVR +1 및 6대 능력치 +1 보너스를 적용하고 피치 UI, 팀 평균 스탯, 경기 찬스 계산 엔진에 완벽 연동.
+* **수행 내용**:
+  1. **매치 엔진 및 스탯 계산 보너스 연동 (`js/match_algorithm.js`, `js/utils.js`)**:
+     - `getCaptainStatBonus(card, cardId)` 헬퍼 구현: 주장의 선발 베스트 11(`squadFormation`) 기용 여부를 검증하여 선발 출전 시 +1, 벤치/출전대기 시 0 반환.
+     - `getPlayerPureOvr()`: 선발 주장 순수 OVR 산출 시 +1 가산.
+     - `getTeamAverageStat()`, `getGoalTeamAverageStat()`: 6대 핵심 스탯(PAC, SHO, PAS, DRI, DEF, PHY) 팀 평균 산출 시 선발 주장 스탯에 +1 보너스 합산.
+     - `getGoalCalculationStat()`: 경기 시뮬레이션 중 주장의 득점/도움/수비 찬스 산출 시 +1 보너스 반영.
+  2. **포메이션 피치 및 주장 관리 UI 고도화 (`js/squad.js`, `index.html`)**:
+     - `renderSquadFormation()`: 피치 위 미니 카드 OVR 배지 및 `totalOvr` 합산에 주장 보너스 +1 반영.
+     - `updateCaptainSelectorUI()`: 주장 선발 출전 시 `👑 주장 버프 활성(OVR+1 Buff)` 배지 표출, 선발 제외(출전 대기 ⏳) 시 안전 안내.
+     - `index.html`: 주장 설정 현황판에 주장 효과 설명 가이드라인 추가.
+  3. **버전 상향 및 릴리즈 노트 등록 (`js/update_data.js`, `sw.js`, `index.html`)**:
+     - `js/update_data.js`: `v3.4.5` (`CAPTAIN OVR BOOST`) 릴리즈 노트 추가.
+     - `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v448'` 상향.
+     - `index.html`: 스크립트 쿼리 버전 상향 (`squad.js?v=3.2`, `match_algorithm.js?v=3.7`, `utils.js?v=1.2`, `update_data.js?v=2.84`).
+* **변경 파일**:
+  - `js/match_algorithm.js`
+  - `js/utils.js`
+  - `js/squad.js`
+  - `index.html`
+  - `js/update_data.js`
+  - `sw.js`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+* **검증 결과**:
+  - `scratch/verify_captain_boost.py`: 구문 및 참조 검증, 주장 선발 출전 시 OVR/스탯 +1, 출전대기 시 미적용 방어, 피치/팀평균 OVR 일관성 검증 100% PASS.
+* **최종 상태**: 완료 (PWA v448 배포 준비 완료)
+
+### 👑 도전모드 슈퍼(SUPER) 카드 수집 기반 최종 보스전 동적 개방 시스템 구축 및 PWA v447 배포 (2026-10-01)
+* **요청 요약**: 모든 슈퍼카드를 보유하고 있을 때만 시즌 최종 보스(10R)가 잠기고 준비 중으로 표기되도록 전환.
+* **수행 내용**:
+  1. **슈퍼 카드 보유 현황 동적 판정 헬퍼 구현 (`js/friendly.js`)**:
+     - `getAllSuperCards()`: `CARDS_DATABASE` 내 `rarity === 'super'`인 전체 슈퍼 카드 목록 동적 반환 (현재 5종).
+     - `getUncollectedSuperCards()`: 내 덱(`playerDeck`)에 미보유 중인 슈퍼 카드 목록만 필터링.
+     - `hasAllSuperCards()`: 미보유 슈퍼 카드가 0장이면 `true` 반환.
+  2. **10R 최종 보스전 동적 잠금 알고리즘 개편 (`js/friendly.js`)**:
+     - `isChallengeBossLocked()`를 `challengeStage === 10 && hasAllSuperCards()`로 전면 개편.
+     - 미보유 슈퍼 카드가 1장이라도 남아있다면 시즌 번호와 무관하게 10R 최종 보스전이 항상 개방되어 정규 경기 및 우승 영입 진행 가능.
+     - 현재 공개된 모든 슈퍼 카드를 보유한 경우에만 10R 진입 시 안전하게 잠금 및 준비 중 모달 안내.
+     - 추후 신규 슈퍼 카드가 DB에 등록되는 즉시 별도 코드 수정 없이 10R가 자동으로 즉각 개방되도록 확장성 확보.
+  3. **잠금 모달 및 로드맵 쇼케이스 UI 고도화 (`js/friendly.js`)**:
+     - 10R 잠금 버튼 텍스트: `시즌 최종 보스전 (신규 슈퍼 카드 준비 중)`.
+     - `showChallengeBossLockedModal()`: 현재 공개된 전체 슈퍼 카드 전원 영입 완료 및 차기 슈퍼스타 준비 중 안내.
+     - `renderChallengeRoadmap()`: 전종 수집 시 `👑 슈퍼 컬렉션 완성 (ALL CLEAR)` 배지 및 안내 표출, 미보유 카드 존재 시 `⚡ SUPER 선택 영입 (미보유 N명)` 배지 표출.
+  4. **인게임 릴리즈 노트 등록 (`js/update_data.js`)**:
+     - `v3.4.4` (2026.10.01) 버전 항목 등록 (`badgeText: "DYNAMIC SUPER BOSS LOCK"`).
+  5. **PWA 캐시 및 브라우저 버전 최신화**:
+     - `index.html`: `js/friendly.js?v=4.5`, `js/update_data.js?v=2.83` 상향.
+     - `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v447'` 상향.
+  6. **무결성 검증**:
+     - `scratch/verify_super_lock.py` 실행: 슈퍼카드 0장 개방, 4장 보유/1장 미보유 개방, 5종 전종 보유 시 잠금, 차기 6번째 카드 추가 시 즉시 개방, HTML/SW 버전 일치 100% PASS.
+* **변경 파일**:
+  - `js/friendly.js`
+  - `index.html`
+  - `sw.js`
+  - `js/update_data.js`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+
+### 🏆 도전모드 시즌 3 10R 최종 보스전 정식 개방 & 슈퍼카드 선택 영입 확장 및 PWA v446 배포 (2026-10-01)
+* **요청 요약**: 도전모드 시즌 3 최종 보스 개방.
+* **수행 내용**:
+  1. **시즌 3 10R 최종 보스전 잠금 해제 (`js/friendly.js`)**:
+     - `isChallengeBossLocked()`의 잠금 기준을 `challengeSeason >= 3 && challengeStage === 10`에서 `challengeSeason >= 4 && challengeStage === 10`으로 상향 변경하여, 시즌 3의 10스테이지 최종 결전 잠금을 완전히 해제하고 정규 경기 진행 및 우승 처리가 가능하도록 개방.
+     - `showChallengeBossLockedModal()` 설명 주석 및 안내를 시즌 4 이상 대비용으로 갱신.
+  2. **도전모드 로드맵 보상 쇼케이스 카드 UI 갱신 (`js/friendly.js`)**:
+     - `renderChallengeRoadmap()` 내 쇼케이스 UI를 확장하여, 시즌 2~3 진행 중에는 '⚡ SUPER 선택 영입 (★6각성)' 배지와 함께 "원하는 슈퍼(SUPER) 선수 선택 영입 (실질 OVR 100)" 안내를 직관적으로 표출.
+     - 차기 시즌 4 이상에서만 미공개('??? (시즌 4 특별 보상)') 상태로 노출되도록 분기 조건 최적화.
+  3. **인게임 릴리즈 노트 등록 (`js/update_data.js`)**:
+     - `v3.4.3` (2026.10.01) 버전 항목 추가 (`badgeText: "CHALLENGE SEASON 3 BOSS UNLOCK"`).
+  4. **PWA 캐시 및 브라우저 버전 상향**:
+     - `index.html`: `js/friendly.js?v=4.4`, `js/update_data.js?v=2.82` 상향.
+     - `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v446'` 상향.
+  5. **테스트 콘솔 스크립트 갱신 (`콘솔코드_2.txt`)**:
+     - 10스테이지 점프 스크립트의 로그 출력 및 설명을 시즌 3 및 슈퍼카드 영입 지원 문구로 개선.
+  6. **무결성 검증**:
+     - `scratch/verify_season3_boss.py` 스크립트 실행: 시즌 1~3 잠금 해제(False) 및 시즌 4 잠금(True) 시뮬레이션, HTML/SW 캐시 버전 일치, 슈퍼카드 5종(S메시, S음바페, S기성용, S손흥민, S김승규) 추출 100% PASS.
+* **변경 파일**:
+  - `js/friendly.js`
+  - `index.html`
+  - `sw.js`
+  - `js/update_data.js`
+  - `콘솔코드_2.txt`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+
+### 📊 리그별 상대팀 OVR MAX 값 조회 및 분석 (2026-09-30)
+* **요청 요약**: 리그별 상대팀 OVR MAX 값 조회.
+* **수행 내용**:
+  1. **정규 리그 다이내믹 스케일링 최대 OVR 상한(Cap) 분석**:
+     - `LEAGUE_CONFIGS[leagueId].maxOvrCap` 및 `resetLeagueSeasonState()` 분석:
+       - **K리그 1 (`kleague1`)**: 최대 **95**
+       - **J1리그 (`jleague`)**: 최대 **97**
+       - **프리미어리그 (`epl`)**: 최대 **99**
+  2. **1년차 기본 프리셋(Preset) 기준 리그별 상대팀 최고 OVR 팀 분석**:
+     - **K리그 1**: **80** (울산 HD)
+     - **J1리그**: **81** (비셀 고베)
+     - **프리미어리그**: **95** (맨체스터 시티)
+  3. **토너먼트 및 부가 모드(FA컵, ACL/UCL, 도전 모드) OVR MAX 비교 정리**:
+     - FA/카라바오컵: 각 리그와 동일한 maxCap (95 / 97 / 99)
+     - ACL: 서아시아 알 힐랄 (81)
+     - UCL: 레알 마드리드 / 맨체스터 시티 (95)
+     - 도전모드 10단계: 최종 보스 레알 마드리드 (98)
+* **변경 파일**:
+  - `.agents/progress.md`
+  - `.agents/log.md`
+
 ### 🌟 '루크먼' 스페셜 등급 (OVR 89, LW, ATLETICO MADRID) 신규 카드 등록 및 PWA v445 배포 (2026-09-30)
 * **요청 요약**: 루크먼 선수 생성 (스페셜 등급, 오버롤 89, 아틀레티코 마드리드) 및 깃 푸시.
 * **수행 내용**:

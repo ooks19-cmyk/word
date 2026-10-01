@@ -155,7 +155,7 @@ function createSparkParticles(isExplosion = false, themeGlow = '#ffd700') {
     }
 }
 
-// 팀 전체 능력치의 평균값을 계산하는 헬퍼 함수
+// 팀 전체 능력치의 평균값을 계산하는 헬퍼 함수 (선발 출전 주장 스탯 +1 보너스 반영)
 function getTeamAverageStat(statName, squad = squadFormation, deck = playerDeck) {
     let totalStat = 0;
     const TACTICAL_POSITIONS = ["GK", "LB", "LCB", "RCB", "RB", "LCM", "CM", "RCM", "LW", "ST", "RW"];
@@ -164,8 +164,10 @@ function getTeamAverageStat(statName, squad = squadFormation, deck = playerDeck)
         const cardId = squad[pos];
         if (cardId && CARDS_DATABASE[cardId]) {
             const card = getAwakenedCard(cardId, deck);
+            const isCaptain = (typeof squadCaptain !== 'undefined' && squadCaptain && cardId === squadCaptain);
+            const captainBonus = isCaptain ? 1 : 0;
             if (card && card.stats && card.stats[statName] !== undefined) {
-                totalStat += card.stats[statName];
+                totalStat += (card.stats[statName] + captainBonus);
             } else {
                 totalStat += 70;
             }

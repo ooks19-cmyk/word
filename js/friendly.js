@@ -199,12 +199,36 @@ function getChallengeStageTeams() {
     return challengeSeasonTeams;
 }
 
-// 시즌 3 이상 10R 최종 보스전 잠금 여부 검사 (업데이트 준비 중)
-function isChallengeBossLocked() {
-    return (challengeSeason >= 3 && challengeStage === 10);
+// 전체 슈퍼(SUPER) 등급 선수 카드 목록 동적 추출 (신규 슈퍼카드 추가 시 자동 반영)
+function getAllSuperCards() {
+    if (typeof CARDS_DATABASE === 'undefined' || !CARDS_DATABASE) return [];
+    return Object.values(CARDS_DATABASE).filter(card => card && card.rarity === 'super');
 }
 
-// 시즌 2 이상 최종 보스전(10R) 업데이트 준비 중 모달 팝업
+// 미보유 슈퍼(SUPER) 등급 선수 카드 목록 추출
+function getUncollectedSuperCards() {
+    const superCards = getAllSuperCards();
+    if (!superCards || superCards.length === 0) return [];
+    return superCards.filter(card => {
+        return !(typeof playerDeck !== 'undefined' && playerDeck && playerDeck[card.id]);
+    });
+}
+
+// 모든 슈퍼(SUPER) 등급 카드를 보유하고 있는지 검사
+function hasAllSuperCards() {
+    const superCards = getAllSuperCards();
+    if (!superCards || superCards.length === 0) return false;
+    const uncollected = getUncollectedSuperCards();
+    return (uncollected.length === 0);
+}
+
+// 10R 최종 보스전 잠금 여부 검사 (모든 슈퍼카드를 보유 중인 경우 차기 업데이트 준비 중으로 잠금)
+function isChallengeBossLocked() {
+    if (challengeStage !== 10) return false;
+    return hasAllSuperCards();
+}
+
+// 모든 슈퍼카드 보유 시 최종 보스전(10R) 업데이트 준비 중 모달 팝업
 function showChallengeBossLockedModal() {
     let modal = document.getElementById('challengeBossLockedModal');
     if (!modal) {
@@ -230,23 +254,25 @@ function showChallengeBossLockedModal() {
         box-sizing: border-box;
     `;
 
+    const totalSuperCount = getAllSuperCards().length;
+
     modal.innerHTML = `
         <div class="modal-content" style="max-width: 440px; width: 100%; text-align: center; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); border: 2px solid #a855f7; box-shadow: 0 0 40px rgba(168, 85, 247, 0.5); border-radius: 24px; padding: 1.8rem 1.4rem; position: relative; margin: auto; animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;">
-            <div style="font-size: 3.2rem; margin-bottom: 0.4rem; animation: bounceIn 1s ease;">🔒</div>
-            <h2 style="color: #ffd700; font-size: 1.45rem; font-weight: 900; margin: 0 0 0.6rem 0; text-shadow: 0 0 12px rgba(255,215,0,0.6);">
-                시즌 ${challengeSeason} 최종 보스전 준비 중
+            <div style="font-size: 3.2rem; margin-bottom: 0.4rem; animation: bounceIn 1s ease;">🏆</div>
+            <h2 style="color: #ffd700; font-size: 1.4rem; font-weight: 900; margin: 0 0 0.6rem 0; text-shadow: 0 0 12px rgba(255,215,0,0.6);">
+                시즌 최종 보스전 준비 중
             </h2>
             <p style="color: #e2e8f0; font-size: 0.88rem; line-height: 1.6; margin: 0 0 1.2rem 0; word-break: keep-all;">
-                시즌 ${challengeSeason}의 <strong>최종 보스전 및 특별 우승 보상 카드</strong>가 현재 업데이트 준비 중입니다.<br><br>
-                새로운 슈퍼(SUPER) 등급 카드와 한층 더 진화한 명승부가 곧 공개될 예정입니다.<br>
-                차기 업데이트를 기대해주세요!
+                현재 공개된 모든 <strong>슈퍼(SUPER) 등급 선수 카드 (${totalSuperCount}종)</strong>를 이미 영입 완료하셨습니다!<br><br>
+                다음 시즌의 <strong>새로운 최종 보스전 및 차기 슈퍼 카드</strong>가 현재 업데이트 준비 중입니다.<br>
+                새로운 슈퍼스타가 출시되면 10R 최종 보스전이 자동으로 개방됩니다.
             </p>
             <div style="background: rgba(168, 85, 247, 0.12); border: 1.5px solid rgba(168, 85, 247, 0.35); border-radius: 14px; padding: 0.8rem; margin-bottom: 1.3rem; text-align: left; font-size: 0.78rem; color: #cbd5e1; line-height: 1.5;">
                 <div style="font-weight: 800; color: #c084fc; margin-bottom: 3px;">
                     <i class="fa-solid fa-circle-info"></i> 안내 사항
                 </div>
-                • 9스테이지까지의 승리 기록과 전적은 안전하게 보존됩니다.<br>
-                • 업데이트 적용 후 10R 최종 보스전에 바로 도전하실 수 있습니다.
+                • 9스테이지까지의 전적과 보유 덱은 안전하게 보존됩니다.<br>
+                • 신규 슈퍼 카드 업데이트 적용 시 10R 최종 보스전에 바로 도전하실 수 있습니다.
             </div>
             <button onclick="closeChallengeBossLockedModal()" style="width: 100%; padding: 0.9rem; border-radius: 14px; border: none; background: linear-gradient(135deg, #a855f7, #6366f1); color: #fff; font-size: 0.95rem; font-weight: 900; cursor: pointer; box-shadow: 0 0 20px rgba(168, 85, 247, 0.6);">
                 확인
@@ -449,11 +475,11 @@ function updateChallengeButtonState() {
     const startBtn = document.getElementById('btnStartFriendlyMatch');
     if (!startBtn) return;
 
-    // Case 0: 시즌 2 이상 10R 최종 보스전 잠금 (업데이트 준비 중)
+    // Case 0: 모든 슈퍼카드 보유 시 10R 최종 보스전 잠금 (업데이트 준비 중)
     if (isChallengeBossLocked()) {
         startBtn.disabled = false;
         startBtn.onclick = () => showChallengeBossLockedModal();
-        startBtn.innerHTML = `<i class="fa-solid fa-lock" style="margin-right: 8px; color: #ffd700;"></i>시즌 ${challengeSeason} 최종 보스전 (업데이트 준비 중)`;
+        startBtn.innerHTML = `<i class="fa-solid fa-lock" style="margin-right: 8px; color: #ffd700;"></i>시즌 최종 보스전 (신규 슈퍼 카드 준비 중)`;
         startBtn.style.background = 'linear-gradient(135deg, #475569, #334155)';
         startBtn.style.color = '#cbd5e1';
         startBtn.style.border = '1.5px solid rgba(255, 215, 0, 0.4)';
@@ -504,6 +530,9 @@ function renderChallengeRoadmap() {
     // 보상 카드 정보 (시즌 1: 슈퍼 리오넬 메시)
     const rewardCardId = "super_messi";
     const rewardCard = (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE[rewardCardId]) ? CARDS_DATABASE[rewardCardId] : null;
+    const allSuperCards = getAllSuperCards();
+    const uncollectedCards = getUncollectedSuperCards();
+    const isAllSuperOwned = hasAllSuperCards();
 
     const stageTeams = getChallengeStageTeams();
     let stagesHtml = '';
@@ -575,31 +604,46 @@ function renderChallengeRoadmap() {
         </div>
 
         <!-- 시즌 우승 특별 보상 쇼케이스 카드 -->
-        <div style="background: linear-gradient(135deg, rgba(255, 0, 127, 0.12) 0%, rgba(0, 242, 254, 0.08) 100%); border: 1.5px solid ${challengeSeason >= 2 ? 'rgba(168, 85, 247, 0.5)' : 'rgba(255, 0, 127, 0.35)'}; border-radius: 14px; padding: 0.9rem; position: relative; overflow: hidden;">
+        <div style="background: linear-gradient(135deg, rgba(255, 0, 127, 0.12) 0%, rgba(0, 242, 254, 0.08) 100%); border: 1.5px solid ${isAllSuperOwned ? 'rgba(168, 85, 247, 0.55)' : (challengeSeason >= 2 ? 'rgba(0, 242, 254, 0.45)' : 'rgba(255, 0, 127, 0.35)')}; border-radius: 14px; padding: 0.9rem; position: relative; overflow: hidden;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
                 <div style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 900; color: #fff;">
-                    <i class="fa-solid fa-gift" style="color: #ffd700;"></i>
-                    <span>시즌 ${challengeSeason} 우승 보상</span>
+                    <i class="fa-solid fa-${isAllSuperOwned ? 'crown' : 'gift'}" style="color: #ffd700;"></i>
+                    <span>${isAllSuperOwned ? '슈퍼 컬렉션 완성' : `시즌 ${challengeSeason} 우승 보상`}</span>
                 </div>
-                <span style="font-size: 0.65rem; font-weight: 900; background: ${challengeSeason >= 2 ? 'linear-gradient(135deg, #a855f7, #6366f1)' : 'linear-gradient(135deg, #ff007f, #00f2fe)'}; color: #fff; padding: 2px 6px; border-radius: 10px; box-shadow: 0 0 8px rgba(168,85,247,0.5);">
-                    ${challengeSeason >= 2 ? '⚡ SUPER (미공개)' : '⚡ SUPER 6각성'}
+                <span style="font-size: 0.65rem; font-weight: 900; background: ${isAllSuperOwned ? 'linear-gradient(135deg, #a855f7, #6366f1)' : (challengeSeason >= 2 ? 'linear-gradient(135deg, #00f2fe, #ff007f)' : 'linear-gradient(135deg, #ff007f, #00f2fe)')}; color: #fff; padding: 2px 6px; border-radius: 10px; box-shadow: 0 0 8px rgba(0,242,254,0.5);">
+                    ${isAllSuperOwned ? '⚡ ALL CLEAR (전종 보유)' : (challengeSeason >= 2 ? `⚡ SUPER 선택 영입 (미보유 ${uncollectedCards.length}명)` : '⚡ SUPER 6각성')}
                 </span>
             </div>
             
             <div style="display: flex; align-items: center; gap: 12px; margin-top: 6px;">
-                ${challengeSeason >= 2 ? `
+                ${isAllSuperOwned ? `
                     <div style="position: relative; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1e1b4b, #3b0764); border: 2px solid #a855f7; box-shadow: 0 0 15px rgba(168, 85, 247, 0.7); flex-shrink: 0;">
-                        <span style="font-size: 1.5rem; font-weight: 900; color: #ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.8); animation: pulseGlow 1.5s infinite;">?</span>
+                        <span style="font-size: 1.4rem; animation: pulseGlow 1.5s infinite;">👑</span>
                     </div>
                     <div style="flex: 1;">
                         <div style="font-size: 0.92rem; font-weight: 900; color: #ffd700; text-shadow: 0 0 8px rgba(255,215,0,0.6);">
-                            ??? (시즌 ${challengeSeason} 특별 보상)
+                            모든 슈퍼 카드 영입 완료!
                         </div>
                         <div style="font-size: 0.72rem; color: #c084fc; font-weight: 700; margin-top: 2px;">
-                            ★6 각성 슈퍼 선수 카드 (추후 공개 예정)
+                            슈퍼 카드 ${allSuperCards.length}종 전원 덱 보유 중
                         </div>
                         <div style="font-size: 0.68rem; color: #cbd5e1; margin-top: 2px;">
-                            10경기 전승 우승 시 새로운 슈퍼 등급 보상 지급!
+                            차기 슈퍼 카드 업데이트 준비 중 (출시 시 10R 자동 개방)
+                        </div>
+                    </div>
+                ` : (challengeSeason >= 2 ? `
+                    <div style="position: relative; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #2a0845, #0c0818); border: 2px solid #00f2fe; box-shadow: 0 0 12px rgba(0, 242, 254, 0.6); flex-shrink: 0;">
+                        <span style="font-size: 1.4rem; animation: pulseGlow 1.5s infinite;">⚡</span>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 0.92rem; font-weight: 900; color: #00f2fe; text-shadow: 0 0 8px rgba(0,242,254,0.6);">
+                            슈퍼(SUPER) 선수 선택 영입
+                        </div>
+                        <div style="font-size: 0.72rem; color: #ffd700; font-weight: 700; margin-top: 2px;">
+                            ★6 각성 기본 지급 (실질 OVR 100)
+                        </div>
+                        <div style="font-size: 0.68rem; color: #cbd5e1; margin-top: 2px;">
+                            10경기 전승 우승 시 원하는 슈퍼스타 1명 덱으로 영입! (미보유 ${uncollectedCards.length}명)
                         </div>
                     </div>
                 ` : `
@@ -617,7 +661,7 @@ function renderChallengeRoadmap() {
                             10경기 전승 우승 시 내 덱에 즉시 지급!
                         </div>
                     </div>
-                `}
+                `)}
             </div>
         </div>
     `;
@@ -1170,12 +1214,6 @@ function startChallengeMatchSimulation(isRetry = false) {
 // 하위 호환 별칭
 function startFriendlyMatchSimulation() {
     startChallengeMatchSimulation(false);
-}
-
-// 전체 슈퍼(SUPER) 등급 선수 카드 목록 동적 추출 (신규 슈퍼카드 추가 시 자동 반영)
-function getAllSuperCards() {
-    if (typeof CARDS_DATABASE === 'undefined' || !CARDS_DATABASE) return [];
-    return Object.values(CARDS_DATABASE).filter(card => card && card.rarity === 'super');
 }
 
 // 도전모드 시즌 우승 처리 (시즌 1은 S메시 고정, 시즌 2 이상은 전체 슈퍼카드 선택 팝업 표출)

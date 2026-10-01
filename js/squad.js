@@ -224,7 +224,9 @@ function renderSquadFormation() {
 
         if (cardData) {
             // Placed player card structure
-            totalOvr += cardData.rating;
+            const isCaptain = (cardId === squadCaptain);
+            const captainBonus = isCaptain ? 1 : 0;
+            totalOvr += (cardData.rating + captainBonus);
             const starIndicator = ''; // 각성 표시인 별표 삭제
             
             let conditionArrow = '';
@@ -240,7 +242,7 @@ function renderSquadFormation() {
                 }
             }
             
-            const baseWithAwk = cardData.rating - (isTomy ? 0 : (cardData.condition || 0));
+            const baseWithAwk = (cardData.rating - (isTomy ? 0 : (cardData.condition || 0))) + captainBonus;
             const condVal = isTomy ? 0 : (cardData.condition || 0);
             let ovrDisplay = `${baseWithAwk}`;
             if (condVal > 0) {
@@ -249,9 +251,8 @@ function renderSquadFormation() {
                 ovrDisplay += `<span style="font-size: 0.62rem; color: #ff3e6c; font-weight: 800; margin-left: 1px; vertical-align: super;">${condVal}</span>`;
             }
 
-            const isCaptain = (cardId === squadCaptain);
             const captainClass = isCaptain ? ' captain-active' : '';
-            const captainBadge = isCaptain ? '<div class="mini-card-captain-badge">👑</div>' : '';
+            const captainBadge = isCaptain ? '<div class="mini-card-captain-badge" title="팀 주장 (OVR +1 & 전 스탯 +1)">👑</div>' : '';
             slotEl.innerHTML = `
                 <div class="mini-player-card active-placed${captainClass}">
                     ${captainBadge}
@@ -1167,6 +1168,7 @@ function changeCustomSquadNumber(numKey, newNumberVal) {
 function updateCaptainSelectorUI() {
     const selectCaptainEl = document.getElementById('select-squad-captain');
     const nameDisplayEl = document.getElementById('captain-display-name');
+    const buffBadgeEl = document.getElementById('captain-buff-badge');
     if (!selectCaptainEl || !nameDisplayEl) return;
 
     // 현재 포메이션에 배치된 실존 선수(anonymous가 아닌 카드) ID 수집
@@ -1200,11 +1202,18 @@ function updateCaptainSelectorUI() {
             const isPlaced = uniqueBest11.includes(squadCaptain);
             if (isPlaced) {
                 // 선발 출전 중
-                nameDisplayEl.innerHTML = `<i class="fa-solid fa-crown" style="color: #ffd700; margin-right: 4px;"></i>${captainCard.name}`;
+                nameDisplayEl.innerHTML = `<i class="fa-solid fa-crown" style="color: #ffd700; margin-right: 4px;"></i>${captainCard.name} <span style="font-size: 0.7rem; color: #00ff87; font-weight: 800; background: rgba(0, 255, 135, 0.15); border: 1px solid rgba(0, 255, 135, 0.3); padding: 1px 5px; border-radius: 4px; margin-left: 4px;">OVR+1 Buff</span>`;
                 nameDisplayEl.style.color = '#ffd700';
                 nameDisplayEl.style.background = 'rgba(255, 215, 0, 0.1)';
                 nameDisplayEl.style.borderColor = 'rgba(255, 215, 0, 0.3)';
                 selectCaptainEl.value = squadCaptain;
+                if (buffBadgeEl) {
+                    buffBadgeEl.style.display = 'inline-flex';
+                    buffBadgeEl.style.color = '#00ff87';
+                    buffBadgeEl.style.background = 'rgba(0, 255, 135, 0.1)';
+                    buffBadgeEl.style.borderColor = 'rgba(0, 255, 135, 0.3)';
+                    buffBadgeEl.innerHTML = '<i class="fa-solid fa-bolt" style="margin-right: 3px;"></i>주장 버프 활성 (OVR +1 & 전 스탯 +1)';
+                }
             } else {
                 // 스쿼드 이탈 (출전 대기 ⏳ 상태)
                 nameDisplayEl.innerHTML = `<i class="fa-solid fa-crown" style="color: #ff9f43; margin-right: 4px;"></i>${captainCard.name} <span style="font-size: 0.72rem; color: #ff9f43; font-weight: bold; background: rgba(255, 159, 67, 0.15); padding: 1px 4px; border-radius: 4px; margin-left: 2px;">(출전대기 ⏳)</span>`;
@@ -1218,6 +1227,14 @@ function updateCaptainSelectorUI() {
                 opt.innerText = `${captainCard.name} (출전대기 ⏳)`;
                 opt.selected = true;
                 selectCaptainEl.appendChild(opt);
+
+                if (buffBadgeEl) {
+                    buffBadgeEl.style.display = 'inline-flex';
+                    buffBadgeEl.style.color = '#ff9f43';
+                    buffBadgeEl.style.background = 'rgba(255, 159, 67, 0.1)';
+                    buffBadgeEl.style.borderColor = 'rgba(255, 159, 67, 0.3)';
+                    buffBadgeEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="margin-right: 3px;"></i>선발 출전 시 주장 버프 발동';
+                }
             }
         } else {
             // 비정상 데이터 소거
@@ -1227,6 +1244,7 @@ function updateCaptainSelectorUI() {
             nameDisplayEl.style.background = 'rgba(255, 255, 255, 0.05)';
             nameDisplayEl.style.borderColor = 'rgba(255, 255, 255, 0.1)';
             selectCaptainEl.value = "";
+            if (buffBadgeEl) buffBadgeEl.style.display = 'none';
             try { localStorage.removeItem('fc_star_squad_captain'); } catch(e) {}
         }
     } else {
@@ -1236,6 +1254,7 @@ function updateCaptainSelectorUI() {
         nameDisplayEl.style.background = 'rgba(255, 255, 255, 0.05)';
         nameDisplayEl.style.borderColor = 'rgba(255, 255, 255, 0.1)';
         selectCaptainEl.value = "";
+        if (buffBadgeEl) buffBadgeEl.style.display = 'none';
     }
 }
 
