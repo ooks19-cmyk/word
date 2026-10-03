@@ -27,6 +27,31 @@ graph TD
 - **`db.js`**: Firebase Firestore 기반 원격 저장 및 미지원 시 LocalStorage 기반의 가상 로컬 클라우드 전환 처리.
 - **`player/player_data.js`**: 전체 축구선수 카드 스펙(오버롤, 세부 능력치, 포지션 등)을 동적으로 로드.
 
+### ⚽ '우에다' 스페셜 90 카드 등록 및 DB/CSV 동기화, PWA v452 배포 (2026-10-04)
+* **요청 요약**: 우에다 선수 카드(스페셜 등급, 오버롤 90, 포지션 ST)를 신규 등록하고 CSV 및 PWA 캐시 동기화.
+* **수행 내용**:
+  1. **카드 데이터 등록 (`player_data.js`)**:
+     - `ayase_ueda`: 이름 '우에다', 등급 'special', 오버롤 90, 포지션 ST, 국적 Japan, 소속 FEYENOORD
+     - 6대 스탯: PAC 88, SHO 91, PAS 80, DRI 85, DEF 48, PHY 87
+     - 테마: primary: "#d00027", secondary: "#ffffff", glow: "#ff2a55" (페예노르트 & 스페셜 테마)
+     - 이미지: `player2/우에다.png`
+  2. **PWA 캐시 및 브라우저 버전 상향**:
+     - `index.html`: `player_data.js?v=1.87` 상향
+     - `sw.js`: `CACHE_NAME = 'fc-star-v452'` 상향
+  3. **선수데이터.csv 동기화**:
+     - `convert_js_to_csv.py` 실행을 통해 총 106명 선수 데이터 완벽 동기화.
+* **변경 파일**:
+  - `player_data.js`
+  - `index.html`
+  - `sw.js`
+  - `선수데이터.csv`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+* **검증 결과**:
+  - `scratch/verify_ayase_ueda.py`: JS 구문 무결성, 이미지 파일 확인, CSV 106명 동기화 및 버전 일치 100% PASS.
+  - Node.js 구문 검사(`player_data.js`, `sw.js`) 100% PASS.
+* **최종 상태**: 완료 (PWA v452 배포 준비 완료)
+
 ### 📚 교재 영단어 신규 8개 세트(170단어) 등록 및 PWA v451 배포 (2026-10-03)
 * **요청 요약**: WORD 폴더의 교재 단어 이미지(261003~261027 총 8개 세트 16장)를 분석하여 영단어 퀴즈 스케줄러 및 통합 백업 풀에 추가 등록하고 PWA 캐시 갱신.
 * **수행 내용**:

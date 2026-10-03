@@ -2639,6 +2639,31 @@ const CARDS_DATABASE = {
             def: 46,
             phy: 89
         }
+    },
+    "ayase_ueda": {
+        id: "ayase_ueda",
+        name: "우에다",
+        rating: 90,
+        position: "ST",
+        nation: "Japan",
+        nationFlag: "https://flagcdn.com/w40/jp.png",
+        club: "FEYENOORD",
+        image: "player2/우에다.png",
+        rarity: "special",
+        description: "폭발적인 라인 브레이킹 침투와 탁월한 양발 골 결정력, 압도적인 공중볼 타점을 자랑하는 네덜란드 페예노르트와 일본 대표팀의 핵심 스트라이커 우에다입니다. 저돌적인 포스트 플레이와 박스 안에서의 날카로운 원샷원킬 슈팅으로 팀의 공격을 책임지는 스페셜 골잡이입니다.",
+        theme: {
+            primary: "#d00027",
+            secondary: "#ffffff",
+            glow: "#ff2a55"
+        },
+        stats: {
+            pac: 88,
+            sho: 91,
+            pas: 80,
+            dri: 85,
+            def: 48,
+            phy: 87
+        }
     }
 };
 
