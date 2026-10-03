@@ -350,9 +350,9 @@ function initCupTab() {
         broadcastHeader.innerHTML = `<i class="fa-solid fa-radio"></i> ${tournamentName} 라이브 중계`;
     }
 
-    const resetBtn = document.querySelector('#matchLayoutCup button[onclick*="resetCupSeasonWithFP"]');
+    const resetBtn = document.querySelector('#matchLayoutCup button[onclick*="resetCupSeasonWithRP"], #matchLayoutCup button[onclick*="resetCupSeasonWithFP"]');
     if (resetBtn) {
-        resetBtn.title = `5 FP 소모하여 ${tournamentName} 초기화 (시즌당 1회)`;
+        resetBtn.title = `5 RP 소모하여 ${tournamentName} 초기화`;
     }
 
     updatePlayerTeamOvr();
@@ -1786,20 +1786,22 @@ function resetCupSeason() {
     alert(`${tournamentName}이 성공적으로 초기화되었습니다!`);
 }
 
-function resetCupSeasonWithFP() {
+function resetCupSeasonWithRP() {
     const tournamentName = getActiveCupTournamentName();
+    const playerTeamId = getActiveCupUserTeamId();
 
-    if (cupState.hasResetThisSeason) {
-        alert(`${tournamentName} 초기화는 한 시즌에 한 번만 가능합니다!`);
+    // 🏆 우승한 대회는 초기화 차단
+    if (cupState.round === 1 && cupState.bracket && cupState.bracket.winner && cupState.bracket.winner.id === playerTeamId) {
+        alert(`🏆 우승한 ${tournamentName} 대회는 초기화할 수 없습니다!`);
         return;
     }
     
-    if (typeof userPoints === 'undefined' || userPoints < 5) {
-        alert(`포인트가 부족합니다! (현재 포인트: ${typeof userPoints !== 'undefined' ? userPoints : 0} FP / 필요 포인트: 5 FP)`);
+    if (typeof userRP === 'undefined' || userRP < 5) {
+        alert(`RP가 부족합니다! (현재 RP: ${typeof userRP !== 'undefined' ? userRP : 0} RP / 필요 RP: 5 RP)\n단어 퀴즈를 풀면 1 RP씩 획득할 수 있습니다.`);
         return;
     }
     
-    if (!confirm(`5 FP를 소모하여 ${tournamentName} 대회를 리셋하고 16강 첫 경기부터 새로 시작하시겠습니까?\n(현재 진행 정보 및 스탯이 모두 초기화됩니다)`)) {
+    if (!confirm(`5 RP를 소모하여 ${tournamentName} 대회를 리셋하고 16강 첫 경기부터 새로 시작하시겠습니까?\n(현재 진행 정보 및 스탯이 모두 초기화됩니다)`)) {
         return;
     }
     
@@ -1807,25 +1809,31 @@ function resetCupSeasonWithFP() {
         try { playClickSound(); } catch (e) {}
     }
     
-    // Deduct 5 FP
-    userPoints -= 5;
-    localStorage.setItem('fc_star_user_points', userPoints.toString());
+    // Deduct 5 RP
+    userRP -= 5;
+    try {
+        localStorage.setItem('fc_star_user_rp', userRP.toString());
+    } catch(e) {}
     if (typeof renderUserPoints === 'function') {
         renderUserPoints();
     }
     
     resetCupStateData();
-    cupState.hasResetThisSeason = true;
     saveCupState();
     
     initCupTab();
     
     const commBox = document.getElementById('cupCommentaryScroll');
     if (commBox) {
-        commBox.innerHTML = `<div class="comm-item comm-system">5 FP를 사용하여 ${tournamentName}이 리셋되었습니다. 아래 경기 시작 버튼을 클릭하면 16강 대회가 진행됩니다.</div>`;
+        commBox.innerHTML = `<div class="comm-item comm-system">5 RP를 사용하여 ${tournamentName}이 리셋되었습니다. 아래 경기 시작 버튼을 클릭하면 16강 대회가 진행됩니다.</div>`;
     }
     
-    alert(`${tournamentName}이 성공적으로 초기화되었습니다! (5 FP 차감)`);
+    alert(`${tournamentName}이 성공적으로 초기화되었습니다! (5 RP 차감)`);
+}
+
+// 하위 호환 별칭
+function resetCupSeasonWithFP() {
+    resetCupSeasonWithRP();
 }
 
 // 10. 가상 통계 제너레이터 헬퍼들

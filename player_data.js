@@ -2614,6 +2614,31 @@ const CARDS_DATABASE = {
             def: 44,
             phy: 75
         }
+    },
+    "darwin_nunez": {
+        id: "darwin_nunez",
+        name: "다르윈 누네스",
+        rating: 90,
+        position: "ST",
+        nation: "Uruguay",
+        nationFlag: "https://flagcdn.com/w40/uy.png",
+        club: "LIVERPOOL",
+        image: "player2/다르윈 누네스.png",
+        rarity: "special",
+        description: "폭발적인 스프린트와 압도적인 피지컬, 저돌적인 오프더볼 침투로 상대 수비진을 초토화시키는 리버풀과 우루과이의 특급 스트라이커 다르윈 누네스입니다. 강력한 슈팅과 박스 안에서의 파괴적인 제공권 장악으로 결정적인 순간마다 골망을 흔드는 스페셜 골잡이입니다.",
+        theme: {
+            primary: "#c8102e",
+            secondary: "#00b2a9",
+            glow: "#ff2a55"
+        },
+        stats: {
+            pac: 93,
+            sho: 90,
+            pas: 80,
+            dri: 86,
+            def: 46,
+            phy: 89
+        }
     }
 };
 

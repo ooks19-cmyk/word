@@ -539,12 +539,14 @@ function selectChoice(btnEl, selectedChoice, correctMeaning) {
                     quizQueue.splice(quizCurrentIndex, 1);
                     
                     if (quizSolvedCount >= 5) {
-                        // 퀴즈 완전 정복 성공
+                        // 퀴즈 완전 정복 성공 (FP 기존 유지, RP는 하드모드 무관 항상 +1)
                         userPoints += (typeof isHardMode !== 'undefined' && isHardMode) ? 2 : 1;
+                        userRP = (typeof userRP !== 'undefined' ? userRP : 0) + 1;
                         userLevel += 1;
                         
                         try {
                             localStorage.setItem('fc_star_user_points', userPoints.toString());
+                            localStorage.setItem('fc_star_user_rp', userRP.toString());
                             localStorage.setItem('fc_star_user_level', userLevel.toString());
                         } catch(e) {}
                         
@@ -560,7 +562,8 @@ function selectChoice(btnEl, selectedChoice, correctMeaning) {
                         
                         const quizRewardPointVal = document.getElementById('quizRewardPointVal');
                         if (quizRewardPointVal) {
-                            quizRewardPointVal.innerText = `+${(typeof isHardMode !== 'undefined' && isHardMode) ? 2 : 1} FP (가차 포인트) 획득!`;
+                            const fpGain = (typeof isHardMode !== 'undefined' && isHardMode) ? 2 : 1;
+                            quizRewardPointVal.innerText = `+${fpGain} FP (가차) · +1 RP (초기화) 획득!`;
                         }
                         
                         const compOverlay = document.getElementById('quizCompleteOverlay');
@@ -650,12 +653,14 @@ function submitQuizAnswer() {
                     quizQueue.splice(quizCurrentIndex, 1);
                     
                     if (quizSolvedCount >= 5) {
-                        // QUIZ COMPLETED!
+                        // QUIZ COMPLETED! (FP 기존 유지, RP는 하드모드 무관 항상 +1)
                         userPoints += (typeof isHardMode !== 'undefined' && isHardMode) ? 2 : 1;
+                        userRP = (typeof userRP !== 'undefined' ? userRP : 0) + 1;
                         userLevel += 1; // 5문제를 완전 풀이 시 레벨 1 증가
                         
                         try {
                             localStorage.setItem('fc_star_user_points', userPoints.toString());
+                            localStorage.setItem('fc_star_user_rp', userRP.toString());
                             localStorage.setItem('fc_star_user_level', userLevel.toString());
                         } catch(e) {}
                         
@@ -673,7 +678,8 @@ function submitQuizAnswer() {
                         
                         const quizRewardPointVal = document.getElementById('quizRewardPointVal');
                         if (quizRewardPointVal) {
-                            quizRewardPointVal.innerText = `+${(typeof isHardMode !== 'undefined' && isHardMode) ? 2 : 1} FP (가차 포인트) 획득!`;
+                            const fpGain = (typeof isHardMode !== 'undefined' && isHardMode) ? 2 : 1;
+                            quizRewardPointVal.innerText = `+${fpGain} FP (가차) · +1 RP (초기화) 획득!`;
                         }
                         
                         // Show Success Screen

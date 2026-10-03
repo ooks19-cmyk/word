@@ -185,6 +185,7 @@ const dbService = {
             id: normalizedId,
             password: password,
             userPoints: 0, // 초기 가차 포인트 (FP)
+            userRP: 0, // 초기 모드 초기화/재도전 포인트 (RP)
             userLevel: 1, // 초기 레벨
             playerDeck: {}, // 소유한 카드 덱 데이터
             squadFormation: {}, // 베스트 11 포메이션 배치 상황

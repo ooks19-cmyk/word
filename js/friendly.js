@@ -500,17 +500,18 @@ function updateChallengeButtonState() {
         startBtn.style.cursor = 'pointer';
         startBtn.style.opacity = '1';
     } 
-    // Case 2: 오늘 무료 도전 실패 후 재도전 미사용 -> 5P 소모 재도전 가능 (찬스확률 +5% 보너스)
+    // Case 2: 오늘 무료 도전 실패 후 미승리 상태 -> 5 RP 소모 무한 재도전 가능 (찬스확률 +5% 보너스)
     else if (!challengeDailyRetryUsed) {
         startBtn.disabled = false;
         startBtn.onclick = () => startChallengeMatchSimulation(true);
-        startBtn.innerHTML = `<i class="fa-solid fa-fire" style="margin-right: 8px; color: #ffd700;"></i>5P 소모하고 재도전 (찬스 +5%🔥 / 현재: ${userPoints} FP)`;
+        const curRp = typeof userRP !== 'undefined' ? userRP : 0;
+        startBtn.innerHTML = `<i class="fa-solid fa-fire" style="margin-right: 8px; color: #ffd700;"></i>5 RP 소모하고 재도전 (찬스 +5%🔥 / 보유: ${curRp} RP)`;
         startBtn.style.background = 'linear-gradient(135deg, #ff416c, #ff4b2b)';
         startBtn.style.color = '#fff';
         startBtn.style.cursor = 'pointer';
         startBtn.style.opacity = '1';
     } 
-    // Case 3: 오늘 완료 (승리하여 다음 스테이지 진출 또는 재도전까지 소진)
+    // Case 3: 오늘 완료 (당일 라운드 승리하여 다음 스테이지 진출 완료)
     else {
         startBtn.disabled = true;
         startBtn.onclick = null;
@@ -696,11 +697,11 @@ function startChallengeMatchSimulation(isRetry = false) {
         return;
     }
 
-    // 일일 제한 검사
+    // 일일 제한 및 재도전 검사
     if (!isRetry) {
         if (challengeDailyFreeUsed) {
             showToast(!challengeDailyRetryUsed 
-                ? "오늘의 무료 도전은 이미 사용하셨습니다! 5P 재도전 버튼을 이용해주세요." 
+                ? "오늘의 무료 도전은 이미 사용하셨습니다! 5 RP 재도전 버튼을 이용해주세요." 
                 : "오늘의 도전은 이미 완료되었습니다. 내일 다음 경기에 도전해주세요!");
             return;
         }
@@ -710,25 +711,24 @@ function startChallengeMatchSimulation(isRetry = false) {
             return;
         }
         if (challengeDailyRetryUsed) {
-            showToast("오늘 이미 승리하였거나 재도전 기회를 모두 사용하여 추가 도전이 불가능합니다. 내일 다시 도전해주세요!");
+            showToast("오늘 이미 승리하여 라운드를 완료했습니다. 내일 다음 라운드에 도전해주세요!");
             return;
         }
-        if (userPoints < 5) {
-            showToast(`⚠️ 포인트(FP)가 부족합니다! (현재: ${userPoints} FP / 필요: 5 FP)`);
+        if (typeof userRP === 'undefined' || userRP < 5) {
+            showToast(`⚠️ RP(Reset Point)가 부족합니다! (현재: ${typeof userRP !== 'undefined' ? userRP : 0} RP / 필요: 5 RP)`);
             return;
         }
 
-        // 5 포인트 소모
-        userPoints = Math.max(0, userPoints - 5);
+        // 5 RP 소모
+        userRP = Math.max(0, userRP - 5);
         try {
-            localStorage.setItem('fc_star_user_points', userPoints.toString());
+            localStorage.setItem('fc_star_user_rp', userRP.toString());
         } catch(e) {}
         if (typeof renderUserPoints === 'function') renderUserPoints();
-        challengeDailyRetryUsed = true;
         challengeLastDate = (typeof getChallengeTodayDateString === 'function') ? getChallengeTodayDateString() : getFriendlyTodayDateString();
         saveChallengeState();
         if (typeof saveUserProgress === 'function') saveUserProgress(true);
-        showToast("🔥 5 FP를 소모하여 찬스 확률 +5% 보너스를 받고 당일 1회 재도전을 시작합니다!");
+        showToast("🔥 5 RP를 소모하여 찬스 확률 +5% 보너스를 받고 재도전을 시작합니다!");
     }
 
     const opponent = getCurrentChallengeOpponent();
@@ -973,19 +973,15 @@ function startChallengeMatchSimulation(isRetry = false) {
             challengeHistory.l += 1;
             challengeHistory.totalGames += 1;
             
-            // 패배 시: 무료 도전이었다면 retry 기회 보존, 재도전이었다면 소진
+            // 패배 시: 무료 도전이었다면 플래그 기록, 재도전 기회(5 RP 소모 무한 재도전)는 항상 열어둠
+            challengeDailyFreeUsed = true;
+            challengeDailyRetryUsed = false; // 승리할 때까지 5 RP로 계속 재도전 가능
             challengeLastDate = (typeof getChallengeTodayDateString === 'function') ? getChallengeTodayDateString() : getFriendlyTodayDateString();
-            if (!isRetry) challengeDailyFreeUsed = true;
-            else challengeDailyRetryUsed = true;
             
             saveChallengeState();
             if (typeof saveUserProgress === 'function') saveUserProgress(true);
             
-            if (!isRetry && !challengeDailyRetryUsed) {
-                showToast(`패배하여 스테이지 클리어에 실패했습니다. 당일 1회 5P로 재도전할 수 있습니다!`);
-            } else {
-                showToast(`아쉽게 패배했습니다. 내일 무료 기회로 다시 도전해주세요!`);
-            }
+            showToast(`패배하여 스테이지 클리어에 실패했습니다. 5 RP로 언제든 재도전할 수 있습니다!`);
         }
 
         isMatchRunning = false;

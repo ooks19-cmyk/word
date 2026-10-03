@@ -16,7 +16,7 @@ try {
     preloadedUserData = null;
 }
 
-// 1. USER POINTS & LEVEL STATE (FP & Level)
+// 1. USER POINTS & LEVEL STATE (FP, RP & Level)
 let userPoints = 0;
 try {
     if (preloadedUserData && preloadedUserData.userPoints !== undefined && preloadedUserData.userPoints !== null) {
@@ -30,6 +30,21 @@ try {
     }
 } catch (e) {
     userPoints = 0;
+}
+
+let userRP = 0;
+try {
+    if (preloadedUserData && preloadedUserData.userRP !== undefined && preloadedUserData.userRP !== null) {
+        userRP = parseInt(preloadedUserData.userRP) || 0;
+    } else {
+        const savedRp = localStorage.getItem('fc_star_user_rp');
+        if (savedRp !== null) {
+            userRP = parseInt(savedRp);
+            if (isNaN(userRP) || userRP < 0) userRP = 0;
+        }
+    }
+} catch (e) {
+    userRP = 0;
 }
 
 let userLevel = 1;
@@ -457,6 +472,7 @@ function checkAndResetChallengeDailyState() {
 // 🔄 전역 상태를 순수 기본값으로 완전 초기화 (계정 전환/로그아웃/게스트 진입 시 이전 계정 메모리 오염 원천 차단)
 function resetStateToDefault() {
     userPoints = 0;
+    userRP = 0;
     userLevel = 1;
     isHardMode = false;
     playerDeck = {};

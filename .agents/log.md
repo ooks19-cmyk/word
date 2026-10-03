@@ -27,6 +27,78 @@ graph TD
 - **`db.js`**: Firebase Firestore 기반 원격 저장 및 미지원 시 LocalStorage 기반의 가상 로컬 클라우드 전환 처리.
 - **`player/player_data.js`**: 전체 축구선수 카드 스펙(오버롤, 세부 능력치, 포지션 등)을 동적으로 로드.
 
+### ⚽ '다르윈 누네스' 스페셜 90 카드 등록 및 DB/CSV 동기화, PWA v450 배포 (2026-10-03)
+* **요청 요약**: 다르윈 누네스 선수 카드(스페셜 등급, 오버롤 90, 포지션 ST)를 신규 등록하고 CSV 및 PWA 캐시 동기화.
+* **수행 내용**:
+  1. **카드 데이터 등록 (`player_data.js`)**:
+     - `darwin_nunez`: 이름 '다르윈 누네스', 등급 'special', 오버롤 90, 포지션 ST, 국적 Uruguay, 소속 LIVERPOOL
+     - 6대 스탯: PAC 93, SHO 90, PAS 80, DRI 86, DEF 46, PHY 89
+     - 테마: primary: "#c8102e", secondary: "#00b2a9", glow: "#ff2a55" (리버풀 & 스페셜 테마)
+     - 이미지: `player2/다르윈 누네스.png`
+  2. **PWA 캐시 및 브라우저 버전 상향**:
+     - `index.html`: `player_data.js?v=1.86` 상향
+     - `sw.js`: `CACHE_NAME = 'fc-star-v450'` 상향
+  3. **선수데이터.csv 동기화**:
+     - `convert_js_to_csv.py` 실행을 통해 총 105명 선수 데이터 완벽 동기화.
+* **변경 파일**:
+  - `player_data.js`
+  - `index.html`
+  - `sw.js`
+  - `선수데이터.csv`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+* **검증 결과**:
+  - `scratch/verify_darwin_nunez.py`: JS 구문 무결성, 이미지 파일 확인, CSV 105명 동기화 및 버전 일치 100% PASS.
+  - `scratch/verify_rp_reset_system.py`: 전체 시스템 회귀 검증 100% PASS.
+* **최종 상태**: 완료 (PWA v450 배포 준비 완료)
+
+### 🔄 4대 모드 무제한 초기화 & RP 5 소모 시스템 구축 및 PWA v449 배포 (2026-10-03)
+* **요청 요약**: 챔스, 컵, 국대모드, 도전모드의 1일 1회/시즌 1회 초기화 제한을 해제하고 5 RP 소모 시 무제한 초기화/재도전 가능하도록 개편. 단어 퀴즈 풀이 시 1 RP 적립, 우승 시 초기화 차단, 도전모드 당일 1개 라운드 완료 잠금 규칙 적용.
+* **수행 내용**:
+  1. **신규 재화 RP(Reset Point) 시스템 신설 (`js/state.js`, `js/utils.js`, `js/auth.js`, `db.js`)**:
+     - `let userRP = 0;` 전역 상태 선언, LocalStorage `fc_star_user_rp` 및 Firestore 유저 스키마 연동.
+     - 상단 헤더 포인트 바에 FP와 RP를 함께 표시 (`FP: 0 | RP: 0`).
+     - 개발자 콘솔(`developerSetPoints`)에서 FP 및 RP 수량 개별 조정 기능 추가.
+  2. **단어 퀴즈 RP 적립 연동 (`quiz.js`)**:
+     - 5문제 1세트 완료 시 난이도(일반/하드)와 무관하게 **항상 +1 RP 적립** (FP는 기존대로 일반 1 FP, 하드 2 FP 지급).
+     - 퀴즈 완료 모달에 `+N FP · +1 RP 획득!` 보상 문구 표출.
+  3. **FA컵 & 챔피언스리그 무제한 리셋 (`js/cup.js`, `js/acl.js`, `index.html`)**:
+     - `hasResetThisSeason` 제한 플래그 삭제.
+     - 해당 시즌 우승 시 초기화 엄격 차단 (`🏆 우승한 대회는 초기화할 수 없습니다.`).
+     - 미우승 탈락/진행 중 5 RP 소모로 16강 첫 라운드로 즉시 재도전 (`resetCupSeasonWithRP`, `resetAclSeasonWithRP`).
+     - 모달/UI 버튼 텍스트 `초기화 (5 RP)` 변경.
+  4. **국가대표 모드 무제한 리셋 (`js/national.js`)**:
+     - `state.resetUsed` 일회성 제한 제거.
+     - 우승(챔피언 등극) 시 초기화 차단 가드 적용.
+     - 미우승 시 대진표 상단에 `초기화 (5 RP)` 버튼을 상시 노출하여 5 RP 소모로 32강 재도전 가능.
+  5. **도전 모드 무한 재도전 & 1일 1라운드 개방 잠금 (`js/friendly.js`)**:
+     - 무료 1회 실패 후 5 RP 소모 시 찬스 5% 보너스와 함께 **무한 재도전** 가능.
+     - 패배 시 `challengeDailyRetryUsed = false`를 유지하여 RP만 있으면 계속 재도전 가능.
+     - 승리(클리어) 시 `challengeDailyRetryUsed = true`로 전환하여 **당일 1개 라운드만 완료**되고 추가 도전은 다음 날 개방되도록 제어.
+  6. **PWA 캐시 및 릴리즈 노트 배포 (`sw.js`, `js/update_data.js`, `index.html`)**:
+     - `sw.js` PWA 서비스 워커 `CACHE_NAME = 'fc-star-v449'` 상향.
+     - `js/update_data.js` v3.5.0 (`UNLIMITED RESET & RP SYSTEM`) 릴리즈 노트 등록.
+     - `index.html` 스크립트 쿼리 버전 상향.
+* **변경 파일**:
+  - `js/state.js`
+  - `js/utils.js`
+  - `quiz.js`
+  - `js/cup.js`
+  - `js/acl.js`
+  - `js/national.js`
+  - `js/friendly.js`
+  - `js/auth.js`
+  - `db.js`
+  - `index.html`
+  - `sw.js`
+  - `js/update_data.js`
+  - `reset_limit_rp_plan.md`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+* **검증 결과**:
+  - `scratch/verify_rp_reset_system.py`: JavaScript 11개 핵심 파일 괄호/구문 무결성, 정적 소스코드 규칙, 퀴즈 보상 적립 및 4대 모드 초기화 시뮬레이션 100% ALL PASS.
+* **최종 상태**: 완료 (PWA v449 배포 완료)
+
 ### 👑 구단 주장(Captain) 선발 출전 OVR +1 & 6대 스탯 +1 보너스 시스템 구축 및 PWA v448 배포 (2026-10-01)
 * **요청 요약**: 구단 주장(Captain)이 선발 베스트 11에 출전할 때 OVR +1 및 6대 능력치 +1 보너스를 적용하고 피치 UI, 팀 평균 스탯, 경기 찬스 계산 엔진에 완벽 연동.
 * **수행 내용**:

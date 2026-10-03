@@ -6,18 +6,21 @@ function formatCardPosition(pos) {
     return pos === 'CAM' ? 'AM' : pos;
 }
 
-// Point widgets update helper
+// Point widgets update helper (FP & RP)
 function renderUserPoints() {
     const ptsVal = document.getElementById('userPointsVal');
-    if (ptsVal) ptsVal.innerText = userPoints;
+    if (ptsVal) ptsVal.innerText = typeof userPoints !== 'undefined' ? userPoints : 0;
+    
+    const rpVal = document.getElementById('userRpVal');
+    if (rpVal) rpVal.innerText = typeof userRP !== 'undefined' ? userRP : 0;
     
     const packPtsVal = document.getElementById('packUserPointsVal');
-    if (packPtsVal) packPtsVal.innerText = userPoints;
+    if (packPtsVal) packPtsVal.innerText = typeof userPoints !== 'undefined' ? userPoints : 0;
     
     // Manage Pack Button accessibility
     const openPackBtn = document.getElementById('openPackBtn');
     if (openPackBtn) {
-        if (userPoints < 1) {
+        if (typeof userPoints === 'undefined' || userPoints < 1) {
             openPackBtn.style.background = 'rgba(255, 255, 255, 0.05)';
             openPackBtn.style.color = 'var(--text-muted)';
             openPackBtn.style.border = '1px solid var(--glass-border)';
@@ -33,6 +36,12 @@ function renderUserPoints() {
             openPackBtn.innerText = '카드 팩 열기';
         }
     }
+}
+
+// RP widget update helper
+function renderUserRP() {
+    const rpVal = document.getElementById('userRpVal');
+    if (rpVal) rpVal.innerText = typeof userRP !== 'undefined' ? userRP : 0;
 }
 
 // User Level update helper

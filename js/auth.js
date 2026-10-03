@@ -7,23 +7,31 @@ function developerSetPoints() {
     if (!isDeveloperMode || !currentUser || currentUser.toLowerCase() !== 'ooks12') {
         return;
     }
-    const input = prompt("🛠 개발자 모드: 포인트를 직접 수정합니다.\n원하는 포인트(FP) 수치를 입력해주세요:", userPoints);
-    if (input !== null) {
-        const parsed = parseInt(input.trim());
-        if (!isNaN(parsed) && parsed >= 0) {
-            userPoints = parsed;
+    const inputFp = prompt("🛠 개발자 모드: 포인트를 직접 수정합니다.\n원하는 포인트(FP) 수치를 입력해주세요:", userPoints);
+    if (inputFp !== null) {
+        const parsedFp = parseInt(inputFp.trim());
+        if (!isNaN(parsedFp) && parsedFp >= 0) {
+            userPoints = parsedFp;
             try {
                 localStorage.setItem('fc_star_user_points', userPoints.toString());
             } catch(e) {}
-            renderUserPoints();
-            showToast(`개발자 권한으로 보유 포인트가 ${userPoints} FP로 조정되었습니다!`);
-            
-            // Auto-save user data to cloud after developer settings
-            saveUserProgress();
-        } else {
-            showToast("올바른 양의 정수를 입력하세요.");
         }
     }
+    const inputRp = prompt("🛠 개발자 모드: 리셋 포인트를 직접 수정합니다.\n원하는 리셋 포인트(RP) 수치를 입력해주세요:", typeof userRP !== 'undefined' ? userRP : 0);
+    if (inputRp !== null) {
+        const parsedRp = parseInt(inputRp.trim());
+        if (!isNaN(parsedRp) && parsedRp >= 0) {
+            userRP = parsedRp;
+            try {
+                localStorage.setItem('fc_star_user_rp', userRP.toString());
+            } catch(e) {}
+        }
+    }
+    renderUserPoints();
+    showToast(`개발자 권한으로 FP: ${userPoints} / RP: ${userRP}로 조정되었습니다!`);
+    
+    // Auto-save user data to cloud after developer settings
+    saveUserProgress();
 }
 
 function developerSetLevel() {
@@ -219,9 +227,13 @@ window.addEventListener('online', retryInitialCloudSync);
 function applyUserDataToState(userData) {
     if (!userData || typeof userData !== 'object') return;
     
-    // 1. 포인트, 레벨, 하드모드
+    // 1. 포인트, RP, 레벨, 하드모드
     if (userData.userPoints !== undefined && userData.userPoints !== null) {
         userPoints = parseInt(userData.userPoints) || 0;
+    }
+    if (userData.userRP !== undefined && userData.userRP !== null) {
+        userRP = parseInt(userData.userRP) || 0;
+        try { localStorage.setItem('fc_star_user_rp', userRP.toString()); } catch(e) {}
     }
     if (userData.userLevel !== undefined && userData.userLevel !== null) {
         userLevel = parseInt(userData.userLevel) || 1;
@@ -529,6 +541,7 @@ function collectCurrentUserProgressData(targetUserId) {
     return {
         id: myId,
         userPoints: userPoints,
+        userRP: typeof userRP !== 'undefined' ? userRP : 0,
         userLevel: userLevel,
         playerDeck: (() => {
             const minimalDeck = {};

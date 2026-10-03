@@ -2,9 +2,20 @@
 
 const UPDATE_LOGS = [
     {
+        version: "v3.5.0",
+        date: "2026.10.03",
+        latest: true,
+        borderColor: "#00d2fc",
+        titleColor: "#00d2fc",
+        badgeText: "UNLIMITED RESET & RP SYSTEM",
+        items: [
+            "<strong>⚡ 4대 모드(챔스·컵·국대·도전) 1일 1회 초기화 제한 해제 & 신규 재화 'RP(Reset Point)' 시스템 개편!</strong><br>• <strong>단어 퀴즈 연동 신규 재화 'RP' 도입</strong>: 단어 퀴즈 1세트(5문제)를 완료할 때마다 가차 뽑기용 <strong>FP</strong>(일반 1 / 하드 2)와 함께 모드 초기화 전용 재화인 <strong>RP 1개</strong>가 무조건 적립됩니다.<br>• <strong>챔피언스리그 & FA컵 무제한 초기화</strong>: 시즌당 1회 초기화 제한이 완전히 해제되어, 대회 진행 중이나 탈락 시 언제든 <strong>5 RP</strong>를 소모하여 16강 첫 경기부터 무제한으로 새로 시작할 수 있습니다. (우승 시에는 초기화 차단)<br>• <strong>국가대표 모드 무제한 초기화</strong>: 1회 초기화 제한이 풀려, 진행 중 언제든 <strong>5 RP</strong>를 소모하여 대표팀 스쿼드를 유지한 채 토너먼트를 즉시 무제한 리셋할 수 있습니다.<br>• <strong>도전모드 5 RP 무한 재도전 지원</strong>: 당일 1라운드(스테이지) 단위로 진행되며, 일일 무료 1경기 실패 후에도 <strong>5 RP</strong>를 소모하여 스테이지를 클리어할 때까지 무한 재도전(찬스 +5%🔥 보너스)이 가능합니다. (당일 승리 시 라운드 완료 잠금)<br>• <strong>상단 헤더 및 클라우드 동기화</strong>: 상단 헤더에 FP와 RP 보유량이 동시에 표출되며, Firebase Firestore 클라우드와 완벽하게 실시간 동기화됩니다."
+        ]
+    },
+    {
         version: "v3.4.5",
         date: "2026.10.01",
-        latest: true,
+        latest: false,
         borderColor: "#ffd700",
         titleColor: "#ffd700",
         badgeText: "CAPTAIN OVR BOOST",
