@@ -1,4 +1,13 @@
 ## 현재 작업
+- 목표: 데이터 동기화 모달(`syncConflictModal`) 내 클라우드/로컬 표시창 순서 변경 (하단 버튼 순서와 일치: 왼쪽 클라우드, 오른쪽 로컬)
+- 상태: 완료
+- 주요 변경·검증:
+  1. `index.html`: `syncConflictModal` 내 비교 카드 순서를 [클라우드(서버)] 좌측, [현재 기기(로컬)] 우측으로 재배치하여 하단 액션 버튼([클라우드 불러오기] [로컬로 덮어쓰기]) 및 설명 텍스트 순서와 시각적/공간적으로 완벽히 일치시킴.
+  2. `sw.js`: PWA 캐시 버전 상향 (`fc-star-v454`).
+  3. 무결성 검증: DOM 순서 일치(`conflictCloudPoints` < `conflictLocalPoints`, `btnSyncLoadCloud` < `btnSyncOverwriteCloud`) 및 전체 문법 검사 100% PASS.
+- 다음 단계: 완료 보고 (커밋 및 푸시는 사용자 지시 대기).
+
+## 이전 작업
 - 목표: '우에다' 스페셜 등급 선수 카드 생성 (오버롤 90, 포지션 ST) 및 DB/CSV 동기화, PWA 캐시 갱신
 - 상태: 완료
 - 주요 변경·검증:

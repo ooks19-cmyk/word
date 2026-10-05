@@ -68,7 +68,88 @@ function nationalTeam(id,type,isPlayer=false) { const c=getNationalTeamConfig(id
 function getNationalTeamFormation(team,state=getNationalModeState()){if(!team)return '4-4-2';if(state&&team.id===state.selectedNationId)return normalizeNationalFormation(state.formation);const config=getNationalTeamConfig(team.id);return config&&config.formation?config.formation:(team.formation||'4-4-2');}
 function chooseNationalTeam(nationId) { const state=getNationalModeState(); if (!state || state.selectedNationId || !getNationalTeamConfig(nationId)) return; state.selectedNationId=nationId; applyNationalSquadPreset(state,nationId);saveNationalNationSelection(state.year,nationId);nationalActiveSubTab='match';saveNationalModeState();renderNationalMode(); }
 function changeNationalTeamSelection(){const state=getNationalModeState();if(!state)return;if(state.tournament)return showToast('대회를 시작한 뒤에는 국대팀을 변경할 수 없습니다.');state.selectedNationId=null;state.squad=createEmptyNationalSquad();nationalNationSelections[String(state.year)]=null;persistNationalNationSelections();nationalActiveSubTab='match';saveNationalModeState(true);renderNationalMode();}
-function startNationalTournament() { const state=getNationalModeState(); if (!state||!state.selectedNationId) return showToast('국가를 먼저 선택하세요.'); if(!isNationalSeasonWindowOpen(state))return showToast('시즌 종료후 시작 가능합니다'); const [id,name,size]=nationalTournamentForYear(state.year); const pool=(size===32?NATIONAL_WORLD_POOL:NATIONAL_ASIA_POOL).filter(n=>n!==state.selectedNationId); const opponents=pool.sort(()=>Math.random()-.5).slice(0,size-1); state.tournament={id,name,size}; state.teams=[nationalTeam(state.selectedNationId,id,true),...opponents.map(n=>nationalTeam(n,id))].sort(()=>Math.random()-.5); state.rounds=[state.teams.reduce((a,t,i)=>{if(i%2===0)a.push({home:t,away:state.teams[i+1],status:'scheduled'});return a;},[])]; state.currentRound=0; state.finished=false; state.championId=null; state.finalResult=null; state.seasonTransition=null;state.seasonTransitionPending=false;state.nextSeasonAvailableDate=null; saveNationalModeState(); renderNationalMode(); }
+function generateSeededNationalTeams(playerNationId, tournamentId, size) {
+    if (size === 16) {
+        // 아시안컵 / 아시안게임 16강 시드 배치
+        const rivalNationId = playerNationId === 'KR' ? 'JP' : 'KR';
+        const otherPot1 = (typeof NATIONAL_ASIA_POTS !== 'undefined' && NATIONAL_ASIA_POTS.pot1Base ? [...NATIONAL_ASIA_POTS.pot1Base] : ['IR', 'SA']).sort(() => Math.random() - .5);
+        const seed1 = playerNationId; // 1번 시드 (플레이어)
+        const seed2 = rivalNationId;  // 2번 시드 (숙적 라이벌)
+        const seed3 = otherPot1[0];   // 3번 시드
+        const seed4 = otherPot1[1];   // 4번 시드
+
+        const pot2 = (typeof NATIONAL_ASIA_POTS !== 'undefined' && NATIONAL_ASIA_POTS.pot2 ? [...NATIONAL_ASIA_POTS.pot2] : ['AU', 'QA', 'UZ', 'IQ']).sort(() => Math.random() - .5);
+        const pot3 = (typeof NATIONAL_ASIA_POTS !== 'undefined' && NATIONAL_ASIA_POTS.pot3 ? [...NATIONAL_ASIA_POTS.pot3] : ['AE', 'OM', 'JO', 'BH']).sort(() => Math.random() - .5);
+        const pot4 = (typeof NATIONAL_ASIA_POTS !== 'undefined' && NATIONAL_ASIA_POTS.pot4 ? [...NATIONAL_ASIA_POTS.pot4] : ['CN', 'KW', 'ID', 'TH']).sort(() => Math.random() - .5);
+
+        // 8경기 매치업 (home, away)
+        // 1번 시드(플레이어)와 2번 시드(라이벌)는 상·하반부 양 끝단에 배치되어 오직 결승전에서만 대결
+        const matchPairs = [
+            [seed1, pot4[0]],
+            [pot2[0], pot3[0]],
+            [seed4, pot4[1]],
+            [pot2[1], pot3[1]],
+            [seed3, pot4[2]],
+            [pot2[2], pot3[2]],
+            [pot2[3], pot3[3]],
+            [seed2, pot4[3]]
+        ];
+
+        const teams = [];
+        matchPairs.forEach(pair => {
+            teams.push(nationalTeam(pair[0], tournamentId, pair[0] === playerNationId));
+            teams.push(nationalTeam(pair[1], tournamentId, pair[1] === playerNationId));
+        });
+        return teams;
+    } else {
+        // 월드컵 / 올림픽 32강 시드 배치
+        const rivalNationId = playerNationId === 'KR' ? 'JP' : 'KR';
+        const elitePool = [...NATIONAL_WORLD_ELITE].sort(() => Math.random() - .5);
+        const seed1 = playerNationId; // 1번 시드 (플레이어)
+        const seed2 = elitePool[0];   // 2번 시드 (세계 최강 라이벌)
+        const remainingPot1 = [elitePool[1], elitePool[2], elitePool[3], elitePool[4], elitePool[5], 'PT'].sort(() => Math.random() - .5);
+        const seed3 = remainingPot1[0];
+        const seed4 = remainingPot1[1];
+        const seed5 = remainingPot1[2];
+        const seed6 = remainingPot1[3];
+        const seed7 = remainingPot1[4];
+        const seed8 = remainingPot1[5];
+
+        const pot2 = (typeof NATIONAL_WORLD_POTS !== 'undefined' && NATIONAL_WORLD_POTS.pot2 ? [...NATIONAL_WORLD_POTS.pot2] : ['NL', 'IT', 'BE', 'HR', 'UY', 'CO', 'MA', 'SN']).sort(() => Math.random() - .5);
+        const pot3 = (typeof NATIONAL_WORLD_POTS !== 'undefined' && NATIONAL_WORLD_POTS.pot3 ? [...NATIONAL_WORLD_POTS.pot3] : ['MX', 'US', 'CA', 'NG', 'EG', 'GH', 'DK', 'CH']).sort(() => Math.random() - .5);
+        const pot4Base = (typeof NATIONAL_WORLD_POTS !== 'undefined' && NATIONAL_WORLD_POTS.pot4Base ? [...NATIONAL_WORLD_POTS.pot4Base] : ['TR', 'RS', 'IR', 'SA', 'AU', 'QA', 'UZ']);
+        const pot4 = [...pot4Base, rivalNationId].sort(() => Math.random() - .5);
+
+        // 16경기 매치업 (home, away)
+        // 1번 시드(플레이어)는 Match 0, 2번 시드(최강 보스)는 Match 15에 배치되어 결승에서만 조우
+        const matchPairs = [
+            [seed1, pot4[0]],
+            [pot2[0], pot3[0]],
+            [seed8, pot4[1]],
+            [pot2[1], pot3[1]],
+            [seed4, pot4[2]],
+            [pot2[2], pot3[2]],
+            [seed5, pot4[3]],
+            [pot2[3], pot3[3]],
+            [seed3, pot4[4]],
+            [pot2[4], pot3[4]],
+            [seed6, pot4[5]],
+            [pot2[5], pot3[5]],
+            [seed7, pot4[6]],
+            [pot2[6], pot3[6]],
+            [pot2[7], pot3[7]],
+            [seed2, pot4[7]]
+        ];
+
+        const teams = [];
+        matchPairs.forEach(pair => {
+            teams.push(nationalTeam(pair[0], tournamentId, pair[0] === playerNationId));
+            teams.push(nationalTeam(pair[1], tournamentId, pair[1] === playerNationId));
+        });
+        return teams;
+    }
+}
+function startNationalTournament() { const state=getNationalModeState(); if (!state||!state.selectedNationId) return showToast('국가를 먼저 선택하세요.'); if(!isNationalSeasonWindowOpen(state))return showToast('시즌 종료후 시작 가능합니다'); const [id,name,size]=nationalTournamentForYear(state.year); state.tournament={id,name,size}; state.teams=generateSeededNationalTeams(state.selectedNationId,id,size); state.rounds=[state.teams.reduce((a,t,i)=>{if(i%2===0)a.push({home:t,away:state.teams[i+1],status:'scheduled'});return a;},[])]; state.currentRound=0; state.finished=false; state.championId=null; state.finalResult=null; state.seasonTransition=null;state.seasonTransitionPending=false;state.nextSeasonAvailableDate=null; saveNationalModeState(); renderNationalMode(); }
 function nationalPickPlayer() { const state=getNationalModeState(); const isSlotValid = id => id && typeof playerDeck !== 'undefined' && playerDeck[id] && !playerDeck[id].isStored && CARDS_DATABASE[id]; const ids=NATIONAL_433_SLOTS.map(s=>state.squad[s]).filter(id=>isSlotValid(id)); return ids.length?CARDS_DATABASE[ids[Math.floor(Math.random()*ids.length)]].name:'대표팀 선수'; }
 const NATIONAL_MATCH_MINUTES=[0,15,30,45,52,63,74,82,88,90];
 const NATIONAL_MATCH_EVENT_MINUTES=[15,45,63,82,88];

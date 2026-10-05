@@ -1940,9 +1940,9 @@
     <script src="js/cup.js?v=3.4"></script>
     <script src="js/acl.js?v=3.8"></script>
     <script src="js/friendly.js?v=4.6"></script>
-    <script src="js/national_data.js?v=1.2"></script>
+    <script src="js/national_data.js?v=1.3"></script>
     <script src="js/national_squad.js?v=2.7"></script>
-    <script src="js/national.js?v=3.13"></script>
+    <script src="js/national.js?v=3.14"></script>
     <script src="js/national_hof.js?v=1.1"></script>
     <script src="js/achievements.js?v=1.3"></script>
     <!-- 수석코치 조언 플로팅 버튼 -->
@@ -2022,21 +2022,21 @@
                     <strong>어떤 데이터를 기준으로 게임을 진행하시겠습니까?</strong>
                 </p>
                 
-                <!-- 로컬 vs 클라우드 데이터 실시간 비교 카드 -->
+                <!-- 클라우드 vs 로컬 데이터 실시간 비교 카드 (하단 버튼 순서와 일치: 왼쪽 클라우드, 오른쪽 로컬) -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 4px 0;">
-                    <div style="background: rgba(255, 62, 108, 0.08); border: 1.5px solid rgba(255, 62, 108, 0.3); border-radius: 12px; padding: 0.7rem; text-align: left;">
-                        <div style="font-size: 0.72rem; color: #ff3e6c; font-weight: 800; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
-                            <i class="fa-solid fa-mobile-screen"></i> 현재 기기(로컬)
-                        </div>
-                        <div style="font-size: 0.82rem; color: #fff; font-weight: bold;">포인트: <strong id="conflictLocalPoints" style="color: #ffd700;">-</strong> FP</div>
-                        <div style="font-size: 0.72rem; color: #cbd5e1; margin-top: 2px;">보유 카드: <span id="conflictLocalCards" style="color: #fff; font-weight: bold;">-</span>장</div>
-                    </div>
                     <div style="background: rgba(0, 210, 252, 0.08); border: 1.5px solid rgba(0, 210, 252, 0.3); border-radius: 12px; padding: 0.7rem; text-align: left;">
                         <div style="font-size: 0.72rem; color: #00d2fc; font-weight: 800; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
                             <i class="fa-solid fa-cloud"></i> 클라우드(서버)
                         </div>
                         <div style="font-size: 0.82rem; color: #fff; font-weight: bold;">포인트: <strong id="conflictCloudPoints" style="color: #ffd700;">-</strong> FP</div>
                         <div style="font-size: 0.72rem; color: #cbd5e1; margin-top: 2px;">보유 카드: <span id="conflictCloudCards" style="color: #fff; font-weight: bold;">-</span>장</div>
+                    </div>
+                    <div style="background: rgba(255, 62, 108, 0.08); border: 1.5px solid rgba(255, 62, 108, 0.3); border-radius: 12px; padding: 0.7rem; text-align: left;">
+                        <div style="font-size: 0.72rem; color: #ff3e6c; font-weight: 800; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+                            <i class="fa-solid fa-mobile-screen"></i> 현재 기기(로컬)
+                        </div>
+                        <div style="font-size: 0.82rem; color: #fff; font-weight: bold;">포인트: <strong id="conflictLocalPoints" style="color: #ffd700;">-</strong> FP</div>
+                        <div style="font-size: 0.72rem; color: #cbd5e1; margin-top: 2px;">보유 카드: <span id="conflictLocalCards" style="color: #fff; font-weight: bold;">-</span>장</div>
                     </div>
                 </div>
 

@@ -27,6 +27,72 @@ graph TD
 - **`db.js`**: Firebase Firestore 기반 원격 저장 및 미지원 시 LocalStorage 기반의 가상 로컬 클라우드 전환 처리.
 - **`player/player_data.js`**: 전체 축구선수 카드 스펙(오버롤, 세부 능력치, 포지션 등)을 동적으로 로드.
 
+### 🔄 데이터 동기화 모달 비교창 순서 변경 및 PWA v454 배포 (2026-10-05)
+* **요청 요약**: 데이터 동기화 모달(`syncConflictModal`) 내 로컬/클라우드 비교 카드 순서를 하단 액션 버튼 순서(왼쪽: 클라우드 불러오기, 오른쪽: 로컬로 덮어쓰기)와 일치하도록 변경.
+* **수행 내용**:
+  1. **UI 레이아웃 순서 정렬 (`index.html`)**:
+     - 기존 [현재 기기(로컬)] [클라우드(서버)]로 되어 있던 2단 그리드 카드의 배치 순서를 **[클라우드(서버) - 청록색]** 좌측, **[현재 기기(로컬) - 핑크색]** 우측으로 교체.
+     - 하단의 2단 액션 버튼(`btnSyncLoadCloud` [클라우드 불러오기] / `btnSyncOverwriteCloud` [로컬로 덮어쓰기]) 및 설명 안내문 순서와 수직적으로 완벽히 일치시켜 시각적 인지 부조화 해소.
+  2. **PWA 캐시 버전 상향 (`sw.js`)**:
+     - `CACHE_NAME = 'fc-star-v454'` 상향.
+* **변경 파일**:
+  - `index.html`
+  - `sw.js`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+* **검증 결과**:
+  - DOM 요소 위치 검증: `conflictCloudPoints` < `conflictLocalPoints`, `btnSyncLoadCloud` < `btnSyncOverwriteCloud` 100% PASS.
+  - JS 핵심 파일 괄호 및 문법 검사 100% PASS.
+* **최종 상태**: 완료 (PWA v454 배포 준비).
+* **요청 요약**: 국대모드 토너먼트(월드컵 32강, 아시안컵 16강) 시작 시 단순 무작위 셔플 대신 시드별 배치 알고리즘 적용 (대진표 UI 시드 배지는 미표시 유지).
+* **수행 내용**:
+  1. **시드 포트 데이터베이스 구축 (`js/national_data.js`)**:
+     - `NATIONAL_WORLD_POTS`: 32강용 Pot 1(플레이어+엘리트6+포르투갈), Pot 2(네덜란드/이탈리아/벨기에 등 강호 8팀), Pot 3(북중미/아프리카/유럽 8팀), Pot 4(유럽/아시아 도전자 8팀).
+     - `NATIONAL_ASIA_POTS`: 16강용 Pot 1(플레이어+숙적 라이벌+이란+사우디), Pot 2(호주/카타르/우즈벡/이라크), Pot 3(UAE/오만/요르단/바레인), Pot 4(중국/쿠웨이트/인도네시아/태국).
+  2. **시드별 브라켓 생성 알고리즘 구현 (`js/national.js`)**:
+     - `generateSeededNationalTeams(playerNationId, tournamentId, size)` 구현.
+     - **1번 시드 (플레이어)**: 항상 상반부 최상단(Match 0) Home에 배치되어 1라운드에서 Pot 4 도전자와 경기.
+     - **2번 시드 (최강 보스/숙적 라이벌)**: 항상 하반부 최하단(Match 15 / Match 7) Home에 배치되어 **결승전(Final) 이전 조우 가능성 0%** 보장 (한일전 결승 성사).
+     - **3, 4번 시드**: 4강(준결승)에서 각각 1, 2번 시드와 맞붙도록 분산 배치.
+     - **1라운드 매칭 원칙**: `Pot 1 vs Pot 4`, `Pot 2 vs Pot 3` 공식 준수.
+     - 포트 내에서는 무작위 셔플을 통해 매 시즌 새로운 대진 생성.
+     - `startNationalTournament()` 함수에 완전 연동.
+  3. **PWA 캐시 및 브라우저 버전 상향**:
+     - `index.html`: `js/national_data.js?v=1.3`, `js/national.js?v=3.14`
+     - `sw.js`: `CACHE_NAME = 'fc-star-v453'`
+* **변경 파일**:
+  - `js/national_data.js`
+  - `js/national.js`
+  - `index.html`
+  - `sw.js`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+* **검증 결과**:
+  - `scratch/test_national_seeding.py`:
+    - 아시안컵(16강) 100회 시뮬레이션(플레이어 1번 시드 Match 0, 라이벌 2번 시드 Match 7, 1R 상대 Pot 4, 결승 전 조우 0회, 중복 없음) 100% PASS.
+    - 월드컵(32강) 100회 시뮬레이션(플레이어 1번 시드 Match 0, 엘리트 2번 시드 Match 15, 결승 전 조우 0회, 중복 없음) 100% PASS.
+    - JS 파일 괄호 무결성 및 캐시 버전 일치 100% PASS.
+  - `scratch/verify_rp_reset_system.py`: 전 시스템 회귀 테스트 100% PASS.
+* **최종 상태**: 구현 및 검증 완료 (PWA v453 배포 준비).
+* **요청 요약**: 챔스리그(UCL / ACL) 상대팀의 OVR 설정 및 동적 스케일링 알고리즘 분석 및 브리핑 요청.
+* **수행 내용**:
+  1. **챔스 토너먼트 생성 알고리즘 분석 (`js/acl.js`)**:
+     - `resetAclStateData()`: EPL(UCL) 및 K리그/J리그(ACL) 모드별 16강 상대팀 OVR 산출 규칙 전수 분석.
+     - `updateAclPlayerTeamOvr()`: 플레이어 덱 변동 및 자국 리그 순위표 OVR 실시간 동기화 메커니즘 확인.
+  2. **기준 OVR 산출 방식 확인 (`js/match_algorithm.js`)**:
+     - `getPlayerTop20Ovr()`: 덱 내 각성 포함 상위 11장 카드의 평균 OVR(기본 99 캡)을 기준으로 삼는 기준점 확인.
+     - `calculateFinalMatchOvrs('neutral')`: 홈/어웨이 어드밴티지 및 분위기 보정이 배제되는 중립 경기 OVR 공식 확인.
+  3. **티어별 동적 OVR 스케일링 공식 도출**:
+     - UCL: 초강호 보스(`top20Ovr + 1~2`, 하한 88), 강호(`top20Ovr -2~0`, 하한 85), 다크호스(`top20Ovr -6~-2`, 하한 80).
+     - ACL: 서아시아 랜덤 보스 1팀(`top20Ovr + 1`, 하한 55), 아시아 강호(`top20Ovr -2~0`, 하한 55), 다크호스(`top20Ovr -10~-2`, 하한 55).
+     - 자국 리그 진출팀: 리그 순위표(`leagueTeams`) 실시간 OVR 연동.
+* **변경 파일**:
+  - `.agents/progress.md`
+  - `.agents/log.md`
+* **검증 결과**:
+  - `js/acl.js`, `js/match_algorithm.js`, `other_teams_data_epl.js`, `other_teams_data.js` 상호 참조 검증 완료.
+* **최종 상태**: 브리핑 완료.
+
 ### ⚽ '우에다' 스페셜 90 카드 등록 및 DB/CSV 동기화, PWA v452 배포 (2026-10-04)
 * **요청 요약**: 우에다 선수 카드(스페셜 등급, 오버롤 90, 포지션 ST)를 신규 등록하고 CSV 및 PWA 캐시 동기화.
 * **수행 내용**:

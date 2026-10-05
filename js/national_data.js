@@ -14,6 +14,29 @@ const NATIONAL_AI_FORMATIONS = {
 const NATIONAL_WORLD_POOL = ['FR','AR','ES','BR','EN','DE','PT','NL','IT','BE','HR','UY','CO','MX','US','CA','MA','SN','NG','EG','GH','JP','KR','IR','SA','AU','QA','UZ','RS','CH','DK','TR'];
 const NATIONAL_ASIA_POOL = ['KR','JP','IR','SA','AU','QA','UZ','IQ','AE','OM','JO','BH','CN','KW','ID','TH'];
 
+// 국대 모드 시드별 대진 배치를 위한 포트(Pot 1 ~ Pot 4) 정의
+const NATIONAL_WORLD_POTS = {
+    // Pot 1: 플레이어(KR or JP) + 엘리트 6팀 + PT (총 8팀)
+    pot1Base: ['FR', 'AR', 'ES', 'BR', 'EN', 'DE', 'PT'],
+    // Pot 2: 준엘리트 5팀 + 대륙 강호 3팀 (총 8팀)
+    pot2: ['NL', 'IT', 'BE', 'HR', 'UY', 'CO', 'MA', 'SN'],
+    // Pot 3: 북중미/아프리카 6팀 + 유럽 2팀 (총 8팀)
+    pot3: ['MX', 'US', 'CA', 'NG', 'EG', 'GH', 'DK', 'CH'],
+    // Pot 4: 유럽 2팀 + 아시아 5팀 + 상대국(JP or KR) (총 8팀)
+    pot4Base: ['TR', 'RS', 'IR', 'SA', 'AU', 'QA', 'UZ']
+};
+
+const NATIONAL_ASIA_POTS = {
+    // Pot 1: 플레이어(KR or JP) + 상대국(JP or KR) + IR + SA (총 4팀)
+    pot1Base: ['IR', 'SA'],
+    // Pot 2: 호주, 카타르, 우즈벡, 이라크 (총 4팀)
+    pot2: ['AU', 'QA', 'UZ', 'IQ'],
+    // Pot 3: UAE, 오만, 요르단, 바레인 (총 4팀)
+    pot3: ['AE', 'OM', 'JO', 'BH'],
+    // Pot 4: 중국, 쿠웨이트, 인도네시아, 태국 (총 4팀)
+    pot4: ['CN', 'KW', 'ID', 'TH']
+};
+
 const NATIONAL_AI_TEAMS = {
     FR:['프랑스','https://flagcdn.com/w80/fr.png','음바페','그리즈만'], AR:['아르헨티나','https://flagcdn.com/w80/ar.png','메시','라우타로'], ES:['스페인','https://flagcdn.com/w80/es.png','야말','페드리'], BR:['브라질','https://flagcdn.com/w80/br.png','비니시우스','호드리구'], EN:['잉글랜드','https://flagcdn.com/w80/gb-eng.png','케인','벨링엄'], DE:['독일','https://flagcdn.com/w80/de.png','무시알라','비르츠'],
     PT:['포르투갈','https://flagcdn.com/w80/pt.png','호날두','브루노'], NL:['네덜란드','https://flagcdn.com/w80/nl.png','각포','데파이'], IT:['이탈리아','https://flagcdn.com/w80/it.png','레테기','바렐라'], BE:['벨기에','https://flagcdn.com/w80/be.png','루카쿠','더브라위너'], HR:['크로아티아','https://flagcdn.com/w80/hr.png','모드리치','크라마리치'], UY:['우루과이','https://flagcdn.com/w80/uy.png','누녜스','발베르데'], CO:['콜롬비아','https://flagcdn.com/w80/co.png','루이스 디아스','하메스'], MX:['멕시코','https://flagcdn.com/w80/mx.png','히메네스','로사노'], US:['미국','https://flagcdn.com/w80/us.png','풀리시치','맥케니'], CA:['캐나다','https://flagcdn.com/w80/ca.png','데이비스','데이비드'], MA:['모로코','https://flagcdn.com/w80/ma.png','엔네시리','하키미'], SN:['세네갈','https://flagcdn.com/w80/sn.png','마네','쿨리발리'], NG:['나이지리아','https://flagcdn.com/w80/ng.png','오시멘','루크먼'], EG:['이집트','https://flagcdn.com/w80/eg.png','살라','트레제게'], GH:['가나','https://flagcdn.com/w80/gh.png','쿠두스','파티'],
