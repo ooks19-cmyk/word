@@ -447,13 +447,29 @@ let challengeDailyFreeUsed = false;
 let challengeDailyRetryUsed = false;
 let challengeHistory = { w: 0, d: 0, l: 0, totalGames: 0 };
 let challengeSeasonTeams = null; // 시즌별 1~10 스테이지 상대팀 배열 (시즌2부터 6~10위 랜덤 셔플)
+// 📅 다양한 브라우저/기기의 날짜 표기(마침표, 0패딩, ISO 등)를 YYYY-MM-DD 형식으로 안전하게 정규화
+function normalizeDateString(dateStr) {
+    if (!dateStr || typeof dateStr !== 'string') return "";
+    const m = dateStr.trim().match(/^(\d{4})[-/.]\s*(\d{1,2})[-/.]\s*(\d{1,2})/);
+    if (m) {
+        const y = m[1];
+        const month = String(parseInt(m[2], 10)).padStart(2, '0');
+        const day = String(parseInt(m[3], 10)).padStart(2, '0');
+        return `${y}-${month}-${day}`;
+    }
+    return dateStr.trim();
+}
 
-function getChallengeTodayDateString() {
+function getTodayDateNormalized() {
     const d = new Date();
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+}
+
+function getChallengeTodayDateString() {
+    return getTodayDateNormalized();
 }
 
 // 📅 도전모드 일일 기회 만료 검사 및 안전 리셋 (날짜가 바뀌면 무료/재도전 기회 자동 초기화)

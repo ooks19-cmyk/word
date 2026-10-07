@@ -1101,10 +1101,10 @@ function loadLocalGameData(targetUserId) {
 }
 
 function saveUserProgress(forceImmediate = false, isLoginBackup = false) {
-    if (!currentUser) return;
+    if (!currentUser) return Promise.resolve();
     if (typeof window.isSyncingData !== 'undefined' && window.isSyncingData) {
         console.log("⏳ [Save Blocked] 동기화 진행 중이므로 클라우드 저장을 건너뜁니다.");
-        return;
+        return Promise.resolve();
     }
     
     // 1. 데이터 유실 방지를 위해 즉각 로컬 저장은 항상 보장
@@ -1113,12 +1113,12 @@ function saveUserProgress(forceImmediate = false, isLoginBackup = false) {
     // 🌱 데이터 절약 모드 검사: 로그인/로그아웃/수동 동기화 등 필수 백업 시점(isLoginBackup)이 아닌 모든 일반 저장은 클라우드 전송 차단
     if (isDataSaverMode && !isLoginBackup) {
         console.log("🌱 [Data Saver] 데이터 절약 모드 작동 중: 클라우드 자동 저장을 차단하고 로컬에만 보관합니다.");
-        return;
+        return Promise.resolve();
     }
     
     if (!isCloudDataSynced) {
         console.warn("⚠️ [Save Blocked] 클라우드 데이터가 아직 동기화되지 않았으므로 업로드를 차단합니다.");
-        return;
+        return Promise.resolve();
     }
     
     const now = Date.now();
@@ -1134,14 +1134,14 @@ function saveUserProgress(forceImmediate = false, isLoginBackup = false) {
     const uploadProgress = () => {
         // 예약 업로드도 실행 시점에 계정과 최초 동기화 상태를 다시 확인한다.
         if (!currentUser || currentUser !== saveUserId || !isCloudDataSynced || window.isSyncingData ||
-            (dbService.isFirebase && dbService.cloudSaveUserId !== currentUser)) return;
+            (dbService.isFirebase && dbService.cloudSaveUserId !== currentUser)) return Promise.resolve();
         
         const progressData = collectCurrentUserProgressData();
-        if (!progressData) return;
+        if (!progressData) return Promise.resolve();
         
         // 로그인 시점의 syncUserDataOnLogin에서만 세이브 선택을 확인한다.
         // 플레이 중 자동 저장은 재확인 모달 없이 마지막으로 선택한 데이터를 갱신한다.
-        dbService.saveProgress(currentUser, progressData, false)
+        return dbService.saveProgress(currentUser, progressData, false)
             .then(() => {
                 lastCloudUploadTime = Date.now();
                 lastUploadedPoints = progressData.userPoints;
@@ -1171,11 +1171,12 @@ function saveUserProgress(forceImmediate = false, isLoginBackup = false) {
         } else if (hasPointsOrCardsChanged) {
             console.log("☁️ [Cloud Save] 포인트 또는 카드 변경 감지 -> 대기 시간 없이 즉시 동기화 백업을 실행합니다.");
         }
-        uploadProgress();
+        return uploadProgress();
     } else {
         const delay = CLOUD_SAVE_INTERVAL - timeSinceLastUpload;
         console.log(`⏳ [Cloud Save Deferred] ${Math.round(delay / 1000)}초 후 업로드 예정...`);
         cloudSaveTimeoutId = setTimeout(uploadProgress, delay);
+        return Promise.resolve();
     }
 }
 
@@ -1217,14 +1218,15 @@ function showSyncConflictModal(progressData, serverData) {
             modal.style.display = 'none';
             modal.classList.remove('active');
             
+            showToast("☁️ 클라우드 데이터를 성공적으로 동기화하여 불러옵니다...");
+
             // 1. 서버 데이터 반영 및 로컬스토리지 갱신 (forceLoad = true)
             syncUserDataOnLogin(serverData, true);
             
-            // 2. 화면 반영을 위해 안전하게 새로고침
-            showToast("☁️ 클라우드 데이터를 성공적으로 동기화하여 불러옵니다...");
+            // 2. 클라우드 백업 및 로컬 반영이 안정적으로 처리된 후 새로고침 (1초 대기)
             setTimeout(() => {
                 window.location.reload();
-            }, 800);
+            }, 1000);
         };
     }
     
@@ -1249,6 +1251,21 @@ function showSyncConflictModal(progressData, serverData) {
                 }
             }
 
+            // 🎁 로컬 세이브 선택 시에도 오늘 첫 로그인 3 FP 보상 정상 지급 판정
+            const todayNorm = (typeof getTodayDateNormalized === 'function') ? getTodayDateNormalized() : new Date().toISOString().slice(0, 10);
+            const lastLoginNorm = (typeof normalizeDateString === 'function') ? normalizeDateString(lastLoginDate) : (lastLoginDate || "");
+            if (lastLoginNorm !== todayNorm) {
+                userPoints += 3;
+                lastLoginDate = new Date().toLocaleDateString('ko-KR');
+                setTimeout(() => {
+                    showToast("🎁 오늘 첫 로그인 보상! +3 FP가 지급되었습니다.");
+                }, 1200);
+            }
+
+            // 전체 로컬 스토리지에 동기화 반영 및 화면 갱신
+            saveAllToLocalStorage(currentUser);
+            refreshAllScreens();
+
             // 강제 업로드: 내 동기화 기준시각을 서버 수정시각으로 맞춰서 검증 패스 유도
             window.lastSyncedUpdatedAt = serverData ? (serverData.updatedAt || "") : "";
             try {
@@ -1257,11 +1274,12 @@ function showSyncConflictModal(progressData, serverData) {
             
             isCloudDataSynced = true;
             dbService.cloudSaveUserId = currentUser;
+            window.isSyncingData = false;
             lastUploadedPoints = null; // 강제 업로드 트리거를 위해 초기화
             lastUploadedDeckJson = null;
             showToast("💾 로컬 데이터로 클라우드 백업을 진행합니다...");
-            // 즉시 저장을 실행하여 강제 업로드
-            saveUserProgress();
+            // 즉시 저장을 실행하여 강제 업로드 (로그인 백업 플래그 isLoginBackup=true 적용)
+            saveUserProgress(true, true);
         };
     }
 }
@@ -1343,19 +1361,17 @@ function syncUserDataOnLogin(userData, forceLoad = false, requireChoice = false)
         lastUploadedPoints = userPoints;
         lastUploadedDeckJson = getCardOwnershipSignature(playerDeck);
 
-        // 2. 하루 최초 로그인 시 포인트 3점 지급 판정
-        const todayStr = new Date().toLocaleDateString('ko-KR');
-        if (lastLoginDate !== todayStr) {
+        // 2. 하루 최초 로그인 시 포인트 3점 지급 판정 (정규화된 날짜 비교로 기기/브라우저 파편화 방지)
+        const todayNorm = (typeof getTodayDateNormalized === 'function') ? getTodayDateNormalized() : new Date().toISOString().slice(0, 10);
+        const lastLoginNorm = (typeof normalizeDateString === 'function') ? normalizeDateString(lastLoginDate) : (lastLoginDate || "");
+        let rewardedToday = false;
+        if (lastLoginNorm !== todayNorm) {
             userPoints += 3;
-            lastLoginDate = todayStr;
+            lastLoginDate = new Date().toLocaleDateString('ko-KR');
+            rewardedToday = true;
             setTimeout(() => {
                 showToast("🎁 오늘 첫 로그인 보상! +3 FP가 지급되었습니다.");
             }, 1200);
-            
-            // 보상 적립 후 클라우드 서버에 즉시 자동 백업
-            setTimeout(() => {
-                saveUserProgress();
-            }, 2500);
         }
 
         // 3. 통합 로컬스토리지 및 개별 키 듀얼 라이트 즉시 반영
@@ -1364,13 +1380,21 @@ function syncUserDataOnLogin(userData, forceLoad = false, requireChoice = false)
         // 4. 전체 화면 렌더링 갱신
         refreshAllScreens();
         
-        // 동기화 완료 상태 마크
+        // 동기화 완료 상태 마크 및 동기화 플래그 정상 해제 (클라우드 백업 허용)
         isCloudDataSynced = true;
         dbService.cloudSaveUserId = currentUser;
+        window.isSyncingData = false; // ⭐ 클라우드 저장을 허용하기 위해 플래그를 먼저 정상 해제!
         
         // 🌱 로그인/접속 완료 시점 보장 1회 클라우드 백업 (절약 모드 켜짐 여부와 상관없이 1회 확실하게 백업)
         saveUserProgress(true, true);
         
+        // 보상 적립 시 2.5초 후 2차 안전 백업도 진행 (isLoginBackup=true 보장)
+        if (rewardedToday) {
+            setTimeout(() => {
+                saveUserProgress(false, true);
+            }, 2500);
+        }
+
         // 데이터 동기화 완료 후 오늘 기준 컨디션 업데이트 적용
         try {
             if (typeof updateDeckConditions === 'function') {

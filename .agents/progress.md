@@ -1,4 +1,23 @@
 ## 현재 작업
+- 목표: 1일 1회 3 FP 포인트 지급 및 클라우드 동기화 결함 완벽 수정 및 검증
+- 상태: 완료
+- 주요 변경·검증:
+  1. `js/state.js`:
+     - 브라우저 및 기기(OS)별 날짜 표기 파편화(끝 마침표, 공백, 0패딩 등)를 방지하는 표준 정규화 함수 `normalizeDateString()` 및 `getTodayDateNormalized()` 구현.
+  2. `js/auth.js`:
+     - `syncUserDataOnLogin`: 데이터 반영 및 3 FP 지급 후 `window.isSyncingData = false`를 먼저 정상 해제하여 로그인 시점 1회 필수 클라우드 백업 `saveUserProgress(true, true)`가 차단되지 않고 100% 확실하게 실행되도록 수정.
+     - 2.5초 지연 2차 안전 백업에도 `saveUserProgress(false, true)`로 `isLoginBackup=true` 플래그를 적용하여 데이터 절약 모드(`isDataSaverMode = true`) 유저도 클라우드 백업이 차단되지 않도록 보장.
+     - 동기화 충돌 모달(`showSyncConflictModal`) 내 [로컬로 덮어쓰기] (`btnOverwrite`) 선택 시에도 오늘 첫 로그인 3 FP 지급 로직(`userPoints += 3; lastLoginDate = ...;`) 및 로컬/클라우드 즉시 백업 연동.
+     - 동기화 충돌 모달 내 [클라우드 불러오기] (`btnLoad`) 선택 시 클라우드 저장 및 로컬 동기화가 안전하게 완료되도록 1초 대기 후 새로고침 연동.
+     - `saveUserProgress`가 호출자에게 Promise를 반환하도록 리팩토링.
+  3. 캐시 버전 상향: `index.html` (`state.js?v=3.7`, `auth.js?v=2.84`), `sw.js` (`CACHE_NAME = 'fc-star-v455'`).
+  4. 무결성 검증:
+     - `scratch/verify_login_reward_fix.py`: JS 파일 괄호/구문 무결성 및 4대 핵심 로직 검증 100% PASS.
+     - `scratch/test_login_reward_scenarios.py`: 5대 핵심 시나리오(어제 유저 접속 +3 FP, 당일 재접속 중복 방지, 기기별 포맷 정규화, 신규 유저, 레거시 백업 유저) 100% PASS.
+     - `git diff --check` 무결성 검증 통과.
+- 다음 단계: 사용자 완료 보고 (커밋 및 푸시는 사용자 지시 대기).
+
+## 이전 작업
 - 목표: 데이터 동기화 모달(`syncConflictModal`) 내 클라우드/로컬 표시창 순서 변경 (하단 버튼 순서와 일치: 왼쪽 클라우드, 오른쪽 로컬)
 - 상태: 완료
 - 주요 변경·검증:

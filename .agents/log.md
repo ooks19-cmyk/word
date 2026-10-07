@@ -27,6 +27,35 @@ graph TD
 - **`db.js`**: Firebase Firestore 기반 원격 저장 및 미지원 시 LocalStorage 기반의 가상 로컬 클라우드 전환 처리.
 - **`player/player_data.js`**: 전체 축구선수 카드 스펙(오버롤, 세부 능력치, 포지션 등)을 동적으로 로드.
 
+### 🛠️ 1일 1회 3 FP 포인트 지급 및 클라우드 동기화 결함 완벽 수정 (2026-10-07)
+* **요청 요약**: 1일 1회 3 FP 포인트 지급 시스템 문제 확인 및 완벽 수정 조치.
+* **수행 내용**:
+  1. **날짜 문자열 표준 정규화 함수 구현 (`js/state.js`)**:
+     - `normalizeDateString()` 및 `getTodayDateNormalized()` 함수를 구현하여 브라우저/OS별(Chrome, iOS Safari, Android) 날짜 표기 파편화(끝 마침표, 공백, 0패딩, ISO 등)를 YYYY-MM-DD 형식으로 안전하게 통일.
+  2. **`isSyncingData` 플래그 간섭 해제 및 즉각 클라우드 백업 보장 (`js/auth.js`)**:
+     - `syncUserDataOnLogin` 내부에서 상태 하이드레이션 및 3 FP 지급, 로컬 저장 후 `window.isSyncingData = false`를 먼저 정상 해제하여 `saveUserProgress(true, true)`가 가드에 걸려 차단되던 심각한 결함을 원천 해결.
+  3. **데이터 절약 모드 2차 지연 백업 지원 (`js/auth.js`)**:
+     - 2.5초 지연 안전 백업에도 `saveUserProgress(false, true)`로 `isLoginBackup = true` 플래그를 전달하여 데이터 절약 모드 유저도 클라우드 백업이 정상 작동하도록 보장.
+  4. **동기화 충돌 모달 [로컬로 덮어쓰기] 3 FP 지급 연동 (`js/auth.js`)**:
+     - `btnOverwrite.onclick` 핸들러에 오늘 첫 로그인 검사 및 3 FP 지급, 로컬 반영, `saveUserProgress(true, true)` 즉시 실행을 연동하여 로컬 선택 시 보상이 증발하던 문제 해결.
+  5. **동기화 충돌 모달 [클라우드 불러오기] 새로고침 타이밍 보강 (`js/auth.js`)**:
+     - `btnLoad.onclick`에서 데이터 동기화 및 클라우드 백업이 완료된 후 안전하게 새로고침되도록 대기 시간 보강.
+  6. **PWA 캐시 버전 및 스크립트 캐시 쿼리 상향**:
+     - `index.html`: `js/state.js?v=3.7`, `js/auth.js?v=2.84`
+     - `sw.js`: `CACHE_NAME = 'fc-star-v455'`
+* **변경 파일**:
+  - `js/state.js`
+  - `js/auth.js`
+  - `index.html`
+  - `sw.js`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+* **검증 결과**:
+  - `scratch/verify_login_reward_fix.py`: 구문 무결성 및 4대 핵심 로직 순서 검증 100% 통과.
+  - `scratch/test_login_reward_scenarios.py`: 5대 핵심 시나리오(어제 유저 접속 +3 FP, 당일 재접속 중복 방지, 기기별 포맷 정규화, 신규 유저, 레거시 백업 유저) 100% 통과.
+  - `git diff --check`: 트레일링 공백 및 충돌 마커 없음 확인 완료.
+* **최종 상태**: 수정 및 단위 검증 완료 (커밋 및 푸시는 사용자 지시 대기)
+
 ### 🔄 데이터 동기화 모달 비교창 순서 변경 및 PWA v454 배포 (2026-10-05)
 * **요청 요약**: 데이터 동기화 모달(`syncConflictModal`) 내 로컬/클라우드 비교 카드 순서를 하단 액션 버튼 순서(왼쪽: 클라우드 불러오기, 오른쪽: 로컬로 덮어쓰기)와 일치하도록 변경.
 * **수행 내용**:
