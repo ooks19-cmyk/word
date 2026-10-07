@@ -15,7 +15,7 @@
      - `scratch/verify_login_reward_fix.py`: JS 파일 괄호/구문 무결성 및 4대 핵심 로직 검증 100% PASS.
      - `scratch/test_login_reward_scenarios.py`: 5대 핵심 시나리오(어제 유저 접속 +3 FP, 당일 재접속 중복 방지, 기기별 포맷 정규화, 신규 유저, 레거시 백업 유저) 100% PASS.
      - `git diff --check` 무결성 검증 통과.
-- 다음 단계: 사용자 완료 보고 (커밋 및 푸시는 사용자 지시 대기).
+- 다음 단계: 완료 보고 완료 (GitHub origin/main 푸시 완료: f767d64).
 
 ## 이전 작업
 - 목표: 데이터 동기화 모달(`syncConflictModal`) 내 클라우드/로컬 표시창 순서 변경 (하단 버튼 순서와 일치: 왼쪽 클라우드, 오른쪽 로컬)
