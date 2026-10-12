@@ -1,4 +1,22 @@
 ## 현재 작업
+- 목표: '데이비드 베컴' 전설 등급 선수 카드 생성 (오버롤 92, 포지션 AM) 및 DB/CSV 동기화, PWA 캐시 갱신
+- 상태: 완료
+- 주요 변경·검증:
+  1. `player_data.js`: `david_beckham` 전설(legend) 카드 객체 등록 완료
+     - 이름: 데이비드 베컴, OVR: 92, 포지션: AM, 국적: England, 소속: MANCHESTER UTD
+     - 스탯: PAC 87, SHO 90, PAS 95, DRI 89, DEF 72, PHY 85
+     - 테마: 골드/블랙 레전드 프리셋 (`primary: "#000000"`, `secondary: "#c39e5c"`, `glow: "#ffd700"`)
+     - 이미지: `player2/베컴.webp` (파일 실재 확인 완료)
+  2. `index.html`: `player_data.js?v=1.88` 캐시 버전 상향
+  3. `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v456'` 버전 상향
+  4. `선수데이터.csv`: `convert_js_to_csv.py` 스크립트를 통한 107명 데이터 동기화 완료 (108행)
+  5. 무결성 검증:
+     - `scratch/verify_david_beckham.py`: JS 파일 괄호/구문 무결성, 이미지 실재 여부, CSV 108행 및 세부 스탯 100% 일치, HTML/SW 버전 일치 100% PASS.
+     - Node.js 구문 검사(`player_data.js`, `sw.js`): Syntax Error 없음 (100% PASS).
+     - 전체 회귀 테스트 3종(`achievements_reconciliation`, `cloud_save_throttle`, `position_match_goal_bonus`): 100% PASS.
+- 다음 단계: 완료 보고 및 origin/main 푸시 완료.
+
+## 이전 작업
 - 목표: 1일 1회 3 FP 포인트 지급 및 클라우드 동기화 결함 완벽 수정 및 검증
 - 상태: 완료
 - 주요 변경·검증:

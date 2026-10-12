@@ -2269,7 +2269,7 @@ const CARDS_DATABASE = {
         id: "super_messi",
         name: "S메시",
         rating: 94,
-        position: "RW",
+        position: "AM",
         nation: "Argentina",
         nationFlag: "https://flagcdn.com/w40/ar.png",
         club: "INTER MIAMI",
@@ -2663,6 +2663,31 @@ const CARDS_DATABASE = {
             dri: 85,
             def: 48,
             phy: 87
+        }
+    },
+    "david_beckham": {
+        id: "david_beckham",
+        name: "데이비드 베컴",
+        rating: 92,
+        position: "AM",
+        nation: "England",
+        nationFlag: "https://flagcdn.com/w40/gb-eng.png",
+        club: "MANCHESTER UTD",
+        image: "player2/베컴.webp",
+        rarity: "legend",
+        description: "축구 역사상 가장 아름다운 궤적을 그리는 '프리킥의 마술사'이자 맨체스터 유나이티드와 잉글랜드의 영원한 7번, 데이비드 베컴입니다. 자로 잰 듯 정확하게 배달되는 환상적인 택배 크로스와 정밀한 킬패스, 골문 구석을 꿰뚫는 전설적인 프리킥, 그리고 경기 내내 지치지 않고 13km를 누비는 압도적인 활동량으로 피치를 지배한 불멸의 레전드입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 87,
+            sho: 90,
+            pas: 95,
+            dri: 89,
+            def: 72,
+            phy: 85
         }
     }
 };
