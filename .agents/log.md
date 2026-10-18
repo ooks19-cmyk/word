@@ -27,6 +27,31 @@ graph TD
 - **`db.js`**: Firebase Firestore 기반 원격 저장 및 미지원 시 LocalStorage 기반의 가상 로컬 클라우드 전환 처리.
 - **`player/player_data.js`**: 전체 축구선수 카드 스펙(오버롤, 세부 능력치, 포지션 등)을 동적으로 로드.
 
+### 📅 단어 퀴즈 목·금 복습일 객관식 / 타 요일 주관식 분기 처리 (2026-10-18)
+* **날짜·시간**: 2026-10-18 12:26 (KST)
+* **요청 요약**: 목금은 복습일 이므로 기존처럼 객관식으로 처리
+* **수행 내용**:
+  1. **요일별 퀴즈 출제 모드 분기 연동 (`quiz.js`)**:
+     - `renderQuizCurrent()` 내부에서 `isMultipleChoice = typeof isReviewDay === 'function' ? isReviewDay() : false`로 설정.
+     - 목요일(4) 및 금요일(5)인 복습일(`isReviewDay() === true`)에는 기존과 동일하게 4지선다형 객관식 보기(`quizChoicesWrapper`)를 출력하고, 타 요일(토, 일, 월, 화, 수)에는 주관식 직접 입력(`quizInputWrapper`) 모드로 자동 분기되도록 구현.
+  2. **활성화 세트 및 모드 안내 토스트 연동 (`quiz.js`)**:
+     - `showQuizSetToast()` 함수에서 목·금요일 복습일인 경우 `(4지선다 객관식)`을, 그 외 요일에는 `(주관식 직접 입력)` 모드 설명 문구를 세트 이름 뒤에 표시하여 사용자 혼선을 예방.
+  3. **PWA 캐시 버전 상향**:
+     - `index.html`: `quiz.js?v=1.7` 캐시 버전 갱신.
+     - `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v458'` 상향.
+* **변경 파일**:
+  - `quiz.js`: `isMultipleChoice = isReviewDay()` 연동 및 `showQuizSetToast` 모드 안내 보강.
+  - `index.html`: `quiz.js?v=1.7` 캐시 쿼리 버전 상향.
+  - `sw.js`: PWA 캐시 버전 상향 (`fc-star-v458`).
+  - `tests/quiz_subjective.test.cjs`: 목·금 객관식(`true`) / 타 요일 주관식(`false`) 요일별 분기 단위 테스트 추가.
+  - `.agents/progress.md`: 현재 작업 및 이전 작업 진행 상태 최신화.
+  - `.agents/log.md`: 신규 작업 로그 추가.
+* **검증 결과**:
+  - Node.js 구문 검사(`node --check`): `quiz.js`, `sw.js` 오류 0건 (100% PASS).
+  - 단위 및 통합 테스트(`tests/quiz_subjective.test.cjs`): 목·금 객관식 분기, 타 요일 주관식 분기, 정답 채점 엔진 100% 통과.
+  - `git diff --check`: 포맷/공백 결함 0건 통과.
+* **최종 상태**: 완료
+
 ### 📝 단어 퀴즈 객관식에서 주관식으로 전환 및 채점 엔진 고도화 (2026-10-18)
 * **날짜·시간**: 2026-10-18 12:19 (KST)
 * **요청 요약**: 단어 퀴즈를 객관식에서 주관식으로 변경

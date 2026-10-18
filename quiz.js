@@ -414,8 +414,8 @@ function renderQuizCurrent() {
             qBarEl.style.width = `${pct}%`;
         }
 
-        // Mode Switching: 단어 퀴즈 주관식 직접 입력 모드로 출제
-        const isMultipleChoice = false;
+        // Mode Switching: 목·금 복습일은 4지선다형 객관식, 그 외 요일은 주관식 직접 입력
+        const isMultipleChoice = typeof isReviewDay === 'function' ? isReviewDay() : false;
         const quizChoicesWrapper = document.getElementById('quizChoicesWrapper');
         const quizInputWrapper = document.querySelector('.quiz-input-wrapper');
         const btnQuizSubmit = document.getElementById('btnQuizSubmit');
@@ -968,5 +968,6 @@ function getActiveQuizSetName() {
 // 활성화된 퀴즈 세트 정보를 토스트로 표시하는 함수
 function showQuizSetToast() {
     const setName = getActiveQuizSetName();
-    showToast(`📝 현재 활성화된 단어 세트: ${setName}`);
+    const modeDesc = (typeof isReviewDay === 'function' && isReviewDay()) ? " (4지선다 객관식)" : " (주관식 직접 입력)";
+    showToast(`📝 현재 활성화된 단어 세트: ${setName}${modeDesc}`);
 }

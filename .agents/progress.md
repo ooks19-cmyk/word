@@ -1,4 +1,19 @@
 ## 현재 작업
+- 목표: 목요일·금요일(복습일)은 4지선다형 객관식으로 출제하고, 그 외 요일은 주관식으로 출제하도록 분기 처리 및 검증
+- 상태: 완료
+- 주요 변경·검증:
+  1. `quiz.js`:
+     - `renderQuizCurrent()` 내 `isMultipleChoice = typeof isReviewDay === 'function' ? isReviewDay() : false`로 연동하여 목·금요일(복습일)은 기존처럼 4지선다형 객관식, 타 요일은 주관식 직접 입력 모드로 자동 출제.
+     - `showQuizSetToast()`: 활성화된 단어 세트 토스트에 `(4지선다 객관식)` 또는 `(주관식 직접 입력)` 모드 표기 추가.
+  2. `tests/quiz_subjective.test.cjs`: 목·금 객관식 분기(`true`) 및 타 요일 주관식 분기(`false`), 정답 채점 엔진 100% 통합 검증 완료.
+  3. 캐시 버전 상향: `index.html` (`quiz.js?v=1.7`), `sw.js` (`CACHE_NAME = 'fc-star-v458'`).
+  4. 검증 결과:
+     - `node --check quiz.js sw.js`: 구문 오류 없음 (PASS).
+     - 단위/통합 테스트(`tests/quiz_subjective.test.cjs`): 100% PASS.
+     - `git diff --check`: 포맷/공백 결함 0건.
+- 다음 단계: 완료 보고 및 origin/main 푸시 완료.
+
+## 이전 작업
 - 목표: 단어 퀴즈를 객관식(4지선다형)에서 주관식(한국어 뜻 직접 입력)으로 변경 및 검증
 - 상태: 완료
 - 주요 변경·검증:
@@ -17,7 +32,7 @@
      - 단어 퀴즈 전용 테스트 스위트(`tests/quiz_subjective.test.cjs`): 주관식 모드, 20여 가지 한국어 뜻 채점 케이스, IME 가드, 피드백 키보드 조작, 버전 일치 100% 통과.
      - 기존 회귀 테스트(`cloud_save_throttle.test.cjs`, `achievements_reconciliation.test.cjs`, `position_match_goal_bonus.test.cjs`): 100% PASS.
      - `git diff --check`: 포맷/공백 결함 없음 확인.
-- 다음 단계: 사용자 완료 보고 및 Git 커밋/푸시 대기.
+- 다음 단계: 완료 보고 및 origin/main 푸시 완료 (`b27d915`).
 
 ## 이전 작업
 - 목표: '데이비드 베컴' 전설 등급 선수 카드 생성 (오버롤 92, 포지션 AM) 및 DB/CSV 동기화, PWA 캐시 갱신

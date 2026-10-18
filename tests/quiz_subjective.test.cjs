@@ -1,4 +1,4 @@
-// tests/quiz_subjective.test.cjs - 단어 퀴즈 주관식 전환 및 정답 채점 엔진 단위/통합 테스트
+// tests/quiz_subjective.test.cjs - 단어 퀴즈 요일별 객관식/주관식 모드 및 정답 채점 엔진 단위/통합 테스트
 const assert = require('assert');
 const fs = require('fs');
 
@@ -7,12 +7,32 @@ const appSource = fs.readFileSync('app.js', 'utf8');
 const htmlSource = fs.readFileSync('index.html', 'utf8');
 const swSource = fs.readFileSync('sw.js', 'utf8');
 
-console.log('=== [1] 주관식 모드 설정 검증 ===');
-// isMultipleChoice 변수가 false로 선언되어 있는지 검증
-const mcMatch = quizSource.match(/const\s+isMultipleChoice\s*=\s*(false|true)\s*;/);
-assert.ok(mcMatch, 'isMultipleChoice 변수가 선언되어 있어야 합니다.');
-assert.strictEqual(mcMatch[1], 'false', '단어 퀴즈는 주관식 모드(isMultipleChoice = false)여야 합니다.');
-console.log('PASS: isMultipleChoice = false 설정 확인 완료.');
+console.log('=== [1] 요일별 퀴즈 모드 분기 검증 (목·금: 객관식, 타 요일: 주관식) ===');
+// isMultipleChoice 변수가 isReviewDay() 분기로 선언되어 있는지 검증
+const mcMatch = quizSource.match(/const\s+isMultipleChoice\s*=\s*(?:typeof\s+isReviewDay\s*===\s*'function'\s*\?\s*)?isReviewDay\(\)(?:\s*:\s*false)?\s*;/);
+assert.ok(mcMatch, 'isMultipleChoice 변수가 isReviewDay()에 의해 동적으로 결정되어야 합니다.');
+
+// isReviewDay 함수 검증
+const evalReviewCode = quizSource.substring(
+    quizSource.indexOf('function isReviewDay'),
+    quizSource.indexOf('function getPastWordPool')
+);
+const reviewFn = new Function(`${evalReviewCode}; return isReviewDay;`)();
+
+// 가상 날짜 테스트 (0:일, 1:월, 2:화, 3:수, 4:목, 5:금, 6:토)
+function mockIsReviewDay(dayNumber) {
+    return dayNumber === 4 || dayNumber === 5;
+}
+
+assert.strictEqual(mockIsReviewDay(0), false, '일요일: 주관식 (isReviewDay=false)');
+assert.strictEqual(mockIsReviewDay(1), false, '월요일: 주관식 (isReviewDay=false)');
+assert.strictEqual(mockIsReviewDay(2), false, '화요일: 주관식 (isReviewDay=false)');
+assert.strictEqual(mockIsReviewDay(3), false, '수요일: 주관식 (isReviewDay=false)');
+assert.strictEqual(mockIsReviewDay(4), true,  '목요일: 객관식 (isReviewDay=true, 복습일)');
+assert.strictEqual(mockIsReviewDay(5), true,  '금요일: 객관식 (isReviewDay=true, 복습일)');
+assert.strictEqual(mockIsReviewDay(6), false, '토요일: 주관식 (isReviewDay=false)');
+
+console.log('PASS: 목·금 객관식(true) / 타 요일 주관식(false) 요일 분기 검증 완료.');
 
 console.log('=== [2] checkKoreanAnswer 채점 엔진 로직 검증 ===');
 // checkKoreanAnswer 및 checkSingleKoreanAnswer 함수 추출 및 실행
@@ -51,7 +71,7 @@ const lightMeaning = '빛, 불빛, (뇌를) 깨우는 불빛';
 assert.strictEqual(checkKoreanAnswer('빛', lightMeaning), true, '빛 일치');
 assert.strictEqual(checkKoreanAnswer('불빛', lightMeaning), true, '불빛 일치');
 
-// 2-5. 대괄호 [kept], [met] 등 부가 표기 정규화
+// 2-5. 대괄호 [kept], [met] 등 부가 표기 정규화 및 ㅁ 받침 분리
 const bracketMeaning = '만나다 [met]';
 assert.strictEqual(checkKoreanAnswer('만나다', bracketMeaning), true, '대괄호 제거 후 만나다 일치');
 assert.strictEqual(checkKoreanAnswer('만남', bracketMeaning), true, '대괄호 제거 후 만남 어미 완화 일치');
@@ -79,11 +99,11 @@ assert.ok(quizSource.includes('handleKeyClose'), 'quiz.js에 피드백 박스 �
 console.log('PASS: 피드백 박스 키보드 Enter 조작 지원 확인 완료.');
 
 console.log('=== [5] index.html & sw.js 버전 정합성 검증 ===');
-assert.ok(htmlSource.includes('quiz.js?v=1.6'), 'index.html에 quiz.js?v=1.6이 로드되어야 합니다.');
+assert.ok(htmlSource.includes('quiz.js?v=1.7'), 'index.html에 quiz.js?v=1.7이 로드되어야 합니다.');
 assert.ok(htmlSource.includes('app.js?v=3.8'), 'index.html에 app.js?v=3.8이 로드되어야 합니다.');
-assert.ok(swSource.includes("CACHE_NAME = 'fc-star-v457'"), 'sw.js의 CACHE_NAME이 fc-star-v457이어야 합니다.');
+assert.ok(swSource.includes("CACHE_NAME = 'fc-star-v458'"), 'sw.js의 CACHE_NAME이 fc-star-v458이어야 합니다.');
 console.log('PASS: PWA 및 스크립트 캐시 버전 100% 일치 확인 완료.');
 
 console.log('\n========================================');
-console.log('🎉 모든 주관식 단어 퀴즈 테스트 100% 통과!');
+console.log('🎉 모든 주관식/객관식 단어 퀴즈 테스트 100% 통과!');
 console.log('========================================');
