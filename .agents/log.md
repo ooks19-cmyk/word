@@ -27,6 +27,38 @@ graph TD
 - **`db.js`**: Firebase Firestore 기반 원격 저장 및 미지원 시 LocalStorage 기반의 가상 로컬 클라우드 전환 처리.
 - **`player/player_data.js`**: 전체 축구선수 카드 스펙(오버롤, 세부 능력치, 포지션 등)을 동적으로 로드.
 
+### 📝 단어 퀴즈 객관식에서 주관식으로 전환 및 채점 엔진 고도화 (2026-10-18)
+* **날짜·시간**: 2026-10-18 12:19 (KST)
+* **요청 요약**: 단어 퀴즈를 객관식에서 주관식으로 변경
+* **수행 내용**:
+  1. **주관식 모드 전면 전환 (`quiz.js`)**:
+     - `renderQuizCurrent()` 내부 `isMultipleChoice = false`로 전환하여 4지선다형 객관식 보기 컨테이너(`quizChoicesWrapper`)를 숨기고 한국어 뜻 직접 입력 필드(`quizInputWrapper`) 및 제출 버튼(`btnQuizSubmit`)을 표시하도록 구현.
+     - 문제 전환 시 안내 라벨을 "다음 영어 단어의 뜻을 입력하세요"로 동적 렌더링하고 입력창 포커스 자동 활성화.
+  2. **한국어 정답 검증 엔진(`checkSingleKoreanAnswer`) 유연성 대폭 강화**:
+     - `cleanStr`: 문장부호, 물결표뿐만 아니라 대괄호(`[...]`) 기호까지 정규화 필터링 처리.
+     - `getOptions`: 소괄호 `(...)` 및 대괄호 `[...]` 내부/외부 텍스트 추출 및 분리 파싱 지원.
+     - `stem` 어미 완화 엔진 고도화: 한글 유니코드 음절 연산을 통해 명사형 전성 어미 `ㅁ` 받침을 자동 분리(예: '만남' -> '만나', '이김' -> '이기', '봄' -> '보')하고 `임|됨` 어미 변형을 지원하여 다양한 자연스러운 한국어 입력의 정답 인정 범위 확장.
+  3. **사용자 경험(UX) 개선 및 단축키 연동**:
+     - `app.js`: 단어 퀴즈 입력창(`quizAnswerInput`)에서 한글 조합 중(`e.isComposing || e.keyCode === 229`) Enter 입력 시 중복 제출되는 브라우저 이벤트 버그 차단.
+     - `quiz.js`: 모름(Pass) 정답 피드백 알림창(`quizFeedbackBox`) 표시 시 화면 클릭뿐만 아니라 키보드 Enter/스페이스바로 즉시 다음 문제로 넘어갈 수 있도록 이벤트 리스너 연동.
+  4. **PWA 캐시 및 브라우저 버전 상향**:
+     - `index.html`: `quiz.js?v=1.6`, `app.js?v=3.8` 캐시 버전 갱신.
+     - `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v457'` 상향.
+* **변경 파일**:
+  - `quiz.js`: 주관식 모드 플래그 변경, 채점 엔진 유니코드 어미 분리/대괄호 파싱 추가, 피드백 키보드 이벤트 지원.
+  - `app.js`: 퀴즈 엔터 키 이벤트 한글 IME 조합 중복 방지 가드 추가.
+  - `index.html`: `quiz.js` 및 `app.js` 캐시 쿼리 버전 상향.
+  - `sw.js`: PWA 캐시 버전 상향 (`fc-star-v457`).
+  - `tests/quiz_subjective.test.cjs`: 주관식 전환 및 정답 채점 20여 가지 케이스 단위/통합 테스트 스위트 생성.
+  - `.agents/progress.md`: 현재 작업 진행 및 완료 상태 갱신.
+  - `.agents/log.md`: 작업 로그 기록.
+* **검증 결과**:
+  - Node.js 구문 검사(`node --check`): `quiz.js`, `app.js`, `sw.js` 오류 0건 (100% PASS).
+  - 단위 및 통합 테스트(`tests/quiz_subjective.test.cjs`): 주관식 모드 활성화, 20여 가지 한국어 어근/어미/괄호 채점 케이스, IME 가드, 피드백 키보드 조작, 버전 일치 100% 통과.
+  - 기존 회귀 테스트 3종(`cloud_save_throttle.test.cjs`, `achievements_reconciliation.test.cjs`, `position_match_goal_bonus.test.cjs`): 100% PASS.
+  - `git diff --check`: 포맷/공백 결함 0건 통과.
+* **최종 상태**: 완료
+
 ### ⚽ '데이비드 베컴' 전설 등급 선수 카드 생성 (OVR 92, AM) 및 동기화 (2026-10-12)
 * **요청 요약**: 베컴 전설카드 생성 (오버롤 92, 포지션 AM)
 * **수행 내용**:

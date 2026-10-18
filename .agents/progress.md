@@ -1,4 +1,25 @@
 ## 현재 작업
+- 목표: 단어 퀴즈를 객관식(4지선다형)에서 주관식(한국어 뜻 직접 입력)으로 변경 및 검증
+- 상태: 완료
+- 주요 변경·검증:
+  1. `quiz.js`:
+     - `renderQuizCurrent()` 내 `isMultipleChoice = false`로 전환하여 4지선다형 객관식에서 주관식 직접 입력 모드로 변경.
+     - `checkSingleKoreanAnswer()`: 문장부호 및 대괄호(`[...]`) 기호 정규화, 괄호/대괄호 내용 추출 및 제거 파싱 지원.
+     - `stem()` 어미 완화 엔진: 한글 명사형 전성 어미 `ㅁ` 받침 분리 유니코드 알고리즘(예: '만남' -> '만나', '이김' -> '이기') 및 `임|됨` 어미 완화 추가로 사용자 입력 채점 유연성 극대화.
+     - `passQuizQuestion()`: 모름(Pass) 정답 피드백 알림창에서 마우스 클릭뿐만 아니라 키보드 Enter/스페이스바로 즉시 다음 문제 진행 지원.
+  2. `app.js`:
+     - 단어 퀴즈 입력창(`quizAnswerInput`) 엔터 키 이벤트에 한글 IME 조합 중복 방지(`e.isComposing || e.keyCode === 229`) 가드 적용.
+  3. 캐시 버전 및 브라우저 무결성:
+     - `index.html`: `quiz.js?v=1.6`, `app.js?v=3.8` 캐시 버전 상향.
+     - `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v457'` 상향.
+  4. 검증 결과:
+     - Node.js 구문 검사(`node --check quiz.js app.js sw.js`): Syntax OK 100% 통과.
+     - 단어 퀴즈 전용 테스트 스위트(`tests/quiz_subjective.test.cjs`): 주관식 모드, 20여 가지 한국어 뜻 채점 케이스, IME 가드, 피드백 키보드 조작, 버전 일치 100% 통과.
+     - 기존 회귀 테스트(`cloud_save_throttle.test.cjs`, `achievements_reconciliation.test.cjs`, `position_match_goal_bonus.test.cjs`): 100% PASS.
+     - `git diff --check`: 포맷/공백 결함 없음 확인.
+- 다음 단계: 사용자 완료 보고 및 Git 커밋/푸시 대기.
+
+## 이전 작업
 - 목표: '데이비드 베컴' 전설 등급 선수 카드 생성 (오버롤 92, 포지션 AM) 및 DB/CSV 동기화, PWA 캐시 갱신
 - 상태: 완료
 - 주요 변경·검증:

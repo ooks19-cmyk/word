@@ -61,7 +61,7 @@ function checkSingleKoreanAnswer(userAns, correctAns) {
     const cleanStr = (str) => {
         return str
             .replace(/\s+/g, '') // 모든 공백 제거
-            .replace(/[~.,\/#!$%\^&\*;:{}=\-_`\"\'()?~]/g, '') // 문장부호 및 물결 기호 제거
+            .replace(/[~.,\/#!$%\^&\*;:{}=\-_`\"\'()?~\[\]]/g, '') // 문장부호, 물결 및 대괄호 기호 제거
             .trim();
     };
 
@@ -81,9 +81,16 @@ function checkSingleKoreanAnswer(userAns, correctAns) {
         while ((match = parenRegex.exec(str)) !== null) {
             options.push(match[1]);
         }
+
+        // 대괄호 안의 단어 추출 (예: "keep [kept]" -> "kept")
+        const bracketRegex = /\[([^\]]+)\]/g;
+        let bMatch;
+        while ((bMatch = bracketRegex.exec(str)) !== null) {
+            options.push(bMatch[1]);
+        }
         
-        // 괄호 및 그 내용 완전 삭제한 단어 추출
-        const withoutParen = str.replace(/\([^)]*\)/g, '').trim();
+        // 괄호 및 대괄호 내용 완전 삭제한 단어 추출
+        const withoutParen = str.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').trim();
         options.push(withoutParen);
         
         return options.map(opt => cleanStr(opt)).filter(opt => opt.length > 0);
@@ -107,11 +114,17 @@ function checkSingleKoreanAnswer(userAns, correctAns) {
 
         if (optStripped === userStripped && userStripped.length > 0) return true;
 
-        // 동사, 형용사 어미 변형 완화 (예: "행복한", "행복하다", "행복" -> 어근 "행복" 추출)
+        // 동사, 형용사 어미 변형 완화 (예: "행복한", "행복하다", "행복" -> 어근 "행복" 추출, "만남" -> "만나")
         const stem = (s) => {
-            return s
-                .replace(/(하다|한|다|은|운|기|음|은것|는것|해|워|아|어)$/, '')
-                .trim();
+            let res = s.replace(/(하다|한|다|은|운|기|음|임|됨|은것|는것|해|워|아|어)$/, '').trim();
+            // 한글 명사형 전성 어미 'ㅁ' 받침 분리 (예: '만남' -> '만나', '이김' -> '이기')
+            if (res.length >= 2) {
+                const code = res.charCodeAt(res.length - 1);
+                if (code >= 0xAC00 && code <= 0xD7A3 && ((code - 0xAC00) % 28) === 16) {
+                    res = res.slice(0, -1) + String.fromCharCode(code - 16);
+                }
+            }
+            return res;
         };
 
         const optStem = stem(optStripped);
@@ -401,8 +414,8 @@ function renderQuizCurrent() {
             qBarEl.style.width = `${pct}%`;
         }
 
-        // Mode Switching: 단어 퀴즈는 항상 4지선다형 객관식 모드로 출제
-        const isMultipleChoice = true;
+        // Mode Switching: 단어 퀴즈 주관식 직접 입력 모드로 출제
+        const isMultipleChoice = false;
         const quizChoicesWrapper = document.getElementById('quizChoicesWrapper');
         const quizInputWrapper = document.querySelector('.quiz-input-wrapper');
         const btnQuizSubmit = document.getElementById('btnQuizSubmit');
@@ -776,17 +789,28 @@ function passQuizQuestion() {
         const feedbackMsg = document.getElementById('feedbackMessage');
         
         if (feedbackBox && feedbackMsg) {
-            feedbackMsg.innerHTML = `정답은 <strong>${currentItem.meaning}</strong> 입니다!<br><span style="font-size: 0.8rem; opacity: 0.8; font-weight: normal; display: block; margin-top: 5px; color: #ffd700;"><i class="fa-solid fa-hand-pointer"></i> 화면(여기)을 누르면 다음 문제로 진행합니다</span>`;
+            feedbackMsg.innerHTML = `정답은 <strong>${currentItem.meaning}</strong> 입니다!<br><span style="font-size: 0.8rem; opacity: 0.8; font-weight: normal; display: block; margin-top: 5px; color: #ffd700;"><i class="fa-solid fa-hand-pointer"></i> 화면(여기)을 누르거나 Enter를 누르면 다음 문제로 진행합니다</span>`;
             feedbackBox.style.display = 'flex';
             feedbackBox.style.cursor = 'pointer';
             
-            // 클릭 이벤트 리스너 바인딩
-            feedbackBox.onclick = () => {
+            const closeFeedback = () => {
                 feedbackBox.style.display = 'none';
-                feedbackBox.onclick = null; // 이벤트 제거
+                feedbackBox.onclick = null;
+                document.removeEventListener('keydown', handleKeyClose);
                 isQuizAnswering = false;
                 renderQuizCurrent();
             };
+
+            const handleKeyClose = (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.isComposing) return;
+                    e.preventDefault();
+                    closeFeedback();
+                }
+            };
+
+            feedbackBox.onclick = closeFeedback;
+            document.addEventListener('keydown', handleKeyClose);
         }
     } catch(e) {
         console.error("passQuizQuestion 에러 발생:", e);
