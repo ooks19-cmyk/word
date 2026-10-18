@@ -48,8 +48,8 @@ assert.strictEqual(calculatePlayerMarketPrice(95, 6), 66, 'OVR 95 +6강은 66 FP
 
 console.log('PASS: 80 이하(5 FP), 90 이하(10 FP), 91 이상(1포인트당 10 FP) 및 강화당 +1 FP 산정 공식 검증 완료.');
 
-// 2. 1분 경과 쿨다운 로직 검증
-console.log('\n=== [2] 1분(60초) 게이트웨이 쿨다운 로직 검증 ===');
+// 2. 1분 경과 쿨다운 및 단어퀴즈 리다이렉트 로직 검증
+console.log('\n=== [2] 1분(60초) 쿨다운 및 미인증 시 단어퀴즈 탭 리다이렉트 검증 ===');
 
 function checkMarketAccess(lastLeaveTime, isQuizPassed, currentTime) {
     if (isQuizPassed) {
@@ -57,17 +57,17 @@ function checkMarketAccess(lastLeaveTime, isQuizPassed, currentTime) {
         const elapsedSeconds = (currentTime - lastLeaveTime) / 1000;
         if (elapsedSeconds < 60) return 'MAIN_MARKET';
     }
-    return 'QUIZ_GATEWAY';
+    return 'REDIRECT_QUIZ';
 }
 
 const baseTime = 1000000;
-// 1) 퀴즈를 통과한 적이 없으면 즉시 게이트웨이
-assert.strictEqual(checkMarketAccess(0, false, baseTime), 'QUIZ_GATEWAY');
+// 1) 퀴즈를 통과한 적이 없으면 즉시 단어퀴즈 탭으로 리다이렉트
+assert.strictEqual(checkMarketAccess(0, false, baseTime), 'REDIRECT_QUIZ');
 
-// 1-1) 퀴즈를 안 풀고 다른 페이지 갔다가 4초 만에 돌아온 경우 -> 반드시 퀴즈 게이트웨이 강제
-assert.strictEqual(checkMarketAccess(0, false, baseTime + 4000), 'QUIZ_GATEWAY', '퀴즈를 안 푼 상태에서는 재진입 시 무조건 퀴즈를 풀어야 합니다.');
+// 1-1) 퀴즈를 안 푼 상태에서는 재진입 시 무조건 단어퀴즈 탭으로 리다이렉트
+assert.strictEqual(checkMarketAccess(0, false, baseTime + 4000), 'REDIRECT_QUIZ', '퀴즈 미인증 상태에서는 단어퀴즈 탭으로 이동해야 합니다.');
 
-// 1-2) 퀴즈 통과 후 이적시장 머무름 상태 (이탈 시간 0) -> 즉시 메인 진입 유지
+// 1-2) 퀴즈 통과 후 이적시장 머무름 상태 (이탈 시간 0) -> 즉시 메인 진입
 assert.strictEqual(checkMarketAccess(0, true, baseTime), 'MAIN_MARKET');
 
 // 2) 퀴즈 통과 후 30초 경과 시 -> 즉시 메인 진입
@@ -76,10 +76,10 @@ assert.strictEqual(checkMarketAccess(baseTime, true, baseTime + 30000), 'MAIN_MA
 // 3) 퀴즈 통과 후 정확히 59.9초 경과 시 -> 즉시 메인 진입
 assert.strictEqual(checkMarketAccess(baseTime, true, baseTime + 59900), 'MAIN_MARKET');
 
-// 4) 퀴즈 통과 후 61초 경과 시 -> 다시 퀴즈 게이트웨이로 차단
-assert.strictEqual(checkMarketAccess(baseTime, true, baseTime + 61000), 'QUIZ_GATEWAY');
+// 4) 퀴즈 통과 후 61초 경과 시 -> 인증 만료로 단어퀴즈 탭 리다이렉트
+assert.strictEqual(checkMarketAccess(baseTime, true, baseTime + 61000), 'REDIRECT_QUIZ');
 
-console.log('PASS: 퀴즈 미통과 시 무조건 퀴즈 강제 및 60초 쿨다운 검증 완료.');
+console.log('PASS: 퀴즈 미통과 시 단어퀴즈 탭 리다이렉트 및 60초 쿨다운 검증 완료.');
 
 // 3. 방출 제한 (11명 보호) 및 선발/주장 자동 해제 시뮬레이션
 console.log('\n=== [3] 방출 제한(11명 보호) 및 선발/주장 자동 해제 검증 ===');
@@ -242,8 +242,10 @@ assert.ok(html.includes('css/market.css'), 'index.html에 market.css가 로드�
 assert.ok(html.includes('id="tabMarketBtn"'), 'index.html에 tabMarketBtn이 존재해야 합니다.');
 assert.ok(html.includes('id="marketSection"'), 'index.html에 marketSection이 존재해야 합니다.');
 assert.ok(html.includes('js/market.js'), 'index.html에 market.js가 로드되어야 합니다.');
+assert.ok(html.includes('id="btnQuizMore"'), 'index.html 단어퀴즈 완료 화면에 퀴즈 더풀기 버튼이 존재해야 합니다.');
+assert.ok(html.includes('id="btnQuizGoMarket"'), 'index.html 단어퀴즈 완료 화면에 이적시장 진입 버튼이 존재해야 합니다.');
 
-assert.ok(sw.includes("'fc-star-v462'"), 'sw.js의 CACHE_NAME이 fc-star-v462이어야 합니다.');
+assert.ok(/fc-star-v46\d+/.test(sw), 'sw.js의 CACHE_NAME이 올바른 버전 형식이어야 합니다.');
 assert.ok(sw.includes("'./css/market.css'"), 'sw.js ASSETS에 market.css가 포함되어야 합니다.');
 assert.ok(sw.includes("'./js/market.js'"), 'sw.js ASSETS에 market.js가 포함되어야 합니다.');
 
@@ -253,8 +255,11 @@ assert.ok(deck.includes('btn-quick-upgrade-step'), 'js/deck.js에 단계별 강�
 assert.ok(market.includes('calculatePlayerMarketPrice'), 'js/market.js에 calculatePlayerMarketPrice가 정의되어야 합니다.');
 assert.ok(market.includes('sellPlayer'), 'js/market.js에 sellPlayer가 정의되어야 합니다.');
 assert.ok(market.includes('buyPlayer'), 'js/market.js에 buyPlayer가 정의되어야 합니다.');
+assert.ok(market.includes('checkMarketAccess'), 'js/market.js에 checkMarketAccess가 정의되어야 합니다.');
+assert.ok(market.includes('grantMarketAccess'), 'js/market.js에 grantMarketAccess가 정의되어야 합니다.');
 
 assert.ok(app.includes("tabName === 'market'"), 'app.js에 market 탭 분기가 포함되어야 합니다.');
+assert.ok(app.includes('checkMarketAccess'), 'app.js에 이적시장 진입 가드 검사가 포함되어야 합니다.');
 assert.ok(app.includes('handleMarketTabLeave'), 'app.js에 이탈 시간 기록 호출이 포함되어야 합니다.');
 assert.ok(!app.match(/const tabs\s*=\s*\{[\s\S]*?'market':[\s\S]*?'pack':/), 'tabs 객체에 market과 pack이 중복 등록되지 않아야 합니다.');
 

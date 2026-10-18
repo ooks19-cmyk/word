@@ -6,7 +6,7 @@
     <title>FC STAR CARD - 축구 카드 수집 게임</title>
     <link rel="stylesheet" href="css/global.css?v=3.2">
     <link rel="stylesheet" href="style.css?v=2.4">
-    <link rel="stylesheet" href="css/market.css?v=1.0">
+    <link rel="stylesheet" href="css/market.css?v=1.1">
     <link rel="stylesheet" href="css/friend.css?v=1.3">
     <link rel="stylesheet" href="css/realtime.css?v=1.0">
     <!-- PWA Web App Manifest & iOS App Capabilities -->
@@ -90,83 +90,8 @@
         <!-- 1. TRANSFER MARKET SECTION -->
         <section id="marketSection" class="page-section active">
             <div class="market-container">
-                <!-- 1.1 퀴즈 게이트웨이 화면 (1분 쿨다운 경과 또는 최초 진입 시) -->
-                <div id="marketQuizView" class="market-gateway-container" style="display: none;">
-                    <div class="market-gateway-banner">
-                        <div class="market-gateway-banner-icon">
-                            <i class="fa-solid fa-store"></i>
-                        </div>
-                        <div class="market-gateway-banner-text">
-                            <h3>🏪 이적시장 진입 단어 퀴즈</h3>
-                            <p>선수 영입 및 방출을 위해 <strong>단어 퀴즈 1세트(5문제)</strong>를 먼저 풀어주세요.<br>
-                            완료 시 <strong>이적 자금(FP)</strong>과 RP를 보상으로 획득하고 이적시장에 입장합니다!</p>
-                        </div>
-                    </div>
-
-                    <div class="quiz-card" style="margin-top: 0.5rem; position: relative;">
-                        <!-- 상단 프로그레스 바 -->
-                        <div class="quiz-progress-bar-container" style="width: 100%; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; margin-bottom: 1rem;">
-                            <div id="marketQuizProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #00d2fc, #00ff87); transition: width 0.3s ease;"></div>
-                        </div>
-
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
-                            <span id="marketQuizQuestionLabel" style="font-size: 0.85rem; color: var(--text-muted); font-weight: bold;">다음 영어 단어의 뜻을 입력하세요</span>
-                            <span id="marketQuizProgressText" style="font-size: 0.85rem; color: #00d2fc; font-weight: 800;">1 / 5</span>
-                        </div>
-
-                        <!-- 퀴즈 문제 영어 단어 -->
-                        <div class="quiz-word-wrapper" style="text-align: center; margin: 1.2rem 0;">
-                            <h2 id="marketQuizQuestionWord" class="quiz-word" style="font-size: 2.2rem; font-weight: 900; color: #fff; letter-spacing: 0.5px; margin: 0; text-shadow: 0 0 20px rgba(0, 210, 252, 0.4);">Word</h2>
-                            <button type="button" class="btn-tts" onclick="speakCurrentWord(true)" style="margin-top: 0.5rem; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; padding: 0.35rem 0.9rem; color: #00d2fc; font-size: 0.8rem; font-weight: 700; cursor: pointer;">
-                                <i class="fa-solid fa-volume-high"></i> 발음 듣기
-                            </button>
-                        </div>
-
-                        <!-- 주관식 입력 폼 -->
-                        <div id="marketQuizInputWrapper" class="quiz-input-wrapper" style="margin-top: 1rem;">
-                            <input type="text" id="marketQuizAnswerInput" class="quiz-subjective-input" placeholder="한국어 뜻을 입력하세요..." autocomplete="off">
-                        </div>
-
-                        <!-- 객관식 보기 영역 (복습일 전용) -->
-                        <div id="marketQuizChoicesWrapper" class="quiz-choices" style="display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 1rem;">
-                            <!-- 버튼들이 JS로 동적 주입됨 -->
-                        </div>
-
-                        <!-- 하단 제출/모름 버튼 -->
-                        <div id="marketQuizActionButtons" style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 10px; margin-top: 1.2rem;">
-                            <button type="button" class="btn-pass-quiz" onclick="passMarketQuizQuestion()" style="padding: 0.85rem; border-radius: 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; font-weight: 700; cursor: pointer;">
-                                <i class="fa-solid fa-forward"></i> 모름 (패스)
-                            </button>
-                            <button type="button" id="btnMarketQuizSubmit" class="btn-open-pack" onclick="submitMarketQuizAnswer()" style="padding: 0.85rem; border-radius: 12px; font-weight: 800; background: linear-gradient(135deg, #00d2fc, #0056b3);">
-                                <i class="fa-solid fa-check"></i> 정답 확인
-                            </button>
-                        </div>
-
-                        <!-- 오답/패스 정답 공개 피드백 오버레이 박스 -->
-                        <div id="marketQuizFeedbackBox" class="quiz-feedback-box" style="display: none;">
-                            <div class="feedback-content">
-                                <i class="fa-solid fa-circle-info" style="color: #ffd700; font-size: 1.8rem; margin-bottom: 0.5rem;"></i>
-                                <p id="marketQuizFeedbackMessage">정답 확인</p>
-                            </div>
-                        </div>
-
-                        <!-- 5문제 완료 오버레이 -->
-                        <div id="marketQuizCompleteOverlay" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(11, 15, 25, 0.96); backdrop-filter: blur(10px); border-radius: 20px; z-index: 10; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-align: center; gap: 1rem;">
-                            <div style="font-size: 3.5rem; color: #ffd700; filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.6));">
-                                <i class="fa-solid fa-circle-check"></i>
-                            </div>
-                            <h3 style="font-size: 1.5rem; font-weight: 900; color: #fff; margin: 0;">퀴즈 완료! 이적시장 개방</h3>
-                            <p id="marketQuizRewardPointVal" style="font-size: 1.05rem; font-weight: 800; color: #00ff87; margin: 0;">+1 FP (이적 자금) · +1 RP 획득!</p>
-                            <p style="font-size: 0.85rem; color: #cbd5e1; margin: 0;">이제 자유롭게 선수를 영입하거나 방출할 수 있습니다.</p>
-                            <button class="btn-open-pack" onclick="enterMarketplaceFromQuiz()" style="margin-top: 0.8rem; padding: 0.85rem 2rem; font-size: 1.05rem; font-weight: 900; background: linear-gradient(135deg, #ffd700, #ff9f43); color: #080a10; border-radius: 14px; box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4);">
-                                <i class="fa-solid fa-store" style="margin-right: 6px;"></i>이적시장 진입하기
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 1.2 이적시장 메인 화면 (퀴즈 통과 후 활성화) -->
-                <div id="marketMainView" class="market-main-container" style="display: none;">
+                <!-- 1. 이적시장 메인 화면 -->
+                <div id="marketMainView" class="market-main-container">
                     <div class="market-header">
                         <div class="market-header-title">
                             <h2><i class="fa-solid fa-handshake"></i> 공식 이적시장</h2>
@@ -288,9 +213,14 @@
                             <i class="fa-solid fa-arrow-trend-up"></i>
                             <span>레벨 업! <strong style="color: #fff;">Lv. <span id="completeLevelVal">2</span></strong> 달성 🚀</span>
                         </div>
-                        <button class="btn-open-pack" onclick="startNewQuizRound()" style="margin-top: 1.5rem; width: 100%;">
-                            새로운 퀴즈 풀기
-                        </button>
+                        <div class="quiz-complete-action-buttons" style="display: flex; gap: 12px; margin-top: 1.5rem; width: 100%;">
+                            <button class="btn-open-pack" id="btnQuizMore" onclick="startNewQuizRound()" style="flex: 1; padding: 0.85rem 0.5rem; font-size: 0.95rem; font-weight: 800; background: linear-gradient(135deg, #00d2fc, #0056b3); border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                <i class="fa-solid fa-rotate-right"></i>퀴즈 더풀기
+                            </button>
+                            <button class="btn-open-pack" id="btnQuizGoMarket" onclick="switchTab('market')" style="flex: 1; padding: 0.85rem 0.5rem; font-size: 0.95rem; font-weight: 900; background: linear-gradient(135deg, #ffd700, #ff9f43); color: #080a10; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);">
+                                <i class="fa-solid fa-store"></i>이적시장 진입
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2024,9 +1954,9 @@
     <script src="js/state.js?v=3.7"></script>
     <script src="js/utils.js?v=1.3"></script>
     <script src="js/card.js?v=2.5"></script>
-    <script src="quiz.js?v=1.8"></script>
+    <script src="quiz.js?v=1.9"></script>
     <script src="js/pack.js?v=2.5"></script>
-    <script src="js/market.js?v=1.2"></script>
+    <script src="js/market.js?v=1.4"></script>
     <script src="js/deck.js?v=3.0"></script>
     <script src="js/squad.js?v=3.2"></script>
     <script src="js/match_algorithm.js?v=3.7"></script>
@@ -2156,7 +2086,7 @@
     <script src="js/auth.js?v=2.84"></script>
     <script src="js/realtime.js?v=2.4"></script>
     <script src="js/coach_advisor.js?v=1.3"></script>
-    <script src="app.js?v=4.1"></script>
+    <script src="app.js?v=4.3"></script>
     <script>
         if (typeof updateGlowTheme === 'function') {
             updateGlowTheme();

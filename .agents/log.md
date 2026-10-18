@@ -27,6 +27,64 @@ graph TD
 - **`db.js`**: Firebase Firestore 기반 원격 저장 및 미지원 시 LocalStorage 기반의 가상 로컬 클라우드 전환 처리.
 - **`player/player_data.js`**: 전체 축구선수 카드 스펙(오버롤, 세부 능력치, 포지션 등)을 동적으로 로드.
 
+### 🚀 이적시장 퀴즈 일원화, 미인증 시 단어퀴즈 자동 리다이렉트 및 퀴즈 완료 후 [퀴즈 더풀기/이적시장 진입] 듀얼 버튼 지원 (2026-10-18)
+* **날짜·시간**: 2026-10-18 16:13 (KST)
+* **요청 요약**:
+  - 이적시장 전용 퀴즈 페이지를 따로 두지 않도록 제거.
+  - 이적시장 인증 미완료인 경우: 단어퀴즈 탭으로 이동.
+  - 이적시장 인증 완료인 경우(1분 이내 재방문 포함): 바로 이적시장 내로 진입.
+  - 단어퀴즈를 풀었을 때 완료 화면에 [퀴즈 더풀기]와 [이적시장 진입] 2개 버튼이 함께 출력되도록 수정.
+* **수행 내용**:
+  1. **UI 개편 (`index.html`)**:
+     - `marketSection` 내에서 중복되던 `marketQuizView` DOM(약 75줄)을 완전히 제거하고, 이적시장 메인(`marketMainView`)만 깔끔하게 유지.
+     - 단어 퀴즈 완료 화면(`quizCompleteCard`)의 기존 단일 버튼을 `[퀴즈 더풀기](startNewQuizRound())`와 `[이적시장 진입](switchTab('market'))` 2개 버튼으로 확장.
+     - 스크립트 캐시 버전 상향: `quiz.js?v=1.9`, `js/market.js?v=1.4`, `app.js?v=4.3`.
+  2. **이적시장 인증 및 라우팅 로직 간소화 (`js/market.js`)**:
+     - 불필요해진 이적시장 전용 퀴즈 엔진 코드(약 420줄)를 전면 제거하여 코드베이스 경량화.
+     - `checkMarketAccess()` 신설: 퀴즈 통과 여부 및 1분(60초) 경과 여부를 판별하여 유효할 때만 `true` 반환, 만료 시 스토리지 플래그 리셋.
+     - `initMarketTab()`: 인증 미완료 또는 만료 시 안내 토스트와 함께 `switchTab('quiz')`로 자동 리다이렉트. 인증 유효 시 즉시 `renderMarket()` 호출.
+  3. **네비게이션 탭 진입 가드 구현 (`app.js`)**:
+     - `switchTab(tabName)`: 상단 탭에서 '이적시장'을 눌렀을 때 `checkMarketAccess()`가 거짓이면 안내 토스트 출력 후 단어퀴즈(`quiz`) 탭으로 전환.
+     - 불필요해진 레거시 `marketQuizAnswerInput` 키보드 리스너 정리.
+  4. **PWA 캐시 버전 상향**:
+     - `sw.js`: `CACHE_NAME = 'fc-star-v464'`.
+  5. **통합 테스트 보강 (`tests/market_mode.test.cjs`)**:
+     - 미인증 리다이렉트 판정, 60초 쿨다운, 2종 버튼 및 가드 함수 정합성 100% 통합 검증.
+* **변경 파일**:
+  - `index.html`, `js/market.js`, `app.js`, `sw.js`, `tests/market_mode.test.cjs`, `.agents/progress.md`, `.agents/log.md`
+* **검증 결과**:
+  - Node.js 구문 검사(`market.js`, `deck.js`, `app.js`, `sw.js`, `quiz.js`, `player_data.js`): Syntax OK 100% PASS.
+  - 이적시장 통합 테스트(`tests/market_mode.test.cjs`): 6개 섹션 100% PASS.
+  - 전체 회귀 테스트 4종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `quiz_subjective`): 100% PASS.
+  - `git diff --check`: 결함 없음.
+* **최종 상태**: 완료
+
+### 🎨 이적시장 진입 퀴즈 화면 UI 개선 및 게이트웨이 안내 문구 제거 (2026-10-18)
+* **날짜·시간**: 2026-10-18 16:03 (KST)
+* **요청 요약**:
+  - 이적시장 진입 퀴즈 화면 UI를 기존 단어퀴즈(`quizSection`) 화면과 동일하게 개선.
+  - 이적시장 진입 안내 문구(배너) 완전 제거.
+* **수행 내용**:
+  1. **마크업 구조 전면 통일 (`index.html`)**:
+     - `marketSection` 내 `marketQuizView`를 기존 단어 퀴즈 화면과 동일한 스타일 시스템 클래스(`quiz-container`, `quiz-header`, `quiz-progress-track`, `quiz-arena`, `quiz-card`, `quiz-input-glow`, `quiz-choices-wrapper`, `quiz-action-buttons`, `quiz-complete-card`)로 전면 개편.
+     - 사용자의 요청에 따라 안내 문구 배너(`.market-gateway-banner`)를 완전 삭제하여 퀴즈 카드와 단어에 집중할 수 있도록 구성.
+     - 5문제 정답 완료 시 퀴즈 완료 카드(`quiz-complete-card`) 내 `[이적시장 진입하기]` 버튼 및 획득 보상(+1 FP, +1 RP) 연동 유지.
+  2. **레거시 CSS 정리 (`css/market.css`)**:
+     - 더 이상 사용되지 않는 `.market-gateway-container`, `.market-gateway-banner` 관련 스타일 블록 삭제.
+  3. **PWA 캐시 및 스크립트 버전 상향**:
+     - `sw.js`: `CACHE_NAME = 'fc-star-v463'`.
+     - `index.html`: `css/market.css?v=1.1`, `js/market.js?v=1.3`, `app.js?v=4.2`.
+  4. **테스트 스위트 갱신 (`tests/market_mode.test.cjs`)**:
+     - `sw.js`의 버전 형식 검증 정규식 보강.
+* **변경 파일**:
+  - `index.html`, `css/market.css`, `sw.js`, `tests/market_mode.test.cjs`, `.agents/progress.md`, `.agents/log.md`
+* **검증 결과**:
+  - Node.js 구문 검사(`market.js`, `deck.js`, `app.js`, `sw.js`, `quiz.js`, `player_data.js`): Syntax OK 100% PASS.
+  - 이적시장 통합 테스트(`tests/market_mode.test.cjs`): 6개 섹션 100% PASS.
+  - 전체 회귀 테스트 4종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `quiz_subjective`): 100% PASS.
+  - `git diff --check`: 결함 없음.
+* **최종 상태**: 완료
+
 ### ⏱️ 이적시장 1분 쿨다운 타이머(999999초 표기) 결함 완벽 해결 및 퀴즈 연동 강화 (2026-10-18)
 * **날짜·시간**: 2026-10-18 15:50 (KST)
 * **요청 요약**:

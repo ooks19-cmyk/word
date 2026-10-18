@@ -6,12 +6,6 @@ let currentMarketPosFilter = 'all'; // 'all', 'FW', 'MF', 'DF', 'GK'
 let isMarketQuizPassed = false;
 let lastMarketLeaveTimestamp = 0;
 
-// 이적시장 전용 퀴즈 상태 (일반 단어 퀴즈 탭과 격리)
-let marketQuizQueue = [];
-let marketQuizIndex = 0;
-let marketQuizSolvedCount = 0;
-let isMarketQuizAnswering = false;
-
 // 로컬 스토리지로부터 이적시장 진입 인증 상태 복원
 function loadMarketAuthState() {
     try {
@@ -26,7 +20,7 @@ function loadMarketAuthState() {
 }
 loadMarketAuthState();
 
-// 퀴즈 1세트 완료 시 이적시장 진입 권한 부여 함수 (이적시장 퀴즈 및 일반 단어 퀴즈 공통 연동)
+// 퀴즈 1세트(5문제) 완료 시 이적시장 진입 권한 부여 함수 (quiz.js 연동)
 function grantMarketAccess() {
     isMarketQuizPassed = true;
     lastMarketLeaveTimestamp = 0; // 이적시장 진입 준비 완료 (아직 나가지 않음)
@@ -37,46 +31,58 @@ function grantMarketAccess() {
     console.log("[이적시장 인증 완료] 퀴즈 1세트 완료로 이적시장 진입 권한이 부여되었습니다.");
 }
 
+// 이적시장 진입 자격 검사 (인증 여부 & 1분 쿨다운 유효 검사)
+function checkMarketAccess() {
+    loadMarketAuthState();
+    if (!isMarketQuizPassed) return false;
+
+    // 인증 완료 상태인 경우 경과 시간 검사
+    const now = Date.now();
+    let elapsedSeconds = 0;
+    if (lastMarketLeaveTimestamp > 0) {
+        elapsedSeconds = (now - lastMarketLeaveTimestamp) / 1000;
+        // 1분(60초) 이상 지났으면 인증 만료
+        if (elapsedSeconds >= 60) {
+            isMarketQuizPassed = false;
+            lastMarketLeaveTimestamp = 0;
+            try {
+                localStorage.setItem('fc_star_market_quiz_passed', 'false');
+                localStorage.setItem('fc_star_market_leave_time', '0');
+            } catch(e) {}
+            console.log(`[이적시장 인증 만료] 이탈 후 ${Math.round(elapsedSeconds)}초 경과하여 인증이 만료되었습니다.`);
+            return false;
+        }
+    }
+    return true;
+}
+
 // 2. 이적시장 탭 진입 핸들러
 function initMarketTab() {
     try {
-        loadMarketAuthState(); // 항상 최신 스토리지 상태 동기화
-        const now = Date.now();
-        
-        let elapsedSeconds = 999999;
-        if (lastMarketLeaveTimestamp > 0) {
-            elapsedSeconds = (now - lastMarketLeaveTimestamp) / 1000;
-        }
-        
-        console.log(`[이적시장 진입 검사] 지난 이탈 후 경과 시간: ${lastMarketLeaveTimestamp > 0 ? Math.round(elapsedSeconds) + '초' : '없음(최초/머무름)'}, 인증 상태: ${isMarketQuizPassed}`);
-
-        // [핵심 조건 1] 퀴즈를 풀고 진입 권한이 있는 경우:
-        if (isMarketQuizPassed) {
-            // Case A: 다른 페이지로 나간 적이 없음 (lastMarketLeaveTimestamp === 0)
-            // Case B: 다른 페이지로 나갔지만 1분(60초) 이내에 다시 복귀함 (elapsedSeconds < 60)
-            if (lastMarketLeaveTimestamp === 0 || elapsedSeconds < 60) {
-                // 이적시장 안으로 복귀했으므로 이탈 타이머 리셋
-                lastMarketLeaveTimestamp = 0;
-                try {
-                    localStorage.setItem('fc_star_market_leave_time', '0');
-                } catch(e) {}
-                showMarketMainView();
-                return;
+        if (!checkMarketAccess()) {
+            console.log("[이적시장] 인증 미완료 또는 1분 경과로 만료됨 -> 단어퀴즈 탭으로 리다이렉트");
+            if (typeof showToast === 'function') {
+                showToast("📝 이적시장에 입장하려면 단어 퀴즈 1세트(5문제)를 완료해야 합니다.");
             }
+            if (typeof switchTab === 'function') {
+                switchTab('quiz');
+            }
+            return;
         }
 
-        // [핵심 조건 2] 퀴즈를 아직 안 풀었거나, 이탈 후 1분(60초) 이상 경과한 경우:
-        // 인증 만료 및 퀴즈 게이트웨이 화면 강제
-        isMarketQuizPassed = false;
+        // 인증 유효: 이적시장 진입 성공
         lastMarketLeaveTimestamp = 0;
         try {
-            localStorage.setItem('fc_star_market_quiz_passed', 'false');
             localStorage.setItem('fc_star_market_leave_time', '0');
         } catch(e) {}
-        showMarketQuizView();
+
+        const mainView = document.getElementById('marketMainView');
+        if (mainView) mainView.style.display = 'block';
+
+        renderMarket();
     } catch (e) {
         console.error("initMarketTab 에러:", e);
-        showMarketQuizView();
+        renderMarket();
     }
 }
 
@@ -91,7 +97,6 @@ function handleMarketTabLeave() {
         } catch(e) {}
         console.log(`[이적시장 이탈 기록] ${new Date(lastMarketLeaveTimestamp).toLocaleTimeString()} (1분 쿨다운 타이머 시작)`);
     } else {
-        // 퀴즈를 안 풀고 나간 경우 이적시장에 진입한 것이 아니므로 항상 0으로 초기화
         lastMarketLeaveTimestamp = 0;
         try {
             localStorage.setItem('fc_star_market_leave_time', '0');
@@ -100,331 +105,11 @@ function handleMarketTabLeave() {
     }
 }
 
-// 3. 화면 전환 (퀴즈 게이트웨이 vs 이적시장 메인)
-function showMarketQuizView() {
-    const quizView = document.getElementById('marketQuizView');
-    const mainView = document.getElementById('marketMainView');
-    if (quizView) quizView.style.display = 'block';
-    if (mainView) mainView.style.display = 'none';
-
-    startMarketQuiz();
-}
-
+// 하위 호환성 래퍼 함수
 function showMarketMainView() {
-    const quizView = document.getElementById('marketQuizView');
     const mainView = document.getElementById('marketMainView');
-    if (quizView) quizView.style.display = 'none';
     if (mainView) mainView.style.display = 'block';
-
     renderMarket();
-}
-
-// 4. 이적시장 전용 퀴즈 엔진
-function startMarketQuiz() {
-    try {
-        // 단어 풀 가져오기 (quiz.js의 getScheduledWordPool 함수 활용)
-        const wordPool = (typeof getScheduledWordPool === 'function') ? getScheduledWordPool() : [];
-        if (!wordPool || wordPool.length === 0) {
-            console.warn("단어 풀이 비어있어 즉시 메인으로 진입합니다.");
-            showMarketMainView();
-            return;
-        }
-
-        // 셔플 후 5문제 선별
-        const shuffled = [...wordPool].sort(() => 0.5 - Math.random());
-        marketQuizQueue = shuffled.slice(0, 5);
-        marketQuizIndex = 0;
-        marketQuizSolvedCount = 0;
-        isMarketQuizAnswering = false;
-
-        // UI 초기화
-        const completeOverlay = document.getElementById('marketQuizCompleteOverlay');
-        if (completeOverlay) completeOverlay.style.display = 'none';
-
-        const feedbackBox = document.getElementById('marketQuizFeedbackBox');
-        if (feedbackBox) feedbackBox.style.display = 'none';
-
-        renderMarketQuizCurrent();
-    } catch (e) {
-        console.error("startMarketQuiz 에러:", e);
-        showMarketMainView();
-    }
-}
-
-function renderMarketQuizCurrent() {
-    try {
-        if (!marketQuizQueue || marketQuizQueue.length === 0 || marketQuizIndex >= marketQuizQueue.length) {
-            return;
-        }
-
-        const currentItem = marketQuizQueue[marketQuizIndex];
-        if (!currentItem) return;
-
-        // 단어 설정
-        const qWordEl = document.getElementById('marketQuizQuestionWord');
-        if (qWordEl) qWordEl.innerText = currentItem.word || "";
-
-        // 진행도 텍스트 (예: 1 / 5)
-        const qProgTextEl = document.getElementById('marketQuizProgressText');
-        if (qProgTextEl) qProgTextEl.innerText = `${Math.min(5, marketQuizSolvedCount + 1)} / 5`;
-
-        // 진행도 게이지 바
-        const qBarEl = document.getElementById('marketQuizProgressBar');
-        if (qBarEl) {
-            const pct = (marketQuizSolvedCount / 5) * 100;
-            qBarEl.style.width = `${pct}%`;
-        }
-
-        // 목·금요일 복습일은 객관식, 타 요일은 주관식 (quiz.js의 isReviewDay 활용)
-        const isMultipleChoice = (typeof isReviewDay === 'function') ? isReviewDay() : false;
-        const choicesWrapper = document.getElementById('marketQuizChoicesWrapper');
-        const inputWrapper = document.getElementById('marketQuizInputWrapper');
-        const btnSubmit = document.getElementById('btnMarketQuizSubmit');
-        const actionButtons = document.getElementById('marketQuizActionButtons');
-        const qLabel = document.getElementById('marketQuizQuestionLabel');
-
-        if (isMultipleChoice) {
-            // 4지선다형 객관식
-            if (qLabel) qLabel.innerText = "다음 영어 단어의 올바른 뜻을 선택하세요";
-            if (inputWrapper) inputWrapper.style.display = 'none';
-            if (btnSubmit) btnSubmit.style.display = 'none';
-            if (actionButtons) actionButtons.style.gridTemplateColumns = '1fr';
-            if (choicesWrapper) {
-                choicesWrapper.style.display = 'grid';
-                generateMarketQuizChoices(currentItem, choicesWrapper);
-            }
-        } else {
-            // 주관식 직접 입력
-            if (qLabel) qLabel.innerText = "다음 영어 단어의 뜻을 입력하세요";
-            if (choicesWrapper) choicesWrapper.style.display = 'none';
-            if (inputWrapper) inputWrapper.style.display = 'block';
-            if (btnSubmit) btnSubmit.style.display = 'inline-flex';
-            if (actionButtons) actionButtons.style.gridTemplateColumns = '1fr 1.5fr';
-
-            const inputField = document.getElementById('marketQuizAnswerInput');
-            if (inputField) {
-                inputField.value = '';
-                inputField.style.borderColor = '';
-                inputField.style.boxShadow = '';
-                inputField.disabled = false;
-                setTimeout(() => inputField.focus(), 60);
-            }
-        }
-
-        // TTS 발음 자동 재생
-        if (typeof isQuizTtsAutoplay !== 'undefined' && isQuizTtsAutoplay && typeof speakCurrentWord === 'function') {
-            setTimeout(() => speakCurrentWord(true), 150);
-        }
-    } catch (e) {
-        console.error("renderMarketQuizCurrent 에러:", e);
-    }
-}
-
-// 이적시장 퀴즈 4지선다 보기 생성
-function generateMarketQuizChoices(currentItem, wrapperEl) {
-    try {
-        wrapperEl.innerHTML = '';
-        const activePool = (typeof getScheduledWordPool === 'function') ? getScheduledWordPool() : [];
-        let wrongCandidates = activePool.filter(w => w.word !== currentItem.word && w.meaning !== currentItem.meaning);
-        if (wrongCandidates.length < 3 && typeof QUIZ_WORDS !== 'undefined') {
-            wrongCandidates = QUIZ_WORDS.filter(w => w.word !== currentItem.word && w.meaning !== currentItem.meaning);
-        }
-
-        const uniqueWrongMeanings = [];
-        const seenMeanings = new Set([currentItem.meaning]);
-        const shuffledWrongs = [...wrongCandidates].sort(() => 0.5 - Math.random());
-
-        for (let cand of shuffledWrongs) {
-            if (!seenMeanings.has(cand.meaning)) {
-                seenMeanings.add(cand.meaning);
-                uniqueWrongMeanings.push(cand.meaning);
-                if (uniqueWrongMeanings.length === 3) break;
-            }
-        }
-
-        const allChoices = [currentItem.meaning, ...uniqueWrongMeanings].sort(() => 0.5 - Math.random());
-        allChoices.forEach(choice => {
-            const btn = document.createElement('button');
-            btn.className = 'btn-choice';
-            btn.innerText = choice;
-            btn.onclick = () => selectMarketQuizChoice(btn, choice, currentItem.meaning);
-            wrapperEl.appendChild(btn);
-        });
-    } catch(e) {
-        console.error("generateMarketQuizChoices 에러:", e);
-    }
-}
-
-// 이적시장 퀴즈 객관식 보기 선택
-function selectMarketQuizChoice(btnEl, selectedChoice, correctMeaning) {
-    if (isMarketQuizAnswering) return;
-    isMarketQuizAnswering = true;
-
-    const buttons = document.querySelectorAll('#marketQuizChoicesWrapper .btn-choice');
-    buttons.forEach(btn => btn.disabled = true);
-
-    const isCorrect = (selectedChoice === correctMeaning);
-    if (isCorrect) {
-        btnEl.classList.add('correct');
-        if (typeof createSparkParticles === 'function') createSparkParticles(true, '#00ff87');
-
-        setTimeout(() => {
-            handleMarketQuizCorrect();
-        }, 800);
-    } else {
-        btnEl.classList.add('incorrect');
-        if (typeof playSound === 'function') playSound('rumble', 0.3);
-        if (typeof showToast === 'function') showToast("오답입니다! 다시 한 번 생각해보세요.");
-
-        setTimeout(() => {
-            btnEl.classList.remove('incorrect');
-            buttons.forEach(btn => btn.disabled = false);
-            isMarketQuizAnswering = false;
-        }, 800);
-    }
-}
-
-// 이적시장 퀴즈 주관식 정답 제출
-function submitMarketQuizAnswer() {
-    if (isMarketQuizAnswering) return;
-    if (!marketQuizQueue || marketQuizIndex >= marketQuizQueue.length) return;
-
-    const currentItem = marketQuizQueue[marketQuizIndex];
-    const inputField = document.getElementById('marketQuizAnswerInput');
-    if (!inputField || !currentItem) return;
-
-    const userAns = inputField.value.trim();
-    if (!userAns) {
-        if (typeof showToast === 'function') showToast("답변을 입력해주세요!");
-        return;
-    }
-
-    const isCorrect = (typeof checkKoreanAnswer === 'function') ? checkKoreanAnswer(userAns, currentItem.meaning) : (userAns === currentItem.meaning);
-
-    if (isCorrect) {
-        isMarketQuizAnswering = true;
-        inputField.disabled = true;
-        inputField.style.borderColor = '#00ff87';
-        inputField.style.boxShadow = '0 0 25px rgba(0, 255, 135, 0.6)';
-        if (typeof createSparkParticles === 'function') createSparkParticles(true, '#00ff87');
-
-        setTimeout(() => {
-            handleMarketQuizCorrect();
-        }, 800);
-    } else {
-        inputField.classList.add('shake-input');
-        inputField.style.borderColor = '#ef4444';
-        inputField.style.boxShadow = '0 0 20px rgba(239, 68, 68, 0.4)';
-        if (typeof playSound === 'function') playSound('rumble', 0.3);
-        if (typeof showToast === 'function') showToast("오답입니다! 다시 한 번 생각해보세요.");
-
-        setTimeout(() => {
-            inputField.classList.remove('shake-input');
-            inputField.style.borderColor = '';
-            inputField.style.boxShadow = '';
-            inputField.value = '';
-            inputField.focus();
-        }, 800);
-    }
-}
-
-// 이적시장 퀴즈 패스(모름)
-function passMarketQuizQuestion() {
-    if (isMarketQuizAnswering) return;
-    if (!marketQuizQueue || marketQuizIndex >= marketQuizQueue.length) return;
-
-    isMarketQuizAnswering = true;
-    const currentItem = marketQuizQueue[marketQuizIndex];
-    if (typeof playSound === 'function') playSound('rumble', 0.3);
-
-    // 큐 뒤로 이동
-    const passedWord = marketQuizQueue[marketQuizIndex];
-    marketQuizQueue.push(passedWord);
-    marketQuizQueue.splice(marketQuizIndex, 1);
-    if (marketQuizIndex >= marketQuizQueue.length) marketQuizIndex = 0;
-
-    const feedbackBox = document.getElementById('marketQuizFeedbackBox');
-    const feedbackMsg = document.getElementById('marketQuizFeedbackMessage');
-
-    if (feedbackBox && feedbackMsg) {
-        feedbackMsg.innerHTML = `정답은 <strong>${currentItem.meaning}</strong> 입니다!<br><span style="font-size: 0.8rem; opacity: 0.8; font-weight: normal; display: block; margin-top: 5px; color: #ffd700;"><i class="fa-solid fa-hand-pointer"></i> 화면을 누르거나 Enter를 누르면 다음 문제로 진행합니다</span>`;
-        feedbackBox.style.display = 'flex';
-        feedbackBox.style.cursor = 'pointer';
-
-        const closeFeedback = () => {
-            feedbackBox.style.display = 'none';
-            feedbackBox.onclick = null;
-            document.removeEventListener('keydown', handleKeyClose);
-            isMarketQuizAnswering = false;
-            renderMarketQuizCurrent();
-        };
-
-        const handleKeyClose = (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                if (e.isComposing) return;
-                e.preventDefault();
-                closeFeedback();
-            }
-        };
-
-        feedbackBox.onclick = closeFeedback;
-        document.addEventListener('keydown', handleKeyClose);
-    }
-}
-
-// 이적시장 퀴즈 정답 공통 처리 (5문제 완료 시 보상 및 이적시장 진입 버튼 노출)
-function handleMarketQuizCorrect() {
-    marketQuizSolvedCount++;
-    marketQuizQueue.splice(marketQuizIndex, 1);
-
-    if (marketQuizSolvedCount >= 5) {
-        // 5문제 풀이 완료 -> 보상 지급
-        const fpGain = (typeof isHardMode !== 'undefined' && isHardMode) ? 2 : 1;
-        userPoints += fpGain;
-        userRP = (typeof userRP !== 'undefined' ? userRP : 0) + 1;
-        userLevel += 1;
-
-        try {
-            localStorage.setItem('fc_star_user_points', userPoints.toString());
-            localStorage.setItem('fc_star_user_rp', userRP.toString());
-            localStorage.setItem('fc_star_user_level', userLevel.toString());
-        } catch(e) {}
-
-        if (typeof renderUserPoints === 'function') renderUserPoints();
-        if (typeof renderUserLevel === 'function') renderUserLevel();
-        if (typeof saveUserProgress === 'function') saveUserProgress(true);
-
-        // 레벨업 보상 연동
-        if (typeof checkLevelUpRewards === 'function') checkLevelUpRewards(userLevel);
-
-        // 인증 플래그 설정 및 로컬 저장
-        grantMarketAccess();
-
-        // 완료 오버레이 표시
-        const rewardTextEl = document.getElementById('marketQuizRewardPointVal');
-        if (rewardTextEl) rewardTextEl.innerText = `+${fpGain} FP (이적 자금) · +1 RP 획득!`;
-
-        const compOverlay = document.getElementById('marketQuizCompleteOverlay');
-        if (compOverlay) compOverlay.style.display = 'flex';
-
-        if (typeof playSound === 'function') playSound('reveal', 0.3);
-        if (typeof createSparkParticles === 'function') createSparkParticles(true, '#ffd700');
-    } else {
-        isMarketQuizAnswering = false;
-        if (marketQuizIndex >= marketQuizQueue.length) marketQuizIndex = 0;
-        renderMarketQuizCurrent();
-    }
-}
-
-// [이적시장 진입하기] 버튼 클릭 핸들러
-function enterMarketplaceFromQuiz() {
-    const compOverlay = document.getElementById('marketQuizCompleteOverlay');
-    if (compOverlay) compOverlay.style.display = 'none';
-
-    showMarketMainView();
-    if (typeof showToast === 'function') {
-        showToast("🏪 이적시장에 성공적으로 입장했습니다!");
-    }
 }
 
 // 5. 선수 가격 계산 함수 (방출/영입 공통)

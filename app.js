@@ -6,6 +6,17 @@ let currentAppActiveTab = 'market';
 function switchTab(tabName) {
     if (tabName === 'pack') tabName = 'market';
 
+    // 이적시장 탭 접근 가드: 미인증 또는 1분 경과 시 단어 퀴즈 탭으로 강제 이동
+    if (tabName === 'market') {
+        if (typeof checkMarketAccess === 'function' && !checkMarketAccess()) {
+            console.log("[이적시장 가드] 인증 미완료 또는 1분 경과 -> 단어퀴즈 탭으로 전환");
+            if (typeof showToast === 'function') {
+                showToast("📝 이적시장에 입장하려면 단어 퀴즈 1세트(5문제)를 완료해야 합니다.");
+            }
+            tabName = 'quiz';
+        }
+    }
+
     // 이적시장 탭 이탈 시 타임스탬프 기록 (1분 쿨다운 체크용)
     if (currentAppActiveTab === 'market' && tabName !== 'market') {
         if (typeof handleMarketTabLeave === 'function') {
@@ -249,19 +260,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Bind Enter key to market quiz input
-    const marketQuizInput = document.getElementById('marketQuizAnswerInput');
-    if (marketQuizInput) {
-        marketQuizInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                if (e.isComposing || e.keyCode === 229) return;
-                e.preventDefault();
-                if (typeof submitMarketQuizAnswer === 'function') {
-                    submitMarketQuizAnswer();
-                }
-            }
-        });
-    }
 
     // 화면 이탈(백그라운드/다른 창 전환) 시 이적시장 타이머 연동
     document.addEventListener('visibilitychange', () => {

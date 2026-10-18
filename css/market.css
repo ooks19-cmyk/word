@@ -362,51 +362,6 @@
     box-shadow: 0 6px 20px rgba(255, 62, 108, 0.5);
 }
 
-/* 4. 이적시장 퀴즈 게이트웨이 화면 */
-.market-gateway-container {
-    max-width: 680px;
-    margin: 1.5rem auto;
-    padding: 0 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.2rem;
-}
-
-.market-gateway-banner {
-    background: linear-gradient(135deg, rgba(0, 210, 252, 0.1), rgba(15, 23, 42, 0.9));
-    border: 1.5px solid rgba(0, 210, 252, 0.3);
-    border-radius: 20px;
-    padding: 1.2rem 1.6rem;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-}
-
-.market-gateway-banner-icon {
-    font-size: 2.2rem;
-    color: #00d2fc;
-    filter: drop-shadow(0 0 12px rgba(0, 210, 252, 0.6));
-    flex-shrink: 0;
-}
-
-.market-gateway-banner-text h3 {
-    margin: 0 0 4px 0;
-    font-size: 1.2rem;
-    font-weight: 800;
-    color: #fff;
-}
-
-.market-gateway-banner-text p {
-    margin: 0;
-    font-size: 0.85rem;
-    color: #cbd5e1;
-    line-height: 1.45;
-}
-
-.market-gateway-banner-text p strong {
-    color: #ffd700;
-}
 
 /* 5. 내 컬렉션 카드 단계별 강화 버튼 스타일링 */
 .btn-deck-upgrade-step {
