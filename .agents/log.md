@@ -27,6 +27,81 @@ graph TD
 - **`db.js`**: Firebase Firestore 기반 원격 저장 및 미지원 시 LocalStorage 기반의 가상 로컬 클라우드 전환 처리.
 - **`player/player_data.js`**: 전체 축구선수 카드 스펙(오버롤, 세부 능력치, 포지션 등)을 동적으로 로드.
 
+### 🌟 벨링엄 & 뎀벨레 전설(Legend) 등급 상향 조정 및 깃 푸시 (2026-10-18)
+* **날짜·시간**: 2026-10-18 17:09 (KST)
+* **요청 요약**:
+  - 주드 벨링엄, 우스만 뎀벨레 선수의 등급을 전설(legend)로 변경 후 깃 푸시 진행.
+* **수행 내용**:
+  1. **카드 데이터 및 테마 조정 (`player_data.js`)**:
+     - `jude_bellingham`: `rarity = 'legend'`, 레전드 골드 테마(`#000000`, `#c39e5c`, `#ffd700`) 적용.
+     - `ousmane_dembele`: `rarity = 'legend'`, 레전드 골드 테마(`#000000`, `#c39e5c`, `#ffd700`) 적용.
+  2. **PWA 캐시 및 스크립트 버전 상향**:
+     - `sw.js`: `CACHE_NAME = 'fc-star-v467'`.
+     - `index.html`: `player_data.js?v=1.92`.
+  3. **선수데이터 엑셀 시트 동기화 (`선수데이터.csv`)**:
+     - `convert_js_to_csv.py` 실행을 통해 110명 데이터 추출 및 벨링엄/뎀벨레 legend 등급 반영 (111행).
+  4. **Git 커밋 및 원격 저장소 푸시**:
+     - `main` 브랜치에 안전하게 커밋 및 푸시 완료.
+* **변경 파일**:
+  - `player_data.js`, `index.html`, `sw.js`, `선수데이터.csv`, `player2/뎀벨레.webp`, `player2/벨링엄.webp`, `.agents/progress.md`, `.agents/log.md`
+* **검증 결과**:
+  - Node.js 구문 검사(`player_data.js`, `sw.js`): Syntax OK 100% PASS.
+  - CSV 111행 정합성 및 두 선수 legend 등급 100% 일치 확인.
+  - 이적시장 통합 테스트(`tests/market_mode.test.cjs`): 100% PASS.
+  - 전체 회귀 테스트 4종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `quiz_subjective`): 100% PASS.
+  - `git diff --check`: 결함 없음.
+* **최종 상태**: 완료
+
+### ⚽ 우스만 뎀벨레 스페셜 카드 등록 및 CSV 동기화 (2026-10-18)
+* **날짜·시간**: 2026-10-18 17:07 (KST)
+* **요청 요약**:
+  - 우스만 뎀벨레 선수 카드 추가 (오버롤 91, 스페셜 등급).
+* **수행 내용**:
+  1. **카드 데이터 등록 (`player_data.js`)**:
+     - `ousmane_dembele`: OVR 91, 포지션 `RW` (우측 윙어), 국적 `France`, 국기 `fr.png`, 클럽 `PARIS SAINT-GERMAIN`, 등급 `special`.
+     - 6대 핵심 스탯: PAC 94, SHO 87, PAS 88, DRI 93, DEF 48, PHY 70.
+     - 비주얼 테마: primary `#001c3d`, secondary `#da291c`, glow `#00d2ff` (PSG 고유 네이비 & 레드 & 네온블루 테마).
+     - 이미지: `player2/뎀벨레.webp` (기존 파일 활용).
+  2. **PWA 캐시 및 스크립트 버전 상향**:
+     - `sw.js`: `CACHE_NAME = 'fc-star-v466'`.
+     - `index.html`: `player_data.js?v=1.91`.
+  3. **선수데이터 엑셀 시트 동기화 (`선수데이터.csv`)**:
+     - `convert_js_to_csv.py` 실행을 통해 110명 데이터 자동 추출 및 CSV 동기화 (111행).
+* **변경 파일**:
+  - `player_data.js`, `index.html`, `sw.js`, `선수데이터.csv`, `.agents/progress.md`, `.agents/log.md`
+* **검증 결과**:
+  - Node.js 구문 검사(`player_data.js`, `sw.js`): Syntax OK 100% PASS.
+  - CSV 111행 정합성 및 세부 스탯 6종 100% 일치 확인.
+  - 이적시장 통합 테스트(`tests/market_mode.test.cjs`): 100% PASS.
+  - 전체 회귀 테스트 4종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `quiz_subjective`): 100% PASS.
+  - `git diff --check`: 결함 없음.
+* **최종 상태**: 완료
+
+### ⚽ 주드 벨링엄 스페셜 카드 등록 및 CSV 동기화 (2026-10-18)
+* **날짜·시간**: 2026-10-18 17:02 (KST)
+* **요청 요약**:
+  - 주드 벨링엄 선수 카드 추가 (오버롤 91, 스페셜 등급).
+* **수행 내용**:
+  1. **카드 데이터 등록 (`player_data.js`)**:
+     - `jude_bellingham`: OVR 91, 포지션 `AM` (공격형 미드필더), 국적 `England`, 국기 `gb-eng.png`, 클럽 `REAL MADRID`, 등급 `special`.
+     - 6대 핵심 스탯: PAC 82, SHO 88, PAS 89, DRI 91, DEF 80, PHY 87.
+     - 비주얼 테마: primary `#0e1a38`, secondary `#e8c85a`, glow `#ffd700` (레알 마드리드 샴페인 골드 테마).
+     - 이미지: `player2/벨링엄.webp` (기존 파일 활용).
+  2. **PWA 캐시 및 스크립트 버전 상향**:
+     - `sw.js`: `CACHE_NAME = 'fc-star-v465'`.
+     - `index.html`: `player_data.js?v=1.90`.
+  3. **선수데이터 엑셀 시트 동기화 (`선수데이터.csv`)**:
+     - `convert_js_to_csv.py` 실행을 통해 109명 데이터 자동 추출 및 CSV 동기화 (110행).
+* **변경 파일**:
+  - `player_data.js`, `index.html`, `sw.js`, `선수데이터.csv`, `.agents/progress.md`, `.agents/log.md`
+* **검증 결과**:
+  - Node.js 구문 검사(`player_data.js`, `sw.js`): Syntax OK 100% PASS.
+  - CSV 110행 정합성 및 세부 스탯 6종 100% 일치 확인.
+  - 이적시장 통합 테스트(`tests/market_mode.test.cjs`): 100% PASS.
+  - 전체 회귀 테스트 4종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `quiz_subjective`): 100% PASS.
+  - `git diff --check`: 결함 없음.
+* **최종 상태**: 완료
+
 ### 🚀 이적시장 퀴즈 일원화, 미인증 시 단어퀴즈 자동 리다이렉트 및 퀴즈 완료 후 [퀴즈 더풀기/이적시장 진입] 듀얼 버튼 지원 (2026-10-18)
 * **날짜·시간**: 2026-10-18 16:13 (KST)
 * **요청 요약**:

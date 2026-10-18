@@ -1,4 +1,42 @@
 ## 현재 작업
+- 목표: 벨링엄 및 뎀벨레 선수 카드를 전설(legend) 등급으로 상향 변경, 테마/DB/CSV 동기화, PWA 캐시 갱신 및 깃 푸시 완료
+- 상태: 완료
+- 주요 변경·검증:
+  1. `player_data.js`:
+     - `jude_bellingham`: `rarity = 'legend'`, 레전드 골드 테마(`#000000`, `#c39e5c`, `#ffd700`) 적용.
+     - `ousmane_dembele`: `rarity = 'legend'`, 레전드 골드 테마(`#000000`, `#c39e5c`, `#ffd700`) 적용.
+  2. `index.html`: `player_data.js?v=1.92` 캐시 쿼리 버전 상향.
+  3. `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v467'` 상향.
+  4. `선수데이터.csv`: `convert_js_to_csv.py` 스크립트를 통한 110명 데이터 동기화 완료 (벨링엄, 뎀벨레 등급 legend 반영).
+  5. 무결성 검증:
+     - Node.js 구문 검사(`node --check player_data.js sw.js`): Syntax OK 100% PASS
+     - CSV 111행 및 두 선수 legend 등급 일치 확인
+     - 이적시장 통합 테스트(`tests/market_mode.test.cjs`): 6개 섹션 100% PASS
+     - 전체 회귀 테스트 4종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `quiz_subjective`): 100% PASS
+     - `git diff --check`: 포맷/공백 결함 0건
+  6. Git 커밋 및 푸시: `main` 브랜치에 안전하게 커밋 및 푸시 완료.
+- 다음 단계: 사용자 완료 보고.
+
+## 이전 작업
+- 목표: '주드 벨링엄' 스페셜 등급 선수 카드 생성 (오버롤 91, 포지션 AM) 및 DB/CSV 동기화, PWA 캐시 갱신
+- 상태: 완료
+- 주요 변경·검증:
+  1. `player_data.js`: `jude_bellingham` 스페셜(special) 카드 객체 등록 완료
+     - 이름: 주드 벨링엄, OVR: 91, 포지션: AM, 국적: England, 소속: REAL MADRID
+     - 스탯: PAC 82, SHO 88, PAS 89, DRI 91, DEF 80, PHY 87
+     - 테마: primary: "#0e1a38", secondary: "#e8c85a", glow: "#ffd700"
+     - 이미지: `player2/벨링엄.webp` (파일 실재 확인 완료)
+  2. `index.html`: `player_data.js?v=1.90` 캐시 쿼리 버전 상향
+  3. `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v465'` 상향
+  4. `선수데이터.csv`: `convert_js_to_csv.py` 스크립트를 통한 109명 데이터 동기화 완료 (110행)
+  5. 무결성 검증:
+     - Node.js 구문 검사(`node --check player_data.js sw.js`): Syntax OK 100% PASS
+     - CSV 110행 및 주드 벨링엄 세부 스탯 6종 100% 일치 확인
+     - 이적시장 통합 테스트(`tests/market_mode.test.cjs`): 6개 섹션 100% PASS
+     - 전체 회귀 테스트 4종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `quiz_subjective`): 100% PASS
+     - `git diff --check`: 포맷/공백 결함 0건
+
+## 이전 작업
 - 목표: 이적시장 전용 퀴즈 화면 제거, 미인증 시 단어퀴즈 탭 리다이렉트 / 인증 완료 시 즉시 이적시장 진입 처리, 단어퀴즈 완료 시 [퀴즈 더풀기] 및 [이적시장 진입] 2개 버튼 출력 구현
 - 상태: 완료
 - 주요 변경·검증:
@@ -21,7 +59,6 @@
      - 이적시장 통합 테스트(`tests/market_mode.test.cjs`): 6개 섹션 100% PASS.
      - 전체 회귀 테스트 4종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `quiz_subjective`): 100% PASS.
      - `git diff --check`: 포맷/공백 결함 0건.
-- 다음 단계: 사용자 완료 보고 및 Git 커밋/푸시 지시 대기.
 
 ## 이전 작업
 - 목표: '도안 리츠' 스페셜 등급 선수 카드 생성 (오버롤 91, 포지션 AM) 및 DB/CSV 동기화, PWA 캐시 갱신

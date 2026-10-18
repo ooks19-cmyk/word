@@ -2714,6 +2714,56 @@ const CARDS_DATABASE = {
             def: 62,
             phy: 82
         }
+    },
+    "jude_bellingham": {
+        id: "jude_bellingham",
+        name: "주드 벨링엄",
+        rating: 91,
+        position: "AM",
+        nation: "England",
+        nationFlag: "https://flagcdn.com/w40/gb-eng.png",
+        club: "REAL MADRID",
+        image: "player2/벨링엄.webp",
+        rarity: "legend",
+        description: "스페인 라리가 레알 마드리드와 잉글랜드 대표팀의 차세대 축구 황제 주드 벨링엄입니다. 압도적인 피지컬과 정교한 테크닉을 겸비한 완성형 육각형 미드필더로, 결정적인 순간 터져 나오는 클러치 득점력과 경기를 지배하는 폭넓은 활동량으로 팀을 승리로 이끄는 전설적인 플레이메이커입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 82,
+            sho: 88,
+            pas: 89,
+            dri: 91,
+            def: 80,
+            phy: 87
+        }
+    },
+    "ousmane_dembele": {
+        id: "ousmane_dembele",
+        name: "우스만 뎀벨레",
+        rating: 91,
+        position: "RW",
+        nation: "France",
+        nationFlag: "https://flagcdn.com/w40/fr.png",
+        club: "PARIS SAINT-GERMAIN",
+        image: "player2/뎀벨레.webp",
+        rarity: "legend",
+        description: "프랑스 리그 1 파리 생제르맹과 프랑스 대표팀의 특급 크랙 우스만 뎀벨레입니다. 양발을 자유자재로 구사하는 세계 최고 수준의 드리블러로, 폭발적인 순간 가속과 예측 불가능한 템포 조절로 상대 측면 수비를 완벽히 허무는 전설적인 윙어입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 94,
+            sho: 87,
+            pas: 88,
+            dri: 93,
+            def: 48,
+            phy: 70
+        }
     }
 };
 
