@@ -1,11 +1,23 @@
 // app.js - FC STAR CARD Entry Point (진입점)
 
 // Tab Switching
+let currentAppActiveTab = 'market';
+
 function switchTab(tabName) {
+    if (tabName === 'pack') tabName = 'market';
+
+    // 이적시장 탭 이탈 시 타임스탬프 기록 (1분 쿨다운 체크용)
+    if (currentAppActiveTab === 'market' && tabName !== 'market') {
+        if (typeof handleMarketTabLeave === 'function') {
+            handleMarketTabLeave();
+        }
+    }
+    currentAppActiveTab = tabName;
+
     const tabs = {
-        'pack': {
-            btn: document.getElementById('tabPackBtn'),
-            section: document.getElementById('packSection')
+        'market': {
+            btn: document.getElementById('tabMarketBtn') || document.getElementById('tabPackBtn'),
+            section: document.getElementById('marketSection') || document.getElementById('packSection')
         },
         'quiz': {
             btn: document.getElementById('tabQuizBtn'),
@@ -45,7 +57,11 @@ function switchTab(tabName) {
         }
     });
 
-    if (tabName === 'deck') {
+    if (tabName === 'market') {
+        if (typeof initMarketTab === 'function') {
+            initMarketTab();
+        }
+    } else if (tabName === 'deck') {
         renderDeck();
     } else if (tabName === 'squad') {
         renderSquadFormation();
@@ -199,6 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof initCup === 'function') initCup(); // Initialize KFA Cup State
     if (typeof initAcl === 'function') initAcl(); // Initialize ACL State
     renderUserPoints();     // Sync user gacha points on load
+    if (typeof initMarketTab === 'function') initMarketTab(); // Initialize Transfer Market Gateway
     // CARDS_DATABASE 포지션 유효성 검사 (ST, LW, RW, CM, CB, LB, RB, GK)
     try {
         const VALID_POSITIONS = ['ST', 'LW', 'RW', 'CM', 'CB', 'LB', 'RB', 'GK', 'CAM', 'AM'];
@@ -231,6 +248,29 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // Bind Enter key to market quiz input
+    const marketQuizInput = document.getElementById('marketQuizAnswerInput');
+    if (marketQuizInput) {
+        marketQuizInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                if (e.isComposing || e.keyCode === 229) return;
+                e.preventDefault();
+                if (typeof submitMarketQuizAnswer === 'function') {
+                    submitMarketQuizAnswer();
+                }
+            }
+        });
+    }
+
+    // 화면 이탈(백그라운드/다른 창 전환) 시 이적시장 타이머 연동
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden && currentAppActiveTab === 'market') {
+            if (typeof handleMarketTabLeave === 'function') {
+                handleMarketTabLeave();
+            }
+        }
+    });
     
     // Bind Enter key to Auth Input
     const authPwInput = document.getElementById('authUserPasswordInput');

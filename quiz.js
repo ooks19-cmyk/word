@@ -565,6 +565,7 @@ function selectChoice(btnEl, selectedChoice, correctMeaning) {
                         
                         renderUserPoints();
                         if (typeof renderUserLevel === 'function') renderUserLevel();
+                        if (typeof grantMarketAccess === 'function') grantMarketAccess(); // 퀴즈 완료 시 이적시장 진입 권한 부여
                         
                         if (typeof checkLevelUpRewards === 'function') {
                             checkLevelUpRewards(userLevel);
@@ -679,6 +680,7 @@ function submitQuizAnswer() {
                         
                         renderUserPoints(); // Update points widget
                         if (typeof renderUserLevel === 'function') renderUserLevel(); // Update level UI
+                        if (typeof grantMarketAccess === 'function') grantMarketAccess(); // 퀴즈 완료 시 이적시장 진입 권한 부여
                         
                         // [즉시 보상 버그 해결] 레벨 10단위 특별 보상 즉시 연동 및 팝업 활성화
                         if (typeof checkLevelUpRewards === 'function') {

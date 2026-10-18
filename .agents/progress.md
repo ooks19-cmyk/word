@@ -1,4 +1,54 @@
 ## 현재 작업
+- 목표: 카드 뽑기 모드를 '이적시장 모드'(퀴즈 게이트웨이, 1분 쿨다운, 방출/영입)로 전면 개편하고, 내 컬렉션 화면에 FP 소모 단계별 확정 선수 강화 시스템 구현
+- 상태: 완료
+- 주요 변경·검증:
+  1. `index.html`:
+     - 상단 네비게이션 탭 `tabPackBtn` ➔ `tabMarketBtn` ('이적시장') 개편.
+     - `<section id="packSection">` ➔ `<section id="marketSection">`으로 전면 교체.
+     - 퀴즈 게이트웨이 화면(`marketQuizView`, 5문제 게이지/주관식/객관식/완료 오버레이) 및 이적시장 메인 화면(`marketMainView`, 방출/영입 서브탭, 포지션 필터, 선수 그리드) 마크업 구축.
+     - `css/market.css` 및 `js/market.js` 로드 태그 추가 및 스크립트 버전(`deck.js?v=3.0`, `app.js?v=3.9`) 상향.
+  2. `css/market.css`: 글래스모피즘 기반 이적시장 전용 UI/UX 디자인 시스템 구축 (반응형 그리드, 포지션 필터, 등급별 뱃지, 가격 태그, 퀴즈 배너 등).
+  3. `js/market.js`: 이적시장 종합 비즈니스 로직 신규 개발.
+     - 퀴즈 게이트웨이 (일반 +1 FP, +1 RP / 어려움 +2 FP, +1 RP 보상) 및 완료 시 [이적시장 진입하기] 버튼 노출.
+     - 1분(60초) 이탈 쿨다운 판정: 1분 이내 재진입 시 즉시 메인 진입, 1분 이상 경과 시 퀴즈 재풀이 트리거.
+     - 선수 가격 공식 `calculatePlayerMarketPrice`: 80 이하 5 FP, 81~90 10 FP, 91 이상 10 + (OVR-90)*10 FP, 강화 수치당 +1 FP.
+     - 방출 탭: 포지션 필터, 등급/스탯/가격 표시, 11명 최소 인원 가드, 선발/주장 자동 해제 안전 처리.
+     - 영입 탭: super 등급 제외 미보유 선수만 노출, FP 차감 후 내 덱 등록.
+  4. `js/deck.js`:
+     - 내 컬렉션 및 보관함 카드 하단에 단계별 100% 확정 강화 버튼 구현 (+1강 1 FP ~ +6강 6 FP).
+     - 최대 강화(★6) 달성 시 `★6 MAX 강화` 골드 배지 표시 및 추가 강화 차단.
+     - `upgradeCardStep(cardId)`: 100% 확정 성공, FP 차감, 스탯 및 세이브 연동, 파티클 효과.
+  5. `app.js`:
+     - `switchTab`: `market` 탭 라우팅 및 탭 이탈 시 `handleMarketTabLeave()` 호출로 1분 쿨다운 타임스탬프 기록.
+     - 엔터 키 리스너: `marketQuizAnswerInput`에 IME 중복 방지 정답 제출 바인딩.
+     - 앱 기동 시 `initMarketTab()` 자동 진입 초기화.
+  6. `sw.js`: PWA 캐시 버전 `CACHE_NAME = 'fc-star-v460'` 상향, `market.css`와 `market.js` ASSETS 등록.
+  7. 검증 결과:
+     - Node.js 구문 검사: 6개 전체 JS 파일 (`market.js`, `deck.js`, `app.js`, `sw.js`, `quiz.js`, `player_data.js`) Syntax OK 100% PASS.
+     - 기존 4종 회귀 테스트 (`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `quiz_subjective`): 100% PASS.
+     - 신규 이적시장 및 강화 종합 테스트 (`tests/market_mode.test.cjs`): 6개 섹션 전원 100% PASS.
+- 다음 단계: 사용자 완료 보고 및 Git 커밋/푸시 지시 대기.
+
+## 이전 작업
+- 목표: '도안 리츠' 스페셜 등급 선수 카드 생성 (오버롤 91, 포지션 AM) 및 DB/CSV 동기화, PWA 캐시 갱신
+- 상태: 완료
+- 주요 변경·검증:
+  1. `player_data.js`: `ritsu_doan` 스페셜(special) 카드 객체 등록 완료
+     - 이름: 도안 리츠, OVR: 91, 포지션: AM, 국적: Japan, 소속: FREIBURG
+     - 스탯: PAC 89, SHO 90, PAS 88, DRI 91, DEF 62, PHY 82
+     - 테마: primary: "#141414", secondary: "#e00028", glow: "#ff2a55"
+     - 이미지: `player2/도안 리츠.png` (파일 실재 확인 완료)
+  2. `index.html`: `player_data.js?v=1.89` 캐시 쿼리 버전 상향
+  3. `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v459'` 상향
+  4. `선수데이터.csv`: `convert_js_to_csv.py` 스크립트를 통한 108명 데이터 동기화 완료 (109행)
+  5. 무결성 검증:
+     - Node.js 구문 검사(`node --check player_data.js sw.js`): Syntax OK 100% PASS
+     - CSV 109행 및 도안 리츠 세부 스탯 6종 100% 일치 확인
+     - 전체 회귀 테스트 4종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `quiz_subjective`): 100% PASS
+     - `git diff --check`: 포맷/공백 결함 0건
+- 다음 단계: 완료 보고 및 사용자 깃 커밋/푸시 지시 대기.
+
+## 이전 작업
 - 목표: 목요일·금요일(복습일)은 4지선다형 객관식으로 출제하고, 그 외 요일은 주관식으로 출제하도록 분기 처리 및 검증
 - 상태: 완료
 - 주요 변경·검증:
@@ -11,7 +61,7 @@
      - `node --check quiz.js sw.js`: 구문 오류 없음 (PASS).
      - 단위/통합 테스트(`tests/quiz_subjective.test.cjs`): 100% PASS.
      - `git diff --check`: 포맷/공백 결함 0건.
-- 다음 단계: 완료 보고 및 origin/main 푸시 완료.
+- 다음 단계: 완료 보고 및 origin/main 푸시 완료 (`77cd6e8`).
 
 ## 이전 작업
 - 목표: 단어 퀴즈를 객관식(4지선다형)에서 주관식(한국어 뜻 직접 입력)으로 변경 및 검증

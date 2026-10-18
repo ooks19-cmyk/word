@@ -27,6 +27,161 @@ graph TD
 - **`db.js`**: Firebase Firestore 기반 원격 저장 및 미지원 시 LocalStorage 기반의 가상 로컬 클라우드 전환 처리.
 - **`player/player_data.js`**: 전체 축구선수 카드 스펙(오버롤, 세부 능력치, 포지션 등)을 동적으로 로드.
 
+### ⏱️ 이적시장 1분 쿨다운 타이머(999999초 표기) 결함 완벽 해결 및 퀴즈 연동 강화 (2026-10-18)
+* **날짜·시간**: 2026-10-18 15:50 (KST)
+* **요청 요약**:
+  - `[이적시장 진입 검사] 지난 이탈 후 경과 시간: 999999초, 인증 상태: false` 경과 시간이 999999초로 지속 표기되며 1분 이내 재진입이 되지 않는 문제 해결.
+  - 퀴즈를 풀어야 이적시장에 진입한 것으로 처리하는 상태 전환 보장.
+* **수행 내용**:
+  1. **원인 규명**:
+     - 퀴즈 완료 후 이적시장에 진입한 상태(`lastMarketLeaveTimestamp === 0`)에서 사용자가 탭을 전환하거나 다시 이적시장 탭을 클릭했을 때, `lastMarketLeaveTimestamp > 0` 조건을 필수로 요구하던 이전 분기로 인해 `else` 블록으로 떨어져 `isMarketQuizPassed = false`로 강제 리셋되고 퀴즈 화면으로 쫓겨나던 논리적 결함 발견.
+     - 퀴즈 완료 시 자격(`isMarketQuizPassed = true`)이 부여되었으나, 일반 단어 퀴즈 탭(`quiz.js`)에서 퀴즈를 풀고 왔을 때 이적시장 인증 연동이 누락되어 있던 점 보강.
+  2. **이적시장 인증 생명주기 및 1분 쿨다운 전면 재설계 (`js/market.js`)**:
+     - `grantMarketAccess()` 전용 함수 신설: 퀴즈 1세트(5문제) 완료 시 호출되어 `isMarketQuizPassed = true`, `lastMarketLeaveTimestamp = 0`을 확실히 설정하고 로컬스토리지 동기화.
+     - `initMarketTab()` 분기 고도화:
+       - `isMarketQuizPassed === true`이고 다른 탭으로 나간 적이 없거나(`lastMarketLeaveTimestamp === 0`) 나간 지 1분(60초) 이내인 경우(`elapsedSeconds < 60`) ➔ 즉시 메인 화면(`showMarketMainView`) 유지 및 이탈 타이머 0 복귀.
+       - 퀴즈를 안 풀었거나(`isMarketQuizPassed === false`), 나간 지 1분 이상 경과한 경우(`elapsedSeconds >= 60`)에만 자격을 만료시키고 퀴즈 게이트웨이 화면 노출.
+     - `handleMarketTabLeave()`: 오직 퀴즈를 풀어 정식 자격을 얻은 상태에서 나갈 때만 `lastMarketLeaveTimestamp = Date.now()`로 1분 타이머를 가동하고, 미인증 상태는 0 유지.
+  3. **일반 단어 퀴즈 완료 연동 (`quiz.js`)**:
+     - 주관식/객관식 모드 무관하게 `quiz.js`에서 5문제 정복 완료 시 `grantMarketAccess()`를 연동하여, 단어 퀴즈 탭에서 퀴즈를 풀고 이적시장으로 와도 즉시 이적시장 메인으로 입장 가능하도록 완벽 지원.
+  4. **화면 이탈(백그라운드) 타이머 연동 (`app.js`)**:
+     - `visibilitychange` 이벤트 리스너를 등록하여 모바일 PWA 환경이나 브라우저 탭 백그라운드 전환 시에도 이탈 타이머 정상 작동 지원.
+  5. **캐시 버전 상향 및 테스트 갱신**:
+     - `index.html`: `quiz.js?v=1.8`, `js/market.js?v=1.2`, `app.js?v=4.1`
+     - `sw.js`: `CACHE_NAME = 'fc-star-v462'`
+     - `tests/market_mode.test.cjs`: `lastLeaveTime === 0` 머무름 상태 즉시 진입 및 60초 타이머 테스트 전원 통과.
+* **변경 파일**:
+  - `js/market.js`: 인증 및 쿨다운 재설계 (`loadMarketAuthState`, `grantMarketAccess`, `initMarketTab`, `handleMarketTabLeave`).
+  - `quiz.js`: 퀴즈 1세트 완료 시 `grantMarketAccess()` 호출 연동.
+  - `app.js`: `visibilitychange` 이탈 리스너 추가.
+  - `index.html`: 스크립트 버전 상향.
+  - `sw.js`: PWA 캐시 버전 상향 (`v462`).
+  - `tests/market_mode.test.cjs`: 테스트 케이스 보강.
+  - `tests/quiz_subjective.test.cjs`: 버전 정합성 유연화.
+  - `.agents/log.md`: 작업 기록 추가.
+* **검증 결과**:
+  - Node.js 구문 검사: 100% PASS.
+  - 전체 회귀 테스트 5종(`market_mode`, `quiz_subjective`, `cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`): 100% ALL PASS.
+  - `git diff --check`: 포맷/공백 결함 0건 통과.
+* **최종 상태**: 완료 (Git 커밋/푸시는 사용자 지시 대기)
+
+### 🐞 이적시장 퀴즈 미통과 상태 재진입 시 화면 미노출 결함 수정 및 퀴즈 통과 진입 규칙 엄격화 (2026-10-18)
+* **날짜·시간**: 2026-10-18 13:08 (KST)
+* **요청 요약**:
+  - 이적시장 퀴즈를 안 풀고 다른 페이지로 진입 후 다시 이적시장 진입 시 페이지가 안 뜨는 현상 수정.
+  - 퀴즈를 풀어야만 이적시장에 진입한 것으로 처리하는 규칙 엄격화.
+* **수행 내용**:
+  1. **화면 미노출 근본 원인 해결 (`app.js`)**:
+     - `switchTab` 내 `tabs` 객체에 `'market'`과 기존 호환용 `'pack'` 키가 둘 다 동일한 DOM 요소(`marketSection`, `tabMarketBtn`)를 참조하고 있어, `key === 'pack'` 루프 실행 시 `marketSection`의 `active` 클래스가 `remove('active')`되어 화면이 숨겨지는 버그 발견 및 `'pack'` 키 완전 제거.
+  2. **퀴즈 통과 진입 규칙 엄격화 (`js/market.js`)**:
+     - `handleMarketTabLeave`: 오직 퀴즈를 풀어 이적시장 메인에 진입한 상태(`isMarketQuizPassed === true`)일 때만 1분 쿨다운 유효시간(`lastMarketLeaveTimestamp`)을 기록하도록 수정. 퀴즈를 풀지 않고 나간 경우 진입한 적이 없으므로 `lastMarketLeaveTimestamp = 0`으로 리셋.
+     - `initMarketTab`: `isMarketQuizPassed === true && lastMarketLeaveTimestamp > 0 && elapsedSeconds < 60`인 경우에만 퀴즈 없이 메인 화면을 유지하고, 퀴즈를 풀지 않았거나 1분이 경과한 경우 무조건 퀴즈 게이트웨이 화면(`showMarketQuizView`)을 노출하여 퀴즈 1세트 필수 풀이를 강제.
+  3. **캐시 버전 상향 및 회귀 방지**:
+     - `index.html`: `js/market.js?v=1.1`, `app.js?v=4.0`
+     - `sw.js`: `CACHE_NAME = 'fc-star-v461'`
+     - `tests/market_mode.test.cjs`: 퀴즈 미통과 상태 이탈 후 재진입 시 퀴즈 강제 assertion 및 tabs 중복 키 방지 assertion 추가.
+* **변경 파일**:
+  - `app.js`: `tabs` 중복 키 제거.
+  - `js/market.js`: 이탈 시간 및 진입 검사 로직 보강.
+  - `index.html`: 스크립트 캐시 버전 갱신.
+  - `sw.js`: PWA 캐시 버전 상향.
+  - `tests/market_mode.test.cjs`: 신규 테스트 케이스 추가.
+  - `tests/quiz_subjective.test.cjs`: app.js 버전 정규식 유연화.
+  - `.agents/log.md`: 작업 기록 추가.
+* **검증 결과**:
+  - Node.js 구문 검사: 100% PASS.
+  - 전체 회귀 테스트 5종(`market_mode`, `quiz_subjective`, `cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`): 100% PASS.
+  - `git diff --check`: 포맷/공백 결함 0건 통과.
+* **최종 상태**: 완료 (Git 커밋/푸시는 사용자 지시 대기)
+
+### 🏪 카드 뽑기 모드의 '이적시장 모드' 개편 및 단계별 확정 선수 강화 시스템 구현 (2026-10-18)
+* **날짜·시간**: 2026-10-18 13:00 (KST)
+* **요청 요약**:
+  1. 기존 카드 뽑기 탭을 '이적시장 모드'로 전면 개편.
+  2. 페이지 진입 시 퀴즈 1세트(5문제) 풀이 필수 (일반 +1 FP, +1 RP / 어려움 +2 FP, +1 RP). 한 세트 완료 시 퀴즈 더풀기 대신 '이적시장 진입' 버튼 노출.
+  3. 다른 페이지로 이동 후 1분(60초) 경과 후 재진입 시 다시 퀴즈 1세트 풀이 (1분 이내 재진입 시 즉시 진입).
+  4. 이적시장 내 방출 탭과 영입 탭 구현:
+     - 포지션별 목록 정렬/필터링 (`all`, `FW`, `MF`, `DF`, `GK`).
+     - 등급(전설, 스페셜, 월드클래스 등), 포지션, 스탯, 가격(FP) 표시.
+     - 선수 가격 공식: OVR 80 이하 5 FP / 81~90 10 FP / 91 이상 10 + (OVR-90)*10 FP (무강화 기준, 강화 수치당 +1 FP 추가, 방출/영입 동일).
+     - 방출 제한: 선발/주장 자동 해제 팝업 확인, 11명 최소 인원 보호(11명 미만 방출 차단).
+     - 영입 제한: 미보유 선수만 노출, super 등급(도전모드 보상) 제외.
+  5. 선수 강화 개편: 카드 뽑기 중복 강화 폐지 ➔ 내 컬렉션 화면에서 FP를 소모하여 단계별 100% 확정 강화 (+1강 1 FP ~ +6강 6 FP, 최대 +6강).
+* **수행 내용**:
+  1. **스타일링 (`css/market.css`) 신규 작성**:
+     - Glassmorphism 기반 반응형 이적시장 UI (서브탭, 포지션 필터 칩, 선수 카드 및 스탯 칩, 가격 뱃지, 퀴즈 게이트웨이 카드 및 배너 등).
+     - 내 컬렉션 카드 단계별 강화 버튼(`.btn-deck-upgrade-step`, `.card-max-upgrade-badge`) 스타일 정의.
+  2. **이적시장 비즈니스 엔진 (`js/market.js`) 신규 개발**:
+     - 퀴즈 게이트웨이 로직: 목·금 객관식 / 타 요일 주관식 모드 분기, 오답 피드백, 5문제 완료 시 FP/RP 보상 및 '이적시장 진입하기' 모달.
+     - 1분 쿨다운 타이머: `lastMarketLeaveTimestamp` 로컬스토리지 관리 및 60초 판정 로직.
+     - 선수 가격 계산기 `calculatePlayerMarketPrice(rating, awakening)`.
+     - 방출 로직 `sellPlayer`: 11명 최소 가드, 선발/주장 자동 해제, FP 지급.
+     - 영입 로직 `buyPlayer`: super 등급 제외, 미보유 선수만 노출, FP 차감 후 덱 등록.
+  3. **내 컬렉션 단계별 확정 강화 구현 (`js/deck.js`)**:
+     - 메인 덱 및 보관함 카드 렌더링 시 현재 강화 단계(`awakening`)에 맞추어 `★{nextAwk} 강화 ({cost} FP)` 버튼 노출 (1강 1 FP ~ 6강 6 FP).
+     - 최대 강화 달성 시 `★6 MAX 강화` 골드 배지 노출.
+     - `upgradeCardStep(cardId)` 구현: 100% 확정 성공, FP 차감, 스탯 연동 및 클라우드 백업, 파티클 연출.
+  4. **마크업 개편 및 네비게이션 연동 (`index.html`)**:
+     - 상단 탭 `tabMarketBtn` ('이적시장') 개편.
+     - `<section id="marketSection">`: 퀴즈 게이트웨이 뷰(`marketQuizView`) 및 이적시장 메인 뷰(`marketMainView`) 구조화.
+     - `css/market.css?v=1.0` 및 `js/market.js?v=1.0` 로드 태그 추가 및 스크립트 버전(`deck.js?v=3.0`, `app.js?v=3.9`) 갱신.
+  5. **앱 라이프사이클 및 이벤트 바인딩 (`app.js`)**:
+     - `switchTab('market')` 라우팅 및 탭 이탈 시 `handleMarketTabLeave()` 호출.
+     - `marketQuizAnswerInput` 엔터 키 keydown 리스너(IME 조합 중복 방지 가드) 등록.
+     - `DOMContentLoaded` 시 `initMarketTab()` 초기화 호출.
+  6. **PWA 캐시 및 서비스 워커 (`sw.js`)**:
+     - `CACHE_NAME = 'fc-star-v460'` 상향 및 `market.css`, `market.js` 애셋 등록.
+  7. **종합 검증 테스트 스위트 (`tests/market_mode.test.cjs`) 작성 및 전 항목 PASS**:
+     - 가격 산정 공식(70~99 OVR, 강화 가산), 1분 쿨다운, 방출 제한, 영입 로직, 1~6강 확정 강화, 파일 정합성 100% 검증.
+* **변경 파일**:
+  - `css/market.css`: 신규 생성.
+  - `js/market.js`: 신규 생성.
+  - `js/deck.js`: 단계별 100% 확정 강화 버튼 및 `upgradeCardStep` 함수 구현.
+  - `index.html`: 네비게이션 탭 및 마켓 섹션 마크업 개편, 스크립트 버전 갱신.
+  - `app.js`: 마켓 라우팅, 이탈 쿨다운 추적, 키보드 이벤트, 초기화 연동.
+  - `sw.js`: `CACHE_NAME = 'fc-star-v460'`, 신규 애셋 캐싱.
+  - `tests/quiz_subjective.test.cjs`: 버전 정합성 assertion 유연화.
+  - `tests/market_mode.test.cjs`: 신규 생성.
+  - `.agents/progress.md`: 진행 상태 갱신.
+  - `.agents/log.md`: 신규 작업 로그 추가.
+* **검증 결과**:
+  - Node.js 구문 검사(`market.js`, `deck.js`, `app.js`, `sw.js`, `quiz.js`, `player_data.js`): Syntax OK 100% PASS.
+  - 기존 4종 회귀 테스트(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `quiz_subjective`): 100% PASS.
+  - 이적시장 모드 종합 테스트(`tests/market_mode.test.cjs`): 100% ALL PASS.
+* **최종 상태**: 완료 (Git 커밋/푸시는 사용자 지시 대기)
+
+### ⚽ '도안 리츠' 스페셜 등급 선수 카드 생성 (OVR 91, AM) 및 동기화 (2026-10-18)
+* **날짜·시간**: 2026-10-18 12:33 (KST)
+* **요청 요약**: 도안리츠 오버롤 91, 스페셜 등급, 포지션은 AM
+* **수행 내용**:
+  1. **신규 카드 데이터 등록 (`player_data.js`)**:
+     - `ritsu_doan` 스페셜(special) 카드 객체 추가.
+     - 이름: 도안 리츠, 오버롤: 91, 포지션: AM (공격형 미드필더), 국적: Japan, 소속 클럽: FREIBURG.
+     - 6대 스탯: PAC 89, SHO 90, PAS 88, DRI 91, DEF 62, PHY 82 (저돌적인 우측면 돌파, 전매특허 왼발 감아차기 슈팅 및 탈압박, 왕성한 수비 가담 반영).
+     - 이미지: `player2/도안 리츠.png` 연동 (파일 실재 확인 완료).
+     - 테마: 스페셜 프리셋 (`primary: "#141414"`, `secondary: "#e00028"`, `glow: "#ff2a55"`).
+  2. **PWA 캐시 버전 및 브라우저 캐시 쿼리 상향**:
+     - `index.html`: `player_data.js?v=1.89`
+     - `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v459'`
+  3. **`선수데이터.csv` 엑셀 데이터 동기화**:
+     - `convert_js_to_csv.py` 실행을 통해 총 108명 선수 데이터 완벽 동기화 완료 (109행).
+  4. **테스트 스위트 보강 (`tests/quiz_subjective.test.cjs`)**:
+     - 서비스 워커 `CACHE_NAME` 검증식을 정규식으로 유연화하여 향후 버전 상향 시에도 회귀 무결성 유지.
+* **변경 파일**:
+  - `player_data.js`: `ritsu_doan` 카드 객체 신규 등록.
+  - `index.html`: `player_data.js?v=1.89` 캐시 쿼리 버전 상향.
+  - `sw.js`: `CACHE_NAME = 'fc-star-v459'` PWA 버전 상향.
+  - `선수데이터.csv`: 108번째 도안 리츠 레코드 동기화 (총 109행).
+  - `tests/quiz_subjective.test.cjs`: PWA 캐시 버전 정규식 검증 고도화.
+  - `.agents/progress.md`: 현재 작업 상태 갱신.
+  - `.agents/log.md`: 신규 작업 로그 추가.
+* **검증 결과**:
+  - Node.js 구문 검사(`node --check`): `player_data.js`, `sw.js` 문법 오류 없음 (100% PASS).
+  - CSV 정합성: 헤더 포함 총 109행, 도안 리츠 행 데이터 및 6대 세부 스탯 100% 일치 확인.
+  - 전체 회귀 테스트 4종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `quiz_subjective`): 100% PASS.
+  - `git diff --check`: 포맷/공백 결함 0건 통과.
+* **최종 상태**: 완료 (Git 커밋/푸시는 사용자 지시 대기)
+
 ### 📅 단어 퀴즈 목·금 복습일 객관식 / 타 요일 주관식 분기 처리 (2026-10-18)
 * **날짜·시간**: 2026-10-18 12:26 (KST)
 * **요청 요약**: 목금은 복습일 이므로 기존처럼 객관식으로 처리

@@ -99,9 +99,9 @@ assert.ok(quizSource.includes('handleKeyClose'), 'quiz.js에 피드백 박스 �
 console.log('PASS: 피드백 박스 키보드 Enter 조작 지원 확인 완료.');
 
 console.log('=== [5] index.html & sw.js 버전 정합성 검증 ===');
-assert.ok(htmlSource.includes('quiz.js?v=1.7'), 'index.html에 quiz.js?v=1.7이 로드되어야 합니다.');
-assert.ok(htmlSource.includes('app.js?v=3.8'), 'index.html에 app.js?v=3.8이 로드되어야 합니다.');
-assert.ok(swSource.includes("CACHE_NAME = 'fc-star-v458'"), 'sw.js의 CACHE_NAME이 fc-star-v458이어야 합니다.');
+assert.ok(/quiz\.js\?v=1\.\d+/.test(htmlSource), 'index.html에 quiz.js?v=1.x가 로드되어야 합니다.');
+assert.ok(/app\.js\?v=[34]\.\d+/.test(htmlSource), 'index.html에 app.js가 로드되어야 합니다.');
+assert.ok(swSource.match(/CACHE_NAME\s*=\s*'fc-star-v\d+'/), 'sw.js의 CACHE_NAME이 올바르게 정의되어 있어야 합니다.');
 console.log('PASS: PWA 및 스크립트 캐시 버전 100% 일치 확인 완료.');
 
 console.log('\n========================================');

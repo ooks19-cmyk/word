@@ -2689,6 +2689,31 @@ const CARDS_DATABASE = {
             def: 72,
             phy: 85
         }
+    },
+    "ritsu_doan": {
+        id: "ritsu_doan",
+        name: "도안 리츠",
+        rating: 91,
+        position: "AM",
+        nation: "Japan",
+        nationFlag: "https://flagcdn.com/w40/jp.png",
+        club: "FREIBURG",
+        image: "player2/도안 리츠.png",
+        rarity: "special",
+        description: "독일 분데스리가 SC 프라이부르크와 일본 대표팀의 핵심 공격형 미드필더 도안 리츠입니다. 전매특허인 저돌적인 우측면 돌파와 강력한 왼발 감아차기 중거리 슈팅, 좁은 공간에서의 정교한 탈압박 능력을 지니고 있으며, 성실한 전방 압박과 왕성한 기동력으로 경기 흐름을 바꾸는 스페셜 테크니션입니다.",
+        theme: {
+            primary: "#141414",
+            secondary: "#e00028",
+            glow: "#ff2a55"
+        },
+        stats: {
+            pac: 89,
+            sho: 90,
+            pas: 88,
+            dri: 91,
+            def: 62,
+            phy: 82
+        }
     }
 };
 

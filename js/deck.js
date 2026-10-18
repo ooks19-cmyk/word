@@ -18,7 +18,7 @@ function matchPositionCategory(playerPos, category) {
 // 덱 포지션 필터 변경
 function filterDeckByPosition(category) {
     currentDeckPositionFilter = category;
-    
+
     // UI 버튼 active 클래스 갱신
     const categories = ['ALL', 'FW', 'MF', 'DF', 'GK'];
     categories.forEach(cat => {
@@ -28,18 +28,18 @@ function filterDeckByPosition(category) {
             else btn.classList.remove('active');
         }
     });
-    
+
     if (typeof playClickSound === 'function') {
         try { playClickSound(); } catch (e) {}
     }
-    
+
     renderDeck();
 }
 
 // 보관함 포지션 필터 변경
 function filterStorageByPosition(category) {
     currentStoragePositionFilter = category;
-    
+
     // UI 버튼 active 클래스 갱신
     const categories = ['ALL', 'FW', 'MF', 'DF', 'GK'];
     categories.forEach(cat => {
@@ -49,11 +49,11 @@ function filterStorageByPosition(category) {
             else btn.classList.remove('active');
         }
     });
-    
+
     if (typeof playClickSound === 'function') {
         try { playClickSound(); } catch (e) {}
     }
-    
+
     renderStorageDeck();
 }
 
@@ -62,14 +62,14 @@ function createCardDOM(key, awakened) {
     const cardEl = document.createElement('div');
     const isSuper = awakened && awakened.rarity === 'super';
     cardEl.className = `fut-card flipped ${isSuper ? 'is-super' : ''}`;
-    
+
     // Card Front
     const cardFront = document.createElement('div');
     cardFront.className = `card-front ${isSuper ? 'super-card' : ''}`;
     cardFront.innerHTML = generateCardHTML(awakened);
     cardFront.style.borderColor = awakened.theme.glow;
     cardFront.style.boxShadow = `0 0 15px ${awakened.theme.glow}22, var(--card-shadow)`;
-    
+
     // Card Back (Player Profile)
     const cardBack = document.createElement('div');
     cardBack.className = 'card-back';
@@ -84,13 +84,13 @@ function createCardDOM(key, awakened) {
     cardBack.style.textAlign = 'center';
     cardBack.style.boxSizing = 'border-box';
     cardBack.style.padding = '1.25rem';
-    
+
     // Back pattern decoration
     const pattern = document.createElement('div');
     pattern.className = 'card-back-pattern';
     pattern.style.borderColor = `${awakened.theme.glow}22`;
     cardBack.appendChild(pattern);
-    
+
     // Header
     const header = document.createElement('div');
     header.style.width = '100%';
@@ -103,7 +103,7 @@ function createCardDOM(key, awakened) {
         <h3 style="margin: 4px 0 0 0; font-size: 1.15rem; font-weight: 800; background: linear-gradient(135deg, #fff 0%, ${awakened.theme.glow} 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${awakened.name}</h3>
     `;
     cardBack.appendChild(header);
-    
+
     // Body description
     const body = document.createElement('div');
     body.style.flexGrow = '1';
@@ -113,7 +113,7 @@ function createCardDOM(key, awakened) {
     body.style.alignItems = 'center';
     body.style.zIndex = '2';
     body.style.padding = '0 5px';
-    
+
     const descText = awakened.description || 'FC 스타 리그의 대표 선수입니다. 탁월한 기량과 활약으로 팀의 승리를 이끌며 팬들의 뜨거운 사랑을 받고 있습니다.';
     body.innerHTML = `
         <p style="font-size: 0.72rem; line-height: 1.45; color: #cbd5e1; margin: 0; word-break: keep-all; font-weight: 500;">
@@ -121,7 +121,7 @@ function createCardDOM(key, awakened) {
         </p>
     `;
     cardBack.appendChild(body);
-    
+
     // Footer
     const footer = document.createElement('div');
     footer.style.width = '100%';
@@ -143,17 +143,17 @@ function createCardDOM(key, awakened) {
         </span>
     `;
     cardBack.appendChild(footer);
-    
+
     cardEl.appendChild(cardFront);
     cardEl.appendChild(cardBack);
-    
+
     // Double-click to flip on Desktop
     cardEl.addEventListener('dblclick', (e) => {
         e.stopPropagation();
         cardEl.classList.toggle('flipped');
         if (typeof playSound === 'function') playSound('flip');
     });
-    
+
     // Double-tap to flip on Mobile
     let lastTap = 0;
     cardEl.addEventListener('touchstart', (e) => {
@@ -167,7 +167,7 @@ function createCardDOM(key, awakened) {
         }
         lastTap = currentTime;
     }, { passive: false });
-    
+
     return cardEl;
 }
 
@@ -176,19 +176,19 @@ function renderDeck() {
     const grid = document.getElementById('deckGrid');
     const placeholder = document.getElementById('emptyDeckPlaceholder');
     if (!grid) return;
-    
+
     const existingCards = grid.querySelectorAll('.deck-card-wrapper');
     existingCards.forEach(el => el.remove());
-    
+
     // 1. 보관되지 않은 활성 카드 추출
     const activeKeys = Object.keys(playerDeck).filter(k => !playerDeck[k].isStored);
-    
+
     // 2. 포지션 필터 적용
     const filteredKeys = activeKeys.filter(k => {
         const card = getAwakenedCard(k);
         return card ? matchPositionCategory(card.position, currentDeckPositionFilter) : true;
     });
-    
+
     // 3. 능력치(Rating)가 높은 순서대로 정렬 (각성 스탯 보너스 반영)
     filteredKeys.sort((a, b) => {
         const cardA = getAwakenedCard(a);
@@ -197,7 +197,7 @@ function renderDeck() {
         const ratingB = cardB ? cardB.rating : 0;
         return ratingB - ratingA;
     });
-    
+
     if (filteredKeys.length === 0) {
         if (placeholder) {
             placeholder.style.display = 'flex';
@@ -217,15 +217,15 @@ function renderDeck() {
         }
     } else {
         if (placeholder) placeholder.style.display = 'none';
-        
+
         filteredKeys.forEach(key => {
             const wrapper = document.createElement('div');
             wrapper.className = 'deck-card-wrapper';
-            
+
             const awakened = getAwakenedCard(key);
             const cardEl = createCardDOM(key, awakened);
             wrapper.appendChild(cardEl);
-            
+
             // 카드 우측 하단 [📦 보관함으로 이동] 플로팅 버튼 생성
             const storageBtn = document.createElement('button');
             storageBtn.className = 'btn-card-storage-float';
@@ -236,40 +236,64 @@ function renderDeck() {
                 moveToStorage(key);
             };
             wrapper.appendChild(storageBtn);
-            
-            // ★5 각성 완료된 카드에 ★6 강화(10 FP) 버튼 노출
+
+            // 단계별 100% 확정 강화 버튼 (+1강 1 FP ~ +6강 6 FP, 최대 +6강)
             const deckCardObj = playerDeck[key];
-            if (deckCardObj && deckCardObj.awakening === 5) {
-                const upgradeBtn = document.createElement('button');
-                upgradeBtn.className = 'btn-quick-upgrade-six';
-                upgradeBtn.style.marginTop = '0.8rem';
-                upgradeBtn.style.width = '100%';
-                upgradeBtn.style.padding = '0.55rem 0.8rem';
-                upgradeBtn.style.background = 'linear-gradient(135deg, #ffd700, #ff3e6c)';
-                upgradeBtn.style.border = 'none';
-                upgradeBtn.style.borderRadius = '10px';
-                upgradeBtn.style.color = '#080a10';
-                upgradeBtn.style.fontWeight = '800';
-                upgradeBtn.style.fontSize = '0.82rem';
-                upgradeBtn.style.cursor = 'pointer';
-                upgradeBtn.style.display = 'flex';
-                upgradeBtn.style.alignItems = 'center';
-                upgradeBtn.style.justifyContent = 'center';
-                upgradeBtn.style.gap = '6px';
-                upgradeBtn.style.boxShadow = '0 4px 12px rgba(255, 62, 108, 0.3)';
-                upgradeBtn.style.transition = 'all 0.2s';
-                upgradeBtn.innerHTML = `<i class="fa-solid fa-bolt" style="color: #080a10;"></i> ★6 강화 (10 FP)`;
-                
-                upgradeBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    upgradeCardToSix(key);
-                };
-                upgradeBtn.onmouseover = () => { upgradeBtn.style.transform = 'scale(1.03)'; };
-                upgradeBtn.onmouseout = () => { upgradeBtn.style.transform = 'none'; };
-                
-                wrapper.appendChild(upgradeBtn);
+            if (deckCardObj) {
+                const currentAwk = deckCardObj.awakening || 0;
+                if (currentAwk < 6) {
+                    const nextAwk = currentAwk + 1;
+                    const cost = nextAwk;
+                    const upgradeBtn = document.createElement('button');
+                    upgradeBtn.className = 'btn-quick-upgrade-step';
+                    upgradeBtn.style.marginTop = '0.8rem';
+                    upgradeBtn.style.width = '100%';
+                    upgradeBtn.style.padding = '0.55rem 0.8rem';
+                    upgradeBtn.style.background = 'linear-gradient(135deg, #ffd700, #ff9f43)';
+                    upgradeBtn.style.border = 'none';
+                    upgradeBtn.style.borderRadius = '10px';
+                    upgradeBtn.style.color = '#080a10';
+                    upgradeBtn.style.fontWeight = '800';
+                    upgradeBtn.style.fontSize = '0.82rem';
+                    upgradeBtn.style.cursor = 'pointer';
+                    upgradeBtn.style.display = 'flex';
+                    upgradeBtn.style.alignItems = 'center';
+                    upgradeBtn.style.justifyContent = 'center';
+                    upgradeBtn.style.gap = '6px';
+                    upgradeBtn.style.boxShadow = '0 4px 12px rgba(255, 159, 67, 0.3)';
+                    upgradeBtn.style.transition = 'all 0.2s';
+                    upgradeBtn.innerHTML = `<i class="fa-solid fa-bolt" style="color: #080a10;"></i> ★${nextAwk} 강화 (${cost} FP)`;
+
+                    upgradeBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        upgradeCardStep(key);
+                    };
+                    upgradeBtn.onmouseover = () => { upgradeBtn.style.transform = 'scale(1.03)'; };
+                    upgradeBtn.onmouseout = () => { upgradeBtn.style.transform = 'none'; };
+
+                    wrapper.appendChild(upgradeBtn);
+                } else {
+                    const maxBadge = document.createElement('div');
+                    maxBadge.className = 'badge-max-upgrade';
+                    maxBadge.style.marginTop = '0.8rem';
+                    maxBadge.style.width = '100%';
+                    maxBadge.style.padding = '0.45rem 0.6rem';
+                    maxBadge.style.background = 'rgba(255, 215, 0, 0.12)';
+                    maxBadge.style.border = '1px solid rgba(255, 215, 0, 0.35)';
+                    maxBadge.style.borderRadius = '10px';
+                    maxBadge.style.color = '#ffd700';
+                    maxBadge.style.fontWeight = '800';
+                    maxBadge.style.fontSize = '0.78rem';
+                    maxBadge.style.textAlign = 'center';
+                    maxBadge.style.display = 'flex';
+                    maxBadge.style.alignItems = 'center';
+                    maxBadge.style.justifyContent = 'center';
+                    maxBadge.style.gap = '5px';
+                    maxBadge.innerHTML = `<i class="fa-solid fa-crown" style="color: #ffd700;"></i> ★6 MAX 강화`;
+                    wrapper.appendChild(maxBadge);
+                }
             }
-            
+
             grid.appendChild(wrapper);
         });
     }
@@ -281,19 +305,19 @@ function renderStorageDeck() {
     const grid = document.getElementById('storageGrid');
     const placeholder = document.getElementById('emptyStoragePlaceholder');
     if (!grid) return;
-    
+
     const existingCards = grid.querySelectorAll('.deck-card-wrapper');
     existingCards.forEach(el => el.remove());
-    
+
     // 1. 보관된 카드들 추출
     const storedKeys = Object.keys(playerDeck).filter(k => playerDeck[k].isStored === true);
-    
+
     // 2. 포지션 필터 적용
     const filteredKeys = storedKeys.filter(k => {
         const card = getAwakenedCard(k);
         return card ? matchPositionCategory(card.position, currentStoragePositionFilter) : true;
     });
-    
+
     // 3. 능력치(Rating)가 높은 순서대로 정렬
     filteredKeys.sort((a, b) => {
         const cardA = getAwakenedCard(a);
@@ -302,7 +326,7 @@ function renderStorageDeck() {
         const ratingB = cardB ? cardB.rating : 0;
         return ratingB - ratingA;
     });
-    
+
     if (filteredKeys.length === 0) {
         if (placeholder) {
             placeholder.style.display = 'flex';
@@ -322,15 +346,15 @@ function renderStorageDeck() {
         }
     } else {
         if (placeholder) placeholder.style.display = 'none';
-        
+
         filteredKeys.forEach(key => {
             const wrapper = document.createElement('div');
             wrapper.className = 'deck-card-wrapper';
-            
+
             const awakened = getAwakenedCard(key);
             const cardEl = createCardDOM(key, awakened);
             wrapper.appendChild(cardEl);
-            
+
             // 카드 우측 하단 [📤 내 컬렉션으로 복원] 플로팅 버튼 생성
             const restoreBtn = document.createElement('button');
             restoreBtn.className = 'btn-card-storage-float restore';
@@ -341,7 +365,64 @@ function renderStorageDeck() {
                 restoreFromStorage(key);
             };
             wrapper.appendChild(restoreBtn);
-            
+
+            // 보관함 카드 단계별 강화 버튼
+            const storageCardObj = playerDeck[key];
+            if (storageCardObj) {
+                const currentAwk = storageCardObj.awakening || 0;
+                if (currentAwk < 6) {
+                    const nextAwk = currentAwk + 1;
+                    const cost = nextAwk;
+                    const upgradeBtn = document.createElement('button');
+                    upgradeBtn.className = 'btn-quick-upgrade-step';
+                    upgradeBtn.style.marginTop = '0.8rem';
+                    upgradeBtn.style.width = '100%';
+                    upgradeBtn.style.padding = '0.55rem 0.8rem';
+                    upgradeBtn.style.background = 'linear-gradient(135deg, #ffd700, #ff9f43)';
+                    upgradeBtn.style.border = 'none';
+                    upgradeBtn.style.borderRadius = '10px';
+                    upgradeBtn.style.color = '#080a10';
+                    upgradeBtn.style.fontWeight = '800';
+                    upgradeBtn.style.fontSize = '0.82rem';
+                    upgradeBtn.style.cursor = 'pointer';
+                    upgradeBtn.style.display = 'flex';
+                    upgradeBtn.style.alignItems = 'center';
+                    upgradeBtn.style.justifyContent = 'center';
+                    upgradeBtn.style.gap = '6px';
+                    upgradeBtn.style.boxShadow = '0 4px 12px rgba(255, 159, 67, 0.3)';
+                    upgradeBtn.style.transition = 'all 0.2s';
+                    upgradeBtn.innerHTML = `<i class="fa-solid fa-bolt" style="color: #080a10;"></i> ★${nextAwk} 강화 (${cost} FP)`;
+
+                    upgradeBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        upgradeCardStep(key);
+                    };
+                    upgradeBtn.onmouseover = () => { upgradeBtn.style.transform = 'scale(1.03)'; };
+                    upgradeBtn.onmouseout = () => { upgradeBtn.style.transform = 'none'; };
+
+                    wrapper.appendChild(upgradeBtn);
+                } else {
+                    const maxBadge = document.createElement('div');
+                    maxBadge.className = 'badge-max-upgrade';
+                    maxBadge.style.marginTop = '0.8rem';
+                    maxBadge.style.width = '100%';
+                    maxBadge.style.padding = '0.45rem 0.6rem';
+                    maxBadge.style.background = 'rgba(255, 215, 0, 0.12)';
+                    maxBadge.style.border = '1px solid rgba(255, 215, 0, 0.35)';
+                    maxBadge.style.borderRadius = '10px';
+                    maxBadge.style.color = '#ffd700';
+                    maxBadge.style.fontWeight = '800';
+                    maxBadge.style.fontSize = '0.78rem';
+                    maxBadge.style.textAlign = 'center';
+                    maxBadge.style.display = 'flex';
+                    maxBadge.style.alignItems = 'center';
+                    maxBadge.style.justifyContent = 'center';
+                    maxBadge.style.gap = '5px';
+                    maxBadge.innerHTML = `<i class="fa-solid fa-crown" style="color: #ffd700;"></i> ★6 MAX 강화`;
+                    wrapper.appendChild(maxBadge);
+                }
+            }
+
             grid.appendChild(wrapper);
         });
     }
@@ -382,9 +463,9 @@ function closeStoragePage() {
 function moveToStorage(cardId) {
     const cardObj = playerDeck[cardId];
     if (!cardObj) return;
-    
+
     const cardName = cardObj.card ? cardObj.card.name : '선수';
-    
+
     // 현재 포메이션에 배치되어 있는지 검사
     let isPlacedInSquad = false;
     ['4-4-2', '4-3-3', '3-4-3', '5-4-1', '4-2-3-1'].forEach(f => {
@@ -396,11 +477,11 @@ function moveToStorage(cardId) {
             });
         }
     });
-    
+
     if (isPlacedInSquad) {
         const confirmStorage = confirm(`'${cardName}' 선수는 현재 선발 포메이션에 등록되어 있습니다.\n포메이션에서 제외하고 보관함으로 이동하시겠습니까?`);
         if (!confirmStorage) return;
-        
+
         // 모든 포메이션 슬롯에서 해당 카드 안전하게 제외
         ['4-4-2', '4-3-3', '3-4-3', '5-4-1', '4-2-3-1'].forEach(f => {
             if (typeof squadFormations !== 'undefined' && squadFormations[f]) {
@@ -415,9 +496,9 @@ function moveToStorage(cardId) {
             squadFormation = squadFormations[currentFormation];
         }
     }
-    
+
     cardObj.isStored = true;
-    
+
     // 국대 모드 스쿼드 및 프리셋에서도 해당 카드 제외
     if (typeof nationalModeState !== 'undefined' && nationalModeState && nationalModeState.squad) {
         Object.keys(nationalModeState.squad).forEach(slot => {
@@ -441,7 +522,7 @@ function moveToStorage(cardId) {
             }
         });
     }
-    
+
     try {
         localStorage.setItem('fc_star_player_deck', JSON.stringify(playerDeck));
         if (typeof squadFormations !== 'undefined') {
@@ -454,15 +535,15 @@ function moveToStorage(cardId) {
             localStorage.setItem('fc_star_national_squad_presets', JSON.stringify(nationalSquadPresets));
         }
     } catch(e) {}
-    
+
     if (typeof saveUserProgress === 'function') saveUserProgress();
-    
+
     renderDeck();
     renderStorageDeck();
     if (typeof renderSquadFormation === 'function') renderSquadFormation();
     if (typeof syncJeonbukOvr === 'function') syncJeonbukOvr();
     if (typeof updateMatchPreviewBoard === 'function') updateMatchPreviewBoard();
-    
+
     if (typeof showToast === 'function') {
         showToast(`📦 '${cardName}' 선수를 보관함으로 이동했습니다.`);
     }
@@ -472,20 +553,20 @@ function moveToStorage(cardId) {
 function restoreFromStorage(cardId) {
     const cardObj = playerDeck[cardId];
     if (!cardObj) return;
-    
+
     const cardName = cardObj.card ? cardObj.card.name : '선수';
     cardObj.isStored = false;
-    
+
     try {
         localStorage.setItem('fc_star_player_deck', JSON.stringify(playerDeck));
     } catch(e) {}
-    
+
     if (typeof saveUserProgress === 'function') saveUserProgress();
-    
+
     renderDeck();
     renderStorageDeck();
     if (typeof renderSquadFormation === 'function') renderSquadFormation();
-    
+
     if (typeof showToast === 'function') {
         showToast(`📤 '${cardName}' 선수를 내 컬렉션으로 복원했습니다.`);
     }
@@ -495,16 +576,16 @@ function restoreFromStorage(cardId) {
 function updateTotalCardCount() {
     let activeTotal = 0;
     let storedTotal = 0;
-    
+
     const deckCategoryCounts = { ALL: 0, FW: 0, MF: 0, DF: 0, GK: 0 };
     const storageCategoryCounts = { ALL: 0, FW: 0, MF: 0, DF: 0, GK: 0 };
-    
+
     Object.keys(playerDeck).forEach(key => {
         const cardObj = playerDeck[key];
         const card = getAwakenedCard(key);
         const pos = card ? card.position : '';
         const qty = cardObj.quantity || 1;
-        
+
         if (cardObj.isStored === true) {
             storedTotal += qty;
             storageCategoryCounts.ALL += qty;
@@ -521,62 +602,77 @@ function updateTotalCardCount() {
             if (matchPositionCategory(pos, 'GK')) deckCategoryCounts.GK += qty;
         }
     });
-    
+
     const totalEl = document.getElementById('totalCardsCount');
     if (totalEl) totalEl.innerText = activeTotal;
-    
+
     const badgeEl = document.getElementById('storedCardsCountBadge');
     if (badgeEl) badgeEl.innerText = storedTotal;
-    
+
     const storageCountEl = document.getElementById('storageCardsCount');
     if (storageCountEl) storageCountEl.innerText = storedTotal;
-    
+
     // 내 컬렉션 필터 뱃지 업데이트
     ['ALL', 'FW', 'MF', 'DF', 'GK'].forEach(cat => {
         const deckCountBadge = document.getElementById(`filterCount_${cat}`);
         if (deckCountBadge) deckCountBadge.innerText = deckCategoryCounts[cat] || 0;
-        
+
         const storageCountBadge = document.getElementById(`filterStorageCount_${cat}`);
         if (storageCountBadge) storageCountBadge.innerText = storageCategoryCounts[cat] || 0;
     });
 }
 
-// 5.6 ★6 퀵 업그레이드 특전 구현
-function upgradeCardToSix(cardId) {
-    if (typeof userPoints === 'undefined' || userPoints < 10) {
-        alert("보유 포인트(FP)가 부족합니다. (10 FP 필요)");
+// 5.6 단계별 100% 확정 강화 시스템 (+1강 1 FP ~ +6강 6 FP, 최대 +6강)
+function upgradeCardStep(cardId) {
+    if (typeof playerDeck === 'undefined' || !playerDeck[cardId]) return;
+
+    const cardObj = playerDeck[cardId];
+    const currentAwk = cardObj.awakening || 0;
+    if (currentAwk >= 6) {
+        alert("이미 최대 강화(★6) 단계에 도달한 선수입니다.");
         return;
     }
-    
-    const cardObj = playerDeck[cardId];
-    if (!cardObj) return;
-    
-    const confirmUpgrade = confirm(`정말로 10 FP를 사용하여 '${cardObj.card.name}' 선수를 ★6 각성으로 강화하시겠습니까?`);
+
+    const nextAwk = currentAwk + 1;
+    const cost = nextAwk; // +1강 1 FP, +2강 2 FP, ..., +6강 6 FP
+
+    if (typeof userPoints === 'undefined' || userPoints < cost) {
+        alert(`보유 포인트(FP)가 부족합니다. (${cost} FP 필요 / 현재 보유: ${userPoints || 0} FP)`);
+        return;
+    }
+
+    const cardName = cardObj.card?.name || (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE[cardId]?.name) || "선수";
+    const confirmUpgrade = confirm(`정말로 ${cost} FP를 소모하여 '${cardName}' 선수를 ★${nextAwk} 단계로 강화하시겠습니까?\n(100% 확률로 확정 성공)`);
     if (!confirmUpgrade) return;
-    
-    userPoints -= 10;
-    cardObj.awakening = 6;
-    
+
+    userPoints -= cost;
+    cardObj.awakening = nextAwk;
+
     try {
         localStorage.setItem('fc_star_user_points', userPoints.toString());
         localStorage.setItem('fc_star_player_deck', JSON.stringify(playerDeck));
     } catch(e) {}
-    
+
     if (typeof saveUserProgress === 'function') {
         saveUserProgress();
     }
-    
+
     renderUserPoints();
     renderDeck();
     renderStorageDeck();
     renderSquadFormation();
     if (typeof syncJeonbukOvr === 'function') syncJeonbukOvr();
     if (typeof updateMatchPreviewBoard === 'function') updateMatchPreviewBoard();
-    
+
     // 파티클 성공 효과
     if (typeof celebrateQuizSuccess === 'function') {
         celebrateQuizSuccess();
     }
-    
-    alert(`🎉 '${cardObj.card.name}' 선수가 ★6 각성(최종 강화)으로 고정 강화되었습니다! 🎉`);
+
+    alert(`🎉 '${cardName}' 선수가 ★${nextAwk} 단계로 성공적으로 강화되었습니다! (100% 확정 성공) 🎉`);
+}
+
+// 기존 함수 하위 호환
+function upgradeCardToSix(cardId) {
+    upgradeCardStep(cardId);
 }
