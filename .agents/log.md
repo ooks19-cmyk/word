@@ -27,6 +27,31 @@ graph TD
 - **`db.js`**: Firebase Firestore 기반 원격 저장 및 미지원 시 LocalStorage 기반의 가상 로컬 클라우드 전환 처리.
 - **`player/player_data.js`**: 전체 축구선수 카드 스펙(오버롤, 세부 능력치, 포지션 등)을 동적으로 로드.
 
+### 👑 하피냐 월드클래스(Worldclass) 카드 등록 및 CSV 동기화 (2026-10-19)
+* **날짜·시간**: 2026-10-19 20:54 (KST)
+* **요청 요약**:
+  - 하피냐(Raphinha) 월드클래스 등급, 오버롤 93 선수 카드 생성.
+* **수행 내용**:
+  1. **카드 데이터 등록 (`player_data.js`)**:
+     - `raphinha`: OVR 93, 포지션 `RW` (우측 윙어), 국적 `Brazil`, 국기 `https://flagcdn.com/w40/br.png`, 클럽 `FC BARCELONA`, 등급 `worldclass`.
+     - 6대 핵심 스탯: PAC 94, SHO 90, PAS 89, DRI 92, DEF 58, PHY 80.
+     - 비주얼 테마: primary `#000a20`, secondary `#4facfe`, glow `#00f2fe` (월드클래스 시그니처 딥사파이어 & 아쿠아 글로우 테마).
+     - 이미지: `player2/하피냐.webp` (기존 실재 이미지 매핑).
+  2. **PWA 캐시 및 스크립트 버전 상향**:
+     - `sw.js`: `CACHE_NAME = 'fc-star-v471'`.
+     - `index.html`: `player_data.js?v=1.95`.
+  3. **선수데이터 엑셀 시트 동기화 (`선수데이터.csv`)**:
+     - `convert_js_to_csv.py` 실행을 통해 112명 데이터 자동 추출 및 CSV 동기화 (113행).
+* **변경 파일**:
+  - `player_data.js`, `index.html`, `sw.js`, `선수데이터.csv`, `.agents/progress.md`, `.agents/log.md`
+* **검증 결과**:
+  - Node.js 구문 검사(`player_data.js`, `sw.js`): Syntax OK 100% PASS.
+  - CSV 113행 정합성 및 세부 스탯 6종 100% 일치 확인.
+  - 이적시장 통합 테스트(`tests/market_mode.test.cjs`): 100% PASS.
+  - 전체 회귀 테스트 4종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `quiz_subjective`): 100% PASS.
+  - `git diff --check`: 결함 없음.
+* **최종 상태**: 완료
+
 ### 👑 해리 케인 월드클래스(Worldclass) 카드 등록, PHY 90 상향 및 깃 푸시 (2026-10-19)
 * **날짜·시간**: 2026-10-19 20:50 (KST)
 * **요청 요약**:

@@ -2789,6 +2789,31 @@ const CARDS_DATABASE = {
             def: 52,
             phy: 90
         }
+    },
+    "raphinha": {
+        id: "raphinha",
+        name: "하피냐",
+        rating: 93,
+        position: "RW",
+        nation: "Brazil",
+        nationFlag: "https://flagcdn.com/w40/br.png",
+        club: "FC BARCELONA",
+        image: "player2/하피냐.webp",
+        rarity: "worldclass",
+        description: "스페인 라리가 FC 바르셀로나와 브라질 대표팀의 핵심 에이스이자 파괴적인 크랙 하피냐입니다. 폭발적인 순간 가속과 날카로운 왼발 킥, 저돌적인 돌파는 물론 지치지 않는 체력으로 상대 진영을 쉴 새 없이 압박하며 경기 흐름을 뒤바꾸는 월드클래스 윙어입니다.",
+        theme: {
+            primary: "#000a20",
+            secondary: "#4facfe",
+            glow: "#00f2fe"
+        },
+        stats: {
+            pac: 94,
+            sho: 90,
+            pas: 89,
+            dri: 92,
+            def: 58,
+            phy: 80
+        }
     }
 };
 

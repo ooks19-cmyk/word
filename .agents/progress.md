@@ -1,15 +1,18 @@
 ## 현재 작업
-- 목표: '해리 케인' 피지컬(PHY) 스탯 90 상향 조정 및 DB/CSV 동기화, 캐시 상향, 깃 푸시
+- 목표: '하피냐' 월드클래스(worldclass) 등급 선수 카드 생성 (오버롤 93, 포지션 RW) 및 DB/CSV 동기화, PWA 캐시 갱신
 - 상태: 완료
 - 주요 변경·검증:
-  1. `player_data.js`: `harry_kane` 피지컬 스탯 수정 (`phy: 88` ➔ `phy: 90`).
-  2. `index.html`: `player_data.js?v=1.94` 캐시 쿼리 버전 상향.
-  3. `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v470'` 상향.
-  4. `선수데이터.csv`: 총 111명 데이터 동기화 완료 (112행, 해리 케인 피지컬 90 반영).
-  5. `tests/market_mode.test.cjs`: PWA 캐시 정규식 버전 가드 유연화 (`fc-star-v\d+`).
-  6. 무결성 검증:
+  1. `player_data.js`: `raphinha` 월드클래스(worldclass) 카드 객체 등록 완료
+     - 이름: 하피냐, OVR: 93, 포지션: RW, 국적: Brazil, 소속: FC BARCELONA
+     - 스탯: PAC 94, SHO 90, PAS 89, DRI 92, DEF 58, PHY 80
+     - 테마: primary: "#000a20", secondary: "#4facfe", glow: "#00f2fe" (월드클래스 전용 딥사파이어 & 아쿠아 글로우)
+     - 이미지: `player2/하피냐.webp` (파일 실재 확인 완료)
+  2. `index.html`: `player_data.js?v=1.95` 캐시 쿼리 버전 상향
+  3. `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v471'` 상향
+  4. `선수데이터.csv`: `convert_js_to_csv.py` 스크립트를 통한 112명 데이터 동기화 완료 (113행)
+  5. 무결성 검증:
      - Node.js 구문 검사(`node --check player_data.js sw.js`): Syntax OK 100% PASS
-     - CSV 112행 및 해리 케인 PHY 90 포함 세부 스탯 6종 100% 일치 확인
+     - CSV 113행 및 하피냐 세부 스탯 6종 100% 일치 확인
      - 이적시장 통합 테스트(`tests/market_mode.test.cjs`): 6개 섹션 100% PASS
      - 전체 회귀 테스트 4종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `quiz_subjective`): 100% PASS
      - `git diff --check`: 포맷/공백 결함 0건
