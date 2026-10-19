@@ -2764,6 +2764,31 @@ const CARDS_DATABASE = {
             def: 48,
             phy: 70
         }
+    },
+    "harry_kane": {
+        id: "harry_kane",
+        name: "해리 케인",
+        rating: 93,
+        position: "ST",
+        nation: "England",
+        nationFlag: "https://flagcdn.com/w40/gb-eng.png",
+        club: "BAYERN MUNICH",
+        image: "player2/헤리케인.png",
+        rarity: "worldclass",
+        description: "독일 분데스리가 바이에른 뮌헨과 잉글랜드 대표팀의 주장이자 세계 최고의 완성형 스트라이커 해리 케인입니다. 양발을 가리지 않는 경이적인 골 결정력과 정밀한 슈팅 스킬은 물론, 2선까지 내려와 킬패스를 찔러주는 정상급 플레이메이킹과 묵직한 포스트플레이를 겸비한 월드클래스 넘버 나인입니다.",
+        theme: {
+            primary: "#000a20",
+            secondary: "#4facfe",
+            glow: "#00f2fe"
+        },
+        stats: {
+            pac: 78,
+            sho: 95,
+            pas: 89,
+            dri: 86,
+            def: 52,
+            phy: 90
+        }
     }
 };
 

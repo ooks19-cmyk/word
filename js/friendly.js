@@ -1249,7 +1249,7 @@ function triggerChallengeSeasonVictory(season, lastMatchPlayerOvr) {
         if (typeof updateTotalCardCount === 'function') updateTotalCardCount();
     }
 
-    // 다음 시즌 마지막 보스팀 OVR = 10R 마지막 경기 시점 오버롤 + 1
+    // 다음 시즌 마지막 보스팀 OVR = 10R 마지막 경기 시점 오버롤 + 3
     let finalPlayerOvr = 95;
     if (typeof lastMatchPlayerOvr === 'number' && lastMatchPlayerOvr > 0) {
         finalPlayerOvr = lastMatchPlayerOvr;
@@ -1259,7 +1259,7 @@ function triggerChallengeSeasonVictory(season, lastMatchPlayerOvr) {
         finalPlayerOvr = pureOvr + (formTactic.formationBonus || 0);
     }
     
-    challengeBossOvr = finalPlayerOvr + 1;
+    challengeBossOvr = finalPlayerOvr + 3;
 
     // 시즌 갱신 (다음 시즌 리셋)
     challengeSeason += 1;
@@ -1579,7 +1579,7 @@ function executeChallengeSuperCardReward(selectedCardId, season, lastMatchPlayer
         if (typeof updateTotalCardCount === 'function') updateTotalCardCount();
     }
 
-    // 다음 시즌 마지막 보스팀 OVR = 10R 마지막 경기 시점 오버롤 + 1
+    // 다음 시즌 마지막 보스팀 OVR = 10R 마지막 경기 시점 오버롤 + 3
     let finalPlayerOvr = 95;
     if (typeof lastMatchPlayerOvr === 'number' && lastMatchPlayerOvr > 0) {
         finalPlayerOvr = lastMatchPlayerOvr;
@@ -1589,7 +1589,7 @@ function executeChallengeSuperCardReward(selectedCardId, season, lastMatchPlayer
         finalPlayerOvr = pureOvr + (formTactic.formationBonus || 0);
     }
     
-    challengeBossOvr = finalPlayerOvr + 1;
+    challengeBossOvr = finalPlayerOvr + 3;
 
     // 시즌 갱신 (다음 시즌 리셋)
     challengeSeason += 1;

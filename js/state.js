@@ -441,7 +441,7 @@ try {
 // ==========================================
 let challengeSeason = 1;
 let challengeStage = 1;
-let challengeBossOvr = 98; // 기본 1시즌 마지막 보스 OVR 98 (시즌 종료 시 마지막 경기 시점 OVR + 1 로 갱신)
+let challengeBossOvr = 98; // 기본 1시즌 마지막 보스 OVR 98 (시즌 종료 시 마지막 경기 시점 OVR + 3 으로 갱신)
 let challengeLastDate = "";
 let challengeDailyFreeUsed = false;
 let challengeDailyRetryUsed = false;

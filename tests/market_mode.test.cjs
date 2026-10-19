@@ -245,7 +245,7 @@ assert.ok(html.includes('js/market.js'), 'index.html에 market.js가 로드되�
 assert.ok(html.includes('id="btnQuizMore"'), 'index.html 단어퀴즈 완료 화면에 퀴즈 더풀기 버튼이 존재해야 합니다.');
 assert.ok(html.includes('id="btnQuizGoMarket"'), 'index.html 단어퀴즈 완료 화면에 이적시장 진입 버튼이 존재해야 합니다.');
 
-assert.ok(/fc-star-v46\d+/.test(sw), 'sw.js의 CACHE_NAME이 올바른 버전 형식이어야 합니다.');
+assert.ok(/fc-star-v\d+/.test(sw), 'sw.js의 CACHE_NAME이 올바른 버전 형식이어야 합니다.');
 assert.ok(sw.includes("'./css/market.css'"), 'sw.js ASSETS에 market.css가 포함되어야 합니다.');
 assert.ok(sw.includes("'./js/market.js'"), 'sw.js ASSETS에 market.js가 포함되어야 합니다.');
 

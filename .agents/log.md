@@ -27,6 +27,57 @@ graph TD
 - **`db.js`**: Firebase Firestore 기반 원격 저장 및 미지원 시 LocalStorage 기반의 가상 로컬 클라우드 전환 처리.
 - **`player/player_data.js`**: 전체 축구선수 카드 스펙(오버롤, 세부 능력치, 포지션 등)을 동적으로 로드.
 
+### 👑 해리 케인 월드클래스(Worldclass) 카드 등록, PHY 90 상향 및 깃 푸시 (2026-10-19)
+* **날짜·시간**: 2026-10-19 20:50 (KST)
+* **요청 요약**:
+  - 해리 케인(Harry Kane / 헤리케인) 월드클래스 등급, 오버롤 93 선수 카드 생성 및 피지컬(PHY) 90 상향 후 깃 푸시.
+* **수행 내용**:
+  1. **카드 데이터 등록 및 스탯 조정 (`player_data.js`)**:
+     - `harry_kane`: OVR 93, 포지션 `ST` (스트라이커), 국적 `England`, 국기 `https://flagcdn.com/w40/gb-eng.png`, 클럽 `BAYERN MUNICH`, 등급 `worldclass`.
+     - 6대 핵심 스탯: PAC 78, SHO 95, PAS 89, DRI 86, DEF 52, **PHY 90** (기존 88에서 90으로 상향 반영).
+     - 비주얼 테마: primary `#000a20`, secondary `#4facfe`, glow `#00f2fe` (월드클래스 시그니처 딥사파이어 & 아쿠아 글로우 테마).
+     - 이미지: `player2/헤리케인.png` (신규 카드 이미지 파일 추가 및 매핑).
+  2. **PWA 캐시 및 스크립트 버전 상향**:
+     - `sw.js`: `CACHE_NAME = 'fc-star-v470'`.
+     - `index.html`: `player_data.js?v=1.94`.
+  3. **선수데이터 엑셀 시트 동기화 (`선수데이터.csv`)**:
+     - 111명 데이터 자동 추출 및 CSV 동기화 (112행, 해리 케인 PHY 90 반영).
+  4. **테스트 가드 개선 (`tests/market_mode.test.cjs`)**:
+     - `sw.js` 캐시 버전 정규식을 유연한 `/fc-star-v\d+/` 형태로 개선.
+  5. **Git 커밋 및 원격 저장소 푸시**:
+     - `main` 브랜치에 안전하게 커밋 및 origin/main 푸시 완료.
+* **변경 파일**:
+  - `player_data.js`, `index.html`, `sw.js`, `선수데이터.csv`, `player2/헤리케인.png`, `tests/market_mode.test.cjs`, `js/friendly.js`, `js/state.js`, `.agents/progress.md`, `.agents/log.md`
+* **검증 결과**:
+  - Node.js 구문 검사(`player_data.js`, `sw.js` 등): Syntax OK 100% PASS.
+  - CSV 112행 정합성 및 세부 스탯 6종 100% 일치 확인.
+  - 이적시장 통합 테스트(`tests/market_mode.test.cjs`): 100% PASS.
+  - 전체 회귀 테스트 4종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `quiz_subjective`): 100% PASS.
+  - `git diff --check`: 결함 없음.
+* **최종 상태**: 완료
+
+### 🎯 도전모드 동적 보스 OVR 공식 수정 (+3 적용) (2026-10-19)
+* **날짜·시간**: 2026-10-19 20:38 (KST)
+* **요청 요약**:
+  - 도전모드 시즌 우승 시 다음 시즌 최종 보스(10R) OVR을 우승 직전 유저 덱 OVR + 1에서 **우승 직전 유저 덱 OVR + 3**으로 공식 수정.
+* **수행 내용**:
+  1. **동적 OVR 공식 수정 (`js/friendly.js`)**:
+     - `triggerChallengeSeasonVictory` 및 `selectSuperCardReward` 함수 내:
+       기존 `challengeBossOvr = finalPlayerOvr + 1;` ➔ `challengeBossOvr = finalPlayerOvr + 3;`으로 변경.
+  2. **상태 관리 주석 갱신 (`js/state.js`)**:
+     - `challengeBossOvr` 변수 선언부 주석을 `+ 3` 기준으로 수정.
+  3. **PWA 캐시 및 스크립트 버전 상향**:
+     - `sw.js`: `CACHE_NAME = 'fc-star-v468'`.
+     - `index.html`: `js/friendly.js?v=4.7`.
+* **변경 파일**:
+  - `js/friendly.js`, `js/state.js`, `index.html`, `sw.js`, `.agents/progress.md`, `.agents/log.md`
+* **검증 결과**:
+  - Node.js 구문 검사(`friendly.js`, `state.js`, `sw.js`): Syntax OK 100% PASS.
+  - 이적시장 통합 테스트(`tests/market_mode.test.cjs`): 100% PASS.
+  - 전체 회귀 테스트 4종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `quiz_subjective`): 100% PASS.
+  - `git diff --check`: 결함 없음.
+* **최종 상태**: 완료
+
 ### 🌟 벨링엄 & 뎀벨레 전설(Legend) 등급 상향 조정 및 깃 푸시 (2026-10-18)
 * **날짜·시간**: 2026-10-18 17:09 (KST)
 * **요청 요약**:
