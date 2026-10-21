@@ -2814,6 +2814,31 @@ const CARDS_DATABASE = {
             def: 58,
             phy: 80
         }
+    },
+    "ronaldinho": {
+        id: "ronaldinho",
+        name: "호나우지뉴",
+        rating: 92,
+        position: "LW",
+        nation: "Brazil",
+        nationFlag: "https://flagcdn.com/w40/br.png",
+        club: "FC BARCELONA",
+        image: "player2/호나우지뉴.png",
+        rarity: "legend",
+        description: "그라운드 위의 마술사이자 축구 역사상 가장 화려하고 창의적인 판타지스타 호나우지뉴입니다. 예측 불가능한 신기에 가까운 드리블과 마법 같은 노룩 패스, 전 세계 축구 팬들을 열광시킨 천진난만한 미소와 환상적인 프리킥으로 발롱도르와 챔피언스리그 정상을 정복한 영원한 외계인 레전드입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 92,
+            sho: 90,
+            pas: 93,
+            dri: 95,
+            def: 42,
+            phy: 80
+        }
     }
 };
 

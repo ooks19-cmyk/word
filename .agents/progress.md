@@ -1,4 +1,24 @@
 ## 현재 작업
+- 목표: '호나우지뉴' 전설(legend) 등급 선수 카드 생성 (오버롤 92, 포지션 LW) 및 DB/CSV 동기화, PWA 캐시 갱신
+- 상태: 완료
+- 주요 변경·검증:
+  1. `player_data.js`: `ronaldinho` 전설(legend) 카드 객체 등록 완료
+     - 이름: 호나우지뉴, 등급: legend, OVR: 92, 포지션: LW, 국적: Brazil, 소속: FC BARCELONA
+     - 스탯: PAC 92, SHO 90, PAS 93, DRI 95, DEF 42, PHY 80
+     - 테마: 골드/블랙 레전드 프리셋 (`primary: "#000000"`, `secondary: "#c39e5c"`, `glow: "#ffd700"`)
+     - 이미지: `player2/호나우지뉴.png` (파일 실재 확인 완료)
+  2. `index.html`: `player_data.js?v=1.96` 캐시 쿼리 버전 상향
+  3. `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v472'` 상향
+  4. `선수데이터.csv`: `convert_js_to_csv.py` 스크립트를 통한 113명 데이터 동기화 완료 (114행)
+  5. 무결성 검증:
+     - Node.js 구문 검사(`node --check player_data.js sw.js`): Syntax OK 100% PASS
+     - CSV 114행 및 호나우지뉴 세부 스탯 6종 100% 일치 확인
+     - 이적시장 통합 테스트(`tests/market_mode.test.cjs`): 100% PASS
+     - 전체 회귀 테스트 4종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `quiz_subjective`): 100% PASS
+     - `git diff --check`: 포맷/공백 결함 0건
+- 다음 단계: Git 커밋 및 main 원격 브랜치 푸시 완료.
+
+## 이전 작업
 - 목표: '하피냐' 월드클래스(worldclass) 등급 선수 카드 생성 (오버롤 93, 포지션 RW) 및 DB/CSV 동기화, PWA 캐시 갱신
 - 상태: 완료
 - 주요 변경·검증:

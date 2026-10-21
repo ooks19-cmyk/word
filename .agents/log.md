@@ -27,6 +27,37 @@ graph TD
 - **`db.js`**: Firebase Firestore 기반 원격 저장 및 미지원 시 LocalStorage 기반의 가상 로컬 클라우드 전환 처리.
 - **`player/player_data.js`**: 전체 축구선수 카드 스펙(오버롤, 세부 능력치, 포지션 등)을 동적으로 로드.
 
+### 👑 호나우지뉴 전설(Legend) 카드 등록 및 CSV 동기화 (2026-10-21)
+* **날짜·시간**: 2026-10-21 18:09 (KST)
+* **요청 요약**:
+  - 호나우지뉴(Ronaldinho) 전설 등급, 오버롤 92 선수 카드 생성.
+* **수행 내용**:
+  1. **카드 데이터 등록 (`player_data.js`)**:
+     - `ronaldinho`: OVR 92, 포지션 `LW` (좌측 윙어), 국적 `Brazil`, 국기 `https://flagcdn.com/w40/br.png`, 클럽 `FC BARCELONA`, 등급 `legend`.
+     - 6대 핵심 스탯: PAC 92, SHO 90, PAS 93, DRI 95, DEF 42, PHY 80.
+     - 비주얼 테마: primary `#000000`, secondary `#c39e5c`, glow `#ffd700` (레전드 시그니처 블랙/골드 테마).
+     - 이미지: `player2/호나우지뉴.png` (기존 실재 이미지 매핑).
+     - 설명: "그라운드 위의 마술사이자 축구 역사상 가장 화려하고 창의적인 판타지스타 호나우지뉴입니다. 예측 불가능한 신기에 가까운 드리블과 마법 같은 노룩 패스, 전 세계 축구 팬들을 열광시킨 천진난만한 미소와 환상적인 프리킥으로 발롱도르와 챔피언스리그 정상을 정복한 영원한 외계인 레전드입니다."
+  2. **PWA 캐시 및 스크립트 버전 상향**:
+     - `index.html`: `player_data.js?v=1.96` 상향.
+     - `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v472'` 상향.
+  3. **엑셀 시트 동기화 (`선수데이터.csv`)**:
+     - `convert_js_to_csv.py` 스크립트를 통한 113명 선수 데이터 자동 변환 (헤더 포함 114행).
+  4. **무결성 검증**:
+     - `verify_ronaldinho.py`: 호나우지뉴 객체 스펙, 이미지 실재 여부, HTML/SW 버전, CSV 114행 및 6대 스탯 100% 일치 확인.
+     - Node.js 구문 검사(`node --check player_data.js sw.js`): Syntax OK (100% 통과).
+     - 회귀 테스트 5종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `market_mode`, `quiz_subjective`): 100% PASS.
+     - `git diff --check`: 포맷 및 공백 결함 0건.
+* **변경 파일**:
+  - `player_data.js`
+  - `index.html`
+  - `sw.js`
+  - `선수데이터.csv`
+  - `player2/호나우지뉴.png`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+* **최종 상태**: 완료 (GitHub origin/main 푸시 완료).
+
 ### 👑 하피냐 월드클래스(Worldclass) 카드 등록 및 CSV 동기화 (2026-10-19)
 * **날짜·시간**: 2026-10-19 20:54 (KST)
 * **요청 요약**:
