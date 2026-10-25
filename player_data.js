@@ -2839,6 +2839,31 @@ const CARDS_DATABASE = {
             def: 42,
             phy: 80
         }
+    },
+    "super_maradona": {
+        id: "super_maradona",
+        name: "S마라도나",
+        rating: 95,
+        position: "AM",
+        nation: "Argentina",
+        nationFlag: "https://flagcdn.com/w40/ar.png",
+        club: "NAPOLI",
+        image: "player2/마라도나.webp",
+        rarity: "super",
+        description: "축구의 신이자 나폴리와 아르헨티나의 영원한 영웅, 슈퍼 디에고 마라도나(S마라도나)입니다. 신기에 가까운 드리블 테크닉과 누구도 흉내 낼 수 없는 왼발 마술, 1986 멕시코 월드컵을 지배한 불멸의 천재성으로 그라운드를 호령한 축구 역사상 가장 위대한 No.10 판타지스타입니다.",
+        theme: {
+            primary: "#14002e",
+            secondary: "#ff007f",
+            glow: "#00f2fe"
+        },
+        stats: {
+            pac: 92,
+            sho: 94,
+            pas: 95,
+            dri: 96,
+            def: 46,
+            phy: 82
+        }
     }
 };
 

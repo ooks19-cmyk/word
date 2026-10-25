@@ -27,6 +27,37 @@ graph TD
 - **`db.js`**: Firebase Firestore 기반 원격 저장 및 미지원 시 LocalStorage 기반의 가상 로컬 클라우드 전환 처리.
 - **`player/player_data.js`**: 전체 축구선수 카드 스펙(오버롤, 세부 능력치, 포지션 등)을 동적으로 로드.
 
+### ⚡ S마라도나 슈퍼(Super) 카드 오버롤 수정 (101 -> 95) 및 CSV 동기화 (2026-10-25)
+* **날짜·시간**: 2026-10-25 10:53 (KST)
+* **요청 요약**:
+  - 마라도나 슈퍼 등급 카드 오버롤을 101에서 95로 수정 및 6대 스탯 밸런스 조정.
+* **수행 내용**:
+  1. **카드 데이터 수정 (`player_data.js`)**:
+     - `super_maradona`: OVR 95, 포지션 `AM` (공격형 미드필더), 국적 `Argentina`, 국기 `https://flagcdn.com/w40/ar.png`, 클럽 `NAPOLI`, 등급 `super`.
+     - 6대 핵심 스탯 재조정: PAC 92, SHO 94, PAS 95, DRI 96, DEF 46, PHY 82 (슈퍼 등급 최상위 밸런싱).
+     - 비주얼 테마: primary `#14002e`, secondary `#ff007f`, glow `#00f2fe` (슈퍼 등급 오로라 네온 테마).
+     - 이미지: `player2/마라도나.webp` (기존 실재 이미지 매핑).
+     - 설명: "축구의 신이자 나폴리와 아르헨티나의 영원한 영웅, 슈퍼 디에고 마라도나(S마라도나)입니다. 신기에 가까운 드리블 테크닉과 누구도 흉내 낼 수 없는 왼발 마술, 1986 멕시코 월드컵을 지배한 불멸의 천재성으로 그라운드를 호령한 축구 역사상 가장 위대한 No.10 판타지스타입니다."
+  2. **PWA 캐시 및 스크립트 버전 상향**:
+     - `index.html`: `player_data.js?v=1.98` 상향.
+     - `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v474'` 상향.
+  3. **엑셀 시트 동기화 (`선수데이터.csv`)**:
+     - `convert_js_to_csv.py` 스크립트를 통한 114명 선수 데이터 자동 변환 (헤더 포함 115행).
+  4. **무결성 검증**:
+     - `scratch/verify_maradona.py`: S마라도나 객체 스펙, 이미지 실재 여부, HTML/SW 버전, CSV 115행 및 6대 스탯 100% 일치 확인.
+     - Node.js 구문 검사(`node --check player_data.js sw.js`): Syntax OK (100% 통과).
+     - 회귀 테스트 5종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `market_mode`, `quiz_subjective`): 100% PASS.
+     - `git diff --check`: 포맷 및 공백 결함 0건.
+* **변경 파일**:
+  - `player_data.js`
+  - `index.html`
+  - `sw.js`
+  - `선수데이터.csv`
+  - `scratch/verify_maradona.py`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+* **최종 상태**: 완료 (사용자 확인 대기).
+
 ### 👑 호나우지뉴 전설(Legend) 카드 등록 및 CSV 동기화 (2026-10-21)
 * **날짜·시간**: 2026-10-21 18:09 (KST)
 * **요청 요약**:

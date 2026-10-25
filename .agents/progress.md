@@ -1,4 +1,24 @@
 ## 현재 작업
+- 목표: 'S마라도나' 슈퍼(super) 등급 선수 카드 오버롤 수정 (101 -> 95) 및 스탯 밸런싱, DB/CSV 동기화, PWA 캐시 갱신
+- 상태: 완료
+- 주요 변경·검증:
+  1. `player_data.js`: `super_maradona` OVR 95 수정 및 스탯 밸런스 조정 완료
+     - 이름: S마라도나, 등급: super, OVR: 95, 포지션: AM, 국적: Argentina, 소속: NAPOLI
+     - 스탯: PAC 92, SHO 94, PAS 95, DRI 96, DEF 46, PHY 82
+     - 테마: 슈퍼 오로라 네온 프리셋 (`primary: "#14002e"`, `secondary: "#ff007f"`, `glow: "#00f2fe"`)
+     - 이미지: `player2/마라도나.webp` (파일 실재 확인 완료)
+  2. `index.html`: `player_data.js?v=1.98` 캐시 쿼리 버전 상향
+  3. `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v474'` 상향
+  4. `선수데이터.csv`: `convert_js_to_csv.py` 스크립트를 통한 114명 데이터 동기화 완료 (115행)
+  5. 무결성 검증:
+     - Node.js 구문 검사(`node --check player_data.js sw.js`): Syntax OK 100% PASS
+     - CSV 115행 및 S마라도나 세부 스탯 6종 100% 일치 확인
+     - 이적시장 통합 테스트(`tests/market_mode.test.cjs`): 100% PASS
+     - 전체 회귀 테스트 4종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `quiz_subjective`): 100% PASS
+     - `git diff --check`: 포맷/공백 결함 0건
+- 다음 단계: 사용자 완료 보고 및 Git 커밋/푸시 지시 대기.
+
+## 이전 작업
 - 목표: '호나우지뉴' 전설(legend) 등급 선수 카드 생성 (오버롤 92, 포지션 LW) 및 DB/CSV 동기화, PWA 캐시 갱신
 - 상태: 완료
 - 주요 변경·검증:
