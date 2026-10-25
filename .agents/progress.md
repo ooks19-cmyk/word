@@ -16,7 +16,7 @@
      - 이적시장 통합 테스트(`tests/market_mode.test.cjs`): 100% PASS
      - 전체 회귀 테스트 4종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `quiz_subjective`): 100% PASS
      - `git diff --check`: 포맷/공백 결함 0건
-- 다음 단계: 사용자 완료 보고 및 Git 커밋/푸시 지시 대기.
+- 다음 단계: Git 커밋 및 main 원격 브랜치 푸시 완료 (`d44fe82`).
 
 ## 이전 작업
 - 목표: '호나우지뉴' 전설(legend) 등급 선수 카드 생성 (오버롤 92, 포지션 LW) 및 DB/CSV 동기화, PWA 캐시 갱신

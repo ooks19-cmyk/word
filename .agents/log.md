@@ -56,7 +56,7 @@ graph TD
   - `scratch/verify_maradona.py`
   - `.agents/progress.md`
   - `.agents/log.md`
-* **최종 상태**: 완료 (사용자 확인 대기).
+* **최종 상태**: 완료 (GitHub origin/main 푸시 완료: `d44fe82`).
 
 ### 👑 호나우지뉴 전설(Legend) 카드 등록 및 CSV 동기화 (2026-10-21)
 * **날짜·시간**: 2026-10-21 18:09 (KST)
