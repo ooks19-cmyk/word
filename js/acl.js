@@ -7,6 +7,7 @@ function getActiveAclUserTeamId() {
     if (typeof currentLeagueId !== 'undefined') {
         if (currentLeagueId === 'epl') return "liverpool";
         if (currentLeagueId === 'jleague') return "tokyo";
+        if (currentLeagueId === 'ligue1') return "psg";
     }
     return "jeonbuk";
 }
@@ -18,14 +19,27 @@ function getActiveAclUserTeamName() {
     if (typeof currentLeagueId !== 'undefined') {
         if (currentLeagueId === 'epl') return "리버풀 FC";
         if (currentLeagueId === 'jleague') return "FC 도쿄";
+        if (currentLeagueId === 'ligue1') return "파리 생제르맹";
     }
     return "전북 현대";
 }
 
 function getActiveAclTeamsPreset() {
-    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') {
-        if (typeof UCL_TEAMS_PRESET_EPL !== 'undefined' && UCL_TEAMS_PRESET_EPL.length > 0) {
-            return UCL_TEAMS_PRESET_EPL;
+    if (typeof currentLeagueId !== 'undefined') {
+        if (currentLeagueId === 'epl') {
+            if (typeof UCL_TEAMS_PRESET_EPL !== 'undefined' && UCL_TEAMS_PRESET_EPL.length > 0) {
+                return UCL_TEAMS_PRESET_EPL;
+            }
+        } else if (currentLeagueId === 'ligue1') {
+            if (typeof UCL_TEAMS_PRESET_EPL !== 'undefined' && UCL_TEAMS_PRESET_EPL.length > 0) {
+                // 리그앙 모드에서는 PSG가 플레이어 구단이므로 유럽 상대팀 중 PSG를 리버풀로 대체
+                return UCL_TEAMS_PRESET_EPL.map(t => {
+                    if (t.id === 'psg') {
+                        return { id: "liverpool", name: "리버풀 FC", rating: 94, color: "#c8102e", emblem: "img/mark_liverpool.png" };
+                    }
+                    return t;
+                });
+            }
         }
     }
     return (typeof ACL_TEAMS_PRESET !== 'undefined') ? ACL_TEAMS_PRESET : [];
@@ -33,9 +47,17 @@ function getActiveAclTeamsPreset() {
 
 function getActiveAclPlayersPreset() {
     if (typeof currentLeagueId !== 'undefined') {
-        if (currentLeagueId === 'epl') {
+        if (currentLeagueId === 'epl' || currentLeagueId === 'ligue1') {
             if (typeof UCL_PLAYERS_PRESET_EPL !== 'undefined' && UCL_PLAYERS_PRESET_EPL.length > 0) {
-                return UCL_PLAYERS_PRESET_EPL;
+                let uclPlayers = [...UCL_PLAYERS_PRESET_EPL];
+                if (currentLeagueId === 'ligue1') {
+                    uclPlayers = uclPlayers.filter(p => p.teamId !== 'psg');
+                    uclPlayers.push(
+                        { id: "ucl_liv_1", name: "살라", teamId: "liverpool", teamName: "리버풀 FC" },
+                        { id: "ucl_liv_2", name: "디아스", teamId: "liverpool", teamName: "리버풀 FC" }
+                    );
+                }
+                return uclPlayers;
             }
         } else if (currentLeagueId === 'jleague') {
             const jPlayers = (typeof OTHER_TEAMS_PLAYERS_PRESET_JLEAGUE !== 'undefined') ? OTHER_TEAMS_PLAYERS_PRESET_JLEAGUE : [];
@@ -114,7 +136,7 @@ function resetAclStateData() {
     const formBonus = (typeof getPlayerFormationTacticBonuses === 'function') ? getPlayerFormationTacticBonuses().formationBonus : 0;
     const playerOvr = pureOvr + formBonus; // 포메이션 전술 완성 보너스 포함
     const top20Ovr = (typeof getPlayerTop20Ovr === 'function') ? getPlayerTop20Ovr() : 70;
-    const isEpl = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl');
+    const isEpl = (typeof currentLeagueId !== 'undefined' && (currentLeagueId === 'epl' || currentLeagueId === 'ligue1'));
     const playerTeamId = getActiveAclUserTeamId();
     const playerTeamName = getActiveAclUserTeamName();
     const presetTeams = getActiveAclTeamsPreset();
@@ -139,19 +161,27 @@ function resetAclStateData() {
             }
         }
         
-        // Fallback EPL 진출 구단
+        // Fallback UCL 진출 구단
         if (eplQualifiers.length < 3) {
-            eplQualifiers = [
-                { id: "mancity", name: "맨체스터 시티", rating: 95, color: "#6cabdd" },
-                { id: "arsenal", name: "아스날", rating: 94, color: "#ef0107" },
-                { id: "chelsea", name: "첼시", rating: 91, color: "#034694" }
-            ];
+            if (currentLeagueId === 'ligue1') {
+                eplQualifiers = [
+                    { id: "monaco", name: "AS 모나코", rating: 89, color: "#e2001a" },
+                    { id: "marseille", name: "올랭피크 드 마르세유", rating: 89, color: "#00a3e0" },
+                    { id: "lille", name: "LOSC 릴", rating: 88, color: "#e01e13" }
+                ];
+            } else {
+                eplQualifiers = [
+                    { id: "mancity", name: "맨체스터 시티", rating: 95, color: "#6cabdd" },
+                    { id: "arsenal", name: "아스날", rating: 94, color: "#ef0107" },
+                    { id: "chelsea", name: "첼시", rating: 91, color: "#034694" }
+                ];
+            }
         }
 
         const initializedTeams = [];
         
         // 플레이어 구단 (리버풀 FC)
-        initializedTeams.push({ id: playerTeamId, name: playerTeamName, rating: playerOvr, color: '#c8102e' });
+        initializedTeams.push({ id: playerTeamId, name: playerTeamName, rating: playerOvr, color: (currentLeagueId === 'ligue1' ? '#004170' : '#c8102e') });
         
         // EPL 진출 3구단
         eplQualifiers.forEach(team => {
@@ -164,7 +194,7 @@ function resetAclStateData() {
             if (["real_madrid", "bayern_munchen"].includes(team.id)) {
                 // 초강호 보스팀: 플레이어 상위20개 평균 OVR + (1~2)
                 adjustedRating = Math.max(88, top20Ovr + Math.floor(Math.random() * 2) + 1);
-            } else if (["barcelona", "psg", "inter_milan", "leverkusen"].includes(team.id)) {
+            } else if (["barcelona", "psg", "liverpool", "inter_milan", "leverkusen"].includes(team.id)) {
                 // 강호팀: 플레이어 상위20개 평균 OVR + (0~-2)
                 const offset = Math.floor(Math.random() * 3) - 2;
                 adjustedRating = Math.max(85, top20Ovr + offset);

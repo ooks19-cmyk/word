@@ -1,7 +1,10 @@
-// js/cup.js - KFA 코리아컵 & EFL 카라바오컵 (리그컵) UI 및 토너먼트 모듈
+// js/cup.js - KFA 코리아컵 & EFL 카라바오컵 & FA컵 & 쿠프 드 프랑스 UI 및 토너먼트 모듈
 
 // 0. 활성 리그 연동 헬퍼 함수
 function getActiveCupTournamentName() {
+    if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'ligue1') {
+        return "쿠프 드 프랑스";
+    }
     return "FA컵";
 }
 
@@ -9,6 +12,7 @@ function getActiveCupUserTeamId() {
     if (typeof currentLeagueId !== 'undefined') {
         if (currentLeagueId === 'epl') return "liverpool";
         if (currentLeagueId === 'jleague') return "tokyo";
+        if (currentLeagueId === 'ligue1') return "psg";
     }
     return "jeonbuk";
 }
@@ -20,6 +24,7 @@ function getActiveCupUserTeamName() {
     if (typeof currentLeagueId !== 'undefined') {
         if (currentLeagueId === 'epl') return "리버풀 FC";
         if (currentLeagueId === 'jleague') return "FC 도쿄";
+        if (currentLeagueId === 'ligue1') return "파리 생제르맹";
     }
     return "전북 현대";
 }
@@ -33,6 +38,10 @@ function getActiveCupTeamsPreset() {
         } else if (currentLeagueId === 'jleague') {
             if (typeof CUP_TEAMS_PRESET_JLEAGUE !== 'undefined' && CUP_TEAMS_PRESET_JLEAGUE.length > 0) {
                 return CUP_TEAMS_PRESET_JLEAGUE;
+            }
+        } else if (currentLeagueId === 'ligue1') {
+            if (typeof CUP_TEAMS_PRESET_LIGUE1 !== 'undefined' && CUP_TEAMS_PRESET_LIGUE1.length > 0) {
+                return CUP_TEAMS_PRESET_LIGUE1;
             }
         }
     }
@@ -48,6 +57,10 @@ function getActiveCupPlayersPreset() {
         } else if (currentLeagueId === 'jleague') {
             if (typeof OTHER_TEAMS_PLAYERS_PRESET_JLEAGUE !== 'undefined' && OTHER_TEAMS_PLAYERS_PRESET_JLEAGUE.length > 0) {
                 return OTHER_TEAMS_PLAYERS_PRESET_JLEAGUE;
+            }
+        } else if (currentLeagueId === 'ligue1') {
+            if (typeof OTHER_TEAMS_PLAYERS_PRESET_LIGUE1 !== 'undefined' && OTHER_TEAMS_PLAYERS_PRESET_LIGUE1.length > 0) {
+                return OTHER_TEAMS_PLAYERS_PRESET_LIGUE1;
             }
         }
     }

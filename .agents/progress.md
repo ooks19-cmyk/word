@@ -1,22 +1,45 @@
 ## 현재 작업
-- 목표: 'S마라도나' 슈퍼(super) 등급 선수 카드 오버롤 수정 (101 -> 95) 및 스탯 밸런싱, DB/CSV 동기화, PWA 캐시 갱신
+- 목표: 프랑스 리그앙(Ligue 1) 신규 리그 도입 (플레이어 구단: 파리 생제르맹 PSG) 구현 및 데이터 격리/UCL/쿠프드프랑스 연동
 - 상태: 완료
 - 주요 변경·검증:
-  1. `player_data.js`: `super_maradona` OVR 95 수정 및 스탯 밸런스 조정 완료
-     - 이름: S마라도나, 등급: super, OVR: 95, 포지션: AM, 국적: Argentina, 소속: NAPOLI
-     - 스탯: PAC 92, SHO 94, PAS 95, DRI 96, DEF 46, PHY 82
-     - 테마: 슈퍼 오로라 네온 프리셋 (`primary: "#14002e"`, `secondary: "#ff007f"`, `glow: "#00f2fe"`)
-     - 이미지: `player2/마라도나.webp` (파일 실재 확인 완료)
-  2. `index.html`: `player_data.js?v=1.98` 캐시 쿼리 버전 상향
-  3. `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v474'` 상향
-  4. `선수데이터.csv`: `convert_js_to_csv.py` 스크립트를 통한 114명 데이터 동기화 완료 (115행)
-  5. 무결성 검증:
-     - Node.js 구문 검사(`node --check player_data.js sw.js`): Syntax OK 100% PASS
-     - CSV 115행 및 S마라도나 세부 스탯 6종 100% 일치 확인
-     - 이적시장 통합 테스트(`tests/market_mode.test.cjs`): 100% PASS
-     - 전체 회귀 테스트 4종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `quiz_subjective`): 100% PASS
-     - `git diff --check`: 포맷/공백 결함 0건
-- 다음 단계: Git 커밋 및 main 원격 브랜치 푸시 완료 (`d44fe82`).
+  1. `other_teams_data_ligue1.js` 신규 생성:
+     - 리그앙 18개 구단 프리셋(`LIGUE1_TEAMS_PRESET`, PSG 기본 OVR 70 스타트)
+     - 쿠프 드 프랑스 16개 참여 구단(`CUP_TEAMS_PRESET_LIGUE1`)
+     - 구단별 대표 스타 선수 프리셋(`OTHER_TEAMS_PLAYERS_PRESET_LIGUE1`)
+     - PSG 기준 34라운드 홈/원정 풀 리그 대진표(`LIGUE1_FIXTURES`)
+     - 구단별 전술 포메이션 프리셋(`LIGUE1_TEAM_FORMATIONS`)
+  2. 엠블럼 에셋 18종 완비:
+     - PSG(`mark_psg.png`) 및 17개 타 구단 고품질 200x200 PNG 에셋 확보
+  3. `js/league.js`:
+     - `LEAGUE_CONFIGS.ligue1` 추가 (`userTeamId: 'psg'`, `totalRounds: 34`, `maxOvrCap: 98`, 테마: 네이비/레드)
+     - `getTeamEmblemPath()`에 리그앙 18개 구단 엠블럼 매핑
+     - `checkAndMigrateLeagueTeams()` 동적 다중 리그 감지 및 `_ligue1` 스토리지 키 분기 연동
+     - 명예의 전당 트로피 룸(리그앙 우승, 쿠프 드 프랑스 우승, 챔스 우승) 렌더링 분기 추가
+     - 감독 이적 모달(`transferLeagueModal`) 4개 리그 반응형 카드 상태 동기화
+  4. `js/match_algorithm.js`:
+     - 활성 리그 구단명("파리 생제르맹"), 약칭("PSG"), 홈구장("파르크 데 프랭스"), 엠블럼, 팀 OVR 동기화
+  5. `js/cup.js` (쿠프 드 프랑스):
+     - 대회명("쿠프 드 프랑스"), 유저팀("psg"), 16강 브라켓 및 선수/구단 프리셋 반환
+  6. `js/acl.js` (UEFA 챔피언스리그):
+     - 유럽 챔피언스리그 직행 진출, 리그앙 상위 3팀 선발, 유럽 명문 상대 프리셋 중 PSG ➔ 리버풀 FC 대체 분기
+  7. `js/state.js` & `js/auth.js`:
+     - `currentLeagueId` 및 `currentFameLeagueTab`에 `ligue1` 정식 수용
+     - `leagueTeamsLigue1`, `leagueRoundLigue1`, `leaguePlayerStatsLigue1`, `cupStateLigue1`, `aclStateLigue1` 클라우드 및 로컬스토리지 완전 격리 저장
+  8. `index.html` & `sw.js`:
+     - 명예의 전당 `🇫🇷 리그앙` 탭 및 감독 이적 모달 부임 카드 추가
+     - `<script src="other_teams_data_ligue1.js?v=1.0"></script>` 로드 및 스크립트 캐시 버전 상향
+     - 서비스 워커 `CACHE_NAME = 'fc-star-v475'` 상향 및 신규 에셋 캐시 등록
+  10. 상대팀 득점자 매핑 결함 수정:
+      - `js/match_algorithm.js`의 `determineOpponentScorerAndAssister(opponentTeamId)` 내에 리그앙(`currentLeagueId === 'ligue1'`) 프리셋(`OTHER_TEAMS_PLAYERS_PRESET_LIGUE1` 및 `getActiveLeagueConfig().playersPreset`) 참조 분기 추가.
+      - 코멘터리 생성(`OPP_GOAL`) 시 `[상대 공격수]`로 중복 출력되던 조건문 개선.
+      - `index.html`: `js/match_algorithm.js?v=3.9` 상향.
+      - `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v476'` 상향.
+      - `scratch/test_ligue1_scorer.py`: 17개 전 구단 실존 선수(37명) 매핑 100% 검증 완료.
+- 다음 단계: 사용자 완료 보고 및 Git 커밋/푸시 대기
+
+## 이전 작업
+- 목표: 'S마라도나' 슈퍼(super) 등급 선수 카드 오버롤 수정 (101 -> 95) 및 스탯 밸런싱, DB/CSV 동기화, PWA 캐시 갱신
+- 상태: 완료
 
 ## 이전 작업
 - 목표: '호나우지뉴' 전설(legend) 등급 선수 카드 생성 (오버롤 92, 포지션 LW) 및 DB/CSV 동기화, PWA 캐시 갱신

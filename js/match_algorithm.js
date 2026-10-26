@@ -163,6 +163,7 @@ function getActiveUserTeamName() {
     if (typeof currentLeagueId !== 'undefined') {
         if (currentLeagueId === 'epl') return "리버풀 FC";
         if (currentLeagueId === 'jleague') return "FC 도쿄";
+        if (currentLeagueId === 'ligue1') return "파리 생제르맹";
     }
     return "전북 현대";
 }
@@ -171,6 +172,7 @@ function getActiveUserShortName() {
     if (typeof currentLeagueId !== 'undefined') {
         if (currentLeagueId === 'epl') return "리버풀";
         if (currentLeagueId === 'jleague') return "FC도쿄";
+        if (currentLeagueId === 'ligue1') return "PSG";
     }
     return "전북";
 }
@@ -179,6 +181,7 @@ function getActiveUserStadiumName() {
     if (typeof currentLeagueId !== 'undefined') {
         if (currentLeagueId === 'epl') return "안필드";
         if (currentLeagueId === 'jleague') return "아지노모토 스타디움";
+        if (currentLeagueId === 'ligue1') return "파르크 데 프랭스";
     }
     return "전주성";
 }
@@ -187,11 +190,12 @@ function getActiveUserEmblem() {
     if (typeof currentLeagueId !== 'undefined') {
         if (currentLeagueId === 'epl') return "img/mark_liverpool.png";
         if (currentLeagueId === 'jleague') return "img/mark_tokyo.png";
+        if (currentLeagueId === 'ligue1') return "img/mark_psg.png";
     }
     return "img/mark_jb.svg";
 }
 
-// 2. 스쿼드 포메이션 전술/세부전술 보너스를 취합하여 플레이어 구단(전북 현대 / 리버풀 / FC 도쿄) 최종 OVR 동기화 및 현황판 UI 업데이트
+// 2. 스쿼드 포메이션 전술/세부전술 보너스를 취합하여 플레이어 구단(전북 현대 / 리버풀 / FC 도쿄 / 파리 생제르맹) 최종 OVR 동기화 및 현황판 UI 업데이트
 function syncPlayerTeamOvr() {
     let avgOvr = getPlayerPureOvr();
     
@@ -212,6 +216,7 @@ function syncPlayerTeamOvr() {
     if (typeof currentLeagueId !== 'undefined') {
         if (currentLeagueId === 'epl') activeUserTeamId = 'liverpool';
         else if (currentLeagueId === 'jleague') activeUserTeamId = 'tokyo';
+        else if (currentLeagueId === 'ligue1') activeUserTeamId = 'psg';
     }
     if (typeof leagueTeams !== 'undefined' && Array.isArray(leagueTeams)) {
         const userTeam = leagueTeams.find(t => t.id === activeUserTeamId);
@@ -1029,7 +1034,8 @@ function getMatchEventCommentary(type, data, isFriendly = false, isDevMode = fal
 
     if (type === 'OPP_GOAL') {
         const { opponentScorerName, opponentAssisterName } = data || {};
-        const scorerText = opponentScorerName ? `상대팀 <strong>[${opponentScorerName}]</strong>` : "상대 공격수";
+        const isGenericScorer = !opponentScorerName || opponentScorerName === "상대 공격수";
+        const scorerText = isGenericScorer ? "상대 공격수" : `상대팀 <strong>[${opponentScorerName}]</strong>`;
         const assistText = opponentAssisterName ? ` (도움: <strong>${opponentAssisterName}</strong>)` : "";
         return `실점! ${scorerText}의 기습적인 헤더 슛이 ${activeGk} 골키퍼의 손끝을 스치며 골문으로 밀려 들어갑니다.${assistText} ⚽`;
     }
@@ -1452,15 +1458,29 @@ function rollSpecialMatchEvent(activePlayers, opponentName) {
 // 9. 상대팀 전용 동적 득점자/도움자 판정 함수
 function determineOpponentScorerAndAssister(opponentTeamId) {
     let allOpponentPlayers = [];
-    if (typeof currentLeagueId !== 'undefined') {
+
+    // 1. 활성 리그 설정의 playersPreset을 우선 참조
+    if (typeof getActiveLeagueConfig === 'function') {
+        try {
+            const config = getActiveLeagueConfig();
+            if (config && config.playersPreset && Array.isArray(config.playersPreset) && config.playersPreset.length > 0) {
+                allOpponentPlayers = config.playersPreset;
+            }
+        } catch(e) {}
+    }
+
+    // 2. Fallback: currentLeagueId에 따른 전용 프리셋 조회
+    if (allOpponentPlayers.length === 0 && typeof currentLeagueId !== 'undefined') {
         if (currentLeagueId === 'epl' && typeof OTHER_TEAMS_PLAYERS_PRESET_EPL !== 'undefined') {
             allOpponentPlayers = OTHER_TEAMS_PLAYERS_PRESET_EPL;
         } else if (currentLeagueId === 'jleague' && typeof OTHER_TEAMS_PLAYERS_PRESET_JLEAGUE !== 'undefined') {
             allOpponentPlayers = OTHER_TEAMS_PLAYERS_PRESET_JLEAGUE;
+        } else if (currentLeagueId === 'ligue1' && typeof OTHER_TEAMS_PLAYERS_PRESET_LIGUE1 !== 'undefined') {
+            allOpponentPlayers = OTHER_TEAMS_PLAYERS_PRESET_LIGUE1;
         } else if (typeof OTHER_TEAMS_PLAYERS_PRESET !== 'undefined') {
             allOpponentPlayers = OTHER_TEAMS_PLAYERS_PRESET;
         }
-    } else if (typeof OTHER_TEAMS_PLAYERS_PRESET !== 'undefined') {
+    } else if (allOpponentPlayers.length === 0 && typeof OTHER_TEAMS_PLAYERS_PRESET !== 'undefined') {
         allOpponentPlayers = OTHER_TEAMS_PLAYERS_PRESET;
     }
     

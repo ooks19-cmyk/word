@@ -334,6 +334,9 @@ function applyUserDataToState(userData) {
     if (userData.leagueTeamsJLeague && Array.isArray(userData.leagueTeamsJLeague) && userData.leagueTeamsJLeague.length > 0) {
         try { localStorage.setItem('fc_star_league_teams_jleague', JSON.stringify(userData.leagueTeamsJLeague)); } catch(e) {}
     }
+    if (userData.leagueTeamsLigue1 && Array.isArray(userData.leagueTeamsLigue1) && userData.leagueTeamsLigue1.length > 0) {
+        try { localStorage.setItem('fc_star_league_teams_ligue1', JSON.stringify(userData.leagueTeamsLigue1)); } catch(e) {}
+    }
     if (userData.leagueTeamsKLeague && Array.isArray(userData.leagueTeamsKLeague) && userData.leagueTeamsKLeague.length > 0) {
         try { localStorage.setItem('fc_star_league_teams_kleague1', JSON.stringify(userData.leagueTeamsKLeague)); } catch(e) {}
     }
@@ -357,12 +360,12 @@ function applyUserDataToState(userData) {
     }
 
     // 현재 활성 리그에 맞는 팀/라운드 데이터 선택 로드
-    let targetTeams = (currentLeagueId === 'epl') ? userData.leagueTeamsEpl : ((currentLeagueId === 'jleague') ? userData.leagueTeamsJLeague : userData.leagueTeamsKLeague);
+    let targetTeams = (currentLeagueId === 'epl') ? userData.leagueTeamsEpl : ((currentLeagueId === 'jleague') ? userData.leagueTeamsJLeague : ((currentLeagueId === 'ligue1') ? userData.leagueTeamsLigue1 : userData.leagueTeamsKLeague));
     if (!targetTeams || !Array.isArray(targetTeams) || targetTeams.length === 0) {
         targetTeams = userData.leagueTeams;
     }
 
-    let targetRound = (currentLeagueId === 'epl') ? userData.leagueRoundEpl : ((currentLeagueId === 'jleague') ? userData.leagueRoundJLeague : userData.leagueRoundKLeague);
+    let targetRound = (currentLeagueId === 'epl') ? userData.leagueRoundEpl : ((currentLeagueId === 'jleague') ? userData.leagueRoundJLeague : ((currentLeagueId === 'ligue1') ? userData.leagueRoundLigue1 : userData.leagueRoundKLeague));
     if (!targetRound) {
         targetRound = userData.leagueRound || 1;
     }
@@ -456,6 +459,9 @@ function applyUserDataToState(userData) {
     if (userData.cupStateJLeague) {
         try { localStorage.setItem('fc_star_cup_state_jleague', JSON.stringify(userData.cupStateJLeague)); } catch(e) {}
     }
+    if (userData.cupStateLigue1) {
+        try { localStorage.setItem('fc_star_cup_state_ligue1', JSON.stringify(userData.cupStateLigue1)); } catch(e) {}
+    }
     if (userData.cupStateKLeague) {
         try {
             localStorage.setItem('fc_star_cup_state_kleague1', JSON.stringify(userData.cupStateKLeague));
@@ -474,6 +480,9 @@ function applyUserDataToState(userData) {
     }
     if (userData.aclStateJLeague) {
         try { localStorage.setItem('fc_star_acl_state_jleague', JSON.stringify(userData.aclStateJLeague)); } catch(e) {}
+    }
+    if (userData.aclStateLigue1) {
+        try { localStorage.setItem('fc_star_acl_state_ligue1', JSON.stringify(userData.aclStateLigue1)); } catch(e) {}
     }
     if (userData.aclStateKLeague) {
         try {
@@ -577,6 +586,12 @@ function collectCurrentUserProgressData(targetUserId) {
             if (cachedUserDoc && cachedUserDoc.leagueTeamsJLeague) return cachedUserDoc.leagueTeamsJLeague;
             return null;
         })(),
+        leagueTeamsLigue1: (() => {
+            if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'ligue1' && typeof leagueTeams !== 'undefined') return leagueTeams;
+            if (cachedUserDoc && cachedUserDoc.leagueTeamsLigue1) return cachedUserDoc.leagueTeamsLigue1;
+            try { const d = localStorage.getItem('fc_star_league_teams_ligue1'); if (d) return JSON.parse(d); } catch(e) {}
+            return null;
+        })(),
         leagueTeamsKLeague: (() => {
             if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'kleague1' && typeof leagueTeams !== 'undefined') return leagueTeams;
             if (cachedUserDoc && cachedUserDoc.leagueTeamsKLeague) return cachedUserDoc.leagueTeamsKLeague;
@@ -592,6 +607,12 @@ function collectCurrentUserProgressData(targetUserId) {
             if (cachedUserDoc && cachedUserDoc.leagueRoundJLeague) return parseInt(cachedUserDoc.leagueRoundJLeague) || 1;
             return 1;
         })(),
+        leagueRoundLigue1: (() => {
+            if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'ligue1' && typeof leagueRound !== 'undefined') return leagueRound;
+            if (cachedUserDoc && cachedUserDoc.leagueRoundLigue1 !== undefined) return cachedUserDoc.leagueRoundLigue1;
+            try { const r = localStorage.getItem('fc_star_league_round_ligue1'); if (r) return parseInt(r); } catch(e) {}
+            return 1;
+        })(),
         leagueRoundKLeague: (() => {
             if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'kleague1' && typeof leagueRound !== 'undefined') return leagueRound;
             if (cachedUserDoc && cachedUserDoc.leagueRoundKLeague) return parseInt(cachedUserDoc.leagueRoundKLeague) || 1;
@@ -605,6 +626,12 @@ function collectCurrentUserProgressData(targetUserId) {
         leaguePlayerStatsJLeague: (() => {
             if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'jleague' && typeof leaguePlayerStats !== 'undefined') return leaguePlayerStats;
             if (cachedUserDoc && cachedUserDoc.leaguePlayerStatsJLeague) return cachedUserDoc.leaguePlayerStatsJLeague;
+            return {};
+        })(),
+        leaguePlayerStatsLigue1: (() => {
+            if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'ligue1' && typeof leaguePlayerStats !== 'undefined') return leaguePlayerStats;
+            if (cachedUserDoc && cachedUserDoc.leaguePlayerStatsLigue1) return cachedUserDoc.leaguePlayerStatsLigue1;
+            try { const s = localStorage.getItem('fc_star_league_player_stats_ligue1'); if (s) return JSON.parse(s); } catch(e) {}
             return {};
         })(),
         leaguePlayerStatsKLeague: (() => {
@@ -637,6 +664,12 @@ function collectCurrentUserProgressData(targetUserId) {
             if (cachedUserDoc && cachedUserDoc.cupStateJLeague) return cachedUserDoc.cupStateJLeague;
             return null;
         })(),
+        cupStateLigue1: (() => {
+            if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'ligue1' && typeof cupState !== 'undefined') return cupState;
+            if (cachedUserDoc && cachedUserDoc.cupStateLigue1) return cachedUserDoc.cupStateLigue1;
+            try { const c = localStorage.getItem('fc_star_cup_state_ligue1'); if (c) return JSON.parse(c); } catch(e) {}
+            return null;
+        })(),
         cupStateKLeague: (() => {
             if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'kleague1' && typeof cupState !== 'undefined') return cupState;
             if (cachedUserDoc && cachedUserDoc.cupStateKLeague) return cachedUserDoc.cupStateKLeague;
@@ -652,6 +685,12 @@ function collectCurrentUserProgressData(targetUserId) {
         aclStateJLeague: (() => {
             if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'jleague' && typeof aclState !== 'undefined') return aclState;
             if (cachedUserDoc && cachedUserDoc.aclStateJLeague) return cachedUserDoc.aclStateJLeague;
+            return null;
+        })(),
+        aclStateLigue1: (() => {
+            if (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'ligue1' && typeof aclState !== 'undefined') return aclState;
+            if (cachedUserDoc && cachedUserDoc.aclStateLigue1) return cachedUserDoc.aclStateLigue1;
+            try { const a = localStorage.getItem('fc_star_acl_state_ligue1'); if (a) return JSON.parse(a); } catch(e) {}
             return null;
         })(),
         aclStateKLeague: (() => {
@@ -858,6 +897,7 @@ function buildLegacyProgressFromLocalStorage(targetUserId) {
         leaguePlayerStats: legStats,
         leagueTeamsEpl: (() => { try { return JSON.parse(localStorage.getItem('fc_star_league_teams_epl')); } catch(e) { return null; } })(),
         leagueTeamsJLeague: (() => { try { return JSON.parse(localStorage.getItem('fc_star_league_teams_jleague')); } catch(e) { return null; } })(),
+        leagueTeamsLigue1: (() => { try { return JSON.parse(localStorage.getItem('fc_star_league_teams_ligue1')); } catch(e) { return null; } })(),
         leagueTeamsKLeague: (() => { try { return JSON.parse(localStorage.getItem('fc_star_league_teams_kleague1') || localStorage.getItem('fc_star_league_teams')); } catch(e) { return null; } })(),
         leagueRoundEpl: parseInt(localStorage.getItem('fc_star_league_round_epl') || '1') || 1,
         leagueRoundJLeague: parseInt(localStorage.getItem('fc_star_league_round_jleague') || '1') || 1,
@@ -882,6 +922,7 @@ function buildLegacyProgressFromLocalStorage(targetUserId) {
         cupState: (() => { try { return JSON.parse(localStorage.getItem('fc_star_cup_state')); } catch(e) { return null; } })(),
         cupStateEpl: (() => { try { return JSON.parse(localStorage.getItem('fc_star_cup_state_epl')); } catch(e) { return null; } })(),
         cupStateJLeague: (() => { try { return JSON.parse(localStorage.getItem('fc_star_cup_state_jleague')); } catch(e) { return null; } })(),
+        cupStateLigue1: (() => { try { return JSON.parse(localStorage.getItem('fc_star_cup_state_ligue1')); } catch(e) { return null; } })(),
         cupStateKLeague: (() => { try { return JSON.parse(localStorage.getItem('fc_star_cup_state_kleague1') || localStorage.getItem('fc_star_cup_state')); } catch(e) { return null; } })(),
         aclState: (() => { try { return JSON.parse(localStorage.getItem('fc_star_acl_state')); } catch(e) { return null; } })(),
         aclStateEpl: (() => { try { return JSON.parse(localStorage.getItem('fc_star_acl_state_epl')); } catch(e) { return null; } })(),
@@ -1003,14 +1044,14 @@ function saveAllToLocalStorage(targetUserId) {
             localStorage.setItem('fc_star_pvp_opp_stats', JSON.stringify(userPvpOpponentStats));
         }
         if (typeof cupState !== 'undefined') {
-            const cupKey = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') ? 'fc_star_cup_state_epl' : ((typeof currentLeagueId !== 'undefined' && currentLeagueId === 'jleague') ? 'fc_star_cup_state_jleague' : 'fc_star_cup_state_kleague1');
+            const cupKey = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') ? 'fc_star_cup_state_epl' : ((typeof currentLeagueId !== 'undefined' && currentLeagueId === 'jleague') ? 'fc_star_cup_state_jleague' : ((typeof currentLeagueId !== 'undefined' && currentLeagueId === 'ligue1') ? 'fc_star_cup_state_ligue1' : 'fc_star_cup_state_kleague1'));
             localStorage.setItem(cupKey, JSON.stringify(cupState));
             if (!currentLeagueId || currentLeagueId === 'kleague1') {
                 localStorage.setItem('fc_star_cup_state', JSON.stringify(cupState));
             }
         }
         if (typeof aclState !== 'undefined') {
-            const aclKey = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') ? 'fc_star_acl_state_epl' : ((typeof currentLeagueId !== 'undefined' && currentLeagueId === 'jleague') ? 'fc_star_acl_state_jleague' : 'fc_star_acl_state_kleague1');
+            const aclKey = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl') ? 'fc_star_acl_state_epl' : ((typeof currentLeagueId !== 'undefined' && currentLeagueId === 'jleague') ? 'fc_star_acl_state_jleague' : ((typeof currentLeagueId !== 'undefined' && currentLeagueId === 'ligue1') ? 'fc_star_acl_state_ligue1' : 'fc_star_acl_state_kleague1'));
             localStorage.setItem(aclKey, JSON.stringify(aclState));
             if (!currentLeagueId || currentLeagueId === 'kleague1') {
                 localStorage.setItem('fc_star_acl_state', JSON.stringify(aclState));

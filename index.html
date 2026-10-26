@@ -1010,6 +1010,10 @@
                     <img src="img/mark_tokyo.png" alt="J1리그" class="fame-league-tab-icon">
                     <span>🇯🇵 J1리그</span>
                 </button>
+                <button class="fame-league-tab-btn" data-league="ligue1" onclick="switchFameLeagueTab('ligue1')">
+                    <img src="img/mark_psg.png" alt="리그앙" class="fame-league-tab-icon">
+                    <span>🇫🇷 리그앙</span>
+                </button>
             </div>
 
             <div class="fame-container" style="width: 100%; padding: 1rem 0;">
@@ -1891,6 +1895,25 @@
                             부임하기
                         </button>
                     </div>
+
+                    <!-- 4. 프랑스 리그앙 카드 -->
+                    <div id="transferCardLigue1" style="background: rgba(255, 255, 255, 0.03); border: 1.5px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 12px; transition: all 0.3s;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <img src="img/mark_psg.png" alt="파리 생제르맹" style="width: 44px; height: 44px; object-fit: contain;">
+                            <div>
+                                <div style="font-weight: 800; font-size: 0.95rem; color: #fff; display: flex; align-items: center; gap: 6px;">
+                                    <span>🇫🇷 리그앙</span>
+                                    <span style="font-size: 0.72rem; color: #60a5fa; background: rgba(0,65,112,0.3); padding: 2px 6px; border-radius: 8px;">파리 생제르맹</span>
+                                </div>
+                                <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 2px;">
+                                    34라운드 풀리그 + 쿠프 드 프랑스 + UEFA 챔피언스리그
+                                </div>
+                            </div>
+                        </div>
+                        <button id="btnTransferToLigue1" onclick="confirmLeagueTransfer('ligue1')" style="padding: 0.5rem 0.9rem; border-radius: 10px; font-size: 0.8rem; font-weight: 800; border: none; cursor: pointer; background: linear-gradient(135deg, #004170, #da291c); color: #fff; white-space: nowrap; transition: all 0.2s;">
+                            부임하기
+                        </button>
+                    </div>
                 </div>
             </div>
             
@@ -1949,9 +1972,10 @@
     <script src="other_teams_data.js?v=1.6"></script>
     <script src="other_teams_data_epl.js?v=1.3"></script>
     <script src="other_teams_data_jleague.js?v=1.1"></script>
+    <script src="other_teams_data_ligue1.js?v=1.0"></script>
     <script src="db.js?v=2.6"></script>
     <script src="sound.js?v=1.2"></script>
-    <script src="js/state.js?v=3.7"></script>
+    <script src="js/state.js?v=3.8"></script>
     <script src="js/utils.js?v=1.3"></script>
     <script src="js/card.js?v=2.5"></script>
     <script src="quiz.js?v=1.9"></script>
@@ -1959,10 +1983,10 @@
     <script src="js/market.js?v=1.4"></script>
     <script src="js/deck.js?v=3.0"></script>
     <script src="js/squad.js?v=3.2"></script>
-    <script src="js/match_algorithm.js?v=3.7"></script>
-    <script src="js/league.js?v=5.1"></script>
-    <script src="js/cup.js?v=3.4"></script>
-    <script src="js/acl.js?v=3.8"></script>
+    <script src="js/match_algorithm.js?v=3.9"></script>
+    <script src="js/league.js?v=5.2"></script>
+    <script src="js/cup.js?v=3.5"></script>
+    <script src="js/acl.js?v=3.9"></script>
     <script src="js/friendly.js?v=4.7"></script>
     <script src="js/national_data.js?v=1.3"></script>
     <script src="js/national_squad.js?v=2.7"></script>
@@ -2083,7 +2107,7 @@
 
     <script src="js/update_data.js?v=2.85"></script>
     <script src="js/friend.js?v=1.3"></script>
-    <script src="js/auth.js?v=2.84"></script>
+    <script src="js/auth.js?v=2.85"></script>
     <script src="js/realtime.js?v=2.4"></script>
     <script src="js/coach_advisor.js?v=1.3"></script>
     <script src="app.js?v=4.3"></script>

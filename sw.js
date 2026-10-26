@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fc-star-v474';
+const CACHE_NAME = 'fc-star-v476';
 const ASSETS = [
   './index.html',
   './style.css',
@@ -43,7 +43,9 @@ const ASSETS = [
   './other_teams_data.js',
   './other_teams_data_epl.js',
   './other_teams_data_jleague.js',
-  './img/mark_jb.svg'
+  './other_teams_data_ligue1.js',
+  './img/mark_jb.svg',
+  './img/mark_psg.png'
 ];
 
 // Install Service Worker and cache essential assets

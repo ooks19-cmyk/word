@@ -27,6 +27,62 @@ graph TD
 - **`db.js`**: Firebase Firestore 기반 원격 저장 및 미지원 시 LocalStorage 기반의 가상 로컬 클라우드 전환 처리.
 - **`player/player_data.js`**: 전체 축구선수 카드 스펙(오버롤, 세부 능력치, 포지션 등)을 동적으로 로드.
 
+### 🇫🇷 프랑스 리그앙(Ligue 1) 정식 도입 및 멀티 리그 엔진/쿠프 드 프랑스/UCL/클라우드 동기화 구현 (2026-10-26)
+* **날짜·시간**: 2026-10-26 23:32 (KST)
+* **요청 요약**:
+  - 프랑스 리그앙 추가, 사용자 팀은 파리 생제르맹(PSG), 계획부터 작성, 프리미어리그 추가 작업 참고.
+* **수행 내용**:
+  1. **독립 프리셋 파일 신규 생성 (`other_teams_data_ligue1.js`)**:
+     - `LIGUE1_TEAMS_PRESET`: 파리 생제르맹(유저팀, 70 스타트), AS 모나코(89), 올랭피크 마르세유(89), LOSC 릴(88), 올랭피크 리옹(87), OGC 니스(86), RC 랑스(85), 스타드 렌(85), 스타드 브레스트(84), 스타드 랭스(83), 툴루즈 FC(83), RC 스트라스부르(82), 몽펠리에(81), FC 낭트(81), AJ 오세르(80), 앙제 SCO(79), AS 생테티엔(79), 르아브르 AC(78) 등 18개 정규 구단 등록.
+     - `CUP_TEAMS_PRESET_LIGUE1`: 쿠프 드 프랑스 16개 참여 구단.
+     - `OTHER_TEAMS_PLAYERS_PRESET_LIGUE1`: 골로빈, 비아르, 미나미노, 그린우드, 와히, 라비오, 조너선 데이비드, 라카제트, 미카우타제, 게상, 모피 등 구단별 핵심 스타 선수 프리셋 (득점/도움 시뮬레이터 연동).
+     - `LIGUE1_FIXTURES`: PSG 기준 34라운드 홈/원정 풀 리그 대진표.
+     - `LIGUE1_TEAM_FORMATIONS`: 구단별 최적 전술 포메이션(4-3-3, 4-2-3-1, 3-4-3 등).
+  2. **엠블럼 에셋 18종 완비**:
+     - PSG(`mark_psg.png`) 및 17개 타 구단 공식 엠블럼(`img/mark_*.png`) 200x200 RGBA PNG 규격 확보.
+  3. **리그 및 명예의 전당 엔진 갱신 (`js/league.js`)**:
+     - `LEAGUE_CONFIGS.ligue1` 등록 (`userTeamId: 'psg'`, `userTeamName: '파리 생제르맹'`, `totalRounds: 34`, `maxOvrCap: 98`, 테마: `#004170` 네이비 / `#da291c` 레드).
+     - `getTeamEmblemPath()`에 리그앙 18개 구단 엠블럼 경로 매핑.
+     - `openLeagueTransferModal()`에 4개 리그(K리그1 / EPL / J1리그 / 리그앙) 반응형 카드 및 부임 버튼 동기화.
+     - 명예의 전당 트로피 룸(리그앙 우승, 쿠프 드 프랑스 우승, 챔스 우승) 트로피 배지 렌더링 분기 추가.
+     - 최종 라운드 직전 및 트레블 검사 시 `_ligue1` 스토리지 키 분기 처리.
+  4. **경기 알고리즘 및 구단 헬퍼 갱신 (`js/match_algorithm.js`)**:
+     - 활성 리그가 리그앙일 때 구단명("파리 생제르맹"), 약칭("PSG"), 홈구장("파르크 데 프랭스"), 엠블럼("img/mark_psg.png") 반환 및 `syncPlayerTeamOvr()` 연동.
+  5. **국내 컵대회 및 유럽 챔피언스리그 모듈 갱신 (`js/cup.js`, `js/acl.js`)**:
+     - `js/cup.js`: 활성 리그가 `ligue1`일 때 "쿠프 드 프랑스", 유저팀 `psg`, 전용 16팀 및 선수 프리셋 반환.
+     - `js/acl.js`: 리그앙 소속일 때도 UEFA 챔피언스리그(UCL 16강) 참가, 리그앙 상위 3팀 선발, 유럽 12대 명문팀 매칭 시 PSG를 리버풀 FC로 대체하여 유럽 최고 명문 대진표 구성.
+  6. **전역 상태 및 클라우드 동기화 모듈 갱신 (`js/state.js`, `js/auth.js`)**:
+     - `currentLeagueId` 및 `currentFameLeagueTab`에 `ligue1` 정식 수용.
+     - `leagueTeamsLigue1`, `leagueRoundLigue1`, `leaguePlayerStatsLigue1`, `cupStateLigue1`, `aclStateLigue1` 클라우드 및 로컬스토리지 완전 격리 저장 체계 구축.
+  7. **UI 연동 및 PWA 캐시 갱신 (`index.html`, `sw.js`)**:
+     - 명예의 전당 리그 탭에 `🇫🇷 리그앙` 버튼 추가.
+     - 감독 이적 모달에 🇫🇷 리그앙 부임 카드 추가.
+     - `<script src="other_teams_data_ligue1.js?v=1.0"></script>` 스크립트 로드 및 관련 모듈 버전 쿼리 상향.
+     - `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v476'` 상향 및 신규 에셋 캐시 등록.
+  8. **상대팀 득점자 매핑 결함 수정 (`js/match_algorithm.js`)**:
+     - `determineOpponentScorerAndAssister`에 `getActiveLeagueConfig().playersPreset` 우선 참조 및 `currentLeagueId === 'ligue1'` (`OTHER_TEAMS_PLAYERS_PRESET_LIGUE1`) 분기 추가.
+     - 코멘터리 생성(`OPP_GOAL`) 시 `[상대 공격수]`로 중복 출력되던 조건문 개선.
+     - `index.html`: `js/match_algorithm.js?v=3.9` 상향.
+  9. **무결성 검증**:
+     - `scratch/verify_ligue1.py`: 18개 구단, 34R 대진표, 엠블럼 실재, 모듈 설정 등 9개 항목 100% 통과.
+     - `scratch/test_ligue1_scorer.py`: 리그앙 17개 타 구단 실존 스타 선수(37명) 매핑 및 득점자 반환 100% 통과.
+     - `scratch/test_js_syntax.py`: 수정된 8개 JS 파일 Syntax OK 100% 통과.
+* **변경 파일**:
+  - `other_teams_data_ligue1.js` (신규)
+  - `리그앙_추가_구현_계획서.md` (신규)
+  - `img/mark_*.png` (17종 신규 추가)
+  - `js/league.js`
+  - `js/match_algorithm.js`
+  - `js/cup.js`
+  - `js/acl.js`
+  - `js/state.js`
+  - `js/auth.js`
+  - `index.html`
+  - `sw.js`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+* **최종 상태**: 완료.
+
 ### ⚡ S마라도나 슈퍼(Super) 카드 오버롤 수정 (101 -> 95) 및 CSV 동기화 (2026-10-25)
 * **날짜·시간**: 2026-10-25 10:53 (KST)
 * **요청 요약**:

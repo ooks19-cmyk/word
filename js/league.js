@@ -72,6 +72,23 @@ const LEAGUE_CONFIGS = {
         accentColor: '#e60012',
         strongTeams: ['kobe', 'hiroshima', 'machida', 'marinos'],
         maxOvrCap: 97
+    },
+    ligue1: {
+        id: 'ligue1',
+        name: '프랑스 리그앙',
+        shortName: 'L1',
+        seasonPrefix: '리그앙',
+        totalRounds: 34,
+        userTeamId: 'psg',
+        userTeamName: '파리 생제르맹',
+        userTeamEmblem: 'img/mark_psg.png',
+        get teamsPreset() { return (typeof LIGUE1_TEAMS_PRESET !== 'undefined') ? LIGUE1_TEAMS_PRESET : []; },
+        get playersPreset() { return (typeof OTHER_TEAMS_PLAYERS_PRESET_LIGUE1 !== 'undefined') ? OTHER_TEAMS_PLAYERS_PRESET_LIGUE1 : []; },
+        get fixtures() { return (typeof LIGUE1_FIXTURES !== 'undefined') ? LIGUE1_FIXTURES : []; },
+        themeColor: '#004170',
+        accentColor: '#da291c',
+        strongTeams: ['monaco', 'marseille', 'lille', 'lyon'],
+        maxOvrCap: 98
     }
 };
 
@@ -504,7 +521,7 @@ function resetLeagueSeasonState() {
     // 2번째 시즌 이후 상대 팀 OVR 다이내믹 스케일링 적용 (leagueYear > 2026)
     if (typeof leagueYear !== 'undefined' && leagueYear > 2026) {
         const pureOvr = getPlayerPureOvr();
-        const maxCap = config.maxOvrCap || (config.id === 'epl' ? 99 : (config.id === 'jleague' ? 97 : 95));
+        const maxCap = config.maxOvrCap || (config.id === 'epl' ? 99 : (config.id === 'ligue1' ? 98 : (config.id === 'jleague' ? 97 : 95)));
         const top20Ovr = getPlayerTop20Ovr(maxCap);
         const strongTeams = config.strongTeams || [];
         
@@ -829,6 +846,24 @@ function getTeamEmblemPath(teamId) {
         "iwata": "img/mark_iwata.png",
         "chiba": "img/mark_chiba.png",
         "yamagata": "img/mark_yamagata.png",
+        // 프랑스 리그앙 & 쿠프 드 프랑스
+        "monaco": "img/mark_monaco.png",
+        "marseille": "img/mark_marseille.png",
+        "lille": "img/mark_lille.png",
+        "lyon": "img/mark_lyon.png",
+        "nice": "img/mark_nice.png",
+        "lens": "img/mark_lens.png",
+        "rennes": "img/mark_rennes.png",
+        "brest": "img/mark_brest.png",
+        "reims": "img/mark_reims.png",
+        "toulouse": "img/mark_toulouse.png",
+        "strasbourg": "img/mark_strasbourg.png",
+        "montpellier": "img/mark_montpellier.png",
+        "nantes": "img/mark_nantes.png",
+        "auxerre": "img/mark_auxerre.png",
+        "angers": "img/mark_angers.png",
+        "saint_etienne": "img/mark_saint_etienne.png",
+        "le_havre": "img/mark_le_havre.png",
         // AFC 챔피언스리그 (ACL) 매핑
         "vissel_kobe": "img/mark_kobe.png",
         "yokohama_marinos": "img/mark_marinos.png",
@@ -1069,6 +1104,7 @@ function startLeagueAutoSimulation() {
             let cupStorageKey = 'fc_star_cup_state_kleague1';
             if (config.id === 'epl') cupStorageKey = 'fc_star_cup_state_epl';
             else if (config.id === 'jleague') cupStorageKey = 'fc_star_cup_state_jleague';
+            else if (config.id === 'ligue1') cupStorageKey = 'fc_star_cup_state_ligue1';
 
             try {
                 const savedCup = localStorage.getItem(cupStorageKey) || (config.id === 'kleague1' ? localStorage.getItem('fc_star_cup_state') : null);
@@ -1090,6 +1126,7 @@ function startLeagueAutoSimulation() {
             let aclStorageKey = 'fc_star_acl_state_kleague1';
             if (config.id === 'epl') aclStorageKey = 'fc_star_acl_state_epl';
             else if (config.id === 'jleague') aclStorageKey = 'fc_star_acl_state_jleague';
+            else if (config.id === 'ligue1') aclStorageKey = 'fc_star_acl_state_ligue1';
 
             try {
                 const savedAcl = localStorage.getItem(aclStorageKey) || (config.id === 'kleague1' ? localStorage.getItem('fc_star_acl_state') : null);
@@ -1354,7 +1391,7 @@ function startMatchSimulation() {
     if (leagueRound === config.totalRounds) {
         let isCupFinished = false;
         try {
-            const cupKey = (config.id === 'epl') ? 'fc_star_cup_state_epl' : (config.id === 'jleague' ? 'fc_star_cup_state_jleague' : 'fc_star_cup_state_kleague1');
+            const cupKey = (config.id === 'epl') ? 'fc_star_cup_state_epl' : (config.id === 'jleague' ? 'fc_star_cup_state_jleague' : (config.id === 'ligue1' ? 'fc_star_cup_state_ligue1' : 'fc_star_cup_state_kleague1'));
             let savedCup = localStorage.getItem(cupKey);
             if (!savedCup && config.id === 'kleague1') savedCup = localStorage.getItem('fc_star_cup_state');
             if (savedCup) {
@@ -1373,7 +1410,7 @@ function startMatchSimulation() {
 
         let isAclFinished = false;
         try {
-            const aclKey = (config.id === 'epl') ? 'fc_star_acl_state_epl' : (config.id === 'jleague' ? 'fc_star_acl_state_jleague' : 'fc_star_acl_state_kleague1');
+            const aclKey = (config.id === 'epl') ? 'fc_star_acl_state_epl' : (config.id === 'jleague' ? 'fc_star_acl_state_jleague' : (config.id === 'ligue1' ? 'fc_star_acl_state_ligue1' : 'fc_star_acl_state_kleague1'));
             let savedAcl = localStorage.getItem(aclKey);
             if (!savedAcl && config.id === 'kleague1') savedAcl = localStorage.getItem('fc_star_acl_state');
             if (savedAcl) {
@@ -2261,11 +2298,11 @@ function checkSeasonChampion() {
     if (isUserTeamChamp) {
         let cupWon = false, aclWon = false;
         try {
-            const cupKey = (config.id === 'epl') ? 'fc_star_cup_state_epl' : (config.id === 'jleague' ? 'fc_star_cup_state_jleague' : 'fc_star_cup_state_kleague1');
+            const cupKey = (config.id === 'epl') ? 'fc_star_cup_state_epl' : (config.id === 'jleague' ? 'fc_star_cup_state_jleague' : (config.id === 'ligue1' ? 'fc_star_cup_state_ligue1' : 'fc_star_cup_state_kleague1'));
             const savedCup = localStorage.getItem(cupKey) || (config.id === 'kleague1' ? localStorage.getItem('fc_star_cup_state') : null);
             if (savedCup && JSON.parse(savedCup).bracket?.winner?.id === config.userTeamId) cupWon = true;
 
-            const aclKey = (config.id === 'epl') ? 'fc_star_acl_state_epl' : (config.id === 'jleague' ? 'fc_star_acl_state_jleague' : 'fc_star_acl_state_kleague1');
+            const aclKey = (config.id === 'epl') ? 'fc_star_acl_state_epl' : (config.id === 'jleague' ? 'fc_star_acl_state_jleague' : (config.id === 'ligue1' ? 'fc_star_acl_state_ligue1' : 'fc_star_acl_state_kleague1'));
             const savedAcl = localStorage.getItem(aclKey) || (config.id === 'kleague1' ? localStorage.getItem('fc_star_acl_state') : null);
             if (savedAcl && JSON.parse(savedAcl).bracket?.winner?.id === config.userTeamId) aclWon = true;
 
@@ -2584,6 +2621,33 @@ function renderHallOfFameSub(subTabId) {
                     </div>
                 </div>
             `;
+        } else if (targetLeagueId === 'ligue1') {
+            trophyShelfHtml = `
+                <!-- Ligue 1 Trophy -->
+                <div class="trophy-badge-container" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${leagueTitles > 0 ? (isHard ? 'rgba(255, 62, 108, 0.4)' : 'rgba(255, 215, 0, 0.3)') : 'rgba(255, 255, 255, 0.05)'}; padding: 0.5rem 0.8rem; border-radius: 14px; min-width: 110px; transition: all 0.3s; ${leagueTitles > 0 ? (isHard ? 'box-shadow: 0 0 15px rgba(255, 62, 108, 0.2);' : 'box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);') : ''}">
+                    <i class="fa-solid fa-crown" style="font-size: 1.6rem; color: ${leagueTitles > 0 ? (isHard ? '#ff3e6c' : '#ffd700') : '#4b5563'}; filter: ${leagueTitles > 0 ? (isHard ? 'drop-shadow(0 0 6px rgba(255, 62, 108, 0.6))' : 'drop-shadow(0 0 6px rgba(255, 215, 0, 0.6))') : 'none'};"></i>
+                    <div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">리그앙</div>
+                        <div style="font-size: 0.9rem; font-weight: 800; color: ${leagueTitles > 0 ? '#fff' : '#6b7280'};">${leagueTitles}회 우승</div>
+                    </div>
+                </div>
+                <!-- Coupe de France Trophy -->
+                <div class="trophy-badge-container" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${cupTitles > 0 ? 'rgba(0, 210, 252, 0.3)' : 'rgba(255, 255, 255, 0.05)'}; padding: 0.5rem 0.8rem; border-radius: 14px; min-width: 110px; transition: all 0.3s; ${cupTitles > 0 ? 'box-shadow: 0 0 15px rgba(0, 210, 252, 0.1);' : ''}">
+                    <i class="fa-solid fa-trophy" style="font-size: 1.6rem; color: ${cupTitles > 0 ? '#00d2fc' : '#4b5563'}; filter: ${cupTitles > 0 ? 'drop-shadow(0 0 6px rgba(0, 210, 252, 0.6))' : 'none'};"></i>
+                    <div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">쿠프 드 프랑스</div>
+                        <div style="font-size: 0.9rem; font-weight: 800; color: ${cupTitles > 0 ? '#fff' : '#6b7280'};">${cupTitles}회 우승</div>
+                    </div>
+                </div>
+                <!-- UCL Trophy -->
+                <div class="trophy-badge-container" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${aclTitles > 0 ? 'rgba(0, 255, 135, 0.3)' : 'rgba(255, 255, 255, 0.05)'}; padding: 0.5rem 0.8rem; border-radius: 14px; min-width: 110px; transition: all 0.3s; ${aclTitles > 0 ? 'box-shadow: 0 0 15px rgba(0, 255, 135, 0.1);' : ''}">
+                    <i class="fa-solid fa-star" style="font-size: 1.6rem; color: ${aclTitles > 0 ? '#00ff87' : '#4b5563'}; filter: ${aclTitles > 0 ? 'drop-shadow(0 0 6px rgba(0, 255, 135, 0.6))' : 'none'};"></i>
+                    <div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">챔스</div>
+                        <div style="font-size: 0.9rem; font-weight: 800; color: ${aclTitles > 0 ? '#fff' : '#6b7280'};">${aclTitles}회 우승</div>
+                    </div>
+                </div>
+            `;
         } else {
             trophyShelfHtml = `
                 <!-- K-League Trophy -->
@@ -2842,6 +2906,8 @@ function openLeagueTransferModal() {
     const btnKLeague = document.getElementById('btnTransferToKLeague');
     const btnEpl = document.getElementById('btnTransferToEpl');
     const btnJLeague = document.getElementById('btnTransferToJLeague');
+    const ligue1Card = document.getElementById('transferCardLigue1');
+    const btnLigue1 = document.getElementById('btnTransferToLigue1');
     
     // 카드 스타일 헬퍼
     const setCardActive = (card, btn, isActive, activeColor, activeGrad) => {
@@ -2868,6 +2934,7 @@ function openLeagueTransferModal() {
     setCardActive(kleagueCard, btnKLeague, currentLeagueId === 'kleague1', '#00ff87', 'linear-gradient(135deg, #00ff87, #60efff)');
     setCardActive(eplCard, btnEpl, currentLeagueId === 'epl', '#ffd700', 'linear-gradient(135deg, #ffd700, #ff6b6b)');
     setCardActive(jleagueCard, btnJLeague, currentLeagueId === 'jleague', '#e60012', 'linear-gradient(135deg, #e60012, #ff8c00)');
+    setCardActive(ligue1Card, btnLigue1, currentLeagueId === 'ligue1', '#004170', 'linear-gradient(135deg, #004170, #da291c)');
     
     modal.style.display = 'flex';
     modal.classList.add('active');
