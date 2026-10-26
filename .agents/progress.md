@@ -35,7 +35,7 @@
       - `index.html`: `js/match_algorithm.js?v=3.9` 상향.
       - `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v476'` 상향.
       - `scratch/test_ligue1_scorer.py`: 17개 전 구단 실존 선수(37명) 매핑 100% 검증 완료.
-- 다음 단계: 사용자 완료 보고 및 Git 커밋/푸시 대기
+- 다음 단계: 완료. (GitHub origin/main 푸시 완료: 01cb8eb)
 
 ## 이전 작업
 - 목표: 'S마라도나' 슈퍼(super) 등급 선수 카드 오버롤 수정 (101 -> 95) 및 스탯 밸런싱, DB/CSV 동기화, PWA 캐시 갱신

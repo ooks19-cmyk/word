@@ -81,7 +81,7 @@ graph TD
   - `sw.js`
   - `.agents/progress.md`
   - `.agents/log.md`
-* **최종 상태**: 완료.
+* **최종 상태**: 완료 (GitHub origin/main 푸시 완료: `01cb8eb`).
 
 ### ⚡ S마라도나 슈퍼(Super) 카드 오버롤 수정 (101 -> 95) 및 CSV 동기화 (2026-10-25)
 * **날짜·시간**: 2026-10-25 10:53 (KST)
