@@ -2864,6 +2864,31 @@ const CARDS_DATABASE = {
             def: 46,
             phy: 82
         }
+    },
+    "ferran_torres": {
+        id: "ferran_torres",
+        name: "페란 토레스",
+        rating: 93,
+        position: "LW",
+        nation: "Spain",
+        nationFlag: "https://flagcdn.com/w40/es.png",
+        club: "FC BARCELONA",
+        image: "player2/페란 토레스.webp",
+        rarity: "worldclass",
+        description: "스페인 라리가 FC 바르셀로나와 무적함대 스페인 대표팀의 날카로운 '상어(El Tiburón)', 페란 토레스입니다. 폭발적인 오프더볼 라인 브레이킹과 양발을 자유자재로 활용하는 정교한 골 결정력, 왕성한 전방 압박과 멀티 공격 포지션 소화 능력으로 상대 수비진의 빈틈을 거침없이 파고드는 월드클래스 공격수입니다.",
+        theme: {
+            primary: "#000a20",
+            secondary: "#4facfe",
+            glow: "#00f2fe"
+        },
+        stats: {
+            pac: 93,
+            sho: 91,
+            pas: 87,
+            dri: 91,
+            def: 52,
+            phy: 82
+        }
     }
 };
 

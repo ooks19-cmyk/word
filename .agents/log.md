@@ -27,6 +27,40 @@ graph TD
 - **`db.js`**: Firebase Firestore 기반 원격 저장 및 미지원 시 LocalStorage 기반의 가상 로컬 클라우드 전환 처리.
 - **`player/player_data.js`**: 전체 축구선수 카드 스펙(오버롤, 세부 능력치, 포지션 등)을 동적으로 로드.
 
+### 🦈 페란 토레스 월드클래스(Worldclass) 카드 등록, PAC 93 상향 및 깃 푸시 (2026-10-27)
+* **날짜·시간**: 2026-10-27 17:06 (KST)
+* **요청 요약**:
+  - 페란 토레스(Ferran Torres) 월드클래스 등급, 오버롤 93 선수 카드 생성 및 속도(PAC) 93 수정 후 깃 푸시.
+* **수행 내용**:
+  1. **카드 데이터 등록 및 스탯 조정 (`player_data.js`)**:
+     - `ferran_torres`: OVR 93, 포지션 `LW` (좌측 윙어/포워드), 국적 `Spain`, 국기 `https://flagcdn.com/w40/es.png`, 클럽 `FC BARCELONA`, 등급 `worldclass`.
+     - 6대 핵심 스탯: **PAC 93** (사용자 요청에 따라 92에서 93으로 상향), SHO 91, PAS 87, DRI 91, DEF 52, PHY 82 (폭발적인 오프더볼 라인 브레이킹 침투, 양발 골 결정력, 왕성한 전방 압박 반영).
+     - 비주얼 테마: primary `#000a20`, secondary `#4facfe`, glow `#00f2fe` (월드클래스 시그니처 딥사파이어 & 아쿠아 글로우 테마).
+     - 이미지: `player2/페란 토레스.webp` (기존 실재 이미지 매핑).
+     - 설명: "스페인 라리가 FC 바르셀로나와 무적함대 스페인 대표팀의 날카로운 '상어(El Tiburón)', 페란 토레스입니다. 폭발적인 오프더볼 라인 브레이킹과 양발을 자유자재로 활용하는 정교한 골 결정력, 왕성한 전방 압박과 멀티 공격 포지션 소화 능력으로 상대 수비진의 빈틈을 거침없이 파고드는 월드클래스 공격수입니다."
+  2. **PWA 캐시 및 스크립트 버전 상향**:
+     - `index.html`: `player_data.js?v=2.00` 상향.
+     - `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v478'` 상향.
+  3. **엑셀 시트 동기화 (`선수데이터.csv`)**:
+     - `convert_js_to_csv.py` 스크립트를 통한 115명 선수 데이터 자동 변환 (헤더 포함 116행, PAC 93 반영).
+  4. **무결성 검증**:
+     - `scratch/verify_ferran_torres.py`: 페란 토레스 객체 스펙, 이미지 실재 여부, HTML/SW 버전, CSV 116행 및 6대 스탯 100% 일치 확인.
+     - Node.js 구문 검사(`node --check player_data.js sw.js`): Syntax OK (100% 통과).
+     - 회귀 테스트 5종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `market_mode`, `quiz_subjective`): 100% PASS.
+     - `git diff --check`: 포맷 및 공백 결함 0건.
+  5. **Git 커밋 및 원격 저장소 푸시**:
+     - `main` 브랜치에 안전하게 커밋 및 origin/main 푸시 완료.
+* **변경 파일**:
+  - `player_data.js`
+  - `index.html`
+  - `sw.js`
+  - `선수데이터.csv`
+  - `player2/페란 토레스.webp`
+  - `scratch/verify_ferran_torres.py`
+  - `.agents/progress.md`
+  - `.agents/log.md`
+* **최종 상태**: 완료 (GitHub origin/main 푸시 완료).
+
 ### 🇫🇷 프랑스 리그앙(Ligue 1) 정식 도입 및 멀티 리그 엔진/쿠프 드 프랑스/UCL/클라우드 동기화 구현 (2026-10-26)
 * **날짜·시간**: 2026-10-26 23:32 (KST)
 * **요청 요약**:
