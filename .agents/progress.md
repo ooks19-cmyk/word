@@ -1,21 +1,25 @@
 ## 현재 작업
-- 목표: '페란 토레스' 월드클래스(worldclass) 등급 선수 카드 생성 (오버롤 93, 속도 PAC 93, 포지션 LW) 및 DB/CSV 동기화, PWA 캐시 갱신 후 Git 푸시
+- 목표: '네이마르' 월드클래스(worldclass) 등급 선수 카드 등록 (오버롤 93, 포지션 LW, 희귀도 worldclass) 및 DB/CSV 동기화, PWA 캐시 갱신 후 Git 커밋 & 원격 main 푸시
 - 상태: 완료
 - 주요 변경·검증:
-  1. `player_data.js`: `ferran_torres` 월드클래스(worldclass) 카드 객체 등록 완료
-     - 이름: 페란 토레스, 등급: worldclass, OVR: 93, 포지션: LW, 국적: Spain, 소속: FC BARCELONA
-     - 6대 스탯: PAC 93 (속도 요청값 반영), SHO 91, PAS 87, DRI 91, DEF 52, PHY 82
+  1. `player_data.js`: `neymar_W` 월드클래스(worldclass) 카드 객체 등록 완료
+     - 이름: 네이마르, 등급: worldclass, OVR: 93, 포지션: LW, 국적: Brazil, 소속: PARIS SAINT-GERMAIN
+     - 6대 스탯: PAC 94, SHO 91, PAS 89, DRI 95, DEF 40, PHY 72 (폭발적인 가속과 삼바 드리블, 날카로운 피니싱 및 킬패스 반영)
      - 비주얼 테마: 월드클래스 시그니처 딥사파이어/아쿠아 (`primary: "#000a20"`, `secondary: "#4facfe"`, `glow: "#00f2fe"`)
-     - 이미지: `player2/페란 토레스.webp` (파일 실재 확인 완료)
-  2. `index.html`: `player_data.js?v=2.00` 캐시 쿼리 버전 상향
-  3. `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v478'` 상향
-  4. `선수데이터.csv`: `convert_js_to_csv.py` 스크립트를 통한 115명 데이터 동기화 완료 (헤더 포함 116행, PAC 93 반영)
+     - 이미지: `player2/네이마르.png` (파일 실재 확인 완료)
+  2. `index.html`: `player_data.js?v=2.02` 캐시 쿼리 버전 상향
+  3. `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v480'` 상향
+  4. `선수데이터.csv`: `convert_js_to_csv.py` 스크립트를 통한 116명 데이터 동기화 완료 (헤더 포함 117행)
   5. 무결성 검증:
      - Node.js 구문 검사(`player_data.js`, `sw.js`): Syntax OK 100% PASS
-     - CSV 116행 및 페란 토레스 세부 스탯 6종 100% 일치 확인
+     - CSV 117행 및 `neymar_W` 세부 스탯 6종 100% 일치 확인
      - 전체 회귀 테스트 5종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `market_mode`, `quiz_subjective`): 100% PASS
      - `git diff --check`: 포맷/공백 결함 0건
 - 다음 단계: Git 커밋 및 main 원격 브랜치 푸시 완료
+
+## 이전 작업
+- 목표: '페란 토레스' 월드클래스(worldclass) 등급 선수 카드 생성 (오버롤 93, 속도 PAC 93, 포지션 LW) 및 DB/CSV 동기화, PWA 캐시 갱신 후 Git 푸시
+- 상태: 완료
 
 ## 이전 작업
 - 목표: 프랑스 리그앙(Ligue 1) 신규 리그 도입 (플레이어 구단: 파리 생제르맹 PSG) 구현 및 데이터 격리/UCL/쿠프드프랑스 연동

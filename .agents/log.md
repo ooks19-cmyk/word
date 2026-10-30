@@ -27,6 +27,30 @@ graph TD
 - **`db.js`**: Firebase Firestore 기반 원격 저장 및 미지원 시 LocalStorage 기반의 가상 로컬 클라우드 전환 처리.
 - **`player/player_data.js`**: 전체 축구선수 카드 스펙(오버롤, 세부 능력치, 포지션 등)을 동적으로 로드.
 
+### 🇧🇷 네이마르 월드클래스(Worldclass) 선수 카드 등록, 오버롤 93 수정 및 깃 푸시 (2026-10-30)
+* **날짜·시간**: 2026-10-30 17:43 (KST)
+* **요청 요약**:
+  - 네이마르 선수 카드 오버롤 93 월드클래스 등급으로 수정 및 원격 브랜치 깃 푸시 진행.
+* **수행 내용**:
+  1. **카드 데이터 등록 (`player_data.js`)**:
+     - `neymar_W`: OVR 93, 이름 `네이마르`, 포지션 `LW` (좌측 윙어/포워드), 국적 `Brazil`, 국기 `https://flagcdn.com/w40/br.png`, 클럽 `PARIS SAINT-GERMAIN`, 등급 `worldclass`.
+     - 6대 핵심 스탯: PAC 94, SHO 91, PAS 89, DRI 95, DEF 40, PHY 72 (폭발적인 스피드, 독보적인 삼바 드리블, 정교한 감아차기 피니싱과 창의적 킬패스 반영).
+     - 비주얼 테마: primary `#000a20`, secondary `#4facfe`, glow `#00f2fe` (월드클래스 시그니처 딥사파이어 & 아쿠아 글로우 테마).
+     - 이미지: `player2/네이마르.png` (기존 에셋 실재 확인 및 매핑).
+     - 설명: "화려한 삼바 리듬과 마법 같은 볼 컨트롤로 전 세계를 매료시킨 월드클래스 판타지스타, 네이마르 주니오르입니다. 번개 같은 순간 가속과 예측 불가능한 현란한 드리블, 수비 라인을 단숨에 허무는 치명적인 킬패스와 감각적인 피니싱으로 피치 위에서 찬란한 예술을 완성하는 축구 스타입니다."
+  2. **PWA 캐시 및 브라우저 버전 상향**:
+     - `index.html`: `player_data.js?v=2.02` 상향.
+     - `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v480'` 상향.
+  3. **엑셀 시트 동기화 (`선수데이터.csv`)**:
+     - `convert_js_to_csv.py` 스크립트를 통한 116명 선수 데이터 자동 변환 (헤더 포함 117행 동기화 완료).
+  4. **무결성 검증**:
+     - `scratch/verify_neymar.py`: `neymar_W` 객체 스펙, 이미지 실재 여부, HTML/SW 버전, CSV 117행 및 6대 스탯 100% 일치 확인.
+     - Node.js 구문 검사(`node --check player_data.js sw.js`): Syntax OK 100% PASS.
+     - 회귀 테스트 5종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `market_mode`, `quiz_subjective`): 100% PASS.
+     - `git diff --check`: 포맷 및 공백 결함 0건.
+* **최종 상태**: 완료 (GitHub 원격 main 푸시 완료)
+
+
 ### 🦈 페란 토레스 월드클래스(Worldclass) 카드 등록, PAC 93 상향 및 깃 푸시 (2026-10-27)
 * **날짜·시간**: 2026-10-27 17:06 (KST)
 * **요청 요약**:

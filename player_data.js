@@ -2889,6 +2889,31 @@ const CARDS_DATABASE = {
             def: 52,
             phy: 82
         }
+    },
+    "neymar_W": {
+        id: "neymar_W",
+        name: "네이마르",
+        rating: 93,
+        position: "LW",
+        nation: "Brazil",
+        nationFlag: "https://flagcdn.com/w40/br.png",
+        club: "PARIS SAINT-GERMAIN",
+        image: "player2/네이마르.png",
+        rarity: "worldclass",
+        description: "화려한 삼바 리듬과 마법 같은 볼 컨트롤로 전 세계를 매료시킨 월드클래스 판타지스타, 네이마르 주니오르입니다. 번개 같은 순간 가속과 예측 불가능한 현란한 드리블, 수비 라인을 단숨에 허무는 치명적인 킬패스와 감각적인 피니싱으로 피치 위에서 찬란한 예술을 완성하는 축구 스타입니다.",
+        theme: {
+            primary: "#000a20",
+            secondary: "#4facfe",
+            glow: "#00f2fe"
+        },
+        stats: {
+            pac: 94,
+            sho: 91,
+            pas: 89,
+            dri: 95,
+            def: 40,
+            phy: 72
+        }
     }
 };
 
