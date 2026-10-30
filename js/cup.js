@@ -114,6 +114,7 @@ const CUP_TEAMS_PRESET = [
 
 // 2. 리그컵 초기화 함수
 function initCup() {
+    const expectedUserTeamId = getActiveCupUserTeamId();
     try {
         const key = getCupStorageKey();
         let savedState = localStorage.getItem(key);
@@ -124,6 +125,13 @@ function initCup() {
         
         if (savedState) {
             cupState = JSON.parse(savedState);
+            // 현재 활성 리그의 유저 팀(psg / liverpool / tokyo / jeonbuk)이 대진표/팀목록에 포함되어 있는지 검증
+            const hasUserTeam = cupState.teams && cupState.teams.some(t => t.id === expectedUserTeamId);
+            if (!hasUserTeam) {
+                console.log(`[Cup Check] 활성 리그(${currentLeagueId})의 플레이어 팀(${expectedUserTeamId})과 불일치하여 신규 토너먼트를 재구성합니다.`);
+                resetCupStateData();
+                return;
+            }
             if (cupState.hasResetThisSeason === undefined) {
                 cupState.hasResetThisSeason = false;
             }
@@ -983,7 +991,7 @@ function startCupMatchSimulation() {
                             const oppGoalData = determineOpponentScorerAndAssister(opponent.id);
                             addPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, oppGoalData.scorerName, oppGoalData.assisterName);
                             let pkCommentaryText = specialEvent.eventGoal;
-                            if (oppGoalData.scorerName) {
+                            if (oppGoalData.scorerName && oppGoalData.scorerName !== "상대 공격수") {
                                 pkCommentaryText = `⚽ <strong>[PK 실점]</strong> 상대 키커 <strong>${oppGoalData.scorerName}</strong>의 강력한 슛이 그대로 그물을 출렁입니다! 골키퍼가 방향을 읽지 못했습니다.`;
                             }
                             addCommentary(currentMin, pkCommentaryText, 'normal');
@@ -1160,7 +1168,7 @@ function startCupMatchSimulation() {
                         
                         setTimeout(() => {
                             let pkCommentaryText = specialEvent.eventGoal;
-                            if (oppGoalData.scorerName) {
+                            if (oppGoalData.scorerName && oppGoalData.scorerName !== "상대 공격수") {
                                 pkCommentaryText = `⚽ <strong>[PK 실점]</strong> 상대 키커 <strong>${oppGoalData.scorerName}</strong>의 강력한 슛이 그대로 그물을 출렁입니다! 골키퍼가 방향을 읽지 못했습니다.`;
                             }
                             addCommentary(currentMin, pkCommentaryText, 'normal');

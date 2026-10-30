@@ -1,21 +1,26 @@
 ## 현재 작업
+- 목표: 프랑스 리그앙(Ligue 1) 챔피언스리그(UCL) 및 쿠프 드 프랑스(Cup) 경기 진행 시 문자중계 상대팀 득점자/도움자 매핑 결함([상대 공격수]로 출력되는 문제) 해결 및 토너먼트 상태 정합성 보강
+- 상태: 완료
+- 주요 분석 및 변경 내역:
+  1. 원인 분석:
+     - 챔피언스리그(UCL): `determineOpponentScorerAndAssister`가 활성 리그인 리그앙 프리셋(`OTHER_TEAMS_PLAYERS_PRESET_LIGUE1`)만 조회하고 유럽 명문 구단 프리셋(`getActiveAclPlayersPreset`, `UCL_PLAYERS_PRESET_EPL`)을 탐색하지 않아 레알 마드리드, 바이에른 뮌헨, 바르셀로나, 리버풀 등의 스타 선수를 찾지 못하고 `상대 공격수`로 fallback.
+     - `getActiveAclPlayersPreset()`에서 프랑스/영국 모드일 때 유럽 명문 클럽과 국내 진출 클럽(리그앙 3개 구단 등)이 통합 반환되지 않던 문제.
+     - 쿠프 드 프랑스(Cup): `initCup()` 내 `expectedUserTeamId` 검증이 누락되어, 기존 타 리그(K리그/EPL) 세이브 데이터가 남아있을 경우 타 리그 팀이 대진에 유지되어 매핑 불일치 발생.
+  2. 코드 수정:
+     - `js/match_algorithm.js`: `determineOpponentScorerAndAssister(opponentTeamId)` 전면 개편. 활성 리그 -> 챔스(UCL/ACL) 프리셋 -> UCL 직접 프리셋 -> 컵대회 프리셋 -> 타 리그 전체 프리셋(Ligue 1, EPL, J리그, K리그) 순으로 전수 교차 탐색하여 어떤 대회/상대팀이라도 실존 스타 선수를 100% 매핑하도록 개선. 문자열 및 객체 ID 안전 정규화 적용.
+     - `js/acl.js`: `getActiveAclPlayersPreset()`에서 리그앙/EPL 국내 진출 구단 선수와 유럽 12대 명문 구단 선수를 함께 병합 반환, PK 실점 문자중계 generic fallback 가드 보강.
+     - `js/cup.js`: `initCup()` 내 `expectedUserTeamId` 검증 및 불일치 시 자동 리셋 가드 추가, PK 실점 문자중계 generic fallback 가드 보강.
+     - `js/league.js`: `transferToLeague` 시 `resetCupStateData()` 및 `resetAclStateData()` 연동 보강.
+     - `index.html`: `match_algorithm.js?v=4.0`, `league.js?v=5.3`, `cup.js?v=3.6`, `acl.js?v=4.0` 캐시 버전 상향.
+     - `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v481'` 상향.
+  3. 무결성 검증:
+     - `scratch/verify_ligue1_ucl_cup_scorer.py`: 괄호/구문 무결성, UCL 12개 유럽 명문 구단, Cup 15개 구단, 리그앙 17개 구단 득점자 매핑, `initCup` 검증 가드, `transferToLeague` 리셋, HTML/SW 캐시 버전 일치 100% PASS.
+     - `git diff --check`: 포맷 및 공백 결함 0건.
+- 다음 단계: 완료 보고 및 원격 브랜치 푸시.
+
+## 이전 작업
 - 목표: '네이마르' 월드클래스(worldclass) 등급 선수 카드 등록 (오버롤 93, 포지션 LW, 희귀도 worldclass) 및 DB/CSV 동기화, PWA 캐시 갱신 후 Git 커밋 & 원격 main 푸시
 - 상태: 완료
-- 주요 변경·검증:
-  1. `player_data.js`: `neymar_W` 월드클래스(worldclass) 카드 객체 등록 완료
-     - 이름: 네이마르, 등급: worldclass, OVR: 93, 포지션: LW, 국적: Brazil, 소속: PARIS SAINT-GERMAIN
-     - 6대 스탯: PAC 94, SHO 91, PAS 89, DRI 95, DEF 40, PHY 72 (폭발적인 가속과 삼바 드리블, 날카로운 피니싱 및 킬패스 반영)
-     - 비주얼 테마: 월드클래스 시그니처 딥사파이어/아쿠아 (`primary: "#000a20"`, `secondary: "#4facfe"`, `glow: "#00f2fe"`)
-     - 이미지: `player2/네이마르.png` (파일 실재 확인 완료)
-  2. `index.html`: `player_data.js?v=2.02` 캐시 쿼리 버전 상향
-  3. `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v480'` 상향
-  4. `선수데이터.csv`: `convert_js_to_csv.py` 스크립트를 통한 116명 데이터 동기화 완료 (헤더 포함 117행)
-  5. 무결성 검증:
-     - Node.js 구문 검사(`player_data.js`, `sw.js`): Syntax OK 100% PASS
-     - CSV 117행 및 `neymar_W` 세부 스탯 6종 100% 일치 확인
-     - 전체 회귀 테스트 5종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `market_mode`, `quiz_subjective`): 100% PASS
-     - `git diff --check`: 포맷/공백 결함 0건
-- 다음 단계: Git 커밋 및 main 원격 브랜치 푸시 완료
 
 ## 이전 작업
 - 목표: '페란 토레스' 월드클래스(worldclass) 등급 선수 카드 생성 (오버롤 93, 속도 PAC 93, 포지션 LW) 및 DB/CSV 동기화, PWA 캐시 갱신 후 Git 푸시

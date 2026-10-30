@@ -48,8 +48,9 @@ function getActiveAclTeamsPreset() {
 function getActiveAclPlayersPreset() {
     if (typeof currentLeagueId !== 'undefined') {
         if (currentLeagueId === 'epl' || currentLeagueId === 'ligue1') {
+            let uclPlayers = [];
             if (typeof UCL_PLAYERS_PRESET_EPL !== 'undefined' && UCL_PLAYERS_PRESET_EPL.length > 0) {
-                let uclPlayers = [...UCL_PLAYERS_PRESET_EPL];
+                uclPlayers = [...UCL_PLAYERS_PRESET_EPL];
                 if (currentLeagueId === 'ligue1') {
                     uclPlayers = uclPlayers.filter(p => p.teamId !== 'psg');
                     uclPlayers.push(
@@ -57,15 +58,20 @@ function getActiveAclPlayersPreset() {
                         { id: "ucl_liv_2", name: "디아스", teamId: "liverpool", teamName: "리버풀 FC" }
                     );
                 }
-                return uclPlayers;
             }
+            const domesticPlayers = (currentLeagueId === 'ligue1')
+                ? ((typeof OTHER_TEAMS_PLAYERS_PRESET_LIGUE1 !== 'undefined') ? OTHER_TEAMS_PLAYERS_PRESET_LIGUE1 : [])
+                : ((typeof OTHER_TEAMS_PLAYERS_PRESET_EPL !== 'undefined') ? OTHER_TEAMS_PLAYERS_PRESET_EPL : []);
+            return [...uclPlayers, ...domesticPlayers];
         } else if (currentLeagueId === 'jleague') {
             const jPlayers = (typeof OTHER_TEAMS_PLAYERS_PRESET_JLEAGUE !== 'undefined') ? OTHER_TEAMS_PLAYERS_PRESET_JLEAGUE : [];
             const kPlayers = (typeof OTHER_TEAMS_PLAYERS_PRESET !== 'undefined') ? OTHER_TEAMS_PLAYERS_PRESET : [];
             return [...jPlayers, ...kPlayers];
         }
     }
-    return (typeof OTHER_TEAMS_PLAYERS_PRESET !== 'undefined') ? OTHER_TEAMS_PLAYERS_PRESET : [];
+    const kPlayers = (typeof OTHER_TEAMS_PLAYERS_PRESET !== 'undefined') ? OTHER_TEAMS_PLAYERS_PRESET : [];
+    const jPlayers = (typeof OTHER_TEAMS_PLAYERS_PRESET_JLEAGUE !== 'undefined') ? OTHER_TEAMS_PLAYERS_PRESET_JLEAGUE : [];
+    return [...kPlayers, ...jPlayers];
 }
 
 function getAclStorageKey() {
@@ -1205,7 +1211,7 @@ function startAclMatchSimulation() {
                             }
                             addAclPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, oppGoalData.scorerName, oppGoalData.assisterName);
                             let pkCommentaryText = specialEvent.eventGoal;
-                            if (oppGoalData.scorerName) {
+                            if (oppGoalData.scorerName && oppGoalData.scorerName !== "상대 공격수") {
                                 pkCommentaryText = `⚽ <strong>[PK 실점]</strong> 상대 키커 <strong>${oppGoalData.scorerName}</strong>의 강력한 슛이 그대로 그물을 출렁입니다! 골키퍼가 방향을 읽지 못했습니다.`;
                             }
                             addCommentary(currentMin, pkCommentaryText, 'normal');
@@ -1382,7 +1388,7 @@ function startAclMatchSimulation() {
                             }
                             addAclPlayerStatRecord(isHome ? playerMatch.team2 : playerMatch.team1, oppGoalData.scorerName, oppGoalData.assisterName);
                             let pkCommentaryText = specialEvent.eventGoal;
-                            if (oppGoalData.scorerName) {
+                            if (oppGoalData.scorerName && oppGoalData.scorerName !== "상대 공격수") {
                                 pkCommentaryText = `⚽ <strong>[PK 실점]</strong> 상대 키커 <strong>${oppGoalData.scorerName}</strong>의 강력한 슛이 그대로 그물을 출렁입니다! 골키퍼가 방향을 읽지 못했습니다.`;
                             }
                             addCommentary(currentMin, pkCommentaryText, 'normal');

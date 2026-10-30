@@ -1457,6 +1457,10 @@ function rollSpecialMatchEvent(activePlayers, opponentName) {
 
 // 9. 상대팀 전용 동적 득점자/도움자 판정 함수
 function determineOpponentScorerAndAssister(opponentTeamId) {
+    const normalizedTeamId = (opponentTeamId && typeof opponentTeamId === 'object' && opponentTeamId.id)
+        ? opponentTeamId.id.toString().trim()
+        : (opponentTeamId ? opponentTeamId.toString().trim() : "");
+
     let allOpponentPlayers = [];
 
     // 1. 활성 리그 설정의 playersPreset을 우선 참조
@@ -1484,18 +1488,52 @@ function determineOpponentScorerAndAssister(opponentTeamId) {
         allOpponentPlayers = OTHER_TEAMS_PLAYERS_PRESET;
     }
     
-    if (allOpponentPlayers.length === 0) {
-        return {
-            scorerId: "opp_generic_scorer",
-            scorerName: "상대 공격수",
-            assisterId: null,
-            assisterName: null
-        };
+    let squadPlayers = allOpponentPlayers.filter(p => p.teamId === normalizedTeamId);
+
+    // 3. 챔스(UCL/ACL) 활성 프리셋 조회 (유럽 12대 명문 구단 및 해외 구단)
+    if (squadPlayers.length === 0 && typeof getActiveAclPlayersPreset === 'function') {
+        try {
+            const aclPlayers = getActiveAclPlayersPreset();
+            if (Array.isArray(aclPlayers) && aclPlayers.length > 0) {
+                squadPlayers = aclPlayers.filter(p => p.teamId === normalizedTeamId);
+            }
+        } catch(e) {}
     }
-    
-    const normalizedTeamId = opponentTeamId ? opponentTeamId.toString().trim() : "";
-    const squadPlayers = allOpponentPlayers.filter(p => p.teamId === normalizedTeamId);
-    
+
+    // 4. UCL 유럽 명문 구단 직접 프리셋 조회 (UCL_PLAYERS_PRESET_EPL)
+    if (squadPlayers.length === 0 && typeof UCL_PLAYERS_PRESET_EPL !== 'undefined' && Array.isArray(UCL_PLAYERS_PRESET_EPL)) {
+        squadPlayers = UCL_PLAYERS_PRESET_EPL.filter(p => p.teamId === normalizedTeamId);
+    }
+
+    // 5. 컵대회 전용 프리셋 조회 (getActiveCupPlayersPreset)
+    if (squadPlayers.length === 0 && typeof getActiveCupPlayersPreset === 'function') {
+        try {
+            const cupPlayers = getActiveCupPlayersPreset();
+            if (Array.isArray(cupPlayers) && cupPlayers.length > 0) {
+                squadPlayers = cupPlayers.filter(p => p.teamId === normalizedTeamId);
+            }
+        } catch(e) {}
+    }
+
+    // 6. 모든 타 리그 프리셋(Ligue 1, EPL, J리그, K리그) 전수 교차 탐색
+    if (squadPlayers.length === 0) {
+        const fallbackPools = [
+            (typeof OTHER_TEAMS_PLAYERS_PRESET_LIGUE1 !== 'undefined') ? OTHER_TEAMS_PLAYERS_PRESET_LIGUE1 : [],
+            (typeof OTHER_TEAMS_PLAYERS_PRESET_EPL !== 'undefined') ? OTHER_TEAMS_PLAYERS_PRESET_EPL : [],
+            (typeof OTHER_TEAMS_PLAYERS_PRESET_JLEAGUE !== 'undefined') ? OTHER_TEAMS_PLAYERS_PRESET_JLEAGUE : [],
+            (typeof OTHER_TEAMS_PLAYERS_PRESET !== 'undefined') ? OTHER_TEAMS_PLAYERS_PRESET : []
+        ];
+        for (const pool of fallbackPools) {
+            if (Array.isArray(pool) && pool.length > 0) {
+                const found = pool.filter(p => p.teamId === normalizedTeamId);
+                if (found.length > 0) {
+                    squadPlayers = found;
+                    break;
+                }
+            }
+        }
+    }
+
     if (squadPlayers.length === 0) {
         return {
             scorerId: `opp_generic_${normalizedTeamId}_scorer`,

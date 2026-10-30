@@ -758,8 +758,10 @@ function transferToLeague(targetLeagueId) {
     
     // 3. 새 시즌 초기화 및 뷰 갱신
     resetLeagueSeasonState();
+    if (typeof resetCupStateData === 'function') resetCupStateData();
     if (typeof initCup === 'function') initCup();
     if (typeof initCupTab === 'function') initCupTab();
+    if (typeof resetAclStateData === 'function') resetAclStateData();
     if (typeof initAcl === 'function') initAcl();
     if (typeof initAclTab === 'function') initAclTab();
     syncPlayerTeamOvr();

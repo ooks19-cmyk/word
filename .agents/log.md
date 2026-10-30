@@ -27,6 +27,34 @@ graph TD
 - **`db.js`**: Firebase Firestore 기반 원격 저장 및 미지원 시 LocalStorage 기반의 가상 로컬 클라우드 전환 처리.
 - **`player/player_data.js`**: 전체 축구선수 카드 스펙(오버롤, 세부 능력치, 포지션 등)을 동적으로 로드.
 
+### 🏆 리그앙(Ligue 1) 챔피언스리그(UCL) 및 쿠프 드 프랑스 상대팀 득점자 매핑([상대 공격수] 출력) 결함 수정 (2026-10-30)
+* **날짜·시간**: 2026-10-30 18:30 (KST)
+* **요청 요약**:
+  - 리그1에서 챔스와 컵에서 경기 진행 시 문자중계 상대방 득점 상황에서 `[상대공격수]`로 표시되는 결함 수정.
+* **수행 내용**:
+  1. **원인 규명**:
+     - 챔피언스리그(UCL): `determineOpponentScorerAndAssister`가 활성 리그인 리그앙 프리셋(`OTHER_TEAMS_PLAYERS_PRESET_LIGUE1`)만 조회하고 유럽 명문 구단 프리셋(`getActiveAclPlayersPreset`, `UCL_PLAYERS_PRESET_EPL`)을 탐색하지 않아 레알 마드리드, 바이에른 뮌헨, 바르셀로나, 리버풀 등의 스타 선수를 찾지 못하고 `상대 공격수`로 fallback.
+     - `getActiveAclPlayersPreset()`에서 프랑스/영국 모드일 때 유럽 명문 클럽과 국내 진출 클럽(리그앙 3개 구단 등)이 통합 반환되지 않던 문제.
+     - 쿠프 드 프랑스(Cup): `initCup()` 내 `expectedUserTeamId` 검증이 누락되어, 기존 타 리그(K리그/EPL) 세이브 데이터가 남아있을 경우 타 리그 팀이 대진에 유지되어 매핑 불일치 발생.
+  2. **핵심 알고리즘 및 상태 보강 (`js/match_algorithm.js`, `js/acl.js`, `js/cup.js`, `js/league.js`)**:
+     - `determineOpponentScorerAndAssister(opponentTeamId)` 전면 개편:
+       1) 활성 리그 프리셋(`getActiveLeagueConfig().playersPreset`)
+       2) 챔스 프리셋(`getActiveAclPlayersPreset()`)
+       3) UCL 유럽 명문 구단 직접 프리셋(`UCL_PLAYERS_PRESET_EPL`)
+       4) 컵대회 전용 프리셋(`getActiveCupPlayersPreset()`)
+       5) 타 리그 전체 프리셋(`OTHER_TEAMS_PLAYERS_PRESET_LIGUE1`, `_EPL`, `_JLEAGUE`, `_PRESET`) 순으로 전수 교차 탐색하여 어떤 대회/상대팀이라도 실존 스타 선수를 100% 매핑하도록 개선. 문자열 및 객체 ID 안전 정규화 적용.
+     - `getActiveAclPlayersPreset()`: 리그앙/EPL 국내 진출 구단 선수와 유럽 12대 명문 구단 선수를 함께 병합 반환.
+     - `initCup()`: `expectedUserTeamId` 검증 로직 추가 (활성 리그의 유저팀이 포함되어 있지 않으면 `resetCupStateData()`로 자동 재구성).
+     - PK 실점 코멘터리 및 즉시 시뮬레이션에서 generic fallback(`[상대 공격수]`) 가드 보강.
+     - `transferToLeague()`: 리그 이동 시 `resetCupStateData()` 및 `resetAclStateData()` 호출 추가.
+  3. **PWA 캐시 및 브라우저 버전 상향**:
+     - `index.html`: `js/match_algorithm.js?v=4.0`, `js/league.js?v=5.3`, `js/cup.js?v=3.6`, `js/acl.js?v=4.0` 상향.
+     - `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v481'` 상향.
+  4. **무결성 검증**:
+     - `scratch/verify_ligue1_ucl_cup_scorer.py`: JS 파일 괄호/구문 무결성, UCL 유럽 12개 구단, Cup 15개 구단, 리그앙 17개 구단 득점자 매핑, `initCup` 검증 가드, `transferToLeague` 리셋, HTML/SW 캐시 버전 일치 100% 통과.
+     - `git diff --check`: 포맷 및 공백 결함 0건.
+* **최종 상태**: 완료 (GitHub 원격 main 푸시 대기/완료)
+
 ### 🇧🇷 네이마르 월드클래스(Worldclass) 선수 카드 등록, 오버롤 93 수정 및 깃 푸시 (2026-10-30)
 * **날짜·시간**: 2026-10-30 17:43 (KST)
 * **요청 요약**:
