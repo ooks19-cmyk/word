@@ -4481,3 +4481,12 @@ graph TD
 - 변경 파일: `quiz_data.js`, `index.html`, `sw.js`, `.agents/skills/add-quiz-words/quiz_vocabulary_schedule.md`, `.agents/progress.md`, `.agents/log.md`.
 - 검증: 괄호 무결성({ }, [ ]), 세트별 22단어 정합성 검증, `QUIZ_WORDS` 총 단어 수(1,167개) 및 날짜 키(49개) 전수 일치 확인, PWA 캐시 버전 일치 확인, `git diff --check` 통과.
 - 최종 상태: 완료 (quiz_data v2.2, PWA 캐시 v482).
+
+## 2026-10-31 — 신규 영단어 퀴즈 8개 세트(176단어) 등록 내역 원격 main 푸시
+- 요청: 깃푸시 진행
+- 수행:
+  1. 신규 영단어 8개 세트(176단어) 등록, `WORD/` 폴더 이미지 교체(기존 16장 삭제 및 신규 16장 추가), PWA 캐시(`sw.js`: `fc-star-v482`, `index.html`: `quiz_data.js?v=2.2`), 스케줄러 가이드 최신화 내역을 `main` 브랜치에 커밋(`25c7901`).
+  2. 원격 저장소(`origin/main`)로 푸시 완료.
+- 변경 파일: `WORD/*`, `quiz_data.js`, `index.html`, `sw.js`, `.agents/skills/add-quiz-words/quiz_vocabulary_schedule.md`, `.agents/progress.md`, `.agents/log.md`.
+- 검증: 무결성 검증 100% 통과, `origin/main` 푸시 확인 (커밋: `25c7901`).
+- 최종 상태: 완료 (origin/main 동기화 완료).
