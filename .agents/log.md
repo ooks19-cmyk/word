@@ -4461,3 +4461,23 @@ graph TD
 - 변경 파일: `index.html`, `js/league.js`, `sw.js`, `tests/national_mode.test.cjs`, `콘솔코드.txt`, `.agents/progress.md`, `.agents/log.md`.
 - 검증: Node 문법 검사(`--check`) 통과, 4개 전체 회귀 테스트 패스, `git diff --check` 통과, origin/main 푸시 완료.
 - 최종 상태: 완료 (origin/main 동기화 완료).
+
+## 2026-10-31 — 신규 영단어 퀴즈 8개 세트(176단어, Lesson 1~8) 등록 및 PWA 캐시(v482) 동기화
+- 요청: 단어 추가
+- 수행:
+  1. `WORD/` 폴더 내 신규 교재 단어 이미지 16장 분석 및 8개 세트(각 22단어, 총 176단어) 전사:
+     - `261031` (Lesson 1, 22단어): 야행성 동물(갈라고원숭이)과 밤의 동물원 탐험 (`both` ~ `zoo`)
+     - `261103` (Lesson 2, 22단어): 세계의 시차와 시간대 (`add` ~ `time zone`)
+     - `261107` (Lesson 3, 22단어): 대기전력 절약과 전기 절약 (`again` ~ `watch`)
+     - `261110` (Lesson 4, 22단어): 북극과 노르웨이의 백야 현상 (`between` ~ `visible`)
+     - `261114` (Lesson 5, 22단어): 뒷마당 캠핑과 밤의 자연 소리 (`backyard` ~ `zip`)
+     - `261117` (Lesson 6, 22단어): 영화의 소리를 만드는 폴리 아티스트 (`alive` ~ `town`)
+     - `261121` (Lesson 7, 22단어): 천둥 번개와 거리 측정 과학 (`away` ~ `trick`)
+     - `261124` (Lesson 8, 22단어): 프레리도그의 파수꾼과 천적 경고 (`alarm` ~ `warning`)
+  2. `quiz_data.js`: `QUIZ_WORDS_BY_DATE` 객체에 8개 날짜 키 등록, `QUIZ_WORDS` 전역 통합 풀 하단에 추가(총 1,167단어로 확장).
+  3. `.agents/skills/add-quiz-words/quiz_vocabulary_schedule.md`: 신규 스케줄러 그룹 8종 및 단어 목록, 총 단어 수(1,167단어) 최신화.
+  4. `index.html`: `quiz_data.js?v=2.2` 스크립트 캐시 버전 상향.
+  5. `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v482'` 상향.
+- 변경 파일: `quiz_data.js`, `index.html`, `sw.js`, `.agents/skills/add-quiz-words/quiz_vocabulary_schedule.md`, `.agents/progress.md`, `.agents/log.md`.
+- 검증: 괄호 무결성({ }, [ ]), 세트별 22단어 정합성 검증, `QUIZ_WORDS` 총 단어 수(1,167개) 및 날짜 키(49개) 전수 일치 확인, PWA 캐시 버전 일치 확인, `git diff --check` 통과.
+- 최종 상태: 완료 (quiz_data v2.2, PWA 캐시 v482).

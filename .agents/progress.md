@@ -1,22 +1,30 @@
 ## 현재 작업
-- 목표: 프랑스 리그앙(Ligue 1) 챔피언스리그(UCL) 및 쿠프 드 프랑스(Cup) 경기 진행 시 문자중계 상대팀 득점자/도움자 매핑 결함([상대 공격수]로 출력되는 문제) 해결 및 토너먼트 상태 정합성 보강
+- 목표: WORD 폴더 신규 교재 단어 이미지 8개 세트(총 176단어, Lesson 1~8: 261031~261124) `quiz_data.js` 등록 및 스케줄러 가이드, PWA 캐시(v482), 버전 동기화
 - 상태: 완료
 - 주요 분석 및 변경 내역:
-  1. 원인 분석:
-     - 챔피언스리그(UCL): `determineOpponentScorerAndAssister`가 활성 리그인 리그앙 프리셋(`OTHER_TEAMS_PLAYERS_PRESET_LIGUE1`)만 조회하고 유럽 명문 구단 프리셋(`getActiveAclPlayersPreset`, `UCL_PLAYERS_PRESET_EPL`)을 탐색하지 않아 레알 마드리드, 바이에른 뮌헨, 바르셀로나, 리버풀 등의 스타 선수를 찾지 못하고 `상대 공격수`로 fallback.
-     - `getActiveAclPlayersPreset()`에서 프랑스/영국 모드일 때 유럽 명문 클럽과 국내 진출 클럽(리그앙 3개 구단 등)이 통합 반환되지 않던 문제.
-     - 쿠프 드 프랑스(Cup): `initCup()` 내 `expectedUserTeamId` 검증이 누락되어, 기존 타 리그(K리그/EPL) 세이브 데이터가 남아있을 경우 타 리그 팀이 대진에 유지되어 매핑 불일치 발생.
-  2. 코드 수정:
-     - `js/match_algorithm.js`: `determineOpponentScorerAndAssister(opponentTeamId)` 전면 개편. 활성 리그 -> 챔스(UCL/ACL) 프리셋 -> UCL 직접 프리셋 -> 컵대회 프리셋 -> 타 리그 전체 프리셋(Ligue 1, EPL, J리그, K리그) 순으로 전수 교차 탐색하여 어떤 대회/상대팀이라도 실존 스타 선수를 100% 매핑하도록 개선. 문자열 및 객체 ID 안전 정규화 적용.
-     - `js/acl.js`: `getActiveAclPlayersPreset()`에서 리그앙/EPL 국내 진출 구단 선수와 유럽 12대 명문 구단 선수를 함께 병합 반환, PK 실점 문자중계 generic fallback 가드 보강.
-     - `js/cup.js`: `initCup()` 내 `expectedUserTeamId` 검증 및 불일치 시 자동 리셋 가드 추가, PK 실점 문자중계 generic fallback 가드 보강.
-     - `js/league.js`: `transferToLeague` 시 `resetCupStateData()` 및 `resetAclStateData()` 연동 보강.
-     - `index.html`: `match_algorithm.js?v=4.0`, `league.js?v=5.3`, `cup.js?v=3.6`, `acl.js?v=4.0` 캐시 버전 상향.
-     - `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v481'` 상향.
+  1. 단어 전사 및 스케줄러 등록 (8개 세트, 세트당 22단어 = 총 176단어 추가, 전체 단어 수 991 -> 1,167단어):
+     - `261031` (Lesson 1, 22단어): 야행성 동물(갈라고원숭이)과 밤의 동물원 탐험 (both ~ zoo)
+     - `261103` (Lesson 2, 22단어): 세계의 시차와 시간대 (add ~ time zone)
+     - `261107` (Lesson 3, 22단어): 대기전력 절약과 전기 절약 (again ~ watch)
+     - `261110` (Lesson 4, 22단어): 북극과 노르웨이의 백야 현상 (between ~ visible)
+     - `261114` (Lesson 5, 22단어): 뒷마당 캠핑과 밤의 자연 소리 (backyard ~ zip)
+     - `261117` (Lesson 6, 22단어): 영화의 소리를 만드는 폴리 아티스트 (alive ~ town)
+     - `261121` (Lesson 7, 22단어): 천둥 번개와 거리 측정 과학 (away ~ trick)
+     - `261124` (Lesson 8, 22단어): 프레리도그의 파수꾼과 천적 경고 (alarm ~ warning)
+  2. 데이터베이스 및 문서 동기화:
+     - `quiz_data.js`: `QUIZ_WORDS_BY_DATE` 객체에 8개 날짜 키 등록 및 `QUIZ_WORDS` 전역 통합 백업 풀 하단에 순차 추가(총 1,167단어).
+     - `.agents/skills/add-quiz-words/quiz_vocabulary_schedule.md`: 신규 그룹 스케줄 및 단어 풀 요약 등록, 총 단어 수(1,167단어) 갱신.
+     - `index.html`: `quiz_data.js?v=2.2` 스크립트 캐시 버전 상향.
+     - `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v482'` 상향.
   3. 무결성 검증:
-     - `scratch/verify_ligue1_ucl_cup_scorer.py`: 괄호/구문 무결성, UCL 12개 유럽 명문 구단, Cup 15개 구단, 리그앙 17개 구단 득점자 매핑, `initCup` 검증 가드, `transferToLeague` 리셋, HTML/SW 캐시 버전 일치 100% PASS.
+     - `scratch/verify_quiz_update.py`: 괄호 무결성({ }, [ ]), 8개 세트별 22단어 정합성, QUIZ_WORDS 총 길이(1,167개), 날짜 키(49개), HTML/SW 캐시 버전 일치 100% PASS.
      - `git diff --check`: 포맷 및 공백 결함 0건.
-- 다음 단계: 완료 보고 및 원격 브랜치 푸시.
+- 다음 단계: 완료 보고 및 사용자 요청 시 git 커밋/푸시 대기.
+
+## 이전 작업
+- 목표: 프랑스 리그앙(Ligue 1) 챔피언스리그(UCL) 및 쿠프 드 프랑스(Cup) 경기 진행 시 문자중계 상대팀 득점자/도움자 매핑 결함([상대 공격수]로 출력되는 문제) 해결 및 토너먼트 상태 정합성 보강
+- 상태: 완료 (origin/main 반영 완료)
+- 주요 변경: `js/match_algorithm.js`, `js/acl.js`, `js/cup.js`, `js/league.js`, `sw.js`(v481), `index.html`.
 
 ## 이전 작업
 - 목표: '네이마르' 월드클래스(worldclass) 등급 선수 카드 등록 (오버롤 93, 포지션 LW, 희귀도 worldclass) 및 DB/CSV 동기화, PWA 캐시 갱신 후 Git 커밋 & 원격 main 푸시
