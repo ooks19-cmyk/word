@@ -27,6 +27,40 @@ graph TD
 - **`db.js`**: Firebase Firestore 기반 원격 저장 및 미지원 시 LocalStorage 기반의 가상 로컬 클라우드 전환 처리.
 - **`player/player_data.js`**: 전체 축구선수 카드 스펙(오버롤, 세부 능력치, 포지션 등)을 동적으로 로드.
 
+### 🇪🇸 '쿠쿠렐라' 전설(Legend) 등급 선수 카드 생성 (오버롤 92, LB) 및 DB/CSV 동기화 (2026-11-01)
+* **날짜·시간**: 2026-11-01 09:45 (KST)
+* **요청 요약**:
+  - '쿠쿠렐라 전설 등급 오버롤 92.' 요청에 따른 신규 선수 카드 등록 및 DB/CSV/PWA 캐시 동기화.
+* **수행 내용**:
+  1. **신규 카드 등록 (`player_data.js`)**:
+     - `cucurella` 카드 객체 신규 추가:
+       - 이름: `쿠쿠렐라`
+       - 등급: `legend` (전설)
+       - OVR(rating): `92`
+       - 포지션(position): `LB` (표준 9대 포지션 준수)
+       - 국적(nation): `Spain` (국기: `https://flagcdn.com/w40/es.png`)
+       - 소속 클럽(club): `CHELSEA`
+       - 이미지(image): `player2/쿠쿠렐라.jpg` (파일 실재 확인 완료: 83,677 bytes)
+       - 6대 능력치: `PAC 90, SHO 72, PAS 88, DRI 89, DEF 92, PHY 89` (총합 520, 평균 86.67로 92 OVR 레전드 풀백 최적 밸런싱)
+       - 테마: 골드/블랙 레전드 프리셋 (`primary: "#000000"`, `secondary: "#c39e5c"`, `glow: "#ffd700"`)
+       - 설명: "스페인 무적함대의 유로 2024 우승을 이끈 핵심 레프트백이자 첼시 FC의 특급 수호신, 마르크 쿠쿠렐라입니다. 지칠 줄 모르는 폭발적인 활동량과 악착같은 대인 마크, 날카로운 태클과 번뜩이는 오버래핑 크로스로 왼쪽 측면 공수를 완벽하게 장악하는 전설적인 풀백입니다."
+  2. **PWA 캐시 및 브라우저 스크립트 버전 상향**:
+     - `index.html`: `player_data.js?v=2.03` 쿼리 파라미터 버전 상향.
+     - `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v483'` 상향.
+  3. **`선수데이터.csv` 엑셀 시트 자동 동기화**:
+     - `convert_js_to_csv.py`를 통해 총 117명 선수 데이터(118행) 자동 추출 및 동기화 완료.
+  4. **무결성 검증**:
+     - `scratch/verify_cucurella.py`:
+       - `player_data.js` 내 쿠쿠렐라 객체 정밀 검증 PASS.
+       - 이미지 실재(`player2/쿠쿠렐라.jpg`) 확인 완료.
+       - `index.html` 및 `sw.js` 캐시 버전 일치 검증 PASS.
+       - `선수데이터.csv` 118행 및 세부 스탯 6종 100% 일치 확인.
+       - Node.js 구문 검사(`node --check player_data.js sw.js`) Syntax OK.
+       - 전체 회귀 테스트 5종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `market_mode`, `quiz_subjective`) 100% ALL PASS.
+       - `git diff --check`: 포맷 및 공백 결함 0건.
+* **변경 파일**: `player_data.js`, `index.html`, `sw.js`, `선수데이터.csv`, `.agents/progress.md`, `.agents/log.md`, `scratch/verify_cucurella.py`
+* **최종 상태**: 완료 (origin/main 원격 브랜치 푸시 완료)
+
 ### 🏆 리그앙(Ligue 1) 챔피언스리그(UCL) 및 쿠프 드 프랑스 상대팀 득점자 매핑([상대 공격수] 출력) 결함 수정 (2026-10-30)
 * **날짜·시간**: 2026-10-30 18:30 (KST)
 * **요청 요약**:

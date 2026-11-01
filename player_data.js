@@ -2914,6 +2914,31 @@ const CARDS_DATABASE = {
             def: 40,
             phy: 72
         }
+    },
+    "cucurella": {
+        id: "cucurella",
+        name: "쿠쿠렐라",
+        rating: 92,
+        position: "LB",
+        nation: "Spain",
+        nationFlag: "https://flagcdn.com/w40/es.png",
+        club: "CHELSEA",
+        image: "player2/쿠쿠렐라.jpg",
+        rarity: "legend",
+        description: "스페인 무적함대의 유로 2024 우승을 이끈 핵심 레프트백이자 첼시 FC의 특급 수호신, 마르크 쿠쿠렐라입니다. 지칠 줄 모르는 폭발적인 활동량과 악착같은 대인 마크, 날카로운 태클과 번뜩이는 오버래핑 크로스로 왼쪽 측면 공수를 완벽하게 장악하는 전설적인 풀백입니다.",
+        theme: {
+            primary: "#000000",
+            secondary: "#c39e5c",
+            glow: "#ffd700"
+        },
+        stats: {
+            pac: 90,
+            sho: 72,
+            pas: 88,
+            dri: 89,
+            def: 92,
+            phy: 89
+        }
     }
 };
 

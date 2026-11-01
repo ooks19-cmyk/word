@@ -1,4 +1,23 @@
 ## 현재 작업
+- 목표: '쿠쿠렐라' 전설(legend) 등급 선수 카드 생성 (오버롤 92, 포지션 LB) 및 DB/CSV 동기화, PWA 캐시 갱신
+- 상태: 완료
+- 주요 변경 및 검증 결과:
+  1. `player_data.js`: `cucurella` 전설(legend) 카드 객체 등록 완료
+     - 이름: 쿠쿠렐라, OVR: 92, 포지션: LB, 국적: Spain, 소속: CHELSEA
+     - 6대 스탯: PAC 90, SHO 72, PAS 88, DRI 89, DEF 92, PHY 89
+     - 테마: 골드/블랙 레전드 프리셋 (`primary: "#000000"`, `secondary: "#c39e5c"`, `glow: "#ffd700"`)
+     - 이미지: `player2/쿠쿠렐라.jpg` (파일 실재 확인 완료: 83,677 bytes)
+  2. `index.html`: `player_data.js?v=2.03` 캐시 버전 상향
+  3. `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v483'` 상향
+  4. `선수데이터.csv`: `convert_js_to_csv.py` 스크립트를 통한 117명 데이터 동기화 완료 (118행)
+  5. 무결성 검증:
+     - `scratch/verify_cucurella.py`: JS 파일 구문, 이미지 파일 실재, CSV 스탯 일치, 버전 일치 100% 통과
+     - Node.js 구문 검사(`player_data.js`, `sw.js`): Syntax OK
+     - 전체 회귀 테스트 5종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `market_mode`, `quiz_subjective`): 100% ALL PASS
+     - `git diff --check`: 포맷/공백 결함 0건
+- 다음 단계: 완료 (origin/main 원격 브랜치 푸시 완료)
+
+## 이전 작업
 - 목표: WORD 폴더 신규 교재 단어 이미지 8개 세트(총 176단어, Lesson 1~8: 261031~261124) `quiz_data.js` 등록 및 스케줄러 가이드, PWA 캐시(v482), 버전 동기화
 - 상태: 완료
 - 주요 분석 및 변경 내역:
