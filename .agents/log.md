@@ -27,6 +27,46 @@ graph TD
 - **`db.js`**: Firebase Firestore 기반 원격 저장 및 미지원 시 LocalStorage 기반의 가상 로컬 클라우드 전환 처리.
 - **`player/player_data.js`**: 전체 축구선수 카드 스펙(오버롤, 세부 능력치, 포지션 등)을 동적으로 로드.
 
+### 🇫🇷 '음바페' 전설(Legend) 선수 카드 오버롤(OVR 92) 수정 및 DB/CSV 동기화 (2026-11-08)
+* **날짜·시간**: 2026-11-08 08:42 (KST)
+* **요청 요약**:
+  - 음바페 전설 카드 오버롤 92 수정 및 스탯 밸런싱, PWA 캐시 갱신, CSV 동기화.
+* **수행 내용**:
+  1. **카드 데이터 수정 (`player_data.js`)**:
+     - `mbappe` 전설 카드 객체 수정:
+       - 이름: `음바페`
+       - 등급: `legend` (전설)
+       - OVR(rating): `91` $\rightarrow$ **`92`**
+       - 포지션(position): `ST` (스트라이커)
+       - 국적(nation): `France` (국기: `https://flagcdn.com/w40/fr.png`)
+       - 소속 클럽(club): `REAL MADRID`
+       - 이미지(image): `player2/음바페.png` (파일 실재 확인 완료)
+       - 6대 능력치 최적 밸런싱:
+         - 속도 (PAC): `95` $\rightarrow$ **`96`**
+         - 슈팅 (SHO): `90` $\rightarrow$ **`92`**
+         - 패스 (PAS): `80` $\rightarrow$ **`81`**
+         - 드리블 (DRI): `92` $\rightarrow$ **`93`**
+         - 수비 (DEF): `36` $\rightarrow$ **`37`**
+         - 피지컬 (PHY): `78` $\rightarrow$ **`79`**
+         - 총합: `477` (평균 79.5, OVR 94의 `super_mbappe`와 완벽한 정합성을 이루는 92 OVR 레전드 최적 밸런싱)
+       - 테마: 골드/블랙 레전드 프리셋 (`primary: "#000000"`, `secondary: "#c39e5c"`, `glow: "#ffd700"`)
+  2. **PWA 캐시 및 브라우저 스크립트 버전 상향**:
+     - `index.html`: `player_data.js?v=2.04` 쿼리 파라미터 버전 상향.
+     - `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v484'` 상향.
+  3. **`선수데이터.csv` 엑셀 시트 자동 동기화**:
+     - `convert_js_to_csv.py`를 통해 총 117명 선수 데이터(118행) 자동 추출 및 동기화 완료.
+  4. **무결성 검증**:
+     - `scratch/verify_mbappe.py`:
+       - `player_data.js` 내 음바페 객체 정밀 검증 PASS.
+       - 이미지 실재(`player2/음바페.png`) 확인 완료.
+       - `index.html` 및 `sw.js` 캐시 버전 일치 검증 PASS.
+       - `선수데이터.csv` 118행 및 세부 스탯 6종 100% 일치 확인.
+       - Node.js 구문 검사(`node --check player_data.js sw.js`) Syntax OK.
+       - 전체 회귀 테스트 5종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `market_mode`, `quiz_subjective`) 100% ALL PASS.
+       - `git diff --check`: 포맷 및 공백 결함 0건.
+* **변경 파일**: `player_data.js`, `index.html`, `sw.js`, `선수데이터.csv`, `.agents/progress.md`, `.agents/log.md`, `scratch/verify_mbappe.py`
+* **최종 상태**: 완료 (사용자 확인 및 깃 푸시 대기)
+
 ### 🇪🇸 '쿠쿠렐라' 전설(Legend) 등급 선수 카드 생성 (오버롤 92, LB) 및 DB/CSV 동기화 (2026-11-01)
 * **날짜·시간**: 2026-11-01 09:45 (KST)
 * **요청 요약**:

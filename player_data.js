@@ -1768,7 +1768,7 @@ const CARDS_DATABASE = {
     "mbappe": {
         id: "mbappe",
         name: "음바페",
-        rating: 91,
+        rating: 92,
         position: "ST",
         nation: "France",
         nationFlag: "https://flagcdn.com/w40/fr.png",
@@ -1782,12 +1782,12 @@ const CARDS_DATABASE = {
             glow: "#ffd700"
         },
         stats: {
-            pac: 95,
-            sho: 90,
-            pas: 80,
-            dri: 92,
-            def: 36,
-            phy: 78
+            pac: 96,
+            sho: 92,
+            pas: 81,
+            dri: 93,
+            def: 37,
+            phy: 79
         }
     },
     "lamine_yamal": {

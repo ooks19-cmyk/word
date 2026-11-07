@@ -1,4 +1,23 @@
 ## 현재 작업
+- 목표: '음바페' 전설(legend) 등급 선수 카드 오버롤 수정 (91 -> 92) 및 능력치 밸런싱, DB/CSV 동기화, PWA 캐시 갱신
+- 상태: 완료
+- 주요 변경 및 검증 결과:
+  1. `player_data.js`: `mbappe` 전설(legend) 카드 객체 수정 완료
+     - 이름: 음바페, OVR: 92, 포지션: ST, 국적: France, 소속: REAL MADRID
+     - 6대 스탯: PAC 96, SHO 92, PAS 81, DRI 93, DEF 37, PHY 79 (총합 477)
+     - 테마: 골드/블랙 레전드 프리셋 (`primary: "#000000"`, `secondary: "#c39e5c"`, `glow: "#ffd700"`)
+     - 이미지: `player2/음바페.png` (파일 실재 확인 완료)
+  2. `index.html`: `player_data.js?v=2.04` 캐시 버전 상향
+  3. `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v484'` 상향
+  4. `선수데이터.csv`: `convert_js_to_csv.py` 스크립트를 통한 117명 데이터 동기화 완료 (118행)
+  5. 무결성 검증:
+     - `scratch/verify_mbappe.py`: JS 파일 구문, 이미지 파일 실재, CSV 스탯 일치, 버전 일치 100% 통과
+     - Node.js 구문 검사(`player_data.js`, `sw.js`): Syntax OK
+     - 전체 회귀 테스트 5종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `market_mode`, `quiz_subjective`): 100% ALL PASS
+     - `git diff --check`: 포맷/공백 결함 0건
+- 다음 단계: 완료 보고 및 사용자 깃 커밋/푸시 지시 대기
+
+## 이전 작업
 - 목표: '쿠쿠렐라' 전설(legend) 등급 선수 카드 생성 (오버롤 92, 포지션 LB) 및 DB/CSV 동기화, PWA 캐시 갱신
 - 상태: 완료
 - 주요 변경 및 검증 결과:
