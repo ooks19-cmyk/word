@@ -27,6 +27,40 @@ graph TD
 - **`db.js`**: Firebase Firestore 기반 원격 저장 및 미지원 시 LocalStorage 기반의 가상 로컬 클라우드 전환 처리.
 - **`player/player_data.js`**: 전체 축구선수 카드 스펙(오버롤, 세부 능력치, 포지션 등)을 동적으로 로드.
 
+### ⚡ 'S카카' 슈퍼(Super) 등급 선수 카드 등록 (오버롤 94, AM) 및 DB/CSV 동기화 (2026-11-17)
+* **날짜·시간**: 2026-11-17 20:10 (KST)
+* **요청 요약**:
+  - 'S카카 추가. 오버롤 94' 요청에 따른 신규 슈퍼 등급 선수 카드 등록 및 DB/CSV/PWA 캐시 동기화.
+* **수행 내용**:
+  1. **신규 카드 등록 (`player_data.js`)**:
+     - `super_kaka` 카드 객체 신규 추가:
+       - 이름: `S카카`
+       - 등급: `super` (슈퍼)
+       - OVR(rating): `94`
+       - 포지션(position): `AM` (공격형 미드필더)
+       - 국적(nation): `Brazil` (국기: `https://flagcdn.com/w40/br.png`)
+       - 소속 클럽(club): `AC MILAN`
+       - 이미지(image): `player2/카카.png` (파일 실재 확인 완료: 221,415 bytes, AC 밀란 유니폼)
+       - 6대 능력치: `PAC 94, SHO 92, PAS 93, DRI 95, DEF 48, PHY 81` (총합 503, 평균 83.83 — OVR 94 슈퍼 공격형 미드필더 최적 밸런싱)
+       - 테마: 슈퍼 오로라 네온 프리셋 (`primary: "#14002e"`, `secondary: "#ff007f"`, `glow: "#00f2fe"`)
+       - 설명: "산 시로의 하얀 펠레이자 2007 발롱도르를 거머쥔 AC 밀란의 영원한 황태자, 슈퍼 카카(S카카)입니다. 수비진을 단숨에 허무는 폭발적인 고속 드리블과 치명적인 킬패스, 대지를 가르는 강력한 중거리 슈팅으로 그라운드를 지배하는 궁극의 공격형 미드필더입니다."
+  2. **PWA 캐시 및 브라우저 스크립트 버전 상향**:
+     - `index.html`: `player_data.js?v=2.05` 쿼리 파라미터 버전 상향.
+     - `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v485'` 상향.
+  3. **`선수데이터.csv` 엑셀 시트 자동 동기화**:
+     - `convert_js_to_csv.py`를 통해 총 118명 선수 데이터(119행) 자동 추출 및 동기화 완료.
+  4. **무결성 검증**:
+     - `scratch/verify_kaka.py`:
+       - `player_data.js` 내 `super_kaka` 객체 정밀 검증 PASS.
+       - 이미지 실재(`player2/카카.png`) 확인 완료.
+       - `index.html` 및 `sw.js` 캐시 버전 일치 검증 PASS.
+       - `선수데이터.csv` 119행 및 세부 스탯 6종 100% 일치 확인.
+       - Node.js 구문 검사(`node --check player_data.js sw.js`) Syntax OK.
+       - 전체 회귀 테스트 5종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `market_mode`, `quiz_subjective`) 100% ALL PASS.
+       - `git diff --check`: 포맷 및 공백 결함 0건.
+* **변경 파일**: `player_data.js`, `index.html`, `sw.js`, `선수데이터.csv`, `.agents/progress.md`, `.agents/log.md`, `scratch/verify_kaka.py`
+* **최종 상태**: 완료 (origin/main 원격 브랜치 푸시 완료)
+
 ### 🖼️ '음바페' 선수 카드 최적화 이미지 갱신 및 Git 푸시 (2026-11-12)
 * **날짜·시간**: 2026-11-12 18:38 (KST)
 * **요청 요약**:
@@ -87,7 +121,7 @@ graph TD
        - 전체 회귀 테스트 5종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `market_mode`, `quiz_subjective`) 100% ALL PASS.
        - `git diff --check`: 포맷 및 공백 결함 0건.
 * **변경 파일**: `player_data.js`, `index.html`, `sw.js`, `선수데이터.csv`, `.agents/progress.md`, `.agents/log.md`, `scratch/verify_mbappe.py`
-* **최종 상태**: 완료 (사용자 확인 및 깃 푸시 대기)
+* **최종 상태**: 완료 (origin/main 원격 브랜치 푸시 완료)
 
 ### 🇪🇸 '쿠쿠렐라' 전설(Legend) 등급 선수 카드 생성 (오버롤 92, LB) 및 DB/CSV 동기화 (2026-11-01)
 * **날짜·시간**: 2026-11-01 09:45 (KST)

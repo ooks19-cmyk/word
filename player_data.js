@@ -2939,6 +2939,31 @@ const CARDS_DATABASE = {
             def: 92,
             phy: 89
         }
+    },
+    "super_kaka": {
+        id: "super_kaka",
+        name: "S카카",
+        rating: 94,
+        position: "AM",
+        nation: "Brazil",
+        nationFlag: "https://flagcdn.com/w40/br.png",
+        club: "AC MILAN",
+        image: "player2/카카.png",
+        rarity: "super",
+        description: "산 시로의 하얀 펠레이자 2007 발롱도르를 거머쥔 AC 밀란의 영원한 황태자, 슈퍼 카카(S카카)입니다. 수비진을 단숨에 허무는 폭발적인 고속 드리블과 치명적인 킬패스, 대지를 가르는 강력한 중거리 슈팅으로 그라운드를 지배하는 궁극의 공격형 미드필더입니다.",
+        theme: {
+            primary: "#14002e",
+            secondary: "#ff007f",
+            glow: "#00f2fe"
+        },
+        stats: {
+            pac: 94,
+            sho: 92,
+            pas: 93,
+            dri: 95,
+            def: 48,
+            phy: 81
+        }
     }
 };
 
