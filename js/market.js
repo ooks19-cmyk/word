@@ -276,7 +276,7 @@ function renderMarketSellList(grid, countBadge) {
             <div>
                 <div class="market-card-top">
                     <div class="market-card-thumb" style="background: radial-gradient(circle, ${card.theme?.glow || '#ffd700'}22 0%, #0c1122 100%);">
-                        <img src="${card.image}" alt="${card.name}" onerror="this.src='https://placehold.co/48x48/005a3c/ffd700?text=${encodeURIComponent(card.name)}'">
+                        <img src="${card.image}" alt="${card.name}" loading="lazy" decoding="async" onerror="this.src='https://placehold.co/48x48/005a3c/ffd700?text=${encodeURIComponent(card.name)}'">
                     </div>
                     <div class="market-card-info">
                         <div class="market-card-name-row">
@@ -369,7 +369,7 @@ function renderMarketBuyList(grid, countBadge) {
             <div>
                 <div class="market-card-top">
                     <div class="market-card-thumb" style="background: radial-gradient(circle, ${card.theme?.glow || '#00d2fc'}22 0%, #0c1122 100%);">
-                        <img src="${card.image}" alt="${card.name}" onerror="this.src='https://placehold.co/48x48/005a3c/ffd700?text=${encodeURIComponent(card.name)}'">
+                        <img src="${card.image}" alt="${card.name}" loading="lazy" decoding="async" onerror="this.src='https://placehold.co/48x48/005a3c/ffd700?text=${encodeURIComponent(card.name)}'">
                     </div>
                     <div class="market-card-info">
                         <div class="market-card-name-row">

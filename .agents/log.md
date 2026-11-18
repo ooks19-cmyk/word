@@ -27,6 +27,46 @@ graph TD
 - **`db.js`**: Firebase Firestore 기반 원격 저장 및 미지원 시 LocalStorage 기반의 가상 로컬 클라우드 전환 처리.
 - **`player/player_data.js`**: 전체 축구선수 카드 스펙(오버롤, 세부 능력치, 포지션 등)을 동적으로 로드.
 
+### 🗑️ Firebase Firestore 유저 데이터(`id: vc`) 영구 삭제 (2026-11-18)
+* **날짜·시간**: 2026-11-18 22:38 (KST)
+* **요청 요약**:
+  - Firebase Firestore `fc_star_users` 컬렉션에서 `vc` 계정 문서 영구 삭제 요청 및 승인 후 처리.
+* **수행 내용**:
+  1. **사전 조회 및 사용자 동의 확보 (`accidental-data-loss-prevention`)**:
+     - 삭제 전 `fc_star_users/vc` 요약 상태(Lv. 48, 22 FP, 보유 카드 82장, 최종 업데이트 `2026-11-18T11:13:49.923Z`, 실시간 방 `fc_star_rooms` 미포함) 확인 후 영향도 설명 및 사용자 명시적 삭제 승인('삭제 진행') 획득.
+  2. **원격 Firestore 문서 삭제**:
+     - Firestore REST API `DELETE` 호출을 통해 `fc_star_users/vc` 영구 삭제 실행 (HTTP `200 OK`).
+* **변경 파일 / 리소스**:
+  - 원격 Firestore 리소스: `projects/my-family-ab699/databases/(default)/documents/fc_star_users/vc` (삭제 완료)
+  - 로컬 기록 파일: `.agents/progress.md`, `.agents/log.md`
+* **검증 결과**:
+  - 삭제 직후 동일 경로 `GET` 재조회 시 HTTP `404 NOT_FOUND` 확인 완료.
+* **최종 상태**: 완료
+
+### 📉 모바일 데이터 절감 최적화 (이미지 93.8% 경량화, `sw.js` Cache-First/캐시 분리, Lazy Loading) (2026-11-18)
+* **날짜·시간**: 2026-11-18 22:04 (KST)
+* **요청 요약**:
+  - 하루 1시간 사용 시 100MB 이상 소모되는 원인 진단 후, 사용자 지시('4번 제외하고 진행')에 따라 1~3번 최적화 일괄 구현.
+* **수행 내용**:
+  1. **선수·구단 이미지 일괄 경량화 (`player/`, `player2/`, `img/`, `player_data.js`, `js/friendly.js`, `선수데이터.csv`)**:
+     - `scratch/optimize_images.py`를 통해 `player_data.js` 참조 선수 이미지 111종(118건)을 최대 변 480px WebP(RGBA 투명도 보존, quality=82, method=6)로 일괄 최적화하고 변환 완료된 기존 PNG/JPG 78개 원본 정리.
+     - 선수 이미지 총 용량: `42.71 MB` $\rightarrow$ **`2.66 MB`** (`40.05 MB` 절감, **-93.8%**; 예: `헤리케인.png` 2,290.3 KB $\rightarrow$ `헤리케인.webp` 19.5 KB).
+     - `img/` 엠블럼 PNG 44개(최대 변 160px, optimize=True) 경량화: `2.49 MB` $\rightarrow$ **`1.63 MB`** (`881.5 KB` 절감).
+     - `player_data.js`, `js/friendly.js` 폴백 2곳(`슈퍼 메시.webp`), `선수데이터.csv`(119행) 동기화 완료.
+  2. **서비스 워커 캐시 아키텍처 개선 (`sw.js`)**:
+     - 앱 코드 캐시(`CACHE_NAME = 'fc-star-v486'`)와 이미지 전용 영구 캐시(`IMAGE_CACHE_NAME = 'fc-star-images-v1'`) 분리.
+     - `activate` 시 `IMAGE_CACHE_NAME` 보존으로 코드 업데이트 후에도 기존 이미지 재다운로드 방지.
+     - 이미지 및 `?v=` 버전 쿼리 정적 JS/CSS는 **`Cache-First`**(오프라인 `ignoreSearch` 폴백 포함), HTML·기타 동적 요청은 `Network-First`로 전략 분리.
+  3. **지연 로딩(`loading="lazy" decoding="async"`) 및 스크립트 버전 상향**:
+     - `js/card.js`, `js/deck.js`, `js/market.js`, `js/squad.js`, `js/friend.js`, `js/friendly.js`, `js/national.js`, `js/national_squad.js`, `js/national_hof.js`, `js/league.js`, `index.html`(숨김 탭/모달) 이미지 태그 일괄 적용.
+     - `index.html`: 수정된 11개 스크립트 `?v=` 버전 상향 (`player_data.js?v=2.06` 등).
+* **검증 결과**:
+  - `scratch/verify_data_optimization.py`: 118건 이미지 실재 및 2.66MB 용량, `sw.js` Cache-First/이중 캐시, `loading="lazy"`, `index.html` 버전, `선수데이터.csv` 119행, 12개 JS 파일 `node --check`, 회귀 테스트 5종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `market_mode`, `quiz_subjective`) **100% ALL PASS**.
+  - 대표 변환 WebP 이미지(`헤리케인.webp`, `김승규.webp`, `카카.webp`) 알파 투명도 및 화질 육안 검증 완료.
+  - `git diff --check` 결함 0건.
+* **변경 파일**: `player/`, `player2/`, `img/`, `player_data.js`, `선수데이터.csv`, `sw.js`, `index.html`, `js/card.js`, `js/deck.js`, `js/market.js`, `js/squad.js`, `js/friend.js`, `js/friendly.js`, `js/national.js`, `js/national_squad.js`, `js/national_hof.js`, `js/league.js`, `.agents/progress.md`, `.agents/log.md`, `scratch/optimize_images.py`, `scratch/verify_data_optimization.py`
+* **최종 상태**: 완료 (origin/main 원격 브랜치 푸시 완료)
+
 ### ⚡ 'S카카' 슈퍼(Super) 등급 선수 카드 등록 (오버롤 94, AM) 및 DB/CSV 동기화 (2026-11-17)
 * **날짜·시간**: 2026-11-17 20:10 (KST)
 * **요청 요약**:

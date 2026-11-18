@@ -180,7 +180,7 @@ function generateCardHTML(cardData) {
                 <div class="portrait-grid"></div>
             </div>
             
-            <img src="${cardData.image}" alt="${cardData.name}" class="card-player-img" onerror="this.src='https://placehold.co/320x320/005a3c/ffd700?text=${encodeURIComponent(cardData.name)}'">
+            <img src="${cardData.image}" alt="${cardData.name}" class="card-player-img" loading="lazy" decoding="async" onerror="this.src='https://placehold.co/320x320/005a3c/ffd700?text=${encodeURIComponent(cardData.name)}'">
             <div class="card-badge-glow" style="background: radial-gradient(circle, ${cardData.theme.glow}33 0%, transparent 70%);"></div>
             <div class="card-club" style="color: ${cardData.theme.glow}; font-weight: 800; font-size: 0.75rem; letter-spacing: 1px;">${cardData.club}</div>
         </div>

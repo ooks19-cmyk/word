@@ -259,7 +259,7 @@ function renderSquadFormation() {
                     <div class="mini-card-ovr-badge">${ovrDisplay}${starIndicator}</div>
                     <div class="mini-card-position-badge">${wingerStyleBadge}</div>
                     <div class="mini-card-portrait">
-                        <img src="${cardData.image}" alt="${cardData.name}" onerror="this.src='https://placehold.co/80x80/005a3c/ffd700?text=${encodeURIComponent(cardData.name)}'">
+                        <img src="${cardData.image}" alt="${cardData.name}" loading="lazy" decoding="async" onerror="this.src='https://placehold.co/80x80/005a3c/ffd700?text=${encodeURIComponent(cardData.name)}'">
                     </div>
                     <div class="mini-card-name">${cardData.name}${conditionArrow}</div>
                 </div>
@@ -600,7 +600,7 @@ function openCardSelector(position) {
         row.innerHTML = `
             <div class="drawer-card-info" style="align-items: flex-start;">
                 <div class="drawer-card-thumb" style="background: radial-gradient(circle, ${card.theme.glow}22 0%, #0c1122 100%); margin-top: 4px;">
-                    <img src="${card.image}" alt="${card.name}" onerror="this.src='https://placehold.co/48x48/005a3c/ffd700?text=${encodeURIComponent(card.name)}'">
+                    <img src="${card.image}" alt="${card.name}" loading="lazy" decoding="async" onerror="this.src='https://placehold.co/48x48/005a3c/ffd700?text=${encodeURIComponent(card.name)}'">
                 </div>
                 <div class="drawer-card-details">
                     <h4 style="margin: 0 0 4px 0; display: flex; align-items: center; flex-wrap: wrap; gap: 4px;">${card.name} (OVR ${ovrDisplay})${conditionArrow}${awkLabel}${recTagHtml}</h4>
@@ -1038,7 +1038,7 @@ function openSquadNumberPlayerSelector(numKey) {
         row.innerHTML = `
             <div class="drawer-card-info" style="align-items: flex-start;">
                 <div class="drawer-card-thumb" style="background: radial-gradient(circle, ${card.theme.glow}22 0%, #0c1122 100%); margin-top: 4px;">
-                    <img src="${card.image}" alt="${card.name}" onerror="this.src='https://placehold.co/48x48/005a3c/ffd700?text=${encodeURIComponent(card.name)}'">
+                    <img src="${card.image}" alt="${card.name}" loading="lazy" decoding="async" onerror="this.src='https://placehold.co/48x48/005a3c/ffd700?text=${encodeURIComponent(card.name)}'">
                 </div>
                 <div class="drawer-card-details">
                     <h4 style="margin: 0 0 4px 0; display: flex; align-items: center; flex-wrap: wrap; gap: 4px;">${card.name} (OVR ${card.rating})${awkLabel}</h4>

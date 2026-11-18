@@ -138,7 +138,7 @@ function createCardDOM(key, awakened) {
     footer.innerHTML = `
         <span>${awakened.club}</span>
         <span style="display: flex; align-items: center; gap: 4px;">
-            <img src="${awakened.nationFlag}" style="width: 12px; height: 8px; border-radius: 1px; object-fit: cover;">
+            <img src="${awakened.nationFlag}" loading="lazy" decoding="async" style="width: 12px; height: 8px; border-radius: 1px; object-fit: cover;">
             ${typeof formatCardPosition === 'function' ? formatCardPosition(awakened.position) : (awakened.position === 'CAM' ? 'AM' : awakened.position)}
         </span>
     `;

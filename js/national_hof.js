@@ -80,7 +80,7 @@ function renderNationalHallOfFame(targetNationId) {
                 return `
                     <button class="national-hof-tab-btn ${isActive ? 'active ' + nationClass : ''}"
                             onclick="switchNationalHofNation('${nation.id}')">
-                        <img src="${nation.flag}" alt="${nation.name}" class="national-hof-tab-flag">
+                        <img src="${nation.flag}" alt="${nation.name}" class="national-hof-tab-flag" loading="lazy" decoding="async">
                         <span>${nation.name}</span>
                         <span style="font-size: 0.78rem; opacity: 0.75;">(${nation.shortName})</span>
                     </button>
@@ -93,7 +93,7 @@ function renderNationalHallOfFame(targetNationId) {
     const headerHtml = `
         <div class="national-hof-header" style="--theme-color: ${themeColor};">
             <div class="national-hof-team-info">
-                <img src="${c.flag}" alt="${c.name}" class="national-hof-flag-large">
+                <img src="${c.flag}" alt="${c.name}" class="national-hof-flag-large" loading="lazy" decoding="async">
                 <div>
                     <div class="national-hof-team-title">
                         ${c.name} 국가대표팀

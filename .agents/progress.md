@@ -1,4 +1,34 @@
 ## 현재 작업
+- 목표: Firebase Firestore `fc_star_users/vc` 계정 데이터 영구 삭제
+- 상태: 완료
+- 주요 변경 및 검증 결과:
+  1. 사전 영향도 점검 (읽기 전용 조회): `fc_star_users/vc` 문서 확인(Lv.48, 22 FP, 82장, 어려움 모드; `fc_star_rooms` 27건 중 해당 없음) 후 사용자 명시적 삭제 승인 획득.
+  2. Firestore REST API `DELETE` 요청 수행 (`fc_star_users/vc`, HTTP 200 OK).
+  3. 삭제 후 `GET` 재조회 검증: HTTP `404 NOT_FOUND` 반환 확인 완료.
+- 다음 단계: 완료 (origin/main 원격 브랜치 푸시 완료)
+
+## 이전 작업
+- 목표: 모바일 데이터 사용량 대폭 절감 최적화 (1. 선수·구단 이미지 경량화, 2. `sw.js` Cache-First 및 이미지 캐시 분리, 3. 카드 렌더링 `loading="lazy"` 적용; 4번 제외)
+- 상태: 완료
+- 주요 변경 및 검증 결과:
+  1. **선수·구단 이미지 일괄 경량화 (`player/`, `player2/`, `img/`, `player_data.js`, `js/friendly.js`, `선수데이터.csv`)**:
+     - `player_data.js` 참조 선수 이미지 111종(118건)을 최대 변 480px WebP(alpha 투명도 보존, quality=82)로 일괄 최적화하고 기존 변환 완료 PNG/JPG 78개 원본 교체 (Git 히스토리 보존; 미참조 파일 3종 유지).
+     - 선수 이미지 총 용량: `42.71 MB` ➔ **`2.66 MB`** (`40.05 MB` 절감, **-93.8%**, 최대 파일 `player2/부앙가.webp` 37.7 KB).
+     - `img/` 엠블럼 PNG 44개(최대 160px, optimize=True) 경량화: `2.49 MB` ➔ **`1.63 MB`** (`881.5 KB` 절감).
+     - `player_data.js`, `js/friendly.js`(폴백 2곳), `선수데이터.csv`(119행) 이미지 경로(`.webp`) 완벽 동기화.
+  2. **서비스 워커 캐시 전략 개선 (`sw.js`)**:
+     - 코드 캐시(`CACHE_NAME = 'fc-star-v486'`)와 이미지 전용 영구 캐시(`IMAGE_CACHE_NAME = 'fc-star-images-v1'`) 분리.
+     - `activate` 시 `IMAGE_CACHE_NAME`을 삭제하지 않도록 보호하여 앱 업데이트 후에도 기 캐싱된 이미지 재다운로드 완전 차단.
+     - 이미지 및 버전 쿼리(`?v=`) 정적 JS/CSS는 `Cache-First`(오프라인 폴백 포함), HTML·기타 동적 요청은 `Network-First`로 전략 분리.
+  3. **카드·리스트·모달 이미지 `loading="lazy" decoding="async"` 적용**:
+     - `js/card.js`, `js/deck.js`, `js/market.js`, `js/squad.js`, `js/friend.js`, `js/friendly.js`, `js/national.js`, `js/national_squad.js`, `js/national_hof.js`, `js/league.js`, `index.html`(숨김 탭/모달) 일괄 적용.
+     - `index.html` 내 수정된 11개 스크립트 `?v=` 버전 상향.
+  4. **무결성 검증**:
+     - `scratch/verify_data_optimization.py`: 이미지 118건 실재 및 2.66MB 용량 검증, `sw.js` 이중 캐시/Cache-First, `loading="lazy"`/버전 일치, CSV 119행 동기화, 12개 JS 구문 검사(`node --check`), 회귀 테스트 5종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `market_mode`, `quiz_subjective`) **100% ALL PASS**.
+     - `git diff --check`: 공백/포맷 결함 0건.
+- 다음 단계: 완료 보고 및 사용자 깃 커밋/푸시 지시 대기
+
+## 이전 작업
 - 목표: 'S카카' 슈퍼(super) 등급 선수 카드 등록 (오버롤 94, 포지션 AM) 및 DB/CSV 동기화, PWA 캐시 갱신
 - 상태: 완료
 - 주요 변경 및 검증 결과:

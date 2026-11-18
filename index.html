@@ -999,19 +999,19 @@
             <!-- 명예의 전당 리그 선택 탭 바 (K리그1 / 프리미어리그 / J1리그) - 하위 3개 1줄 컴팩트 배치 -->
             <div class="fame-league-tabs" style="display: flex; gap: 6px; margin-bottom: 0.9rem; width: 100%; max-width: 760px; margin-left: auto; margin-right: auto; justify-content: center; flex-wrap: nowrap;">
                 <button class="fame-league-tab-btn active" data-league="kleague1" onclick="switchFameLeagueTab('kleague1')">
-                    <img src="img/mark_jb.svg" alt="K리그1" class="fame-league-tab-icon">
+                    <img src="img/mark_jb.svg" alt="K리그1" class="fame-league-tab-icon" loading="lazy" decoding="async">
                     <span>🇰🇷 K리그1</span>
                 </button>
                 <button class="fame-league-tab-btn" data-league="epl" onclick="switchFameLeagueTab('epl')">
-                    <img src="img/mark_liverpool.png" alt="프리미어리그" class="fame-league-tab-icon">
+                    <img src="img/mark_liverpool.png" alt="프리미어리그" class="fame-league-tab-icon" loading="lazy" decoding="async">
                     <span>🏴󠁧󠁢󠁥󠁮󠁧󠁿 프리미어</span>
                 </button>
                 <button class="fame-league-tab-btn" data-league="jleague" onclick="switchFameLeagueTab('jleague')">
-                    <img src="img/mark_tokyo.png" alt="J1리그" class="fame-league-tab-icon">
+                    <img src="img/mark_tokyo.png" alt="J1리그" class="fame-league-tab-icon" loading="lazy" decoding="async">
                     <span>🇯🇵 J1리그</span>
                 </button>
                 <button class="fame-league-tab-btn" data-league="ligue1" onclick="switchFameLeagueTab('ligue1')">
-                    <img src="img/mark_psg.png" alt="리그앙" class="fame-league-tab-icon">
+                    <img src="img/mark_psg.png" alt="리그앙" class="fame-league-tab-icon" loading="lazy" decoding="async">
                     <span>🇫🇷 리그앙</span>
                 </button>
             </div>
@@ -1842,7 +1842,7 @@
                     <!-- 1. K리그1 카드 -->
                     <div id="transferCardKLeague" style="background: rgba(255, 255, 255, 0.03); border: 1.5px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 12px; transition: all 0.3s;">
                         <div style="display: flex; align-items: center; gap: 12px;">
-                            <img src="img/mark_jb.svg" alt="전북 현대" style="width: 44px; height: 44px; object-fit: contain;">
+                            <img src="img/mark_jb.svg" alt="전북 현대" loading="lazy" decoding="async" style="width: 44px; height: 44px; object-fit: contain;">
                             <div>
                                 <div style="font-weight: 800; font-size: 0.95rem; color: #fff; display: flex; align-items: center; gap: 6px;">
                                     <span>🇰🇷 K리그 1</span>
@@ -1861,7 +1861,7 @@
                     <!-- 2. 프리미어리그 카드 -->
                     <div id="transferCardEpl" style="background: rgba(255, 255, 255, 0.03); border: 1.5px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 12px; transition: all 0.3s;">
                         <div style="display: flex; align-items: center; gap: 12px;">
-                            <img src="img/mark_liverpool.png" alt="리버풀 FC" style="width: 44px; height: 44px; object-fit: contain;">
+                            <img src="img/mark_liverpool.png" alt="리버풀 FC" loading="lazy" decoding="async" style="width: 44px; height: 44px; object-fit: contain;">
                             <div>
                                 <div style="font-weight: 800; font-size: 0.95rem; color: #fff; display: flex; align-items: center; gap: 6px;">
                                     <span>🏴󠁧󠁢󠁥󠁮󠁧󠁿 프리미어리그</span>
@@ -1880,7 +1880,7 @@
                     <!-- 3. J1리그 카드 -->
                     <div id="transferCardJLeague" style="background: rgba(255, 255, 255, 0.03); border: 1.5px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 12px; transition: all 0.3s;">
                         <div style="display: flex; align-items: center; gap: 12px;">
-                            <img src="img/mark_tokyo.png" alt="FC 도쿄" style="width: 44px; height: 44px; object-fit: contain;">
+                            <img src="img/mark_tokyo.png" alt="FC 도쿄" loading="lazy" decoding="async" style="width: 44px; height: 44px; object-fit: contain;">
                             <div>
                                 <div style="font-weight: 800; font-size: 0.95rem; color: #fff; display: flex; align-items: center; gap: 6px;">
                                     <span>🇯🇵 J1리그</span>
@@ -1899,7 +1899,7 @@
                     <!-- 4. 프랑스 리그앙 카드 -->
                     <div id="transferCardLigue1" style="background: rgba(255, 255, 255, 0.03); border: 1.5px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 12px; transition: all 0.3s;">
                         <div style="display: flex; align-items: center; gap: 12px;">
-                            <img src="img/mark_psg.png" alt="파리 생제르맹" style="width: 44px; height: 44px; object-fit: contain;">
+                            <img src="img/mark_psg.png" alt="파리 생제르맹" loading="lazy" decoding="async" style="width: 44px; height: 44px; object-fit: contain;">
                             <div>
                                 <div style="font-weight: 800; font-size: 0.95rem; color: #fff; display: flex; align-items: center; gap: 6px;">
                                     <span>🇫🇷 리그앙</span>
@@ -1967,7 +1967,7 @@
         </div>
     </div>
 
-    <script src="player_data.js?v=2.05"></script>
+    <script src="player_data.js?v=2.06"></script>
     <script src="quiz_data.js?v=2.2"></script>
     <script src="other_teams_data.js?v=1.6"></script>
     <script src="other_teams_data_epl.js?v=1.3"></script>
@@ -1977,21 +1977,21 @@
     <script src="sound.js?v=1.2"></script>
     <script src="js/state.js?v=3.8"></script>
     <script src="js/utils.js?v=1.3"></script>
-    <script src="js/card.js?v=2.5"></script>
+    <script src="js/card.js?v=2.6"></script>
     <script src="quiz.js?v=1.9"></script>
     <script src="js/pack.js?v=2.5"></script>
-    <script src="js/market.js?v=1.4"></script>
-    <script src="js/deck.js?v=3.0"></script>
-    <script src="js/squad.js?v=3.2"></script>
+    <script src="js/market.js?v=1.5"></script>
+    <script src="js/deck.js?v=3.1"></script>
+    <script src="js/squad.js?v=3.3"></script>
     <script src="js/match_algorithm.js?v=4.0"></script>
-    <script src="js/league.js?v=5.3"></script>
+    <script src="js/league.js?v=5.4"></script>
     <script src="js/cup.js?v=3.6"></script>
     <script src="js/acl.js?v=4.0"></script>
-    <script src="js/friendly.js?v=4.7"></script>
+    <script src="js/friendly.js?v=4.8"></script>
     <script src="js/national_data.js?v=1.3"></script>
-    <script src="js/national_squad.js?v=2.7"></script>
-    <script src="js/national.js?v=3.14"></script>
-    <script src="js/national_hof.js?v=1.1"></script>
+    <script src="js/national_squad.js?v=2.8"></script>
+    <script src="js/national.js?v=3.15"></script>
+    <script src="js/national_hof.js?v=1.2"></script>
     <script src="js/achievements.js?v=1.3"></script>
     <!-- 수석코치 조언 플로팅 버튼 -->
     <button id="floatingAdvisorBtn" class="floating-advisor-btn" onclick="showCoachAdvice()" title="수석코치의 조언" style="display: none;">
@@ -2106,7 +2106,7 @@
     </div>
 
     <script src="js/update_data.js?v=2.85"></script>
-    <script src="js/friend.js?v=1.3"></script>
+    <script src="js/friend.js?v=1.4"></script>
     <script src="js/auth.js?v=2.85"></script>
     <script src="js/realtime.js?v=2.4"></script>
     <script src="js/coach_advisor.js?v=1.3"></script>

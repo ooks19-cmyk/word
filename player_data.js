@@ -23,7 +23,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "LA FC",
-        image: "player/손흥민.png",
+        image: "player/손흥민.webp",
         rarity: "legend",
         description: "대한민국 축구 역사상 최고의 전설적인 공격수입니다. 탁월한 리더십과 훌륭한 인품, 그리고 그라운드 위에서 끝까지 최선을 다하는 헌신적인 태도로 동료 선수들과 온 국민의 열렬한 사랑과 성원을 받는 이 시대 최고의 축구 선수이자 아이콘입니다.",
         theme: {
@@ -48,7 +48,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
-        image: "player/이승우_kr.png",
+        image: "player/이승우_kr.webp",
         rarity: "special",
         description: "가슴에 찬란한 태극 마크를 품고 대한민국의 붉은 함성을 이끄는 특급 공격형 미드필더 이승우입니다. 특유의 기동력과 지칠 줄 모르는 과감한 돌파력, 날카로운 킬패스와 번뜩이는 천재적인 슈팅 감각으로 조국의 승리를 이끄는 스페셜 플레이메이커입니다.",
         theme: {
@@ -98,7 +98,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "PARIS SG",
-        image: "player/이강인.png",
+        image: "player/이강인.webp",
         rarity: "legend",
         description: "세계 최고의 명문 구단 중 하나인 파리 생제르맹(PSG)에서 활약 중인 대한민국의 대표 미드필더입니다. 압도적인 탈압박과 전매특허인 왼발 정밀 크로스, 그리고 그라운드를 종횡무진하는 마술 같은 시야로 경기를 주도하는 월드클래스 천재 크랙입니다.",
         theme: {
@@ -123,7 +123,7 @@ const CARDS_DATABASE = {
         nation: "Brazil",
         nationFlag: "https://flagcdn.com/w40/br.png",
         club: "JEONBUK",
-        image: "player/오베르단.png",
+        image: "player/오베르단.webp",
         rarity: "normal",
         description: "엄청난 활동량과 강력한 수비력을 겸비한 전북 현대의 핵심 수비형 미드필더입니다. 중원 전체를 커버하는 넓은 수비 범위와 지치지 않는 체력으로 팀의 엔진 역할을 수행합니다.",
         theme: {
@@ -148,7 +148,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "JEONBUK",
-        image: "player/송범근.png",
+        image: "player/송범근.webp",
         rarity: "normal",
         description: "뛰어난 반사신경과 안정적인 공중볼 처리 능력을 갖춘 전북 현대의 주전 골키퍼입니다. 위기 상황마다 보여주는 눈부신 슈퍼 세이브와 침착한 경기 운영으로 최후방 수비라인의 든든한 버팀목입니다.",
         theme: {
@@ -173,7 +173,7 @@ const CARDS_DATABASE = {
         nation: "Italy",
         nationFlag: "https://flagcdn.com/w40/it.png",
         club: "JEONBUK",
-        image: "player/콤파뇨.png",
+        image: "player/콤파뇨.webp",
         rarity: "special",
         description: "탁월한 피지컬과 높은 타점의 헤더를 자랑하는 전북 현대의 정통 타겟맨 스트라이커입니다. 박스 안에서의 압도적인 집중력과 찬스를 놓치지 않는 뛰어난 골 결정력으로 수비진에게 공포를 줍니다.",
         theme: {
@@ -198,7 +198,7 @@ const CARDS_DATABASE = {
         nation: "Brazil",
         nationFlag: "https://flagcdn.com/w40/br.png",
         club: "JEONBUK",
-        image: "player/티아고.png",
+        image: "player/티아고.webp",
         rarity: "normal",
         description: "브라질 출신의 파워풀하고 돌파력이 뛰어난 전북 현대의 대형 공격수입니다. 탄탄한 피지컬을 활용한 포스트 플레이와 강력한 전방 압박, 묵직한 슈팅으로 매번 득점 기회를 노립니다.",
         theme: {
@@ -223,7 +223,7 @@ const CARDS_DATABASE = {
         nation: "Brazil",
         nationFlag: "https://flagcdn.com/w40/br.png",
         club: "JEONBUK",
-        image: "player/모따.png",
+        image: "player/모따.webp",
         rarity: "special",
         description: "탁월한 고공 헤딩 능력과 압도적인 피지컬을 앞세워 페널티 박스를 지배하는 브라질 특급 타깃형 스트라이커입니다. 높은 타점의 위력적인 헤더와 브라질리언 특유의 유연한 연계 플레이, 반박자 빠른 슈팅 타이밍으로 상대 수비진을 무너뜨리는 최전방 해결사입니다.",
         theme: {
@@ -248,7 +248,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "JEONBUK",
-        image: "player/김진규.png",
+        image: "player/김진규.webp",
         rarity: "normal",
         description: "넓은 시야와 날카로운 패스로 빌드업의 중심을 잡는 플레이메이커입니다. 영리한 위치 선정과 지능적인 압박 타이밍으로 전북 현대 중원의 연결고리 역할을 확실하게 수행합니다.",
         theme: {
@@ -273,7 +273,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "JEONBUK",
-        image: "player/이영재.png",
+        image: "player/이영재.webp",
         rarity: "normal",
         description: "마법 같은 왼발 킥력을 지닌 K리그 정상급 플레이메이커 미드필더입니다. 날카로운 세트피스 전담 키커이자, 한 번에 수비를 뚫어버리는 허를 찌르는 전진 패스가 매우 돋보입니다.",
         theme: {
@@ -298,7 +298,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "JEONBUK",
-        image: "player/김승섭.png",
+        image: "player/김승섭.webp",
         rarity: "normal",
         description: "빠른 스피드와 지치지 않는 체력으로 측면을 돌파하는 헌신적인 윙어입니다. 넓은 활동 영역을 바탕으로 한 날카로운 컷백과 활발한 수비 가담으로 전술적 다양성을 늘려줍니다.",
         theme: {
@@ -323,7 +323,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "JEONBUK",
-        image: "player/이동준.png",
+        image: "player/이동준.webp",
         rarity: "normal",
         description: "K리그에서 가장 폭발적인 순간 가속도를 자랑하는 스피드 스타 윙어입니다. 수비 뒷공간을 완전히 허무는 순간적인 배후 침투와 과감한 일대일 돌파가 전매특허입니다.",
         theme: {
@@ -348,7 +348,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "JEONBUK",
-        image: "player/김태환.png",
+        image: "player/김태환.webp",
         rarity: "normal",
         description: "전북 현대의 우측 측면을 책임지는 베테랑 풀백 김태환입니다. '치타'라는 별명에 걸맞은 폭발적인 스피드와 투지 넘치는 대인 수비, 그리고 저돌적인 오버래핑으로 팀의 측면에 단단함과 활력을 불어넣는 든든한 수비수입니다.",
         theme: {
@@ -373,7 +373,7 @@ const CARDS_DATABASE = {
         nation: "Portugal",
         nationFlag: "https://flagcdn.com/w40/pt.png",
         club: "JEONBUK",
-        image: "player/감보아.png",
+        image: "player/감보아.webp",
         rarity: "special",
         description: "포르투갈 출신의 탄탄한 기본기와 압도적인 경기 조율 능력을 자랑하는 전북 현대의 스페셜 중앙 미드필더입니다. 중원에서 침착한 볼 소유와 넓은 시야의 날카로운 킬패스(PAS 85), 단단한 대인 수비력으로 공수 밸런스를 완벽히 지휘하는 마에스트로입니다.",
         theme: {
@@ -398,7 +398,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "JEONBUK",
-        image: "player/김영빈.png",
+        image: "player/김영빈.webp",
         rarity: "normal",
         description: "강력한 대인 방어 능력과 뛰어난 제공권 경합 능력을 자랑하는 중앙 수비수입니다. 안정적인 수비 위치 선정과 탁월한 투지로 전북 현대 최후방 수비진의 중심을 굳건하게 책임집니다.",
         theme: {
@@ -423,7 +423,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "JEONBUK",
-        image: "player/강상윤.png",
+        image: "player/강상윤.webp",
         rarity: "special",
         description: "넘치는 에너지와 적극적인 활동량을 바탕으로 넓은 중원을 누비는 유망주 미드필더입니다. 뛰어난 기동력과 지치지 않는 체력으로 공수 양면에서 헌신적인 엔진 역할을 수행합니다.",
         theme: {
@@ -448,7 +448,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "JEONBUK",
-        image: "player/김태현.png",
+        image: "player/김태현.webp",
         rarity: "normal",
         description: "공수 밸런스가 뛰어나고 탄탄한 수비력을 가진 안정감 넘치는 우측 풀백입니다. 다부진 체격 조건을 앞세운 적극적인 수비 가담과 오버래핑 기동성으로 측면에 단단함을 보탭니다.",
         theme: {
@@ -473,7 +473,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "JEONBUK",
-        image: "player/맹성웅.png",
+        image: "player/맹성웅.webp",
         rarity: "normal",
         description: "침착한 포지셔닝과 깔끔한 대인 태클로 상대 공격을 차단하는 든든한 홀딩 미드필더입니다. 수비 지능이 매우 우수하여 팀 포백 라인을 앞선에서 보호하는 든든한 1차 저지선입니다.",
         theme: {
@@ -498,7 +498,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "JEONBUK",
-        image: "player/조위제.png",
+        image: "player/조위제.webp",
         rarity: "special",
         description: "압도적인 하드웨어와 빠른 복귀 속도를 지닌 차세대 유망주 대형 센터백입니다. 적극적이고 타이트한 대인 마크와 과감한 공중 경합으로 수비 라인에 피지컬을 더해 줍니다.",
         theme: {
@@ -523,7 +523,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "JEONBUK",
-        image: "player/최우진.png",
+        image: "player/최우진.webp",
         rarity: "normal",
         description: "뛰어난 순간 돌파력과 날카로운 크로스 능력을 지닌 다이내믹한 좌측 풀백입니다. 공간을 파고드는 폭발적인 오버래핑 훈련이 매우 뛰어나며 공수 모두 기여도가 높은 유망주입니다.",
         theme: {
@@ -548,7 +548,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "JEONBUK",
-        image: "player/이주현.png",
+        image: "player/이주현.webp",
         rarity: "normal",
         description: "안정적인 방어 위치 선정과 놀라운 반사 신경을 보유한 유망주 수문장입니다. 공중볼 낙하지점 판단이 예리하며 골문 구석으로 날아오는 까다로운 슈팅도 과감히 잘 캐칭합니다.",
         theme: {
@@ -648,7 +648,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "MANCHESTER UTD",
-        image: "player/박지성.png",
+        image: "player/박지성.webp",
         rarity: "legend",
         description: "대한민국 축구 역사상 가장 위대한 전설적인 멀티 미드필더이자 맨체스터 유나이티드에서 활약했던 영원한 캡틴입니다.",
         theme: {
@@ -673,7 +673,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "JEONBUK",
-        image: "player/이동국.png",
+        image: "player/이동국.webp",
         rarity: "normal",
         description: "전북 현대의 불멸의 영웅이자 K리그 역대 최고의 스트라이커,",
         theme: {
@@ -698,7 +698,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "JEONBUK",
-        image: "player/최철순.png",
+        image: "player/최철순.webp",
         rarity: "special",
         description: "전북 현대 왕조의 굳건한 기둥이자 팬들의 무한한 사랑을 받는",
         theme: {
@@ -773,7 +773,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
-        image: "player/기성용.png",
+        image: "player/기성용.webp",
         rarity: "legend",
         description: "대한민국 축구 역사상 최고의 딥라잉 플레이메이커이자 대표팀의 중원을 지휘했던 영원한 코어 미드필더 기성용입니다. 넓은 시야와 컴퓨터 같은 대지를 가르는 롱패스, 자로 잰 듯한 프리킥 킥력과 탁월한 키핑 능력으로 경기 조율의 마법을 부리는 전설적인 미드필더입니다.",
         theme: {
@@ -823,7 +823,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
-        image: "player/이재성.png",
+        image: "player/이재성.webp",
         rarity: "special",
         description: "독보적인 활동량과 영리한 축구 지능을 겸비한 국가대표 미드필더입니다. 영리한 오프더볼 움직임과 날카로운 패싱력, 전방 압박 능력을 바탕으로 공수 양면에서 중원의 핵심 활력소 역할을 수행합니다.",
         theme: {
@@ -848,7 +848,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
-        image: "player/조규성.png",
+        image: "player/조규성.webp",
         rarity: "special",
         description: "조각 같은 비주얼과 압도적인 피지컬로 그라운드를 누비는 대한민국 국가대표 스트라이커 조규성입니다. 공중볼 타점 경합과 강력한 슈팅력, 헌신적인 전방 압박으로 매 경기 상대 골문을 직접 위협하는 해결사입니다.",
         theme: {
@@ -898,7 +898,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
-        image: "player/이동경.png",
+        image: "player/이동경.webp",
         rarity: "special",
         description: "왼발의 마술사라 불리며 창의적인 패스와 전매특허인 강력하고 정교한 중거리 슈팅을 장착한 특급 공격형 미드필더 이동경입니다. 순간적인 배후 침투와 위협적인 플레이메이킹으로 경기의 흐름을 단숨에 바꾸어 놓습니다.",
         theme: {
@@ -973,7 +973,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
-        image: "player/오현규.png",
+        image: "player/오현규.webp",
         rarity: "special",
         description: "강인한 피지컬과 폭발적인 슈팅력, 그리고 끈질긴 전방 압박 능력을 겸비한 대한민국 국가대표 공격수 오현규입니다. 문전에서의 침착함과 적극적인 돌파로 언제든 득점을 터뜨릴 수 있는 해결사입니다.",
         theme: {
@@ -998,7 +998,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "GANGWON",
-        image: "player/이기혁.png",
+        image: "player/이기혁.webp",
         rarity: "special",
         description: "중앙 수비수와 측면 수비수, 미드필더까지 소화할 수 있는 다재다능한 멀티 플레이어 이기혁입니다. 안정적인 수비 능력과 뛰어난 패스 능력을 바탕으로 후방 빌드업에서 핵심적인 역할을 수행합니다.",
         theme: {
@@ -1023,7 +1023,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "JEONBUK",
-        image: "player/이수빈.png",
+        image: "player/이수빈.webp",
         rarity: "normal",
         description: "부드러운 볼 제어 능력과 넓은 시야, 그리고 안정적인 패스 공급으로 팀의 빌드업을 조율하는 전북 현대의 미드필더 이수빈입니다. 적극적인 공수 조율과 조용한 헌신으로 중원에 안정감을 불어넣습니다.",
         theme: {
@@ -1048,7 +1048,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
-        image: "player/황희찬.png",
+        image: "player/황희찬.webp",
         rarity: "special",
         description: "우직한 돌파와 강인한 피지컬로 상대를 압도하며 '코리안 가이'라는 별명으로 프리미어리그를 폭격하는 국가대표 윙어 황희찬입니다. 폭발적인 가속도와 저돌적인 문전 침투로 득점을 노립니다.",
         theme: {
@@ -1073,7 +1073,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "JEONBUK",
-        image: "player/송민규.png",
+        image: "player/송민규.webp",
         rarity: "special",
         description: "뛰어난 볼 키핑 능력과 측면에서의 저돌적인 온더볼 플레이로 찬스를 창출하는 전북 현대의 핵심 공격수입니다. 탄탄한 피지컬을 바탕으로 등지는 플레이와 지능적인 연계에 강점이 있습니다.",
         theme: {
@@ -1098,7 +1098,7 @@ const CARDS_DATABASE = {
         nation: "England",
         nationFlag: "https://flagcdn.com/w40/gb-eng.png",
         club: "FC SEOUL",
-        image: "player/린가드.png",
+        image: "player/린가드.webp",
         rarity: "special",
         description: "잉글랜드 국가대표와 맨체스터 유나이티드 출신의 월드스타로, FC 서울의 측면 공격 핵심 윙어입니다. 뛰어난 오프더볼 움직임과 창의적인 연계 플레이, 그리고 저돌적인 측면 돌파로 공격진에 활력을 불어넣습니다.",
         theme: {
@@ -1148,7 +1148,7 @@ const CARDS_DATABASE = {
         nation: "Montenegro",
         nationFlag: "https://flagcdn.com/w40/me.png",
         club: "INCHEON UTD",
-        image: "player/무고사.png",
+        image: "player/무고사.webp",
         rarity: "normal",
         description: "인천 유나이티드의 상징이자 K리그 최고의 스트라이커 무고사입니다. 탁월한 골 결정력과 높은 문전 집중력으로 어떠한 위치에서도 득점을 만들어내는 해결사입니다.",
         theme: {
@@ -1173,7 +1173,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "POHANG",
-        image: "player/이동국99.png",
+        image: "player/이동국99.webp",
         rarity: "special",
         description: "1999년 K리그를 뒤흔든 '라이온 킹' 이동국의 파릇파릇한 젊은 시절 카드입니다. 리그 신인왕과 득점왕을 노리던 폭발적인 피지컬과 예리한 돌파력, 그리고 전매특허인 강력한 발리슛을 구사한 특급 공격수입니다.",
         theme: {
@@ -1198,7 +1198,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
-        image: "player/김승규.png",
+        image: "player/김승규.webp",
         rarity: "special",
         description: "대한민국 축구 국가대표팀의 베테랑 수문장이자 빌드업 축구의 핵심 골키퍼 김승규입니다. 뛰어난 반사신경과 안정적인 선방력은 물론, 정확한 패싱 능력을 바탕으로 후방 빌드업 전술을 주도하는 든든한 골키퍼입니다.",
         theme: {
@@ -1223,7 +1223,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
-        image: "player/이한범.png",
+        image: "player/이한범.webp",
         rarity: "special",
         description: "대한민국 수비의 미래를 짊어진 대형 센터백 이한범입니다. 압도적인 피지컬을 활용한 공중볼 장악과 타이트한 대인 마크가 돋보이며, 안정적인 패스 능력과 경기 리딩 능력까지 갖춘 육각형 수비수입니다.",
         theme: {
@@ -1248,7 +1248,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
-        image: "player/설영우.png",
+        image: "player/설영우.webp",
         rarity: "special",
         description: "대한민국 축구 국가대표팀의 핵심 풀백 설영우입니다. 지치지 않는 기동력과 안정적인 수비력은 물론, 날카로운 오버래핑과 정교한 크로스로 측면 공격에 큰 힘을 보태는 현대적인 측면 수비수입니다.",
         theme: {
@@ -1273,7 +1273,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
-        image: "player/백승호.png",
+        image: "player/백승호.webp",
         rarity: "special",
         description: "바르셀로나 유스 출신의 뛰어난 테크닉과 자로 잰 듯한 킥력을 장착한 미드필더 백승호입니다. 넓은 시야와 침착한 경기 조율력, 그리고 상대 골문을 직접 노리는 날카로운 중거리 슈팅 능력을 지니고 있습니다.",
         theme: {
@@ -1298,7 +1298,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
-        image: "player/이태석.png",
+        image: "player/이태석.webp",
         rarity: "special",
         description: "대한민국 국가대표팀(KOREA)의 좌측 측면을 든든하게 책임지는 지칠 줄 모르는 기동력의 윙백입니다. 빠른 오버랩핑과 날카로운 크로스, 영리한 수비 포지셔닝으로 공수 양면에서 맹활약하는 스페셜 풀백입니다.",
         theme: {
@@ -1323,7 +1323,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
-        image: "player/안정환.png",
+        image: "player/안정환.webp",
         rarity: "legend",
         description: "대한민국 축구 역사상 최고의 판타지스타이자 테크니션입니다. 2002년 한일 월드컵의 영웅으로 이탈리아전 결승 골을 비롯한 결정적인 경기마다 해결사 역할을 톡톡히 해냈으며, 감각적인 드리블과 우아한 볼 터치, 그리고 폭발적인 슈팅력으로 전 세계를 놀라게 한 레전드 윙어입니다.",
         theme: {
@@ -1348,7 +1348,7 @@ const CARDS_DATABASE = {
         nation: "Argentina",
         nationFlag: "https://flagcdn.com/w40/ar.png",
         club: "INTER MIAMI",
-        image: "player/메시.png",
+        image: "player/메시.webp",
         rarity: "worldclass",
         description: "축구 역사상 가장 위대한 선수(G.O.A.T)로 꼽히는 리오넬 메시입니다. 신의 경지에 다다른 플레이메이킹, 경이로운 볼 컨트롤, 그리고 상대 수비를 완전히 무력화시키는 압도적인 시야와 득점력을 지닌 축구계의 살아있는 신화이자 월드클래스 거장입니다.",
         theme: {
@@ -1398,7 +1398,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
-        image: "player2/양민혁.png",
+        image: "player2/양민혁.webp",
         rarity: "special",
         description: "대한민국 축구의 초신성이자 폭발적인 스피드와 저돌적인 드리블을 갖춘 공격수 양민혁입니다. 나이답지 않은 침착한 결정력과 예측 불가능한 돌파력으로 상대 측면 수비를 허무는 특급 윙어입니다.",
         theme: {
@@ -1448,7 +1448,7 @@ const CARDS_DATABASE = {
         nation: "Portugal",
         nationFlag: "https://flagcdn.com/w40/pt.png",
         club: "AL NASSR",
-        image: "player2/호날두.png",
+        image: "player2/호날두.webp",
         rarity: "legend",
         description: "축구 역사상 가장 위대한 득점 기계이자 철저한 자기관리의 상징인 크리스티아누 호날두입니다. 압도적인 피지컬, 폭발적인 점프력을 활용한 높은 타점의 헤더, 그리고 양발과 머리를 가리지 않는 무결점 골 결정력으로 축구 역사에 수많은 대기록을 수립한 전설적인 윙어입니다.",
         theme: {
@@ -1473,7 +1473,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
-        image: "player2/변준수.png",
+        image: "player2/변준수.webp",
         rarity: "special",
         description: "대한민국 축구 국가대표팀의 미래를 짊어질 차세대 대형 센터백 변준수입니다. 압도적인 피지컬을 활용한 제공권 장악력, 안정적인 대인 방어 능력, 그리고 빌드업의 시발점이 되는 정교한 패스 능력을 갖춘 스페셜 중앙 수비수입니다.",
         theme: {
@@ -1498,7 +1498,7 @@ const CARDS_DATABASE = {
         nation: "Japan",
         nationFlag: "https://flagcdn.com/w40/jp.png",
         club: "BRIGHTON",
-        image: "player2/미토마.png",
+        image: "player2/미토마.webp",
         rarity: "special",
         description: "독보적인 아웃프런트 킥과 정밀한 드리블 돌파로 잉글랜드 프리미어리그를 매료시킨 일본의 윙어 미토마입니다. 상대를 얼어붙게 만드는 타이밍을 뺏는 특유의 잔발 드리블과 날카로운 크로스로 브라이튼의 측면 공격을 지휘하는 스페셜 윙어입니다.",
         theme: {
@@ -1523,7 +1523,7 @@ const CARDS_DATABASE = {
         nation: "Japan",
         nationFlag: "https://flagcdn.com/w40/jp.png",
         club: "LIVERPOOL",
-        image: "player2/엔도와타루.png",
+        image: "player2/엔도와타루.webp",
         rarity: "special",
         description: "명가 리버풀 FC의 든든한 중원 방패이자 뛰어난 수비 지능을 보유한 일본의 미드필더 엔도 와타루입니다. 왕성한 활동량, 안정적인 세컨볼 획득 능력, 그리고 포백 보호 능력을 바탕으로 공수 밸런스를 조율하는 스페셜 미드필더입니다.",
         theme: {
@@ -1598,7 +1598,7 @@ const CARDS_DATABASE = {
         nation: "Japan",
         nationFlag: "https://flagcdn.com/w40/jp.png",
         club: "MONACO",
-        image: "player2/미나미노.png",
+        image: "player2/미나미노.webp",
         rarity: "special",
         description: "뛰어난 공간 침투와 연계 플레이, 그리고 날카로운 결정력을 갖춘 AS 모나코 소속의 일본 대표팀 공격형 미드필더 미나미노입니다. 공수 양면에서 높은 전술적 이해도를 발휘하며 기회를 창출하는 스페셜 미드필더입니다.",
         theme: {
@@ -1623,7 +1623,7 @@ const CARDS_DATABASE = {
         nation: "Japan",
         nationFlag: "https://flagcdn.com/w40/jp.png",
         club: "REIMS",
-        image: "player2/이토준야.png",
+        image: "player2/이토준야.webp",
         rarity: "special",
         description: "폭발적인 주력과 상대 측면을 완전히 허무는 크로스 능력을 자랑하는 스타드 랭스 소속의 일본 대표팀 윙어 이토 준야입니다. 빠른 역습의 핵심 자원이자 저돌적인 드리블 돌파가 장점인 스페셜 윙어입니다.",
         theme: {
@@ -1648,7 +1648,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
-        image: "player2/조유민.png",
+        image: "player2/조유민.webp",
         rarity: "special",
         description: "강인한 제공권 장악력과 뛰어난 수비 리딩 능력을 바탕으로 대표팀 수비의 한 축을 담당하는 센터백 조유민입니다. 파이팅 넘치는 대인 마크와 세트피스 상황에서의 득점력까지 겸비한 스페셜 수비수입니다.",
         theme: {
@@ -1673,7 +1673,7 @@ const CARDS_DATABASE = {
         nation: "Brazil",
         nationFlag: "https://flagcdn.com/w40/br.png",
         club: "AL HILAL",
-        image: "player2/네이마르.png",
+        image: "player2/네이마르.webp",
         rarity: "legend",
         description: "화려한 드리블과 창의적인 플레이로 전 세계 축구팬들을 사로잡는 브라질의 리빙 레전드 공격수 네이마르입니다. 폭발적인 볼 컨트롤, 민첩한 페인트 동작, 그리고 날카로운 킥 능력으로 경기의 판도를 뒤흔드는 월드클래스 크랙입니다.",
         theme: {
@@ -1698,7 +1698,7 @@ const CARDS_DATABASE = {
         nation: "Croatia",
         nationFlag: "https://flagcdn.com/w40/hr.png",
         club: "REAL MADRID",
-        image: "player2/모드리치.png",
+        image: "player2/모드리치.webp",
         rarity: "legend",
         description: "지치지 않는 체력과 환상적인 아웃프런트 패스, 완벽한 경기 조율로 발롱도르를 수상한 크로아티아의 중원 사령탑 루카 모드리치입니다. 뛰어난 축구 지능과 탈압박 능력으로 팀의 공수 밸런스를 조율하는 전설적인 미드필더입니다.",
         theme: {
@@ -1723,7 +1723,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
-        image: "player2/구자철.png",
+        image: "player2/구자철.webp",
         rarity: "special",
         description: "대한민국 중원의 지휘자이자 멀티 플레이어의 정석인 구자철입니다. 뛰어난 축구 지능, 날카로운 패싱력, 그리고 헌신적인 활동량으로 대표팀의 전성기를 이끌었던 전설적인 미드필더입니다.",
         theme: {
@@ -1748,7 +1748,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
-        image: "player2/나상호.png",
+        image: "player2/나상호.webp",
         rarity: "special",
         description: "왕성한 활동량과 폭발적인 스피드를 무기로 전방 압박과 돌파를 이끄는 국가대표 윙어 나상호입니다. 지치지 않는 기동력과 날카로운 컷인 슛으로 상대 측면을 흔드는 해결사입니다.",
         theme: {
@@ -1773,7 +1773,7 @@ const CARDS_DATABASE = {
         nation: "France",
         nationFlag: "https://flagcdn.com/w40/fr.png",
         club: "REAL MADRID",
-        image: "player2/음바페.png",
+        image: "player2/음바페.webp",
         rarity: "legend",
         description: "폭발적인 주력과 경이로운 골 결정력으로 상대 수비진을 무력화하는 세계 최고의 공격수 음바페입니다. 가공할 만한 스피드와 정교한 드리블, 침착한 마무리 능력을 겸비한 월드클래스 크랙입니다.",
         theme: {
@@ -1798,7 +1798,7 @@ const CARDS_DATABASE = {
         nation: "Spain",
         nationFlag: "https://flagcdn.com/w40/es.png",
         club: "BARCELONA",
-        image: "player2/라민야말.png",
+        image: "player2/라민야말.webp",
         rarity: "legend",
         description: "바르셀로나와 스페인의 미래를 짊어진 역대급 천재 윙어 라민 야말입니다. 나이를 무색게 하는 뛰어난 경기 영향력, 정교한 드리블 돌파, 그리고 날카로운 컷인 플레이와 창의적인 패스로 측면을 파괴합니다.",
         theme: {
@@ -1873,7 +1873,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
-        image: "player2/나상호.png",
+        image: "player2/나상호.webp",
         rarity: "legend",
         description: "왕성한 활동량과 폭발적인 스피드로 상대 측면을 파괴하는 레전드 윙어 나상호입니다. 경이로운 기동력과 한층 더 날카로워진 득점 감각으로 경기의 판도를 조율하는 전설적인 해결사입니다.",
         theme: {
@@ -1923,7 +1923,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "LA FC",
-        image: "player/손흥민.png",
+        image: "player/손흥민.webp",
         rarity: "worldclass",
         description: "대한민국 축구 역사상 최고의 전설이자 잉글랜드 프리미어리그 득점왕 출신의 월드클래스 사령탑 손흥민입니다. 경이로운 슛 감각과 양발 폭격, 전속력 스피드와 결정력으로 세계 무대를 정복한 최고 존엄 월드클래스 거장입니다.",
         theme: {
@@ -1973,7 +1973,7 @@ const CARDS_DATABASE = {
         nation: "Japan",
         nationFlag: "https://flagcdn.com/w40/jp.png",
         club: "LEEDS UNITED",
-        image: "player2/다나카 아오.png",
+        image: "player2/다나카 아오.webp",
         rarity: "special",
         description: "뛰어난 활동량과 높은 축구 지능, 날카로운 전진 침투로 중원을 조율하는 일본 대표팀 핵심 미드필더 다나카 아오입니다. 안정적인 빌드업과 정교한 오프더볼 움직임으로 기회를 창출하는 스페셜 미드필더입니다.",
         theme: {
@@ -1998,7 +1998,7 @@ const CARDS_DATABASE = {
         nation: "Italy",
         nationFlag: "https://flagcdn.com/w40/it.png",
         club: "PARIS SAINT-GERMAIN",
-        image: "player2/돈나룸마.png",
+        image: "player2/돈나룸마.webp",
         rarity: "legend",
         description: "압도적인 체격 조건과 경이로운 반사 신경으로 이탈리아와 파리 생제르맹의 골문을 사수하는 세계 최고의 수문장 지안루이지 돈나룸마입니다. Euro 2020 MVP 출신의 압도적인 일대일 저지 능력과 경이로운 핑거 팁 세이브를 자랑하는 전설의 골키퍼입니다.",
         theme: {
@@ -2098,7 +2098,7 @@ const CARDS_DATABASE = {
         nation: "Japan",
         nationFlag: "https://flagcdn.com/w40/jp.png",
         club: "BRIGHTON",
-        image: "player2/미토마.png",
+        image: "player2/미토마.webp",
         rarity: "legend",
         description: "독보적인 아웃프런트 킥과 경이로운 드리블 돌파로 프리미어리그를 뒤흔든 전설적인 윙어 미토마입니다. 상대를 얼어붙게 만드는 전매특허 잔발 드리블과 정교한 크로스, 폭발적인 결정력으로 경기를 지배하는 레전드 크랙입니다.",
         theme: {
@@ -2123,7 +2123,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "JEONBUK",
-        image: "player/김진규.png",
+        image: "player/김진규.webp",
         rarity: "special",
         description: "정교한 탈압박과 자로 잰 듯한 전진 패스로 중원을 완벽하게 지휘하는 전북 현대의 스페셜 플레이메이커 김진규입니다. 넓은 시야와 침착한 경기 운영, 그리고 공수의 연결고리 역할을 훌륭히 수행하는 마에스트로입니다.",
         theme: {
@@ -2148,7 +2148,7 @@ const CARDS_DATABASE = {
         nation: "Netherlands",
         nationFlag: "https://flagcdn.com/w40/nl.png",
         club: "TOTTENHAM",
-        image: "player2/미키반더벤.png",
+        image: "player2/미키반더벤.webp",
         rarity: "legend",
         description: "프리미어리그 역사상 최고 순간 속도를 기록한 압도적인 초스피드 센터백 미키 판 더 펜입니다. 193cm의 거구에도 폭발적인 주력으로 수비 뒷공간을 완벽히 지워내며, 정확한 태클과 피지컬로 토트넘과 네덜란드의 후방을 든든하게 책임지는 전설적인 수비수입니다.",
         theme: {
@@ -2173,7 +2173,7 @@ const CARDS_DATABASE = {
         nation: "Brazil",
         nationFlag: "https://flagcdn.com/w40/br.png",
         club: "MANCHESTER UTD",
-        image: "player2/카세미루.png",
+        image: "player2/카세미루.webp",
         rarity: "legend",
         description: "UEFA 챔피언스리그 5회 우승에 빛나는 세계 최고의 수비형 미드필더 카세미루입니다. 압도적인 피지컬과 빈틈없는 태클, 탁월한 인터셉트 능력으로 상대의 공격 흐름을 완벽히 차단하는 중원의 탱크이자 불멸의 전설입니다.",
         theme: {
@@ -2198,7 +2198,7 @@ const CARDS_DATABASE = {
         nation: "Hungary",
         nationFlag: "https://flagcdn.com/w40/hu.png",
         club: "LIVERPOOL",
-        image: "player2/소보슬라이.png",
+        image: "player2/소보슬라이.webp",
         rarity: "legend",
         description: "폭발적인 오른발 킥력과 환상적인 중거리 슈팅으로 안필드를 열광시키는 리버풀과 헝가리의 에이스 소보슬라이입니다. 지치지 않는 기동력과 전방 압박, 자로 잰 듯한 킬패스와 탈압박으로 중원을 지휘하는 전설적인 플레이메이커입니다.",
         theme: {
@@ -2248,7 +2248,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
-        image: "player/이재성.png",
+        image: "player/이재성.webp",
         rarity: "legend",
         description: "독일 분데스리가와 대한민국 축구 국가대표팀의 핵심이자 지치지 않는 심장 이재성입니다. 독보적인 활동량과 영리한 축구 지능, 날카로운 공간 침투와 킬패스, 그리고 상대의 빌드업을 차단하는 헌신적인 전방 압박으로 공수 양면에서 경기를 지배하는 전설적인 마에스트로입니다.",
         theme: {
@@ -2273,7 +2273,7 @@ const CARDS_DATABASE = {
         nation: "Argentina",
         nationFlag: "https://flagcdn.com/w40/ar.png",
         club: "INTER MIAMI",
-        image: "player2/슈퍼 메시.png",
+        image: "player2/슈퍼 메시.webp",
         rarity: "super",
         description: "도전모드 시즌 1 전승 우승의 영광으로 탄생한 전설을 초월한 궁극의 신화, 슈퍼 리오넬 메시(S메시)입니다. 한층 더 진화한 파괴적인 슈팅력과 범접할 수 없는 예술적인 드리블, 신의 시야로 경기장을 지배하는 절대적인 월드 넘버원 슈퍼스타입니다.",
         theme: {
@@ -2298,7 +2298,7 @@ const CARDS_DATABASE = {
         nation: "France",
         nationFlag: "https://flagcdn.com/w40/fr.png",
         club: "REAL MADRID",
-        image: "player2/슈퍼 음바페.png",
+        image: "player2/슈퍼 음바페.webp",
         rarity: "super",
         description: "전설을 초월한 궁극의 스피드 스타, 슈퍼 킬리안 음바페(S음바페)입니다. 번개 같은 폭발적 가속도와 극한의 질주력, 골문 구석을 완벽하게 꿰뚫는 가공할 슈팅 결정력으로 상대 수비진을 완벽히 무너뜨리는 최강의 월드클래스 크랙입니다.",
         theme: {
@@ -2323,7 +2323,7 @@ const CARDS_DATABASE = {
         nation: "Brazil",
         nationFlag: "https://flagcdn.com/w40/br.png",
         club: "BRAZIL",
-        image: "player2/호나우두.png",
+        image: "player2/호나우두.webp",
         rarity: "legend",
         description: "축구 역사상 가장 경이로운 천재 스트라이커이자 '일 페노메노(El Fenómeno)'로 불린 영원한 황제 호나우두입니다. 수비수를 단숨에 무너뜨리는 폭발적인 스피드와 화려한 헛다리 드리블, 그리고 골키퍼마저 제쳐버리는 완벽한 골 결정력으로 2002 한일 월드컵 득점왕과 우승을 이끈 불멸의 전설입니다.",
         theme: {
@@ -2373,7 +2373,7 @@ const CARDS_DATABASE = {
         nation: "Japan",
         nationFlag: "https://flagcdn.com/w40/jp.png",
         club: "DORTMUND",
-        image: "player2/카가와 신지.png",
+        image: "player2/카가와 신지.webp",
         rarity: "legend",
         description: "분데스리가 2연패와 맨체스터 유나이티드 우승을 이끈 아시아 축구 역사상 최고의 공격형 미드필더 카가와 신지입니다. 번뜩이는 퍼스트 터치와 유려한 탈압박, 자로 잰 듯한 킬패스와 침투 득점력으로 도르트문트의 황금기를 지휘한 전설적인 플레이메이커입니다.",
         theme: {
@@ -2398,7 +2398,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "DORTMUND",
-        image: "player2/박주호.png",
+        image: "player2/박주호.webp",
         rarity: "legend",
         description: "유럽 명문 FC 바젤, 마인츠, 보루시아 도르트문트와 대한민국 축구 국가대표팀을 빛낸 전설적인 레프트백 박주호입니다. 영리한 축구 지능과 탄탄한 기본기, 지치지 않는 왕성한 활동량과 정교한 왼발 크로스로 측면과 중원을 완벽하게 지배한 멀티플레이어입니다.",
         theme: {
@@ -2423,7 +2423,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
-        image: "player2/박주영.png",
+        image: "player2/박주영.webp",
         rarity: "legend",
         description: "대한민국 축구 역사상 최고의 '축구 천재'이자 올림픽 동메달 신화의 주역, 박주영입니다. 번뜩이는 퍼스트 터치와 유려한 턴 동작, 상대 수비진의 허를 찌르는 환상적인 프리킥과 무결점 헤더, 그리고 결정적인 순간 골망을 가르는 완벽한 골 결정력으로 온 국민을 열광시킨 불멸의 전설적인 스트라이커입니다.",
         theme: {
@@ -2448,7 +2448,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "LA FC",
-        image: "player2/슈퍼 손흥민.png",
+        image: "player2/슈퍼 손흥민.webp",
         rarity: "super",
         description: "전설을 초월한 궁극의 캡틴이자 아시아 역대 최고의 골잡이, 슈퍼 손흥민(S손흥민)입니다. 폭발적인 스피드와 한층 더 정교해진 양발 감아차기 슈팅, 환상적인 드리블 돌파로 상대 골문을 무자비하게 폭격하는 궁극의 월드클래스 피니셔입니다.",
         theme: {
@@ -2523,7 +2523,7 @@ const CARDS_DATABASE = {
         nation: "South Korea",
         nationFlag: "https://flagcdn.com/w40/kr.png",
         club: "KOREA",
-        image: "player2/슈퍼 김승규.png",
+        image: "player2/슈퍼 김승규.webp",
         rarity: "super",
         description: "전설을 초월한 궁극의 수문장이자 벤투호 빌드업 축구의 황금빛 방패, 슈퍼 김승규(S김승규)입니다. 동물적인 반사신경과 경이로운 선방 능력으로 골문을 든든하게 지켜내며, 필드 플레이어 수준의 정교한 롱패스로 후방 빌드업을 완성하는 대한민국 최고의 골키퍼입니다.",
         theme: {
@@ -2548,7 +2548,7 @@ const CARDS_DATABASE = {
         nation: "Japan",
         nationFlag: "https://flagcdn.com/w40/jp.png",
         club: "AC MILAN",
-        image: "player2/혼다.jpg",
+        image: "player2/혼다.webp",
         rarity: "legend",
         description: "아시아 축구의 상징이자 독보적인 왼발 무회전 프리킥 마스터, 전설의 공격수 혼다 케이스케입니다. AC 밀란의 10번이자 세 차례 월드컵에서 연속 골과 도움을 기록한 불굴의 승부사로, 강력한 피지컬과 날카로운 왼발 킥, 정교한 플레이메이킹으로 측면과 중앙을 지배하는 레전드 윙어입니다.",
         theme: {
@@ -2623,7 +2623,7 @@ const CARDS_DATABASE = {
         nation: "Uruguay",
         nationFlag: "https://flagcdn.com/w40/uy.png",
         club: "LIVERPOOL",
-        image: "player2/다르윈 누네스.png",
+        image: "player2/다르윈 누네스.webp",
         rarity: "special",
         description: "폭발적인 스프린트와 압도적인 피지컬, 저돌적인 오프더볼 침투로 상대 수비진을 초토화시키는 리버풀과 우루과이의 특급 스트라이커 다르윈 누네스입니다. 강력한 슈팅과 박스 안에서의 파괴적인 제공권 장악으로 결정적인 순간마다 골망을 흔드는 스페셜 골잡이입니다.",
         theme: {
@@ -2648,7 +2648,7 @@ const CARDS_DATABASE = {
         nation: "Japan",
         nationFlag: "https://flagcdn.com/w40/jp.png",
         club: "FEYENOORD",
-        image: "player2/우에다.png",
+        image: "player2/우에다.webp",
         rarity: "special",
         description: "폭발적인 라인 브레이킹 침투와 탁월한 양발 골 결정력, 압도적인 공중볼 타점을 자랑하는 네덜란드 페예노르트와 일본 대표팀의 핵심 스트라이커 우에다입니다. 저돌적인 포스트 플레이와 박스 안에서의 날카로운 원샷원킬 슈팅으로 팀의 공격을 책임지는 스페셜 골잡이입니다.",
         theme: {
@@ -2698,7 +2698,7 @@ const CARDS_DATABASE = {
         nation: "Japan",
         nationFlag: "https://flagcdn.com/w40/jp.png",
         club: "FREIBURG",
-        image: "player2/도안 리츠.png",
+        image: "player2/도안 리츠.webp",
         rarity: "special",
         description: "독일 분데스리가 SC 프라이부르크와 일본 대표팀의 핵심 공격형 미드필더 도안 리츠입니다. 전매특허인 저돌적인 우측면 돌파와 강력한 왼발 감아차기 중거리 슈팅, 좁은 공간에서의 정교한 탈압박 능력을 지니고 있으며, 성실한 전방 압박과 왕성한 기동력으로 경기 흐름을 바꾸는 스페셜 테크니션입니다.",
         theme: {
@@ -2773,7 +2773,7 @@ const CARDS_DATABASE = {
         nation: "England",
         nationFlag: "https://flagcdn.com/w40/gb-eng.png",
         club: "BAYERN MUNICH",
-        image: "player2/헤리케인.png",
+        image: "player2/헤리케인.webp",
         rarity: "worldclass",
         description: "독일 분데스리가 바이에른 뮌헨과 잉글랜드 대표팀의 주장이자 세계 최고의 완성형 스트라이커 해리 케인입니다. 양발을 가리지 않는 경이적인 골 결정력과 정밀한 슈팅 스킬은 물론, 2선까지 내려와 킬패스를 찔러주는 정상급 플레이메이킹과 묵직한 포스트플레이를 겸비한 월드클래스 넘버 나인입니다.",
         theme: {
@@ -2823,7 +2823,7 @@ const CARDS_DATABASE = {
         nation: "Brazil",
         nationFlag: "https://flagcdn.com/w40/br.png",
         club: "FC BARCELONA",
-        image: "player2/호나우지뉴.png",
+        image: "player2/호나우지뉴.webp",
         rarity: "legend",
         description: "그라운드 위의 마술사이자 축구 역사상 가장 화려하고 창의적인 판타지스타 호나우지뉴입니다. 예측 불가능한 신기에 가까운 드리블과 마법 같은 노룩 패스, 전 세계 축구 팬들을 열광시킨 천진난만한 미소와 환상적인 프리킥으로 발롱도르와 챔피언스리그 정상을 정복한 영원한 외계인 레전드입니다.",
         theme: {
@@ -2898,7 +2898,7 @@ const CARDS_DATABASE = {
         nation: "Brazil",
         nationFlag: "https://flagcdn.com/w40/br.png",
         club: "PARIS SAINT-GERMAIN",
-        image: "player2/네이마르.png",
+        image: "player2/네이마르.webp",
         rarity: "worldclass",
         description: "화려한 삼바 리듬과 마법 같은 볼 컨트롤로 전 세계를 매료시킨 월드클래스 판타지스타, 네이마르 주니오르입니다. 번개 같은 순간 가속과 예측 불가능한 현란한 드리블, 수비 라인을 단숨에 허무는 치명적인 킬패스와 감각적인 피니싱으로 피치 위에서 찬란한 예술을 완성하는 축구 스타입니다.",
         theme: {
@@ -2923,7 +2923,7 @@ const CARDS_DATABASE = {
         nation: "Spain",
         nationFlag: "https://flagcdn.com/w40/es.png",
         club: "CHELSEA",
-        image: "player2/쿠쿠렐라.jpg",
+        image: "player2/쿠쿠렐라.webp",
         rarity: "legend",
         description: "스페인 무적함대의 유로 2024 우승을 이끈 핵심 레프트백이자 첼시 FC의 특급 수호신, 마르크 쿠쿠렐라입니다. 지칠 줄 모르는 폭발적인 활동량과 악착같은 대인 마크, 날카로운 태클과 번뜩이는 오버래핑 크로스로 왼쪽 측면 공수를 완벽하게 장악하는 전설적인 풀백입니다.",
         theme: {
@@ -2948,7 +2948,7 @@ const CARDS_DATABASE = {
         nation: "Brazil",
         nationFlag: "https://flagcdn.com/w40/br.png",
         club: "AC MILAN",
-        image: "player2/카카.png",
+        image: "player2/카카.webp",
         rarity: "super",
         description: "산 시로의 하얀 펠레이자 2007 발롱도르를 거머쥔 AC 밀란의 영원한 황태자, 슈퍼 카카(S카카)입니다. 수비진을 단숨에 허무는 폭발적인 고속 드리블과 치명적인 킬패스, 대지를 가르는 강력한 중거리 슈팅으로 그라운드를 지배하는 궁극의 공격형 미드필더입니다.",
         theme: {

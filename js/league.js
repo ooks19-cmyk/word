@@ -1045,7 +1045,7 @@ function renderLeagueTable() {
         row.innerHTML = `
             <td class="league-row-rank">${rank}</td>
             <td class="league-team-col" title="팀 전력: OVR ${team.rating}">
-                <img src="${getTeamEmblemPath(team.id)}" alt="${team.name}">
+                <img src="${getTeamEmblemPath(team.id)}" alt="${team.name}" loading="lazy" decoding="async">
                 <span>${team.name}</span>
                 <span class="league-team-ovr-badge">OVR ${team.rating}</span>
             </td>

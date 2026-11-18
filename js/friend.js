@@ -418,7 +418,7 @@ function renderFriendSquad(squad, deck, formationType, user) {
                     ${captainBadge}
                     <div class="mini-card-ovr-badge">${cardData.rating}${starIndicator}</div>
                     <div class="mini-card-portrait">
-                        <img src="${cardData.image}" alt="${cardData.name}" onerror="this.src='https://placehold.co/80x80/005a3c/ffd700?text=${encodeURIComponent(cardData.name)}'">
+                        <img src="${cardData.image}" alt="${cardData.name}" loading="lazy" decoding="async" onerror="this.src='https://placehold.co/80x80/005a3c/ffd700?text=${encodeURIComponent(cardData.name)}'">
                     </div>
                     <div class="mini-card-name">${cardData.name}</div>
                 </div>

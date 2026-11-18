@@ -649,7 +649,7 @@ function renderChallengeRoadmap() {
                     </div>
                 ` : `
                     <div style="position: relative; width: 50px; height: 50px; border-radius: 50%; overflow: hidden; border: 2px solid #00f2fe; box-shadow: 0 0 10px rgba(0, 242, 254, 0.6); flex-shrink: 0;">
-                        <img src="${rewardCard ? rewardCard.image : 'player2/슈퍼 메시.png'}" alt="S메시" style="width: 100%; height: 100%; object-fit: cover;">
+                        <img src="${rewardCard ? rewardCard.image : 'player2/슈퍼 메시.webp'}" alt="S메시" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: cover;">
                     </div>
                     <div style="flex: 1;">
                         <div style="font-size: 0.92rem; font-weight: 900; color: #fff; text-shadow: 0 0 8px rgba(255,0,127,0.6);">
@@ -1373,7 +1373,7 @@ function showChallengeSuperCardSelectModal(season, lastMatchPlayerOvr) {
                     <!-- 상단 상태 배지 (국기 / 보유 현황) -->
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem;">
                         <div style="display: flex; align-items: center; gap: 5px;">
-                            <img src="${card.nationFlag || 'https://flagcdn.com/w40/un.png'}" alt="flag" style="width: 18px; height: 12px; object-fit: cover; border-radius: 2px;">
+                            <img src="${card.nationFlag || 'https://flagcdn.com/w40/un.png'}" alt="flag" loading="lazy" decoding="async" style="width: 18px; height: 12px; object-fit: cover; border-radius: 2px;">
                             <span style="font-size: 0.72rem; font-weight: 800; color: #cbd5e1;">${typeof formatCardPosition === 'function' ? formatCardPosition(card.position) : (card.position === 'CAM' ? 'AM' : card.position)}</span>
                         </div>
                         <div>
@@ -1400,7 +1400,7 @@ function showChallengeSuperCardSelectModal(season, lastMatchPlayerOvr) {
                             box-shadow: 0 0 20px ${isSelected ? 'rgba(255, 215, 0, 0.8)' : 'rgba(255, 0, 127, 0.6)'};
                             background: radial-gradient(circle, #2a0845 0%, #0c0818 100%);
                         ">
-                            <img src="${card.image}" alt="${card.name}" style="width: 100%; height: 100%; object-fit: cover;">
+                            <img src="${card.image}" alt="${card.name}" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
                         <span style="
                             position: absolute;
@@ -1646,7 +1646,7 @@ function showChallengeVictoryModal(season, cardObj, nextBossOvr = 98) {
     `;
 
     const cardName = cardObj ? cardObj.name : "S메시";
-    const cardImg = cardObj ? cardObj.image : "player2/슈퍼 메시.png";
+    const cardImg = cardObj ? cardObj.image : "player2/슈퍼 메시.webp";
     const cardRealOvr = cardObj ? (cardObj.rating + 6) : 100;
     const statHighlight = (cardObj && cardObj.stats) 
         ? `PAC ${cardObj.stats.pac + 6} · SHO ${cardObj.stats.sho + 6}` 
@@ -1669,7 +1669,7 @@ function showChallengeVictoryModal(season, cardObj, nextBossOvr = 98) {
                     ⚡ 슈퍼(SUPER) 등급 ★6각성 카드 영입!
                 </span>
                 <div style="width: 105px; height: 105px; border-radius: 50%; overflow: hidden; margin: 0 auto 0.8rem auto; border: 3px solid #ff007f; box-shadow: 0 0 25px rgba(255,0,127,0.8);">
-                    <img src="${cardImg}" alt="${cardName}" style="width: 100%; height: 100%; object-fit: cover;">
+                    <img src="${cardImg}" alt="${cardName}" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
                 <div style="font-size: 1.3rem; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,215,0,0.8);">
                     ${cardName}

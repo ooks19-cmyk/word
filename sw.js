@@ -1,4 +1,5 @@
-const CACHE_NAME = 'fc-star-v485';
+const CACHE_NAME = 'fc-star-v486';
+const IMAGE_CACHE_NAME = 'fc-star-images-v1';
 const ASSETS = [
   './index.html',
   './style.css',
@@ -59,13 +60,13 @@ self.addEventListener('install', (e) => {
   self.skipWaiting();
 });
 
-// Activate Service Worker and clean up old caches
+// Activate Service Worker and clean up old app caches (preserve permanent image cache)
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
-          if (key !== CACHE_NAME) {
+          if (key !== CACHE_NAME && key !== IMAGE_CACHE_NAME) {
             console.log('[Service Worker] Removing old cache', key);
             return caches.delete(key);
           }
@@ -76,26 +77,76 @@ self.addEventListener('activate', (e) => {
   self.clients.claim();
 });
 
-// Fetch intercepted requests using a Network-First strategy
+function isImageRequest(url) {
+  const path = decodeURIComponent(url.pathname).toLowerCase();
+  return (
+    path.startsWith('/player/') ||
+    path.startsWith('/player2/') ||
+    path.startsWith('/img/') ||
+    path.includes('/player/') ||
+    path.includes('/player2/') ||
+    path.includes('/img/') ||
+    /\.(webp|png|jpe?g|svg|gif|ico)$/.test(path)
+  );
+}
+
+function isVersionedStaticAsset(url) {
+  const path = url.pathname.toLowerCase();
+  return url.searchParams.has('v') && /\.(js|css)$/.test(path);
+}
+
+async function cacheFirst(request, cacheName, allowIgnoreSearchFallback = false) {
+  const cache = await caches.open(cacheName);
+  const cached = await cache.match(request);
+  if (cached) {
+    return cached;
+  }
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse && networkResponse.status === 200) {
+      cache.put(request, networkResponse.clone()).catch(() => {});
+    }
+    return networkResponse;
+  } catch (err) {
+    const anyCached = await caches.match(request, allowIgnoreSearchFallback ? { ignoreSearch: true } : undefined);
+    if (anyCached) return anyCached;
+    throw err;
+  }
+}
+
+async function networkFirst(request, cacheName) {
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse && networkResponse.status === 200) {
+      const cache = await caches.open(cacheName);
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch (err) {
+    const cached = await caches.match(request);
+    if (cached) return cached;
+    throw err;
+  }
+}
+
+// Fetch intercepted requests: Cache-First for images & versioned assets, Network-First for HTML/others
 self.addEventListener('fetch', (e) => {
   // Only handle GET requests and local origin assets
   if (e.request.method !== 'GET' || !e.request.url.startsWith(self.location.origin)) {
     return;
   }
-  
-  e.respondWith(
-    fetch(e.request)
-      .then((networkResponse) => {
-        if (networkResponse.status === 200) {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(e.request, responseToCache);
-          });
-        }
-        return networkResponse;
-      })
-      .catch(() => {
-        return caches.match(e.request);
-      })
-  );
+
+  const url = new URL(e.request.url);
+
+  if (isImageRequest(url)) {
+    e.respondWith(cacheFirst(e.request, IMAGE_CACHE_NAME));
+    return;
+  }
+
+  if (isVersionedStaticAsset(url)) {
+    e.respondWith(cacheFirst(e.request, CACHE_NAME, true));
+    return;
+  }
+
+  e.respondWith(networkFirst(e.request, CACHE_NAME));
 });
