@@ -1,4 +1,17 @@
 ## 현재 작업
+- 목표: 리그 페이지 라운드 숫자 클릭 시 비밀번호 검증 후 `checkSeasonChampion()` 실행 기능 구현
+- 상태: 완료
+- 주요 변경 및 검증 결과:
+  1. `index.html` & `js/league.js`:
+     - 리그 페이지 라운드 숫자(`#matchRoundVal`)에 `onclick="promptCheckSeasonChampion()"` 연결 (초기 HTML 및 `updateMatchPreviewBoard()` 동적 렌더링 모두 반영).
+     - `promptCheckSeasonChampion()` 신설: `prompt()` 입력값 검증 후 일치 시 `checkSeasonChampion()` 즉시 호출, 취소 시 중단, 불일치 시 토스트/알림 에러 출력.
+  2. PWA 캐시 및 스크립트 버전 상향:
+     - `index.html`: `js/league.js?v=5.5`
+     - `sw.js`: `CACHE_NAME = 'fc-star-v487'`
+  3. 무결성 검증: Node.js 구문 검사, DOM/로직 단위 검증 및 회귀 테스트 통과.
+- 다음 단계: 완료 (origin/main 원격 브랜치 푸시 완료)
+
+## 이전 작업
 - 목표: Firebase Firestore `fc_star_users/vc` 계정 데이터 영구 삭제
 - 상태: 완료
 - 주요 변경 및 검증 결과:

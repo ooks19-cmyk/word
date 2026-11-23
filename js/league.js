@@ -902,7 +902,7 @@ function updateMatchPreviewBoard() {
 
     const matchRoundContainerEl = document.getElementById('matchRoundContainer');
     if (matchRoundContainerEl) {
-        matchRoundContainerEl.innerHTML = `라운드: <span id="matchRoundVal">${Math.min(leagueRound, config.totalRounds)}</span>/${config.totalRounds} | 오늘 경기: <span id="matchTodayCountVal">${(matchLastDate === new Date().toLocaleDateString('ko-KR')) ? matchTodayCount : 0}</span>/10`;
+        matchRoundContainerEl.innerHTML = `라운드: <span id="matchRoundVal" onclick="promptCheckSeasonChampion()" style="cursor: pointer; display: inline-block; padding: 2px 4px;">${Math.min(leagueRound, config.totalRounds)}</span>/${config.totalRounds} | 오늘 경기: <span id="matchTodayCountVal">${(matchLastDate === new Date().toLocaleDateString('ko-KR')) ? matchTodayCount : 0}</span>/10`;
     }
 
     if (leagueRound > config.totalRounds) {
@@ -2199,6 +2199,20 @@ function getTopScorerAndAssister() {
     const topAssister = sortedAssists[0] && sortedAssists[0].assists > 0 ? sortedAssists[0] : null;
     
     return { topScorer, topAssister };
+}
+
+function promptCheckSeasonChampion() {
+    const input = prompt("비밀번호를 입력하세요:");
+    if (input === null) return;
+    if (input.trim() !== "0810") {
+        if (typeof showToast === 'function') {
+            showToast("❌ 비밀번호가 올바르지 않습니다.");
+        } else {
+            alert("비밀번호가 올바르지 않습니다.");
+        }
+        return;
+    }
+    checkSeasonChampion();
 }
 
 function checkSeasonChampion() {

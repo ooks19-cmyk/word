@@ -27,6 +27,26 @@ graph TD
 - **`db.js`**: Firebase Firestore 기반 원격 저장 및 미지원 시 LocalStorage 기반의 가상 로컬 클라우드 전환 처리.
 - **`player/player_data.js`**: 전체 축구선수 카드 스펙(오버롤, 세부 능력치, 포지션 등)을 동적으로 로드.
 
+### 🔐 리그 페이지 라운드 숫자 클릭 시 비밀번호 인증 `checkSeasonChampion()` 실행 연동 (2026-11-23)
+* **날짜·시간**: 2026-11-23 20:10 (KST)
+* **요청 요약**:
+  - 리그 페이지의 라운드 숫자를 클릭하면 비밀번호 입력 검증 후 `checkSeasonChampion()`이 실행되도록 기능 추가.
+* **수행 내용**:
+  1. **라운드 숫자 클릭 핸들러 연결 (`index.html`, `js/league.js`)**:
+     - `#matchRoundVal` 요소에 `onclick="promptCheckSeasonChampion()"` 및 클릭/터치 영역 보정(`cursor: pointer; display: inline-block; padding: 2px 4px;`) 적용.
+     - `updateMatchPreviewBoard()`에서 `matchRoundContainerEl.innerHTML` 재렌더링 시에도 동일 핸들러가 유지되도록 동기화.
+  2. **비밀번호 검증 래퍼 함수 구현 (`js/league.js`)**:
+     - `promptCheckSeasonChampion()` 추가: `prompt()`로 비밀번호를 입력받아 일치할 때만 `checkSeasonChampion()` 실행, 취소 시 종료, 불일치 시 오류 토스트(`showToast`) 출력.
+  3. **PWA 캐시 및 스크립트 버전 상향**:
+     - `index.html`: `js/league.js?v=5.5` 상향.
+     - `sw.js`: `CACHE_NAME = 'fc-star-v487'` 상향.
+* **변경 파일**: `index.html`, `js/league.js`, `sw.js`, `.agents/progress.md`, `.agents/log.md`
+* **검증 결과**:
+  - `node --check js/league.js sw.js` Syntax OK 및 `vm` 기반 `promptCheckSeasonChampion()` 시나리오(취소/오류/정답) 검증 통과.
+  - 기존 회귀 테스트 5종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `market_mode`, `quiz_subjective`) 100% PASS.
+  - `git diff --check` 결함 0건.
+* **최종 상태**: 완료 (origin/main 원격 브랜치 푸시 완료)
+
 ### 🗑️ Firebase Firestore 유저 데이터(`id: vc`) 영구 삭제 (2026-11-18)
 * **날짜·시간**: 2026-11-18 22:38 (KST)
 * **요청 요약**:
