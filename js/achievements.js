@@ -227,11 +227,15 @@ function getTopPlayerCareerGoals() {
 
     function addGoal(id, name, count) {
         if (!count || count <= 0) return;
-        if (id) {
-            goalsById[id] = (goalsById[id] || 0) + count;
+        const canonicalId = (id && typeof getCanonicalPlayerId === 'function') ? getCanonicalPlayerId(id) : id;
+        const canonicalName = (typeof getCanonicalPlayerName === 'function')
+            ? getCanonicalPlayerName(id || name, name || id)
+            : name;
+        if (canonicalId) {
+            goalsById[canonicalId] = (goalsById[canonicalId] || 0) + count;
         }
-        if (name) {
-            goalsByName[name] = (goalsByName[name] || 0) + count;
+        if (canonicalName) {
+            goalsByName[canonicalName] = (goalsByName[canonicalName] || 0) + count;
         }
     }
 

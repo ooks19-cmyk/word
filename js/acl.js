@@ -1007,9 +1007,17 @@ function renderAclStats() {
     const playerTeamId = getActiveAclUserTeamId();
 
     if (aclState.stats && aclState.stats.scorers) {
+        if (typeof mergeTournamentStatArray === 'function') {
+            const mergedScorers = mergeTournamentStatArray(aclState.stats.scorers, 'goals', playerTeamId);
+            if (mergedScorers.changed) aclState.stats.scorers = mergedScorers.merged;
+        }
         aclState.stats.scorers.sort((a, b) => b.goals - a.goals);
     }
     if (aclState.stats && aclState.stats.assisters) {
+        if (typeof mergeTournamentStatArray === 'function') {
+            const mergedAssisters = mergeTournamentStatArray(aclState.stats.assisters, 'assists', playerTeamId);
+            if (mergedAssisters.changed) aclState.stats.assisters = mergedAssisters.merged;
+        }
         aclState.stats.assisters.sort((a, b) => b.assists - a.assists);
     }
 
@@ -1739,7 +1747,10 @@ function addAclPlayerStatRecord(team, scorerName, assisterName) {
     
     const playerTeamId = getActiveAclUserTeamId();
     const isPlayer = team.id === playerTeamId;
-    const sName = scorerName ? scorerName : (isPlayer ? "에이스 선수" : `${team.name} 에이스`);
+    const normalizedScorerName = (isPlayer && scorerName && typeof getCanonicalPlayerName === 'function')
+        ? getCanonicalPlayerName(scorerName, scorerName)
+        : scorerName;
+    const sName = normalizedScorerName ? normalizedScorerName : (isPlayer ? "에이스 선수" : `${team.name} 에이스`);
     const existScorer = aclState.stats.scorers.find(s => s.name === sName && s.teamId === team.id);
     if (existScorer) {
         existScorer.goals += 1;
@@ -1750,15 +1761,21 @@ function addAclPlayerStatRecord(team, scorerName, assisterName) {
     if (isPlayer && scorerName) {
         let scorerId = null;
         if (typeof CARDS_DATABASE !== 'undefined') {
-            scorerId = Object.keys(CARDS_DATABASE).find(key => CARDS_DATABASE[key].name === scorerName);
+            scorerId = Object.keys(CARDS_DATABASE).find(key =>
+                CARDS_DATABASE[key].name === scorerName || CARDS_DATABASE[key].recordName === scorerName
+            );
         }
         if (scorerId) {
+            const canonicalId = (typeof getCanonicalPlayerId === 'function') ? getCanonicalPlayerId(scorerId) : scorerId;
+            const canonicalName = (typeof getCanonicalPlayerName === 'function') ? getCanonicalPlayerName(canonicalId, scorerName) : scorerName;
             if (typeof careerStats !== 'undefined' && careerStats) {
                 if (!careerStats.playerGoals) careerStats.playerGoals = {};
-                if (!careerStats.playerGoals[scorerId]) {
-                    careerStats.playerGoals[scorerId] = { name: scorerName, goals: 0 };
+                if (!careerStats.playerGoals[canonicalId]) {
+                    careerStats.playerGoals[canonicalId] = { name: canonicalName, goals: 0 };
+                } else {
+                    careerStats.playerGoals[canonicalId].name = canonicalName;
                 }
-                careerStats.playerGoals[scorerId].goals += 1;
+                careerStats.playerGoals[canonicalId].goals += 1;
                 try {
                     localStorage.setItem('fc_star_career_stats', JSON.stringify(careerStats));
                 } catch (e) {}
@@ -1768,11 +1785,44 @@ function addAclPlayerStatRecord(team, scorerName, assisterName) {
     }
 
     if (assisterName) {
-        const existAssister = aclState.stats.assisters.find(a => a.name === assisterName && a.teamId === team.id);
+        const aName = (isPlayer && typeof getCanonicalPlayerName === 'function')
+            ? getCanonicalPlayerName(assisterName, assisterName)
+            : assisterName;
+        const existAssister = aclState.stats.assisters.find(a => a.name === aName && a.teamId === team.id);
         if (existAssister) {
             existAssister.assists += 1;
         } else {
-            aclState.stats.assisters.push({ name: assisterName, teamName: team.name, assists: 1, teamId: team.id });
+            aclState.stats.assisters.push({ name: aName, teamName: team.name, assists: 1, teamId: team.id });
+        }
+
+        if (isPlayer) {
+            let assisterId = null;
+            if (typeof CARDS_DATABASE !== 'undefined') {
+                assisterId = Object.keys(CARDS_DATABASE).find(key =>
+                    CARDS_DATABASE[key].name === assisterName || CARDS_DATABASE[key].recordName === assisterName
+                );
+            }
+            if (assisterId) {
+                const canonicalId = (typeof getCanonicalPlayerId === 'function') ? getCanonicalPlayerId(assisterId) : assisterId;
+                const canonicalName = (typeof getCanonicalPlayerName === 'function') ? getCanonicalPlayerName(canonicalId, assisterName) : assisterName;
+                const isHard = (typeof isHardMode !== 'undefined' && isHardMode);
+                const targetCareer = isHard
+                    ? (typeof careerStatsHard !== 'undefined' ? careerStatsHard : null)
+                    : (typeof careerStats !== 'undefined' ? careerStats : null);
+                if (targetCareer) {
+                    if (!targetCareer.playerAssists) targetCareer.playerAssists = {};
+                    if (!targetCareer.playerAssists[canonicalId]) {
+                        targetCareer.playerAssists[canonicalId] = { name: canonicalName, assists: 0 };
+                    } else {
+                        targetCareer.playerAssists[canonicalId].name = canonicalName;
+                    }
+                    targetCareer.playerAssists[canonicalId].assists += 1;
+                    try {
+                        localStorage.setItem(isHard ? 'fc_star_career_stats_hard' : 'fc_star_career_stats', JSON.stringify(targetCareer));
+                    } catch (e) {}
+                    if (typeof renderCareerStats === 'function') renderCareerStats();
+                }
+            }
         }
     } else if (!isPlayer) {
         if (Math.random() < 0.5) {

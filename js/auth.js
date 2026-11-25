@@ -306,6 +306,8 @@ function applyUserDataToState(userData) {
     ['4-4-2', '4-3-3', '3-4-3', '5-4-1', '4-2-3-1'].forEach(f => {
         if (!squadFormations[f] || typeof squadFormations[f] !== 'object') {
             squadFormations[f] = {};
+        } else if (typeof deduplicateSquadByPlayer === 'function') {
+            deduplicateSquadByPlayer(squadFormations[f], playerDeck);
         }
     });
     squadFormation = squadFormations[currentFormation] || {};
@@ -398,9 +400,35 @@ function applyUserDataToState(userData) {
     leaguePlayerStats = userData.leaguePlayerStats || {};
     if (Object.keys(leaguePlayerStats).length === 0 && typeof initLeaguePlayerStats === 'function') {
         initLeaguePlayerStats();
+    } else if (typeof mergeLeaguePlayerStatsMap === 'function') {
+        const activeLeagueCfg = (typeof getActiveLeagueConfig === 'function') ? getActiveLeagueConfig() : null;
+        const mergedLeagueStats = mergeLeaguePlayerStatsMap(leaguePlayerStats, activeLeagueCfg ? activeLeagueCfg.userTeamId : null);
+        if (mergedLeagueStats.changed) leaguePlayerStats = mergedLeagueStats.merged;
     }
-    careerStats = userData.careerStats || { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
-    careerStatsHard = userData.careerStatsHard || { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+    careerStats = userData.careerStats || { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {}, playerAssists: {} };
+    careerStatsHard = userData.careerStatsHard || { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {}, playerAssists: {} };
+    if (!careerStats.playerAssists) careerStats.playerAssists = {};
+    if (!careerStatsHard.playerAssists) careerStatsHard.playerAssists = {};
+    if (typeof mergePlayerGoalsMap === 'function') {
+        if (careerStats && careerStats.playerGoals) {
+            const mergedGoals = mergePlayerGoalsMap(careerStats.playerGoals);
+            if (mergedGoals.changed) careerStats.playerGoals = mergedGoals.merged;
+        }
+        if (careerStatsHard && careerStatsHard.playerGoals) {
+            const mergedHardGoals = mergePlayerGoalsMap(careerStatsHard.playerGoals);
+            if (mergedHardGoals.changed) careerStatsHard.playerGoals = mergedHardGoals.merged;
+        }
+    }
+    if (typeof mergePlayerAssistsMap === 'function') {
+        if (careerStats && careerStats.playerAssists) {
+            const mergedAssists = mergePlayerAssistsMap(careerStats.playerAssists);
+            if (mergedAssists.changed) careerStats.playerAssists = mergedAssists.merged;
+        }
+        if (careerStatsHard && careerStatsHard.playerAssists) {
+            const mergedHardAssists = mergePlayerAssistsMap(careerStatsHard.playerAssists);
+            if (mergedHardAssists.changed) careerStatsHard.playerAssists = mergedHardAssists.merged;
+        }
+    }
     userPvpStats = userData.pvpStats || { w: 0, d: 0, l: 0 };
     userPvpOpponentStats = userData.pvpOpponentStats || {};
 
@@ -431,11 +459,15 @@ function applyUserDataToState(userData) {
     // 8. 국대 모드
     if (userData.nationalModeState && typeof initNationalMode === 'function') {
         nationalModeState = typeof deserializeNationalModeStateFromCloud === 'function' ? deserializeNationalModeStateFromCloud(userData.nationalModeState) : userData.nationalModeState;
+        if (typeof normalizeNationalPlayerStats === 'function') normalizeNationalPlayerStats(nationalModeState);
         if (typeof nationalDevMode !== 'undefined' && nationalDevMode && typeof nationalDevState !== 'undefined') nationalDevState = nationalModeState;
         try { localStorage.setItem('fc_star_national_mode_state', JSON.stringify(nationalModeState)); } catch(e) {}
     }
     if (userData.nationalSquadPresets && typeof nationalSquadPresets !== 'undefined') {
         nationalSquadPresets = userData.nationalSquadPresets;
+        if (typeof normalizeNationalSquadPreset === 'function') {
+            Object.keys(nationalSquadPresets).forEach(nationId => normalizeNationalSquadPreset(nationId));
+        }
         try { localStorage.setItem('fc_star_national_squad_presets', JSON.stringify(nationalSquadPresets)); } catch(e) {}
         const activeNationalState = typeof getNationalModeState === 'function' ? getNationalModeState() : null;
         if (activeNationalState && activeNationalState.selectedNationId && typeof applyNationalSquadPreset === 'function') {
@@ -649,8 +681,8 @@ function collectCurrentUserProgressData(targetUserId) {
         lastLoginDate: typeof lastLoginDate !== 'undefined' ? lastLoginDate : "",
         leagueYear: typeof leagueYear !== 'undefined' ? leagueYear : 2026,
         hallOfFame: typeof hallOfFame !== 'undefined' ? hallOfFame : [],
-        careerStats: typeof careerStats !== 'undefined' ? careerStats : { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} },
-        careerStatsHard: typeof careerStatsHard !== 'undefined' ? careerStatsHard : { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} },
+        careerStats: typeof careerStats !== 'undefined' ? careerStats : { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {}, playerAssists: {} },
+        careerStatsHard: typeof careerStatsHard !== 'undefined' ? careerStatsHard : { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {}, playerAssists: {} },
         pvpStats: typeof userPvpStats !== 'undefined' ? userPvpStats : { w: 0, d: 0, l: 0 },
         pvpOpponentStats: typeof userPvpOpponentStats !== 'undefined' ? userPvpOpponentStats : {},
         cupState: typeof cupState !== 'undefined' ? cupState : null,
@@ -800,13 +832,13 @@ function buildLegacyProgressFromLocalStorage(targetUserId) {
         if (h) hof = JSON.parse(h);
     } catch(e) {}
 
-    let cStats = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+    let cStats = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {}, playerAssists: {} };
     try {
         const cs = localStorage.getItem('fc_star_career_stats');
         if (cs) cStats = JSON.parse(cs);
     } catch(e) {}
 
-    let cStatsHard = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+    let cStatsHard = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {}, playerAssists: {} };
     try {
         const csh = localStorage.getItem('fc_star_career_stats_hard');
         if (csh) cStatsHard = JSON.parse(csh);

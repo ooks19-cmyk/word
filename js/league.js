@@ -162,19 +162,25 @@ function registerGoal(playerId, playerName, teamId, teamName) {
     const config = getActiveLeagueConfig();
     const leagueTeamIds = config.teamsPreset.map(t => t.id);
     if (!teamId || !leagueTeamIds.includes(teamId)) return;
-    
+
+    const isUserPlayer = teamId === config.userTeamId || (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE && !!CARDS_DATABASE[playerId]);
+    const targetId = (isUserPlayer && typeof getCanonicalPlayerId === 'function') ? getCanonicalPlayerId(playerId) : playerId;
+    const targetName = (isUserPlayer && typeof getCanonicalPlayerName === 'function') ? getCanonicalPlayerName(playerId, playerName) : playerName;
+
     if (!leaguePlayerStats) leaguePlayerStats = {};
-    if (!leaguePlayerStats[playerId]) {
-        leaguePlayerStats[playerId] = {
-            id: playerId,
-            name: playerName,
+    if (!leaguePlayerStats[targetId]) {
+        leaguePlayerStats[targetId] = {
+            id: targetId,
+            name: targetName,
             teamId: teamId,
             teamName: teamName,
             goals: 0,
             assists: 0
         };
+    } else if (isUserPlayer && targetName) {
+        leaguePlayerStats[targetId].name = targetName;
     }
-    leaguePlayerStats[playerId].goals += 1;
+    leaguePlayerStats[targetId].goals += 1;
 }
 
 function registerAssist(playerId, playerName, teamId, teamName) {
@@ -182,19 +188,25 @@ function registerAssist(playerId, playerName, teamId, teamName) {
     const config = getActiveLeagueConfig();
     const leagueTeamIds = config.teamsPreset.map(t => t.id);
     if (!teamId || !leagueTeamIds.includes(teamId)) return;
-    
+
+    const isUserPlayer = teamId === config.userTeamId || (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE && !!CARDS_DATABASE[playerId]);
+    const targetId = (isUserPlayer && typeof getCanonicalPlayerId === 'function') ? getCanonicalPlayerId(playerId) : playerId;
+    const targetName = (isUserPlayer && typeof getCanonicalPlayerName === 'function') ? getCanonicalPlayerName(playerId, playerName) : playerName;
+
     if (!leaguePlayerStats) leaguePlayerStats = {};
-    if (!leaguePlayerStats[playerId]) {
-        leaguePlayerStats[playerId] = {
-            id: playerId,
-            name: playerName,
+    if (!leaguePlayerStats[targetId]) {
+        leaguePlayerStats[targetId] = {
+            id: targetId,
+            name: targetName,
             teamId: teamId,
             teamName: teamName,
             goals: 0,
             assists: 0
         };
+    } else if (isUserPlayer && targetName) {
+        leaguePlayerStats[targetId].name = targetName;
     }
-    leaguePlayerStats[playerId].assists += 1;
+    leaguePlayerStats[targetId].assists += 1;
 }
 
 function processPlayerGoal(goalData) {
@@ -241,6 +253,10 @@ function renderLeagueStats() {
     
     const config = getActiveLeagueConfig();
     const leagueTeamIds = config.teamsPreset.map(t => t.id);
+    if (typeof mergeLeaguePlayerStatsMap === 'function' && leaguePlayerStats) {
+        const res = mergeLeaguePlayerStatsMap(leaguePlayerStats, config.userTeamId);
+        if (res.changed) leaguePlayerStats = res.merged;
+    }
     const playersArray = Object.values(leaguePlayerStats || {})
         .filter(p => p.teamId && leagueTeamIds.includes(p.teamId));
     
@@ -475,6 +491,16 @@ function initLeague() {
                     delete leaguePlayerStats[playerId];
                 }
             });
+            if (typeof mergeLeaguePlayerStatsMap === 'function') {
+                const mergedLeague = mergeLeaguePlayerStatsMap(leaguePlayerStats, config.userTeamId);
+                if (mergedLeague.changed) {
+                    leaguePlayerStats = mergedLeague.merged;
+                    try {
+                        localStorage.setItem(`fc_star_league_stats_${config.id}`, JSON.stringify(leaguePlayerStats));
+                        localStorage.setItem('fc_star_league_stats', JSON.stringify(leaguePlayerStats));
+                    } catch (e) {}
+                }
+            }
         } else {
             initLeaguePlayerStats();
         }
@@ -489,7 +515,41 @@ function initLeague() {
         if (savedCareer) {
             careerStats = JSON.parse(savedCareer);
         } else {
-            careerStats = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+            careerStats = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {}, playerAssists: {} };
+        }
+        if (careerStats && !careerStats.playerAssists) careerStats.playerAssists = {};
+        if (typeof careerStatsHard !== 'undefined' && careerStatsHard && !careerStatsHard.playerAssists) careerStatsHard.playerAssists = {};
+        if (typeof mergePlayerGoalsMap === 'function') {
+            if (careerStats && careerStats.playerGoals) {
+                const res = mergePlayerGoalsMap(careerStats.playerGoals);
+                if (res.changed) {
+                    careerStats.playerGoals = res.merged;
+                    try { localStorage.setItem('fc_star_career_stats', JSON.stringify(careerStats)); } catch (e) {}
+                }
+            }
+            if (typeof careerStatsHard !== 'undefined' && careerStatsHard && careerStatsHard.playerGoals) {
+                const resHard = mergePlayerGoalsMap(careerStatsHard.playerGoals);
+                if (resHard.changed) {
+                    careerStatsHard.playerGoals = resHard.merged;
+                    try { localStorage.setItem('fc_star_career_stats_hard', JSON.stringify(careerStatsHard)); } catch (e) {}
+                }
+            }
+        }
+        if (typeof mergePlayerAssistsMap === 'function') {
+            if (careerStats && careerStats.playerAssists) {
+                const resA = mergePlayerAssistsMap(careerStats.playerAssists);
+                if (resA.changed) {
+                    careerStats.playerAssists = resA.merged;
+                    try { localStorage.setItem('fc_star_career_stats', JSON.stringify(careerStats)); } catch (e) {}
+                }
+            }
+            if (typeof careerStatsHard !== 'undefined' && careerStatsHard && careerStatsHard.playerAssists) {
+                const resAHard = mergePlayerAssistsMap(careerStatsHard.playerAssists);
+                if (resAHard.changed) {
+                    careerStatsHard.playerAssists = resAHard.merged;
+                    try { localStorage.setItem('fc_star_career_stats_hard', JSON.stringify(careerStatsHard)); } catch (e) {}
+                }
+            }
         }
     } catch(e) {
         resetLeagueSeasonState();
@@ -606,7 +666,11 @@ function recordSeasonProgressToFame(isResigned = false) {
     const userTeam = leagueTeams.find(t => t.id === config.userTeamId) || { w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0 };
     const champion = sorted[0] || { name: config.userTeamName };
     
-    // 득점왕 / 도움왕 산출 (해당 팀 선수만 기록)
+    // 득점왕 / 도움왕 산출 (동일 선수 타 클래스 기록 통합)
+    if (typeof mergeLeaguePlayerStatsMap === 'function' && leaguePlayerStats) {
+        const mergedStats = mergeLeaguePlayerStatsMap(leaguePlayerStats, config.userTeamId);
+        if (mergedStats.changed) leaguePlayerStats = mergedStats.merged;
+    }
     const playersArray = Object.values(leaguePlayerStats || {});
     const sortedGoals = [...playersArray].filter(p => p.goals > 0).sort((a, b) => b.goals - a.goals);
     const sortedAssists = [...playersArray].filter(p => p.assists > 0).sort((a, b) => b.assists - a.assists);
@@ -696,7 +760,7 @@ function recordSeasonProgressToFame(isResigned = false) {
         // 통산 커리어 스탯 누적
         let activeCareer = isHardMode ? careerStatsHard : careerStats;
         if (!activeCareer) {
-            activeCareer = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+            activeCareer = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {}, playerAssists: {} };
             if (isHardMode) careerStatsHard = activeCareer;
             else careerStats = activeCareer;
         }
@@ -706,14 +770,36 @@ function recordSeasonProgressToFame(isResigned = false) {
         activeCareer.gf += userTeam.gf;
         activeCareer.ga += userTeam.ga;
         
-        // 플레이어 구단 소속 선수 골 누적
+        // 플레이어 구단 소속 선수 골/도움 누적 (동일 선수 타 클래스 통합)
+        if (!activeCareer.playerGoals) activeCareer.playerGoals = {};
+        if (!activeCareer.playerAssists) activeCareer.playerAssists = {};
+        if (typeof mergePlayerGoalsMap === 'function') {
+            const existingMerged = mergePlayerGoalsMap(activeCareer.playerGoals);
+            if (existingMerged.changed) activeCareer.playerGoals = existingMerged.merged;
+        }
+        if (typeof mergePlayerAssistsMap === 'function') {
+            const existingMergedAssists = mergePlayerAssistsMap(activeCareer.playerAssists);
+            if (existingMergedAssists.changed) activeCareer.playerAssists = existingMergedAssists.merged;
+        }
         playersArray.forEach(p => {
-            if (p.teamId === config.userTeamId && p.goals > 0) {
-                if (!activeCareer.playerGoals) activeCareer.playerGoals = {};
-                if (!activeCareer.playerGoals[p.id]) {
-                    activeCareer.playerGoals[p.id] = { name: p.name, goals: 0 };
+            if (p.teamId !== config.userTeamId) return;
+            const cid = (typeof getCanonicalPlayerId === 'function') ? getCanonicalPlayerId(p.id) : p.id;
+            const cname = (typeof getCanonicalPlayerName === 'function') ? getCanonicalPlayerName(p.id, p.name) : p.name;
+            if (p.goals > 0) {
+                if (!activeCareer.playerGoals[cid]) {
+                    activeCareer.playerGoals[cid] = { name: cname, goals: 0 };
+                } else {
+                    activeCareer.playerGoals[cid].name = cname;
                 }
-                activeCareer.playerGoals[p.id].goals += p.goals;
+                activeCareer.playerGoals[cid].goals += p.goals;
+            }
+            if (p.assists > 0) {
+                if (!activeCareer.playerAssists[cid]) {
+                    activeCareer.playerAssists[cid] = { name: cname, assists: 0 };
+                } else {
+                    activeCareer.playerAssists[cid].name = cname;
+                }
+                activeCareer.playerAssists[cid].assists += p.assists;
             }
         });
         
@@ -2816,9 +2902,26 @@ function renderCareerStatsSub(subTabId) {
     const gd = activeCareer.gf - activeCareer.ga;
     const gdSign = gd > 0 ? `+${gd}` : gd;
     
+    if (typeof mergePlayerGoalsMap === 'function' && activeCareer && activeCareer.playerGoals) {
+        const mergedGoals = mergePlayerGoalsMap(activeCareer.playerGoals);
+        if (mergedGoals.changed) {
+            activeCareer.playerGoals = mergedGoals.merged;
+        }
+    }
+    if (typeof mergePlayerAssistsMap === 'function' && activeCareer && activeCareer.playerAssists) {
+        const mergedAssists = mergePlayerAssistsMap(activeCareer.playerAssists);
+        if (mergedAssists.changed) {
+            activeCareer.playerAssists = mergedAssists.merged;
+        }
+    }
     const topScorers = Object.values(activeCareer.playerGoals || {})
         .filter(p => p.goals > 0)
         .sort((a, b) => b.goals - a.goals)
+        .slice(0, 3);
+
+    const topAssisters = Object.values(activeCareer.playerAssists || {})
+        .filter(p => p.assists > 0)
+        .sort((a, b) => b.assists - a.assists)
         .slice(0, 3);
         
     let scorersHtml = '';
@@ -2836,6 +2939,26 @@ function renderCareerStatsSub(subTabId) {
                         <strong>${p.name}</strong>
                     </span>
                     <span style="color: #ffd700; font-weight: 800;">${p.goals}골</span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    let assistersHtml = '';
+    if (topAssisters.length === 0) {
+        assistersHtml = `<div style="text-align: center; color: #64748b; padding: 10px; font-size: 0.8rem;">도움 기록 없음</div>`;
+    } else {
+        assistersHtml = topAssisters.map((p, idx) => {
+            let medalColor = '#ffd700'; // 1st
+            if (idx === 1) medalColor = '#c0c0c0'; // 2nd
+            if (idx === 2) medalColor = '#cd7f32'; // 3rd
+            return `
+                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.82rem; padding: 6px 10px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid rgba(255,255,255,0.02);">
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-medal" style="color: ${medalColor};"></i>
+                        <strong>${p.name}</strong>
+                    </span>
+                    <span style="color: #00ff87; font-weight: 800;">${p.assists}도움</span>
                 </div>
             `;
         }).join('');
@@ -2868,12 +2991,20 @@ function renderCareerStatsSub(subTabId) {
                     </div>
                 </div>
                 
-                <!-- Right Column: Top Scorers -->
-                <div style="flex: 1; min-width: 220px; background: rgba(10,14,26,0.3); border: 1px solid rgba(255,255,255,0.05); padding: 0.8rem; border-radius: 16px; display: flex; flex-direction: column; gap: 0.4rem;">
+                <!-- Right Column 1: Top Scorers -->
+                <div style="flex: 1; min-width: 200px; background: rgba(10,14,26,0.3); border: 1px solid rgba(255,255,255,0.05); padding: 0.8rem; border-radius: 16px; display: flex; flex-direction: column; gap: 0.4rem;">
                     <h4 style="font-size: 0.82rem; font-weight: 800; color: ${isHard ? '#ff3e6c' : '#ffd700'}; margin-bottom: 0.2rem; display: flex; align-items: center; gap: 6px;">
                         <i class="fa-solid fa-fire-flame-curved"></i> 클럽 통산 득점 랭킹 (Top 3)
                     </h4>
                     ${scorersHtml}
+                </div>
+
+                <!-- Right Column 2: Top Assisters -->
+                <div style="flex: 1; min-width: 200px; background: rgba(10,14,26,0.3); border: 1px solid rgba(255,255,255,0.05); padding: 0.8rem; border-radius: 16px; display: flex; flex-direction: column; gap: 0.4rem;">
+                    <h4 style="font-size: 0.82rem; font-weight: 800; color: ${isHard ? '#ff6b6b' : '#00ff87'}; margin-bottom: 0.2rem; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-star"></i> 클럽 통산 도움 랭킹 (Top 3)
+                    </h4>
+                    ${assistersHtml}
                 </div>
             </div>
         </div>

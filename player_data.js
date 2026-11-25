@@ -18,6 +18,8 @@ const CARDS_DATABASE = {
     "son_heung_min": {
         id: "son_heung_min",
         name: "손흥민",
+        playerKey: "son_heung_min",
+        recordName: "손흥민",
         rating: 89,
         position: "LW",
         nation: "South Korea",
@@ -243,6 +245,8 @@ const CARDS_DATABASE = {
     "kim_jin_gyu": {
         id: "kim_jin_gyu",
         name: "김진규",
+        playerKey: "kim_jin_gyu",
+        recordName: "김진규",
         rating: 79,
         position: "CM",
         nation: "South Korea",
@@ -668,6 +672,8 @@ const CARDS_DATABASE = {
     "lee_dong_gook": {
         id: "lee_dong_gook",
         name: "이동국",
+        playerKey: "lee_dong_gook",
+        recordName: "이동국",
         rating: 82,
         position: "ST",
         nation: "South Korea",
@@ -768,6 +774,8 @@ const CARDS_DATABASE = {
     "ki_sung_yueng": {
         id: "ki_sung_yueng",
         name: "기성용",
+        playerKey: "ki_sung_yueng",
+        recordName: "기성용",
         rating: 87,
         position: "CM",
         nation: "South Korea",
@@ -818,6 +826,8 @@ const CARDS_DATABASE = {
     "lee_jae_sung": {
         id: "lee_jae_sung",
         name: "이재성",
+        playerKey: "lee_jae_sung",
+        recordName: "이재성",
         rating: 85,
         position: "CM",
         nation: "South Korea",
@@ -943,6 +953,8 @@ const CARDS_DATABASE = {
     "hwang_in_beom": {
         id: "hwang_in_beom",
         name: "황인범",
+        playerKey: "hwang_in_beom",
+        recordName: "황인범",
         rating: 86,
         position: "CM",
         nation: "South Korea",
@@ -1168,6 +1180,8 @@ const CARDS_DATABASE = {
     "lee_dong_gook_99": {
         id: "lee_dong_gook_99",
         name: "이동국99",
+        playerKey: "lee_dong_gook",
+        recordName: "이동국",
         rating: 86,
         position: "ST",
         nation: "South Korea",
@@ -1193,6 +1207,8 @@ const CARDS_DATABASE = {
     "kim_seung_gyu": {
         id: "kim_seung_gyu",
         name: "김승규",
+        playerKey: "kim_seung_gyu",
+        recordName: "김승규",
         rating: 87,
         position: "GK",
         nation: "South Korea",
@@ -1343,6 +1359,8 @@ const CARDS_DATABASE = {
     "lionel_messi": {
         id: "lionel_messi",
         name: "리오넬 메시",
+        playerKey: "lionel_messi",
+        recordName: "리오넬 메시",
         rating: 93,
         position: "RW",
         nation: "Argentina",
@@ -1493,6 +1511,8 @@ const CARDS_DATABASE = {
     "kaoru_mitoma": {
         id: "kaoru_mitoma",
         name: "미토마",
+        playerKey: "kaoru_mitoma",
+        recordName: "미토마",
         rating: 85,
         position: "LW",
         nation: "Japan",
@@ -1668,6 +1688,8 @@ const CARDS_DATABASE = {
     "neymar": {
         id: "neymar",
         name: "네이마르",
+        playerKey: "neymar",
+        recordName: "네이마르",
         rating: 89,
         position: "LW",
         nation: "Brazil",
@@ -1743,6 +1765,8 @@ const CARDS_DATABASE = {
     "na_sang_ho": {
         id: "na_sang_ho",
         name: "나상호",
+        playerKey: "na_sang_ho",
+        recordName: "나상호",
         rating: 88,
         position: "LW",
         nation: "South Korea",
@@ -1768,6 +1792,8 @@ const CARDS_DATABASE = {
     "mbappe": {
         id: "mbappe",
         name: "음바페",
+        playerKey: "mbappe",
+        recordName: "음바페",
         rating: 92,
         position: "ST",
         nation: "France",
@@ -1868,6 +1894,8 @@ const CARDS_DATABASE = {
     "na_sang_ho_L": {
         id: "na_sang_ho_L",
         name: "나상호",
+        playerKey: "na_sang_ho",
+        recordName: "나상호",
         rating: 90,
         position: "LW",
         nation: "South Korea",
@@ -1893,6 +1921,8 @@ const CARDS_DATABASE = {
     "hwang_in_beom_L": {
         id: "hwang_in_beom_L",
         name: "황인범",
+        playerKey: "hwang_in_beom",
+        recordName: "황인범",
         rating: 88,
         position: "CM",
         nation: "South Korea",
@@ -1918,6 +1948,8 @@ const CARDS_DATABASE = {
     "son_heung_min_W": {
         id: "son_heung_min_W",
         name: "손흥민",
+        playerKey: "son_heung_min",
+        recordName: "손흥민",
         rating: 91,
         position: "LW",
         nation: "South Korea",
@@ -2093,6 +2125,8 @@ const CARDS_DATABASE = {
     "kaoru_mitoma_L": {
         id: "kaoru_mitoma_L",
         name: "미토마",
+        playerKey: "kaoru_mitoma",
+        recordName: "미토마",
         rating: 90,
         position: "LW",
         nation: "Japan",
@@ -2118,6 +2152,8 @@ const CARDS_DATABASE = {
     "kim_jin_gyu_S": {
         id: "kim_jin_gyu_S",
         name: "김진규",
+        playerKey: "kim_jin_gyu",
+        recordName: "김진규",
         rating: 86,
         position: "CM",
         nation: "South Korea",
@@ -2243,6 +2279,8 @@ const CARDS_DATABASE = {
     "lee_jae_sung_L": {
         id: "lee_jae_sung_L",
         name: "이재성",
+        playerKey: "lee_jae_sung",
+        recordName: "이재성",
         rating: 87,
         position: "CM",
         nation: "South Korea",
@@ -2268,6 +2306,8 @@ const CARDS_DATABASE = {
     "super_messi": {
         id: "super_messi",
         name: "S메시",
+        playerKey: "lionel_messi",
+        recordName: "리오넬 메시",
         rating: 94,
         position: "AM",
         nation: "Argentina",
@@ -2293,6 +2333,8 @@ const CARDS_DATABASE = {
     "super_mbappe": {
         id: "super_mbappe",
         name: "S음바페",
+        playerKey: "mbappe",
+        recordName: "음바페",
         rating: 94,
         position: "ST",
         nation: "France",
@@ -2343,6 +2385,8 @@ const CARDS_DATABASE = {
     "super_ki_sung_yueng": {
         id: "super_ki_sung_yueng",
         name: "S기성용",
+        playerKey: "ki_sung_yueng",
+        recordName: "기성용",
         rating: 94,
         position: "CM",
         nation: "South Korea",
@@ -2443,6 +2487,8 @@ const CARDS_DATABASE = {
     "super_son": {
         id: "super_son",
         name: "S손흥민",
+        playerKey: "son_heung_min",
+        recordName: "손흥민",
         rating: 94,
         position: "LW",
         nation: "South Korea",
@@ -2518,6 +2564,8 @@ const CARDS_DATABASE = {
     "super_kim_seung_gyu": {
         id: "super_kim_seung_gyu",
         name: "S김승규",
+        playerKey: "kim_seung_gyu",
+        recordName: "김승규",
         rating: 94,
         position: "GK",
         nation: "South Korea",
@@ -2843,6 +2891,8 @@ const CARDS_DATABASE = {
     "super_maradona": {
         id: "super_maradona",
         name: "S마라도나",
+        playerKey: "maradona",
+        recordName: "마라도나",
         rating: 95,
         position: "AM",
         nation: "Argentina",
@@ -2893,6 +2943,8 @@ const CARDS_DATABASE = {
     "neymar_W": {
         id: "neymar_W",
         name: "네이마르",
+        playerKey: "neymar",
+        recordName: "네이마르",
         rating: 93,
         position: "LW",
         nation: "Brazil",
@@ -2943,7 +2995,9 @@ const CARDS_DATABASE = {
     "super_kaka": {
         id: "super_kaka",
         name: "S카카",
-        rating: 94,
+        playerKey: "kaka",
+        recordName: "카카",
+        rating: 95,
         position: "AM",
         nation: "Brazil",
         nationFlag: "https://flagcdn.com/w40/br.png",
@@ -2957,12 +3011,12 @@ const CARDS_DATABASE = {
             glow: "#00f2fe"
         },
         stats: {
-            pac: 94,
-            sho: 92,
-            pas: 93,
-            dri: 95,
-            def: 48,
-            phy: 81
+            pac: 95,
+            sho: 93,
+            pas: 94,
+            dri: 96,
+            def: 49,
+            phy: 82
         }
     }
 };
@@ -2973,3 +3027,302 @@ Object.keys(CARDS_DATABASE).forEach(key => {
         CARDS_DATABASE[key].rarity = "normal";
     }
 });
+
+// ==========================================================================
+// CANONICAL PLAYER IDENTITY & RECORD UNIFICATION HELPERS
+// ==========================================================================
+const CANONICAL_PLAYER_ID_BY_NAME = {};
+const CANONICAL_PLAYER_NAME_BY_KEY = {};
+const CANONICAL_RARITY_PRIORITY = {
+    super: 5,
+    worldclass: 4,
+    legend: 3,
+    special: 2,
+    normal: 1
+};
+
+function rebuildCanonicalPlayerIndex() {
+    if (typeof CARDS_DATABASE === 'undefined' || !CARDS_DATABASE) return;
+    Object.keys(CANONICAL_PLAYER_ID_BY_NAME).forEach(k => delete CANONICAL_PLAYER_ID_BY_NAME[k]);
+    Object.keys(CANONICAL_PLAYER_NAME_BY_KEY).forEach(k => delete CANONICAL_PLAYER_NAME_BY_KEY[k]);
+
+    Object.keys(CARDS_DATABASE).forEach(cardId => {
+        const card = CARDS_DATABASE[cardId];
+        if (!card) return;
+        const canonicalId = card.playerKey || card.id || cardId;
+        const canonicalName = card.recordName || card.name || canonicalId;
+
+        if (!CANONICAL_PLAYER_NAME_BY_KEY[canonicalId] || card.recordName) {
+            CANONICAL_PLAYER_NAME_BY_KEY[canonicalId] = canonicalName;
+        }
+        if (card.name && !CANONICAL_PLAYER_ID_BY_NAME[card.name]) {
+            CANONICAL_PLAYER_ID_BY_NAME[card.name] = canonicalId;
+        }
+        if (card.recordName && !CANONICAL_PLAYER_ID_BY_NAME[card.recordName]) {
+            CANONICAL_PLAYER_ID_BY_NAME[card.recordName] = canonicalId;
+        }
+    });
+}
+rebuildCanonicalPlayerIndex();
+
+function getCanonicalPlayerId(cardIdOrName) {
+    if (!cardIdOrName || typeof cardIdOrName !== 'string') return cardIdOrName || '';
+    const key = cardIdOrName.trim();
+    if (!key) return '';
+
+    if (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE) {
+        if (CARDS_DATABASE[key]) {
+            const card = CARDS_DATABASE[key];
+            return card.playerKey || card.id || key;
+        }
+        if (CANONICAL_PLAYER_NAME_BY_KEY[key]) {
+            return key;
+        }
+        if (CANONICAL_PLAYER_ID_BY_NAME[key]) {
+            return CANONICAL_PLAYER_ID_BY_NAME[key];
+        }
+        // 동적으로 추가된 테스트용/임시 CARDS_DATABASE 항목 대응
+        const matchedKey = Object.keys(CARDS_DATABASE).find(id => {
+            const c = CARDS_DATABASE[id];
+            return c && (c.playerKey === key || c.name === key || c.recordName === key);
+        });
+        if (matchedKey) {
+            const c = CARDS_DATABASE[matchedKey];
+            return c.playerKey || c.id || matchedKey;
+        }
+    }
+    return key;
+}
+
+function getCanonicalPlayerName(cardIdOrName, fallbackName) {
+    const rawKey = (typeof cardIdOrName === 'string') ? cardIdOrName.trim() : '';
+    const rawFallback = (typeof fallbackName === 'string') ? fallbackName.trim() : '';
+
+    if (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE) {
+        if (rawKey && CARDS_DATABASE[rawKey]) {
+            const card = CARDS_DATABASE[rawKey];
+            const cid = card.playerKey || card.id || rawKey;
+            return card.recordName || CANONICAL_PLAYER_NAME_BY_KEY[cid] || card.name || rawFallback || rawKey;
+        }
+        if (rawKey && CANONICAL_PLAYER_NAME_BY_KEY[rawKey]) {
+            return CANONICAL_PLAYER_NAME_BY_KEY[rawKey];
+        }
+        if (rawKey && CANONICAL_PLAYER_ID_BY_NAME[rawKey]) {
+            const cid = CANONICAL_PLAYER_ID_BY_NAME[rawKey];
+            return CANONICAL_PLAYER_NAME_BY_KEY[cid] || rawFallback || rawKey;
+        }
+        if (rawFallback && CANONICAL_PLAYER_ID_BY_NAME[rawFallback]) {
+            const cid = CANONICAL_PLAYER_ID_BY_NAME[rawFallback];
+            return CANONICAL_PLAYER_NAME_BY_KEY[cid] || rawFallback;
+        }
+        // 동적 카드(테스트 등) 폴백 조회
+        const lookupKey = rawKey || rawFallback;
+        if (lookupKey) {
+            const matchedKey = Object.keys(CARDS_DATABASE).find(id => {
+                const c = CARDS_DATABASE[id];
+                return c && (id === lookupKey || c.playerKey === lookupKey || c.name === lookupKey || c.recordName === lookupKey);
+            });
+            if (matchedKey) {
+                const c = CARDS_DATABASE[matchedKey];
+                return c.recordName || c.name || rawFallback || rawKey;
+            }
+        }
+    }
+    return rawFallback || rawKey;
+}
+
+function isSamePlayer(cardIdA, cardIdB) {
+    if (!cardIdA || !cardIdB) return false;
+    const canonA = getCanonicalPlayerId(cardIdA);
+    const canonB = getCanonicalPlayerId(cardIdB);
+    return !!canonA && canonA === canonB;
+}
+
+function getCardPriorityScoreForDedup(cardId, deckObj) {
+    const card = (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE) ? CARDS_DATABASE[cardId] : null;
+    const deck = deckObj || (typeof playerDeck !== 'undefined' ? playerDeck : null);
+    const deckItem = (deck && deck[cardId]) ? deck[cardId] : null;
+    const baseRating = card ? (Number(card.rating) || 0) : 0;
+    const awakening = deckItem ? (Number(deckItem.awakening) || 0) : 0;
+    const pureAwakenedOvr = baseRating + awakening;
+    let effectiveOvr = pureAwakenedOvr;
+    if (typeof getAwakenedCard === 'function' && card) {
+        try {
+            const awkCard = getAwakenedCard(cardId, deck || undefined);
+            if (awkCard && typeof awkCard.rating === 'number') {
+                effectiveOvr = awkCard.rating;
+            }
+        } catch (e) {}
+    }
+    const rarityScore = card ? (CANONICAL_RARITY_PRIORITY[card.rarity] || 0) : 0;
+    return { pureAwakenedOvr, effectiveOvr, baseRating, rarityScore };
+}
+
+function deduplicateSquadByPlayer(squadObj, deckObj, options = {}) {
+    const result = { changed: false, removed: [] };
+    if (!squadObj || typeof squadObj !== 'object') return result;
+
+    const useNull = options.useNull === true;
+    const groups = {};
+    Object.keys(squadObj).forEach(slot => {
+        const cardId = squadObj[slot];
+        if (!cardId || typeof cardId !== 'string') return;
+        const cid = getCanonicalPlayerId(cardId);
+        if (!groups[cid]) groups[cid] = [];
+        groups[cid].push({ slot, cardId, score: getCardPriorityScoreForDedup(cardId, deckObj) });
+    });
+
+    Object.keys(groups).forEach(cid => {
+        const entries = groups[cid];
+        if (entries.length <= 1) return;
+        entries.sort((a, b) => {
+            if (b.score.pureAwakenedOvr !== a.score.pureAwakenedOvr) return b.score.pureAwakenedOvr - a.score.pureAwakenedOvr;
+            if (b.score.effectiveOvr !== a.score.effectiveOvr) return b.score.effectiveOvr - a.score.effectiveOvr;
+            if (b.score.baseRating !== a.score.baseRating) return b.score.baseRating - a.score.baseRating;
+            return b.score.rarityScore - a.score.rarityScore;
+        });
+        const kept = entries[0];
+        for (let i = 1; i < entries.length; i++) {
+            const drop = entries[i];
+            if (useNull) {
+                squadObj[drop.slot] = null;
+            } else {
+                delete squadObj[drop.slot];
+            }
+            result.changed = true;
+            result.removed.push({
+                slot: drop.slot,
+                cardId: drop.cardId,
+                keptSlot: kept.slot,
+                keptCardId: kept.cardId,
+                canonicalId: cid
+            });
+        }
+    });
+
+    return result;
+}
+
+function mergePlayerGoalsMap(goalsMap) {
+    const merged = {};
+    let changed = false;
+    if (!goalsMap || typeof goalsMap !== 'object') return { merged, changed };
+
+    Object.entries(goalsMap).forEach(([pid, data]) => {
+        const goals = (typeof data === 'number') ? data : (data && typeof data.goals === 'number' ? data.goals : 0);
+        const rawName = (data && typeof data.name === 'string') ? data.name : '';
+        const cid = getCanonicalPlayerId(pid);
+        const cname = getCanonicalPlayerName(pid, rawName || pid);
+        if (cid !== pid || (rawName && cname !== rawName) || merged[cid]) {
+            changed = true;
+        }
+        if (!merged[cid]) {
+            merged[cid] = { name: cname, goals: 0 };
+        } else {
+            merged[cid].name = cname;
+        }
+        merged[cid].goals += goals;
+    });
+
+    return { merged, changed };
+}
+
+function mergePlayerAssistsMap(assistsMap) {
+    const merged = {};
+    let changed = false;
+    if (!assistsMap || typeof assistsMap !== 'object') return { merged, changed };
+
+    Object.entries(assistsMap).forEach(([pid, data]) => {
+        const assists = (typeof data === 'number') ? data : (data && typeof data.assists === 'number' ? data.assists : 0);
+        const rawName = (data && typeof data.name === 'string') ? data.name : '';
+        const cid = getCanonicalPlayerId(pid);
+        const cname = getCanonicalPlayerName(pid, rawName || pid);
+        if (cid !== pid || (rawName && cname !== rawName) || merged[cid]) {
+            changed = true;
+        }
+        if (!merged[cid]) {
+            merged[cid] = { name: cname, assists: 0 };
+        } else {
+            merged[cid].name = cname;
+        }
+        merged[cid].assists += assists;
+    });
+
+    return { merged, changed };
+}
+
+function mergeLeaguePlayerStatsMap(statsMap, userTeamId) {
+    const merged = {};
+    let changed = false;
+    if (!statsMap || typeof statsMap !== 'object') return { merged, changed };
+
+    Object.entries(statsMap).forEach(([pid, entry]) => {
+        if (!entry || typeof entry !== 'object') return;
+        const isUserPlayer = (userTeamId && entry.teamId === userTeamId) ||
+            (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE && !!CARDS_DATABASE[pid]);
+        const targetId = isUserPlayer ? getCanonicalPlayerId(pid) : pid;
+        const targetName = isUserPlayer ? getCanonicalPlayerName(pid, entry.name) : entry.name;
+
+        if (targetId !== pid || targetName !== entry.name || merged[targetId]) {
+            changed = true;
+        }
+        if (!merged[targetId]) {
+            merged[targetId] = {
+                ...entry,
+                id: targetId,
+                name: targetName,
+                goals: Number(entry.goals) || 0,
+                assists: Number(entry.assists) || 0
+            };
+        } else {
+            merged[targetId].name = targetName;
+            merged[targetId].goals += (Number(entry.goals) || 0);
+            merged[targetId].assists += (Number(entry.assists) || 0);
+        }
+    });
+
+    return { merged, changed };
+}
+
+function mergeNameCountMap(countMap) {
+    const merged = {};
+    let changed = false;
+    if (!countMap || typeof countMap !== 'object') return { merged, changed };
+
+    Object.entries(countMap).forEach(([rawName, count]) => {
+        const val = Number(count) || 0;
+        const cname = getCanonicalPlayerName(rawName, rawName);
+        if (cname !== rawName || merged[cname] !== undefined) {
+            changed = true;
+        }
+        merged[cname] = (merged[cname] || 0) + val;
+    });
+
+    return { merged, changed };
+}
+
+function mergeTournamentStatArray(list, statField, userTeamId) {
+    const result = [];
+    const indexMap = {};
+    let changed = false;
+    if (!Array.isArray(list)) return { merged: result, changed };
+
+    list.forEach(item => {
+        if (!item || typeof item !== 'object') return;
+        const isUser = userTeamId ? (item.teamId === userTeamId) : true;
+        const normName = isUser ? getCanonicalPlayerName(item.name, item.name) : item.name;
+        const mapKey = `${item.teamId || ''}::${normName}`;
+        if (normName !== item.name || indexMap[mapKey] !== undefined) {
+            changed = true;
+        }
+        if (indexMap[mapKey] === undefined) {
+            const copy = { ...item, name: normName, [statField]: Number(item[statField]) || 0 };
+            indexMap[mapKey] = result.length;
+            result.push(copy);
+        } else {
+            result[indexMap[mapKey]][statField] += (Number(item[statField]) || 0);
+        }
+    });
+
+    return { merged: result, changed };
+}

@@ -151,8 +151,8 @@ let currentFameLeagueTab = 'kleague1'; // 'kleague1', 'epl', 'jleague', 'ligue1'
 
 let leagueYear = (preloadedUserData && preloadedUserData.leagueYear) ? parseInt(preloadedUserData.leagueYear) || 2026 : 2026;
 let hallOfFame = (preloadedUserData && preloadedUserData.hallOfFame) ? preloadedUserData.hallOfFame : [];
-let careerStats = (preloadedUserData && preloadedUserData.careerStats) ? preloadedUserData.careerStats : { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
-let careerStatsHard = (preloadedUserData && preloadedUserData.careerStatsHard) ? preloadedUserData.careerStatsHard : { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+let careerStats = (preloadedUserData && preloadedUserData.careerStats) ? preloadedUserData.careerStats : { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {}, playerAssists: {} };
+let careerStatsHard = (preloadedUserData && preloadedUserData.careerStatsHard) ? preloadedUserData.careerStatsHard : { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {}, playerAssists: {} };
 if (!preloadedUserData) {
     try {
         const savedStats = localStorage.getItem('fc_star_career_stats');
@@ -162,6 +162,28 @@ if (!preloadedUserData) {
         const savedStatsHard = localStorage.getItem('fc_star_career_stats_hard');
         if (savedStatsHard) careerStatsHard = JSON.parse(savedStatsHard);
     } catch(e) {}
+}
+if (careerStats && !careerStats.playerAssists) careerStats.playerAssists = {};
+if (careerStatsHard && !careerStatsHard.playerAssists) careerStatsHard.playerAssists = {};
+if (typeof mergePlayerGoalsMap === 'function') {
+    if (careerStats && careerStats.playerGoals) {
+        const mergedCareer = mergePlayerGoalsMap(careerStats.playerGoals);
+        if (mergedCareer.changed) careerStats.playerGoals = mergedCareer.merged;
+    }
+    if (careerStatsHard && careerStatsHard.playerGoals) {
+        const mergedCareerHard = mergePlayerGoalsMap(careerStatsHard.playerGoals);
+        if (mergedCareerHard.changed) careerStatsHard.playerGoals = mergedCareerHard.merged;
+    }
+}
+if (typeof mergePlayerAssistsMap === 'function') {
+    if (careerStats && careerStats.playerAssists) {
+        const mergedAssists = mergePlayerAssistsMap(careerStats.playerAssists);
+        if (mergedAssists.changed) careerStats.playerAssists = mergedAssists.merged;
+    }
+    if (careerStatsHard && careerStatsHard.playerAssists) {
+        const mergedAssistsHard = mergePlayerAssistsMap(careerStatsHard.playerAssists);
+        if (mergedAssistsHard.changed) careerStatsHard.playerAssists = mergedAssistsHard.merged;
+    }
 }
 
 let userPvpStats = (preloadedUserData && preloadedUserData.pvpStats) ? preloadedUserData.pvpStats : { w: 0, d: 0, l: 0 };
@@ -511,8 +533,8 @@ function resetStateToDefault() {
     leagueYear = 2026;
     hallOfFame = [];
     leaguePlayerStats = {};
-    careerStats = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
-    careerStatsHard = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} };
+    careerStats = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {}, playerAssists: {} };
+    careerStatsHard = { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {}, playerAssists: {} };
     userPvpStats = { w: 0, d: 0, l: 0 };
     userPvpOpponentStats = {};
     currentFormation = '4-4-2';

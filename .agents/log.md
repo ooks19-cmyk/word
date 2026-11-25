@@ -27,6 +27,81 @@ graph TD
 - **`db.js`**: Firebase Firestore 기반 원격 저장 및 미지원 시 LocalStorage 기반의 가상 로컬 클라우드 전환 처리.
 - **`player/player_data.js`**: 전체 축구선수 카드 스펙(오버롤, 세부 능력치, 포지션 등)을 동적으로 로드.
 
+### ⭐ 명예의 전당 클럽 통산 누적 도움 랭킹(Top 3) 출력 추가 (2026-11-26)
+* **날짜·시간**: 2026-11-26 08:30 (KST)
+* **요청 요약**:
+  - 명예의 전당의 클럽 통산 누적 성적 대시보드에 클럽 통산 누적 도움 기록도 함께 출력되도록 구현.
+* **수행 내용**:
+  1. **동일 선수 통합 도움 병합 헬퍼 추가 (`player_data.js`)**:
+     - `mergePlayerAssistsMap()` 신설로 타 클래스 동일 선수의 통산 도움 기록 자동 합산 지원.
+  2. **통산 도움 상태 초기화·저장·복원 연동 (`db.js`, `js/state.js`, `js/auth.js`)**:
+     - `careerStats` 및 `careerStatsHard`의 기본·리셋·저장·로드 스키마에 `playerAssists: {}` 추가 및 로드 시 `mergePlayerAssistsMap()` 적용.
+  3. **리그·컵·챔스 도움 누적 및 명예의 전당 대시보드 UI 출력 (`js/league.js`, `js/cup.js`, `js/acl.js`)**:
+     - `js/league.js`: `recordSeasonProgressToFame()`에서 시즌 종료/이적 시 우리 팀 선수 도움을 `activeCareer.playerAssists`에 통합 키·기록명으로 누적하고, `renderCareerStatsSub()`에 **클럽 통산 도움 랭킹 (Top 3)** 카드 추가(일반/어려움 모드 지원).
+     - `js/cup.js`, `js/acl.js`: FA컵·챔스 득점 이벤트의 어시스트를 `isHardMode`에 맞춰 `careerStats` / `careerStatsHard`의 `playerAssists`에 실시간 누적.
+  4. **PWA 캐시 및 스크립트 버전 상향 (`index.html`, `sw.js`)**:
+     - `index.html`: 수정된 7개 스크립트 `?v=` 상향 (`player_data.js?v=2.09`, `js/league.js?v=5.7` 등).
+     - `sw.js`: `CACHE_NAME = 'fc-star-v490'` 상향.
+* **변경 파일**: `player_data.js`, `db.js`, `js/state.js`, `js/auth.js`, `js/league.js`, `js/cup.js`, `js/acl.js`, `index.html`, `sw.js`, `tests/canonical_player_identity.test.cjs`, `.agents/progress.md`, `.agents/log.md`
+* **검증 결과**:
+  - 수정된 JS 8종 `node --check` Syntax OK.
+  - `tests/canonical_player_identity.test.cjs`(리그/컵/챔스 통산 도움 누적, 동일 선수 합산, 명예의 전당 대시보드 HTML 렌더링 검증 포함) + 기존 회귀 테스트 5종 100% ALL PASS.
+  - `git diff --check` 결함 0건.
+* **최종 상태**: 완료 (origin/main 원격 브랜치 푸시 완료)
+
+### 🔗 동일 선수 타 클래스 통합 식별(기록 유지) 및 라인업 중복 배치 차단 (2026-11-26)
+* **날짜·시간**: 2026-11-26 08:23 (KST)
+* **요청 요약**:
+  - 전설/월드클래스/슈퍼 등 동일 선수의 여러 클래스 카드가 혼재된 환경에서 득점·도움·통산·업적 기록이 끊기지 않고 통합 유지되도록 처리(방식 A: 카드 표시명 유지 + 내부 통합 키/기록명 적용)하고, 클럽·국대 라인업에서 동일 선수를 중복 배치할 수 없도록 차단(기존 세이브 중복 배치는 최고 OVR 1장만 유지하고 자동 정리).
+* **수행 내용**:
+  1. **선수 통합 식별 메타데이터 및 공통 헬퍼 구축 (`player_data.js`)**:
+     - 중복 실존 선수 12개 그룹 25장(손흥민, 리오넬 메시, 음바페, 기성용, 김승규, 이동국, 김진규, 나상호, 네이마르, 미토마, 이재성, 황인범) 및 향후 대비 슈퍼 카드 2장(`super_maradona`, `super_kaka`)에 `playerKey`·`recordName` 부여.
+     - 카드 UI 표시명(`name`)과 기존 세이브 호환 키(`id`)는 원형 유지.
+     - `getCanonicalPlayerId`, `getCanonicalPlayerName`, `isSamePlayer`, `deduplicateSquadByPlayer`, `mergePlayerGoalsMap`, `mergeLeaguePlayerStatsMap`, `mergeNameCountMap`, `mergeTournamentStatArray` 구현.
+  2. **득점·도움·통산·업적 기록 통합 및 레거시 마이그레이션**:
+     - `js/league.js`: `registerGoal`/`registerAssist`, `renderLeagueStats`, `initLeague`, `recordSeasonProgressToFame`, `renderCareerStatsSub`에서 유저 선수 기록을 통합 키/기록명으로 누적·병합.
+     - `js/cup.js`, `js/acl.js`: 컵/챔스 득점·도움 랭킹 및 `careerStats.playerGoals` 실시간 적립을 통합 키/기록명으로 정규화 및 병합.
+     - `js/national.js`, `js/national_hof.js`: 국대 득점·도움 기록 및 명예의 전당 통산 기록 통합·정규화.
+     - `js/achievements.js`: `getTopPlayerCareerGoals()`에서 타 클래스 득점을 합산하여 300/500/1000골 업적 판정에 반영.
+     - `js/state.js`, `js/auth.js`: 로컬/클라우드 로드 시 기존 분할 득점 기록 및 중복 포메이션 자동 마이그레이션.
+  3. **클럽·국대 라인업 동일 선수 중복 배치 차단 및 자동 정리 (`js/squad.js`, `js/national_squad.js`)**:
+     - 다른 슬롯에 동일 선수가 이미 배치된 경우 드로어 UI에서 `동일 선수 다른 자리에 배치됨` / `선택 불가` 표시 및 배치 함수 하드 가드 적용.
+     - 동일 슬롯 내 업그레이드/클래스 변경(`교체`)은 정상 허용.
+     - 기존 세이브에 동일 선수가 2자리 이상 배치된 경우 로드/렌더링 시 최고 OVR 카드 1장만 남기고 하위 카드 슬롯 자동 해제.
+  4. **PWA 캐시 및 데이터 동기화 (`index.html`, `sw.js`, `선수데이터.csv`)**:
+     - `index.html`: 수정된 11개 스크립트 `?v=` 캐시 버스팅 버전 상향.
+     - `sw.js`: `CACHE_NAME = 'fc-star-v489'` 상향 (`IMAGE_CACHE_NAME` 유지).
+     - `선수데이터.csv`: `convert_js_to_csv.py` 실행으로 118명(119행) 동기화.
+* **변경 파일**: `player_data.js`, `js/state.js`, `js/auth.js`, `js/squad.js`, `js/national_squad.js`, `js/league.js`, `js/cup.js`, `js/acl.js`, `js/national.js`, `js/national_hof.js`, `js/achievements.js`, `index.html`, `sw.js`, `선수데이터.csv`, `tests/canonical_player_identity.test.cjs`, `.agents/progress.md`, `.agents/log.md`
+* **검증 결과**:
+  - 수정된 JS 12종 `node --check` Syntax OK.
+  - 신규 단위/통합 테스트 `tests/canonical_player_identity.test.cjs` PASS (12그룹 매핑, 리그/컵/아챔/국대/업적 기록 통합, 클럽/국대 중복 배치 차단, 동일 슬롯 교체 허용, 레거시 세이브 최고 OVR 기준 자동 정리 검증).
+  - 기존 회귀 테스트 5종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `market_mode`, `quiz_subjective`) 100% ALL PASS.
+  - `선수데이터.csv` 118명(119행) 정상 변환, `git diff --check` 결함 0건.
+* **최종 상태**: 완료 (사용자 확인 및 깃 커밋·푸시 대기)
+
+### ⚡ 'S카카' 슈퍼(Super) 선수 카드 오버롤(OVR 95) 수정 및 DB/CSV 동기화 (2026-11-26)
+* **날짜·시간**: 2026-11-26 07:39 (KST)
+* **요청 요약**:
+  - '카카 오버롤 95로 수정' 요청에 따른 `super_kaka` OVR 95 상향 및 세부 스탯 밸런싱, PWA 캐시 갱신, CSV 동기화.
+* **수행 내용**:
+  1. **카드 데이터 수정 (`player_data.js`)**:
+     - `super_kaka` (S카카, `super`, `AM`, `AC MILAN`, `player2/카카.webp`):
+       - OVR(rating): `94` $\rightarrow$ **`95`**
+       - 6대 능력치 밸런싱: `PAC 95, SHO 93, PAS 94, DRI 96, DEF 49, PHY 82` (전 스탯 +1 상향, 총합 509)
+  2. **PWA 캐시 및 브라우저 스크립트 버전 상향**:
+     - `index.html`: `player_data.js?v=2.07` 상향.
+     - `sw.js`: `CACHE_NAME = 'fc-star-v488'` 상향.
+  3. **`선수데이터.csv` 자동 동기화**:
+     - `convert_js_to_csv.py` 실행으로 118명(119행) 동기화 완료.
+* **변경 파일**: `player_data.js`, `index.html`, `sw.js`, `선수데이터.csv`, `.agents/progress.md`, `.agents/log.md`
+* **검증 결과**:
+  - `node --check player_data.js sw.js` Syntax OK.
+  - `player_data.js` / `index.html` / `sw.js` / `선수데이터.csv` (119행) OVR 95 및 6대 스탯 일치 검증 PASS.
+  - 회귀 테스트 5종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `market_mode`, `quiz_subjective`) 100% ALL PASS.
+  - `git diff --check` 결함 0건.
+* **최종 상태**: 완료 (사용자 확인 및 깃 커밋·푸시 대기)
+
 ### 🔐 리그 페이지 라운드 숫자 클릭 시 비밀번호 인증 `checkSeasonChampion()` 실행 연동 (2026-11-23)
 * **날짜·시간**: 2026-11-23 20:10 (KST)
 * **요청 요약**:
@@ -45,6 +120,7 @@ graph TD
   - `node --check js/league.js sw.js` Syntax OK 및 `vm` 기반 `promptCheckSeasonChampion()` 시나리오(취소/오류/정답) 검증 통과.
   - 기존 회귀 테스트 5종(`cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `market_mode`, `quiz_subjective`) 100% PASS.
   - `git diff --check` 결함 0건.
+* **최종 상태**: 완료 (사용자 확인 및 깃 커밋·푸시 대기)
 * **최종 상태**: 완료 (origin/main 원격 브랜치 푸시 완료)
 
 ### 🗑️ Firebase Firestore 유저 데이터(`id: vc`) 영구 삭제 (2026-11-18)

@@ -202,7 +202,7 @@ const dbService = {
             leagueYear: 2026, // 리그 연도
             hallOfFame: [], // 명예의 전당 기록
             leaguePlayerStats: {}, // 리그 선수 개인 스탯 기록
-            careerStats: { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {} }, // 통산 성적
+            careerStats: { w: 0, d: 0, l: 0, gf: 0, ga: 0, playerGoals: {}, playerAssists: {} }, // 통산 성적
             pvpStats: { w: 0, d: 0, l: 0 }, // 실시간 PvP 전적
             pvpOpponentStats: {}, // 상대방별 PvP 전적
             cupState: null, // 코리아컵 대회 진행도 및 스탯

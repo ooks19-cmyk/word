@@ -67,10 +67,16 @@ function normalizeNationalSquadPreset(nationId) {
         NATIONAL_FORMATIONS.forEach(formation=>{
             const squad=raw.formations[formation]||{};
             raw.formations[formation]=Object.fromEntries(NATIONAL_SQUAD_SLOTS.map(slot=>[slot,squad[slot]||null]));
+            if (typeof deduplicateSquadByPlayer === 'function') {
+                deduplicateSquadByPlayer(raw.formations[formation], typeof playerDeck !== 'undefined' ? playerDeck : null, { useNull: true });
+            }
         });
         return raw;
     }
     const migrated={currentFormation:'4-3-3',formations:{'4-3-3':Object.fromEntries(NATIONAL_SQUAD_SLOTS.map(slot=>[slot,raw[slot]||null]))},styleSettingsVersion:false,wingerStyles:{},strikerStyles:{}};
+    if (typeof deduplicateSquadByPlayer === 'function') {
+        deduplicateSquadByPlayer(migrated.formations['4-3-3'], typeof playerDeck !== 'undefined' ? playerDeck : null, { useNull: true });
+    }
     nationalSquadPresets[nationId]=migrated;
     try { localStorage.setItem('fc_star_national_squad_presets',JSON.stringify(nationalSquadPresets)); } catch(e) {}
     return migrated;
@@ -156,7 +162,14 @@ function canBuildNationalSquad(nationId, formation = null) {
     const ordered = NATIONAL_SQUAD_SLOTS.map((slot,i) => ({slot,list:candidates[i]})).sort((a,b) => a.list.length-b.list.length);
     const assign = index => {
         if (index === ordered.length) return true;
-        return ordered[index].list.some(id => { if (used.has(id)) return false; used.add(id); if (assign(index + 1)) return true; used.delete(id); return false; });
+        return ordered[index].list.some(id => {
+            const cid = (typeof getCanonicalPlayerId === 'function') ? getCanonicalPlayerId(id) : id;
+            if (used.has(cid)) return false;
+            used.add(cid);
+            if (assign(index + 1)) return true;
+            used.delete(cid);
+            return false;
+        });
     };
     return assign(0) ? { ok:true } : { ok:false, missing:['중복 없이 배치 가능한 선수'] };
 }
@@ -165,8 +178,9 @@ function isNationalSquadComplete(state) {
     const formation=normalizeNationalFormation(state.formation),used=new Set();
     return NATIONAL_SQUAD_SLOTS.every(slot=>{
         const id=state.squad[slot];
-        if(!id||used.has(id)||!getNationalEligibleCards(state.selectedNationId,slot,formation).includes(id))return false;
-        used.add(id);
+        const cid = (id && typeof getCanonicalPlayerId === 'function') ? getCanonicalPlayerId(id) : id;
+        if(!id||used.has(cid)||!getNationalEligibleCards(state.selectedNationId,slot,formation).includes(id))return false;
+        used.add(cid);
         return true;
     });
 }
@@ -255,6 +269,12 @@ function nationalPlayerStyleSettingsHtml(state, formation, slot) {
 }
 function renderNationalSquadEditor() {
     const root=document.getElementById('nationalSquadEditor'),state=getNationalModeState();if(!root||!state||!state.selectedNationId)return;
+    if (typeof deduplicateSquadByPlayer === 'function' && state.squad) {
+        const dedupRes = deduplicateSquadByPlayer(state.squad, typeof playerDeck !== 'undefined' ? playerDeck : null, { useNull: true });
+        if (dedupRes.changed) {
+            rememberNationalSquadPreset(state);
+        }
+    }
     const config=getNationalTeamConfig(state.selectedNationId),summary=getNationalSquadSummary(state),stats=summary.stats;
     const statRows=[['pac','PAC','속도'],['sho','SHO','슛'],['pas','PAS','패스'],['dri','DRI','드리블'],['def','DEF','수비'],['phy','PHY','피지컬']];
     const formation=normalizeNationalFormation(state.formation);
@@ -275,7 +295,7 @@ function renderNationalCandidates(){
     let html=styleSettings;
     if(assigned)html+=`<button class="btn-release-player" onclick="releaseNationalCard()"><i class="fa-solid fa-user-minus"></i> 배치 해제</button>`;
     if(!candidates.length)html+='<div class="empty-drawer-state"><i class="fa-regular fa-face-frown"></i><p>이 자리에 배치할 수 있는 보유 카드가 없습니다.</p></div>';
-    else html+=candidates.map(id=>{const base=CARDS_DATABASE[id],card=getAwakenedCard(id),used=Object.entries(state.squad).some(([slot,placed])=>slot!==nationalSelectedSlot&&placed===id),stats=card.stats||base.stats||{};return `<div class="drawer-card-item ${used?'national-card-used':''}"><div class="drawer-card-info"><div class="drawer-card-thumb"><img src="${base.image}" alt="${base.name}" loading="lazy" decoding="async" onerror="this.style.display='none'"></div><div class="drawer-card-details"><h4>${base.name} <span>OVR ${card.rating}</span></h4><p>${base.position} · ${used?'다른 자리에 배치됨':'기용 가능'}</p><div class="national-drawer-stats"><span>PAC ${stats.pac??'-'}</span><span>SHO ${stats.sho??'-'}</span><span>PAS ${stats.pas??'-'}</span><span>DRI ${stats.dri??'-'}</span><span>DEF ${stats.def??'-'}</span><span>PHY ${stats.phy??'-'}</span></div></div></div><button class="btn-select-player" onclick="assignNationalCard('${id}')">${assigned===id?'선택됨':'선택'}</button></div>`;}).join('');
+    else html+=candidates.map(id=>{const base=CARDS_DATABASE[id],card=getAwakenedCard(id),usedSamePlayerElsewhere=Object.entries(state.squad).some(([slot,placed])=>slot!==nationalSelectedSlot&&placed&&(typeof isSamePlayer==='function'?isSamePlayer(placed,id):placed===id)),isSamePlayerCurrentSlot=assigned&&assigned!==id&&(typeof isSamePlayer==='function'&&isSamePlayer(assigned,id)),stats=card.stats||base.stats||{};const statusLabel=usedSamePlayerElsewhere?'동일 선수 다른 자리에 배치됨':(isSamePlayerCurrentSlot?'교체 가능 (동일 선수)':'기용 가능');const actionButton=usedSamePlayerElsewhere?'<button class="btn-select-player" disabled style="opacity:0.45;cursor:not-allowed;">선택 불가</button>':`<button class="btn-select-player" onclick="assignNationalCard('${id}')">${assigned===id?'선택됨':(isSamePlayerCurrentSlot?'교체':'선택')}</button>`;return `<div class="drawer-card-item ${usedSamePlayerElsewhere?'national-card-used':''}"><div class="drawer-card-info"><div class="drawer-card-thumb"><img src="${base.image}" alt="${base.name}" loading="lazy" decoding="async" onerror="this.style.display='none'"></div><div class="drawer-card-details"><h4>${base.name} <span>OVR ${card.rating}</span></h4><p>${base.position} · ${statusLabel}</p><div class="national-drawer-stats"><span>PAC ${stats.pac??'-'}</span><span>SHO ${stats.sho??'-'}</span><span>PAS ${stats.pas??'-'}</span><span>DRI ${stats.dri??'-'}</span><span>DEF ${stats.def??'-'}</span><span>PHY ${stats.phy??'-'}</span></div></div></div>${actionButton}</div>`;}).join('');
     box.innerHTML=html;
 }
 function changeNationalFormation(formation){
@@ -291,5 +311,5 @@ function changeNationalFormation(formation){
     renderNationalMode();
     if(typeof showToast==='function')showToast(`⚽ 국대 포메이션이 ${next}(으)로 변경되었습니다.`);
 }
-function assignNationalCard(cardId){const state=getNationalModeState();if(!state||!nationalSelectedSlot||!getNationalEligibleCards(state.selectedNationId,nationalSelectedSlot,state.formation).includes(cardId))return;Object.keys(state.squad).forEach(slot=>{if(state.squad[slot]===cardId)state.squad[slot]=null;});state.squad[nationalSelectedSlot]=cardId;nationalSelectedSlot=null;rememberNationalSquadPreset(state);renderNationalMode();}
+function assignNationalCard(cardId){const state=getNationalModeState();if(!state||!nationalSelectedSlot||!getNationalEligibleCards(state.selectedNationId,nationalSelectedSlot,state.formation).includes(cardId))return;const duplicateSlot=Object.keys(state.squad).find(slot=>slot!==nationalSelectedSlot&&state.squad[slot]&&(typeof isSamePlayer==='function'?isSamePlayer(state.squad[slot],cardId):state.squad[slot]===cardId));if(duplicateSlot){const base=CARDS_DATABASE[cardId];const canonicalName=(typeof getCanonicalPlayerName==='function')?getCanonicalPlayerName(cardId,base?base.name:cardId):(base?base.name:cardId);if(typeof showToast==='function')showToast(`❌ 같은 선수(${canonicalName})는 라인업에 중복 배치할 수 없습니다! (${getNationalSlotLabel(duplicateSlot,state.formation)} 자리에 배치됨)`);return;}state.squad[nationalSelectedSlot]=cardId;nationalSelectedSlot=null;rememberNationalSquadPreset(state);renderNationalMode();}
 function releaseNationalCard(){const state=getNationalModeState();if(!state||!nationalSelectedSlot)return;state.squad[nationalSelectedSlot]=null;nationalSelectedSlot=null;rememberNationalSquadPreset(state);renderNationalMode();}

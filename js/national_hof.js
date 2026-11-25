@@ -56,13 +56,20 @@ function renderNationalHallOfFame(targetNationId) {
         else if (res.includes('4강') || res.includes('3위') || res.includes('4위')) semiFinalCount++;
     });
 
-    // 득점 및 도움 순위 Top 5
-    const topScorers = Object.entries(career.playerGoals || {})
+    // 득점 및 도움 순위 Top 5 (동일 선수 타 클래스 기록 통합)
+    const normalizedGoals = (typeof mergeNameCountMap === 'function')
+        ? mergeNameCountMap(career.playerGoals || {}).merged
+        : (career.playerGoals || {});
+    const normalizedAssists = (typeof mergeNameCountMap === 'function')
+        ? mergeNameCountMap(career.playerAssists || {}).merged
+        : (career.playerAssists || {});
+
+    const topScorers = Object.entries(normalizedGoals)
         .filter(([_, goals]) => goals > 0)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 5);
 
-    const topAssisters = Object.entries(career.playerAssists || {})
+    const topAssisters = Object.entries(normalizedAssists)
         .filter(([_, assists]) => assists > 0)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 5);

@@ -1,4 +1,44 @@
 ## 현재 작업
+- 목표: 명예의 전당 클럽 통산 누적 도움 기록(`playerAssists`) 누적·통합 및 대시보드 Top 3 랭킹 출력 추가
+- 상태: 완료
+- 주요 변경 및 검증 결과:
+  1. `player_data.js`: 동일 선수 타 클래스 도움 기록 통합 헬퍼 `mergePlayerAssistsMap()` 추가.
+  2. `db.js`, `js/state.js`, `js/auth.js`: `careerStats` / `careerStatsHard` 초기·복원·저장 구조에 `playerAssists: {}` 추가 및 로드 시 자동 병합.
+  3. `js/league.js`: 시즌 종료·이적 시 `recordSeasonProgressToFame()`에서 `playerAssists`를 동일 선수 통합 ID/이름 기준으로 누적하고, 명예의 전당 대시보드(`renderCareerStatsSub()`)에 **클럽 통산 도움 랭킹 (Top 3)** 패널 출력 추가(일반/어려움 모드 공통 지원).
+  4. `js/cup.js`, `js/acl.js`: FA컵·챔스 경기 도움 발생 시 활성 커리어(`careerStats` / `careerStatsHard`)의 `playerAssists`에 동일 선수 통합 기준으로 실시간 누적.
+  5. `index.html`, `sw.js`: 수정 스크립트 7종 `?v=` 상향 및 `CACHE_NAME = 'fc-star-v490'` 상향.
+  6. 검증: 8개 JS 구문 검사 OK, `tests/canonical_player_identity.test.cjs`(통산 도움 누적·통합·대시보드 렌더링 포함) + 회귀 테스트 5종 100% ALL PASS, `git diff --check` 결함 0건.
+- 다음 단계: 완료 (origin/main 원격 브랜치 푸시 완료)
+
+## 이전 작업
+- 목표: 동일 선수 타 클래스 카드 통합 식별(`playerKey`/`recordName`)로 득점·도움·통산·업적 기록 유지 및 클럽·국대 라인업 동일 선수 중복 배치 차단(기존 세이브 최고 OVR 기준 자동 정리 포함)
+- 상태: 완료
+- 주요 변경 및 검증 결과:
+  1. `player_data.js`: 12개 중복 선수 그룹(25장) + `super_maradona`/`super_kaka`(2장) 총 27장에 `playerKey`·`recordName` 추가(방식 A: 카드 UI 표시명과 `id` 원형 유지). 전역 헬퍼(`getCanonicalPlayerId`, `getCanonicalPlayerName`, `isSamePlayer`, `deduplicateSquadByPlayer`, `mergePlayerGoalsMap`, `mergeLeaguePlayerStatsMap`, `mergeNameCountMap`, `mergeTournamentStatArray`) 추가.
+  2. 기록 통합 및 기존 세이브 자동 마이그레이션 (`js/league.js`, `js/cup.js`, `js/acl.js`, `js/national.js`, `js/national_hof.js`, `js/achievements.js`, `js/state.js`, `js/auth.js`):
+     - 리그 득점/도움, 시즌 득점왕/도움왕, 클럽 통산 득점(`careerStats`/`careerStatsHard`), FA컵/챔스 득점·도움, 국대 득점·도움/명예의 전당, 통산 득점 업적(300/500/1000골)이 모두 동일 선수 기준으로 합산·유지되도록 통합.
+     - 로그인/로드/렌더링 시 기존 분산 저장 기록 자동 병합.
+  3. 라인업 동일 선수 중복 배치 차단 및 기존 세이브 자동 정리 (`js/squad.js`, `js/national_squad.js`, `js/auth.js`):
+     - 클럽 스쿼드 및 국가대표 스쿼드에서 다른 슬롯에 동일 선수의 타 클래스 카드가 배치돼 있으면 선택 불가 처리 및 배치 가드 적용.
+     - 동일 슬롯 내 업그레이드/교체(`교체` 버튼)는 정상 허용.
+     - 기존 세이브에 동일 선수가 2자리 이상 배치된 경우 로드/렌더링 시 최고 OVR 카드 1장만 유지하고 하위 슬롯 자동 해제.
+  4. 캐시·CSV 동기화 및 검증 (`index.html`, `sw.js`, `선수데이터.csv`, `tests/canonical_player_identity.test.cjs`):
+     - `index.html` 수정 스크립트 11종 `?v=` 버전 상향, `sw.js` `CACHE_NAME = 'fc-star-v489'` 상향, `선수데이터.csv` 118명(119행) 동기화.
+     - 12개 JS 구문 검사 PASS, 신규 통합 테스트(`tests/canonical_player_identity.test.cjs`) + 기존 회귀 테스트 5종 100% ALL PASS, `git diff --check` 결함 0건.
+- 다음 단계: 완료 보고 (사용자 확인 및 깃 커밋·푸시 대기)
+
+## 이전 작업
+- 목표: 'S카카' 슈퍼(super) 등급 선수 카드 오버롤 수정 (94 -> 95) 및 능력치 밸런싱, DB/CSV 동기화, PWA 캐시 갱신
+- 상태: 완료
+- 주요 변경 및 검증 결과:
+  1. `player_data.js`: `super_kaka` (S카카) OVR `94` -> `95` 상향 및 6대 스탯 밸런싱(`PAC 95, SHO 93, PAS 94, DRI 96, DEF 49, PHY 82`, 총합 509) 완료.
+  2. `index.html`: `player_data.js?v=2.07` 캐시 버전 상향.
+  3. `sw.js`: PWA 서비스 워커 `CACHE_NAME = 'fc-star-v488'` 상향.
+  4. `선수데이터.csv`: `convert_js_to_csv.py` 스크립트를 통한 118명 데이터 동기화 완료 (119행).
+  5. 무결성 검증: JS 구문 검사(`node --check`), CSV/HTML/SW 정합성 검증, 전체 회귀 테스트 5종 PASS.
+- 다음 단계: 완료 보고 (사용자 확인 및 깃 커밋·푸시 대기)
+
+## 이전 작업
 - 목표: 리그 페이지 라운드 숫자 클릭 시 비밀번호 검증 후 `checkSeasonChampion()` 실행 기능 구현
 - 상태: 완료
 - 주요 변경 및 검증 결과:
@@ -9,6 +49,7 @@
      - `index.html`: `js/league.js?v=5.5`
      - `sw.js`: `CACHE_NAME = 'fc-star-v487'`
   3. 무결성 검증: Node.js 구문 검사, DOM/로직 단위 검증 및 회귀 테스트 통과.
+- 다음 단계: 완료 보고 (사용자 확인 및 깃 커밋·푸시 대기)
 - 다음 단계: 완료 (origin/main 원격 브랜치 푸시 완료)
 
 ## 이전 작업

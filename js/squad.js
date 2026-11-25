@@ -35,6 +35,22 @@ try {
     console.warn("Error loading squadFormations, fallback to defaults.", e);
 }
 
+if (typeof deduplicateSquadByPlayer === 'function') {
+    let squadDedupChanged = false;
+    ['4-4-2', '4-3-3', '3-4-3', '5-4-1', '4-2-3-1'].forEach(f => {
+        if (squadFormations[f] && typeof squadFormations[f] === 'object') {
+            const res = deduplicateSquadByPlayer(squadFormations[f], typeof playerDeck !== 'undefined' ? playerDeck : null);
+            if (res.changed) squadDedupChanged = true;
+        }
+    });
+    if (squadDedupChanged) {
+        try {
+            localStorage.setItem('fc_star_squad_formations', JSON.stringify(squadFormations));
+            localStorage.setItem('fc_star_squad_formation', JSON.stringify(squadFormations[currentFormation] || {}));
+        } catch (e) {}
+    }
+}
+
 squadFormation = squadFormations[currentFormation];
 
 // 11 Key tactical board positions
@@ -168,6 +184,15 @@ function getFormationDisplayPosition(position, formation = currentFormation) {
 }
 
 function renderSquadFormation() {
+    if (typeof deduplicateSquadByPlayer === 'function' && squadFormation) {
+        const dedupRes = deduplicateSquadByPlayer(squadFormation, typeof playerDeck !== 'undefined' ? playerDeck : null);
+        if (dedupRes.changed) {
+            try {
+                localStorage.setItem('fc_star_squad_formations', JSON.stringify(squadFormations));
+                localStorage.setItem('fc_star_squad_formation', JSON.stringify(squadFormation));
+            } catch (e) {}
+        }
+    }
     let totalOvr = 0;
     
     TACTICAL_POSITIONS.forEach(pos => {
@@ -530,7 +555,14 @@ function openCardSelector(position) {
         const item = playerDeck[key];
         const card = getAwakenedCard(key); // 각성된 카드 능력치/스펙 동적 계산 반영
         
-        // Count how many of this card are currently placed in the formation to prevent duplicate usage exceeding the collected quantity
+        // Check if this card or another class of the same player is already placed in the formation
+        const isCurrentSlot = assignedPlayerId === key;
+        const isSamePlayerElsewhere = Object.keys(squadFormation).some(p =>
+            p !== position &&
+            squadFormation[p] &&
+            (typeof isSamePlayer === 'function' ? isSamePlayer(squadFormation[p], key) : squadFormation[p] === key)
+        );
+        const isSamePlayerCurrentSlot = !isCurrentSlot && !!assignedPlayerId && (typeof isSamePlayer === 'function' && isSamePlayer(assignedPlayerId, key));
         let placedCount = 0;
         Object.keys(squadFormation).forEach(p => {
             if (squadFormation[p] === key) placedCount++;
@@ -543,13 +575,10 @@ function openCardSelector(position) {
         // Render item row
         const row = document.createElement('div');
         row.className = 'drawer-card-item';
-        if (!isCompatible) {
+        if (!isCompatible || isSamePlayerElsewhere) {
             row.style.opacity = '0.55';
             row.style.transition = 'opacity 0.2s ease';
         }
-        
-        // Check if this card is already assigned *to this specific slot*
-        const isCurrentSlot = assignedPlayerId === key;
         
         // 추천 태그 및 OVR 조건 충족 배지 삽입
         let recTagHtml = '';
@@ -594,7 +623,14 @@ function openCardSelector(position) {
         }
         
         const awkLabel = card.awakening > 0 ? `<span style="color: #ffd700; font-weight: 800; font-size: 0.8rem; margin-left: 5px;">★ ${card.awakening}</span>` : '';
-        const statusText = availableCount > 0 ? `<span style="color: #00ff87; font-weight: 600;">기용 가능</span>` : `<span style="color: var(--text-muted);">다른 자리에 배치됨</span>`;
+        let statusText = `<span style="color: #00ff87; font-weight: 600;">기용 가능</span>`;
+        if (isSamePlayerElsewhere) {
+            statusText = `<span style="color: #ff9f43; font-weight: 600;">동일 선수 다른 자리에 배치됨</span>`;
+        } else if (isSamePlayerCurrentSlot) {
+            statusText = `<span style="color: #00d2fc; font-weight: 600;">교체 가능 (동일 선수)</span>`;
+        } else if (!isCurrentSlot && availableCount <= 0) {
+            statusText = `<span style="color: var(--text-muted);">다른 자리에 배치됨</span>`;
+        }
         
         const stats = card.stats || { pac: 70, sho: 70, pas: 70, dri: 70, def: 70, phy: 70 };
         row.innerHTML = `
@@ -632,7 +668,7 @@ function openCardSelector(position) {
             actionBtn.style.border = '1px solid rgba(255, 62, 108, 0.2)';
             actionBtn.style.cursor = 'not-allowed';
             actionBtn.innerText = '포지션 제한';
-        } else if (availableCount <= 0) {
+        } else if (isSamePlayerElsewhere || (!isSamePlayerCurrentSlot && availableCount <= 0)) {
             actionBtn.className = 'btn-select-player';
             actionBtn.style.background = 'rgba(255, 255, 255, 0.05)';
             actionBtn.style.color = 'var(--text-muted)';
@@ -640,7 +676,7 @@ function openCardSelector(position) {
             actionBtn.innerText = '선택 불가';
         } else {
             actionBtn.className = 'btn-select-player';
-            actionBtn.innerText = '선택';
+            actionBtn.innerText = isSamePlayerCurrentSlot ? '교체' : '선택';
             actionBtn.onclick = () => selectPlayerForPosition(key);
         }
         
@@ -660,6 +696,19 @@ function selectPlayerForPosition(cardId) {
     
     if (!isPositionCompatible(displayTitle, card.position)) {
         showToast(`❌ 이 포지션(${displayTitle})에는 ${typeof formatCardPosition === 'function' ? formatCardPosition(card.position) : (card.position === 'CAM' ? 'AM' : card.position)} 선수를 배치할 수 없습니다!`);
+        return;
+    }
+
+    // 동일 선수(다른 클래스 포함) 라인업 중복 배치 차단 (동일 슬롯 업그레이드/교체는 허용)
+    const duplicateSlot = Object.keys(squadFormation).find(p =>
+        p !== activeSelectorPosition &&
+        squadFormation[p] &&
+        (typeof isSamePlayer === 'function' ? isSamePlayer(squadFormation[p], cardId) : squadFormation[p] === cardId)
+    );
+    if (duplicateSlot) {
+        const canonicalName = (typeof getCanonicalPlayerName === 'function') ? getCanonicalPlayerName(cardId, card.name) : card.name;
+        const dupDisplayPos = getFormationDisplayPosition(duplicateSlot);
+        showToast(`❌ 같은 선수(${canonicalName})는 라인업에 중복 배치할 수 없습니다! (${dupDisplayPos} 자리에 배치됨)`);
         return;
     }
     
