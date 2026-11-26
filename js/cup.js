@@ -166,7 +166,11 @@ function resetCupStateData() {
     const config = (typeof getActiveLeagueConfig === 'function') ? getActiveLeagueConfig() : null;
     const isEpl = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'epl');
     const isJLeague = (typeof currentLeagueId !== 'undefined' && currentLeagueId === 'jleague');
-    const maxCap = (config && config.maxOvrCap) ? config.maxOvrCap : (isEpl ? 99 : (isJLeague ? 97 : 95));
+    const maxCap = (config && config.maxOvrCap)
+        ? config.maxOvrCap
+        : ((typeof getLeagueMaxOvrCap === 'function')
+            ? getLeagueMaxOvrCap(typeof currentLeagueId !== 'undefined' ? currentLeagueId : 'kleague1')
+            : (isEpl ? 99 : (isJLeague ? 97 : 95)));
     const top20Ovr = (typeof getPlayerTop20Ovr === 'function') ? getPlayerTop20Ovr(maxCap) : 70;
     const preset = getActiveCupTeamsPreset();
     

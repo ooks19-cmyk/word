@@ -1,7 +1,8 @@
-const CACHE_NAME = 'fc-star-v490';
+const CACHE_NAME = 'fc-star-v491';
 const IMAGE_CACHE_NAME = 'fc-star-images-v1';
 const ASSETS = [
   './index.html',
+  './difficulty_config.json',
   './style.css',
   './css/global.css',
   './css/card.css',
@@ -19,6 +20,7 @@ const ASSETS = [
   './js/market.js',
   './js/deck.js',
   './js/squad.js',
+  './js/difficulty_config.js',
   './js/match_algorithm.js',
   './js/league.js',
   './js/cup.js',

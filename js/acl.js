@@ -194,20 +194,23 @@ function resetAclStateData() {
             initializedTeams.push({ id: team.id, name: team.name, rating: team.rating, color: team.color || '#2563eb' });
         });
 
-        // 유럽 12대 명문 구단 추가 (OVR을 플레이어 OVR 기준 보정)
+        // 유럽 12대 명문 구단 추가 (OVR을 플레이어 OVR 기준 보정 + difficulty_config 상한 적용)
+        const uclCaps = (typeof getChampionsLeagueOvrCaps === 'function')
+            ? getChampionsLeagueOvrCaps('ucl')
+            : { bossMaxOvrCap: 101, strongMaxOvrCap: 99, darkhorseMaxOvrCap: 97 };
         presetTeams.forEach(team => {
             let adjustedRating = team.rating;
             if (["real_madrid", "bayern_munchen"].includes(team.id)) {
-                // 초강호 보스팀: 플레이어 상위20개 평균 OVR + (1~2)
-                adjustedRating = Math.max(88, top20Ovr + Math.floor(Math.random() * 2) + 1);
+                // 초강호 보스팀: 플레이어 상위11개 평균 OVR + (1~2), 상한 캡 적용
+                adjustedRating = Math.min(uclCaps.bossMaxOvrCap, Math.max(88, top20Ovr + Math.floor(Math.random() * 2) + 1));
             } else if (["barcelona", "psg", "liverpool", "inter_milan", "leverkusen"].includes(team.id)) {
-                // 강호팀: 플레이어 상위20개 평균 OVR + (0~-2)
+                // 강호팀: 플레이어 상위11개 평균 OVR + (0~-2), 상한 캡 적용
                 const offset = Math.floor(Math.random() * 3) - 2;
-                adjustedRating = Math.max(85, top20Ovr + offset);
+                adjustedRating = Math.min(uclCaps.strongMaxOvrCap, Math.max(85, top20Ovr + offset));
             } else {
-                // 다크호스: 플레이어 상위20개 평균 OVR - (2~6)
+                // 다크호스: 플레이어 상위11개 평균 OVR - (2~6), 상한 캡 적용
                 const offset = Math.floor(Math.random() * 5) - 6;
-                adjustedRating = Math.max(80, top20Ovr + offset);
+                adjustedRating = Math.min(uclCaps.darkhorseMaxOvrCap, Math.max(80, top20Ovr + offset));
             }
             initializedTeams.push({
                 id: team.id,
@@ -345,16 +348,20 @@ function resetAclStateData() {
         const chosenBossWestTeamId = westTeamIds[Math.floor(Math.random() * westTeamIds.length)];
         const strongAclTeams = ["vissel_kobe", "yokohama_marinos", "kawasaki_frontale", "ulsan_hd", "al_hilal", "al_nassr", "al_ahli", "al_itihad", "al_ain", "al_sadd"];
 
+        const aclCaps = (typeof getChampionsLeagueOvrCaps === 'function')
+            ? getChampionsLeagueOvrCaps('acl')
+            : { bossMaxOvrCap: 100, strongMaxOvrCap: 99, normalMaxOvrCap: 97 };
+
         foreignPool.slice(0, 13).forEach(team => {
             let adjustedRating;
             if (team.id === chosenBossWestTeamId) {
-                adjustedRating = Math.max(55, top20Ovr + 1);
+                adjustedRating = Math.min(aclCaps.bossMaxOvrCap, Math.max(55, top20Ovr + 1));
             } else if (strongAclTeams.includes(team.id)) {
                 const offset = Math.floor(Math.random() * 3) - 2;
-                adjustedRating = Math.max(55, top20Ovr + offset);
+                adjustedRating = Math.min(aclCaps.strongMaxOvrCap, Math.max(55, top20Ovr + offset));
             } else {
                 const offset = Math.floor(Math.random() * 9) - 10;
-                adjustedRating = Math.max(55, top20Ovr + offset);
+                adjustedRating = Math.min(aclCaps.normalMaxOvrCap, Math.max(55, top20Ovr + offset));
             }
             initializedTeams.push({
                 id: team.id,

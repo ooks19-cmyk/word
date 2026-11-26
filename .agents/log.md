@@ -27,6 +27,43 @@ graph TD
 - **`db.js`**: Firebase Firestore 기반 원격 저장 및 미지원 시 LocalStorage 기반의 가상 로컬 클라우드 전환 처리.
 - **`player/player_data.js`**: 전체 축구선수 카드 스펙(오버롤, 세부 능력치, 포지션 등)을 동적으로 로드.
 
+### 🎛️ 상대팀 OVR 단일 JSON 관리 전환 및 난이도 조절 대시보드·원클릭 Git Push 구현 (2026-11-26)
+* **날짜·시간**: 2026-11-26 10:35 (KST)
+* **요청 요약**:
+  - 공통 `topOvr` 최대값 상한, 리그별 OVR 상한(1년차 초기값 제외), 챔피언스리그별(UCL/ACL) OVR 상한, 국제대회(국대) OVR을 변수화하여 단일 JSON 파일에서 관리하고, 이를 편집 및 바로 Git Push할 수 있는 난이도 조절 대시보드 구현.
+* **수행 내용**:
+  1. **단일 JSON 설정 및 로더 신설 (`difficulty_config.json`, `js/difficulty_config.js`)**:
+     - 4대 핵심 난이도 항목(`topOvrMaxCap`, `leagues`, `championsLeague.ucl/acl`, `national.asia/world`)을 단일 JSON으로 통합.
+     - 화이트리스트 스키마 검증(`sanitizeDifficultyConfig`), 헬퍼(`getTopOvrMaxCap`, `getLeagueMaxOvrCap`, `getChampionsLeagueOvrCaps`, `getNationalOvrConfig`, `rollDifficultyInt`), 비동기 로드(`loadDifficultyConfig`) 구현.
+  2. **게임 엔진 변수 연동 (`js/match_algorithm.js`, `js/league.js`, `js/cup.js`, `js/acl.js`, `js/national.js`)**:
+     - `getPlayerTop20Ovr` 기본 상한, `LEAGUE_CONFIGS` 각 리그 `maxOvrCap` getter(컵대회 `js/cup.js` 자동 연동), `js/acl.js` UCL/ACL 티어별 상한, `js/national.js` `nationalAiRating` 범위를 모두 JSON 변수 참조로 전환.
+  3. **로드 순서 및 PWA 캐시 동기화 (`index.html`, `app.js`, `sw.js`)**:
+     - `index.html`에서 `js/difficulty_config.js?v=1.0`를 `js/match_algorithm.js` 직전에 로드하고 수정 스크립트 `?v=` 버전 상향.
+     - `app.js` `DOMContentLoaded`에서 `loadDifficultyConfig()` 호출, `sw.js` `CACHE_NAME = 'fc-star-v491'` 상향 및 `difficulty_config.json` Network-First 반영.
+  4. **난이도 조절 대시보드 & 원클릭 Git Push 서버 (`difficulty_dashboard.html`, `css/difficulty_dashboard.css`, `js/difficulty_dashboard.js`, `difficulty_dashboard_server.py`, `난이도_대시보드_실행.bat`)**:
+     - Python 3 표준 라이브러리 전용 로컬 서버(`127.0.0.1:4173`) 및 원클릭 실행 배치 파일(`난이도_대시보드_실행.bat`) 구현.
+     - 보안 강화: 루프백 전용 바인딩, 메모리 난수 세션 쿠키(`HttpOnly; SameSite=Strict`) + `X-CSRF-Token`, 엄격한 CSP(`script-src 'self'`), 정적 파일 화이트리스트, `shell=False` 고정 `git` 인자 실행(`difficulty_config.json` 단일 파일 스테이징·커밋·푸시), DOM API 전용 렌더링 및 커스텀 확인 모달.
+* **변경 파일**: `difficulty_config.json`, `js/difficulty_config.js`, `js/match_algorithm.js`, `js/league.js`, `js/cup.js`, `js/acl.js`, `js/national.js`, `app.js`, `index.html`, `sw.js`, `difficulty_dashboard.html`, `css/difficulty_dashboard.css`, `js/difficulty_dashboard.js`, `difficulty_dashboard_server.py`, `난이도_대시보드_실행.bat`, `tests/test_difficulty_dashboard.py`, `.agents/progress.md`, `.agents/log.md`
+* **검증 결과**:
+  - `python -m py_compile difficulty_dashboard_server.py tests/test_difficulty_dashboard.py` PASS.
+  - `python tests/test_difficulty_dashboard.py`: 5개 통합·보안 테스트 스위트 100% ALL PASS (JSON 스키마, 클램핑/정규화, 게임 엔진 연동, 프론트엔드 XSS 정적 점검, 로컬 서버 세션/CSRF/Origin/메서드 제한/단일 파일 Git Push).
+  - `git diff --check` 결함 0건.
+* **최종 상태**: 완료 (origin/main 원격 브랜치 푸시 완료)
+
+### 🔍 리그·컵·챔스·국제대회 상대팀 오버롤 최대값 코드 조사 (2026-11-26)
+* **날짜·시간**: 2026-11-26 10:12 (KST)
+* **요청 요약**:
+  - 리그별 상대팀, 챔스(UCL/ACL) 및 컵대회, 국제대회(국대 모드)의 상대팀 오버롤(OVR) 최대값이 정의·계산되는 코드 위치 조사.
+* **수행 내용**:
+  1. `js/league.js`, `other_teams_data*.js`: 리그별 1년차 프리셋 최대값(K리그1 80, J1 81, 리그앙 89, EPL 95) 및 2년차 이후 `LEAGUE_CONFIGS[].maxOvrCap` 상한(K리그1 95, J1 97, 리그앙 98, EPL 99) 확인.
+  2. `js/cup.js`: 1부 팀은 `leagueTeams` 동기화, K2/J2 초청 하부 4팀은 `maxCap` 기준 `top20Ovr + (-10~-2)` (최대 `maxCap - 2`) 로직 확인.
+  3. `js/acl.js`: `getPlayerTop20Ovr()` 기본 상한 99 기준으로 UCL 초강호(레알/뮌헨) `top20Ovr + (1~2)`(최대 101), ACL 서아시아 랜덤 보스 `top20Ovr + 1`(최대 100) 계산 및 추가 상한 캡 미적용 확인.
+  4. `js/national.js`, `js/national_data.js`: `nationalAiRating(id, type)` 고정 난수 범위 확인(아시안컵/아시안게임 엘리트 최대 96·일반 94, 월드컵/올림픽 엘리트 최대 100·일반 96).
+  5. `js/match_algorithm.js`: `getPlayerTop20Ovr(customCap)` 기본 캡 99 및 `calculateFinalMatchOvrs()`의 리그 원정 시 홈 어드밴티지(+2)·분위기(-1~+1) 보정 확인.
+* **변경 파일**: `.agents/progress.md`, `.agents/log.md` (조사 작업, 소스 코드 변경 없음)
+* **검증 결과**: 관련 JS 모듈 전수 열람 및 교차 확인 완료.
+* **최종 상태**: 완료
+
 ### ⭐ 명예의 전당 클럽 통산 누적 도움 랭킹(Top 3) 출력 추가 (2026-11-26)
 * **날짜·시간**: 2026-11-26 08:30 (KST)
 * **요청 요약**:

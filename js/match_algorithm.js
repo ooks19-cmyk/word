@@ -2,8 +2,10 @@
 // 카드/각성 데이터, 표시 능력치, OVR, 공격권 및 전술 활성 조건은 변경하지 않는다.
 function getPositionMatchGoalBonus(position, card, formation = currentFormation) {
     if (!card || !card.position || !position) return 0;
-    const aliases = { LCB: 'CB', RCB: 'CB', LCM: 'CM', RCM: 'CM',
-        DM: 'CM', LM: 'LW', RM: 'RW', AM: 'CAM' };
+    const aliases = {
+        LCB: 'CB', RCB: 'CB', LCM: 'CM', RCM: 'CM',
+        DM: 'CM', LM: 'LW', RM: 'RW', AM: 'CAM'
+    };
     const displayPosition = getFormationDisplayPosition(position, formation);
     const slotRole = aliases[displayPosition] || displayPosition;
     const cardRole = aliases[card.position] || card.position;
@@ -55,14 +57,14 @@ function getWingerChanceStat(position, card, styles = null, formation = currentF
         activeStyles = wingerStyles[formation] || wingerStyles;
     }
     if (!activeStyles) activeStyles = { LW: 'dribble', RW: 'sprint' };
-    
+
     // 이중 중첩 방지 방어 코드
     if (activeStyles[formation]) {
         activeStyles = activeStyles[formation];
     }
-    
+
     const style = activeStyles[position] || (position === 'LW' ? 'dribble' : 'sprint');
-    
+
     if (style === 'dribble') {
         return Math.round((getGoalCalculationStat(position, card, 'dri', formation) +
             getGoalCalculationStat(position, card, 'sho', formation)) / 2);
@@ -79,14 +81,14 @@ function getStrikerChanceStat(position, card, styles = null, formation = current
         activeStyles = strikerStyles[formation] || strikerStyles;
     }
     if (!activeStyles) activeStyles = { ST: 'targetman' };
-    
+
     // 이중 중첩 방지 방어 코드
     if (activeStyles[formation]) {
         activeStyles = activeStyles[formation];
     }
-    
+
     const style = activeStyles[position] || activeStyles.ST || 'targetman';
-    
+
     if (style === 'targetman') {
         return Math.round((getGoalCalculationStat(position, card, 'sho', formation) +
             getGoalCalculationStat(position, card, 'phy', formation)) / 2);
@@ -105,14 +107,14 @@ function getStrikerStyleHiddenBonus(formation = currentFormation, customStyles =
     }
     if (!activeStyles) activeStyles = { ST: 'targetman' };
     if (activeStyles[formation]) activeStyles = activeStyles[formation];
-    
+
     const style = activeStyles.ST || 'targetman';
-    
+
     if (formation === '4-3-3' && style === 'targetman') return 0.02;
     if (formation === '3-4-3' && style === 'linebreaker') return 0.02;
     if (formation === '5-4-1' && style === 'linebreaker') return 0.02;
     if (formation === '4-2-3-1' && style === 'targetman') return 0.02;
-    
+
     return 0.0;
 }
 
@@ -140,7 +142,7 @@ function getPlayerTop20Ovr(customCap) {
     if (typeof playerDeck === 'undefined' || !playerDeck) return 70;
     const keys = Object.keys(playerDeck);
     if (keys.length === 0) return 70;
-    
+
     const cardRatings = keys.map(key => {
         const baseCard = CARDS_DATABASE[key];
         if (!baseCard) return 70;
@@ -148,12 +150,13 @@ function getPlayerTop20Ovr(customCap) {
         const awk = (deckItem && typeof deckItem.awakening === 'number') ? deckItem.awakening : 0;
         return baseCard.rating + awk;
     });
-    
+
     cardRatings.sort((a, b) => b - a);
     const top20 = cardRatings.slice(0, 11); // 실제 기준: 상위 11개 (함수명은 하위 호환성을 위해 유지)
     const sum = top20.reduce((acc, rating) => acc + rating, 0);
     const avg = Math.round(sum / top20.length);
-    const cap = (typeof customCap === 'number') ? customCap : 99;
+    const defaultCap = (typeof getTopOvrMaxCap === 'function') ? getTopOvrMaxCap() : 99;
+    const cap = (typeof customCap === 'number') ? customCap : defaultCap;
     return Math.min(avg, cap);
 }
 
@@ -198,20 +201,20 @@ function getActiveUserEmblem() {
 // 2. 스쿼드 포메이션 전술/세부전술 보너스를 취합하여 플레이어 구단(전북 현대 / 리버풀 / FC 도쿄 / 파리 생제르맹) 최종 OVR 동기화 및 현황판 UI 업데이트
 function syncPlayerTeamOvr() {
     let avgOvr = getPlayerPureOvr();
-    
+
     // 포메이션 전술 완성 보너스 계산
     const formTactic = getPlayerFormationTacticBonuses();
     const hasKeyPlayer = formTactic.hasKeyPlayer;
     const hasTeamTactic = formTactic.hasTeamTactic;
     const formationBonus = formTactic.formationBonus;
-    
+
     let detailsLabel = "";
     if (currentFormation !== '4-4-2' && formationBonus > 0) {
         detailsLabel = ` (+${formationBonus} 전술 완성)`;
     }
-    
+
     avgOvr += formationBonus;
-    
+
     let activeUserTeamId = 'jeonbuk';
     if (typeof currentLeagueId !== 'undefined') {
         if (currentLeagueId === 'epl') activeUserTeamId = 'liverpool';
@@ -224,7 +227,7 @@ function syncPlayerTeamOvr() {
             userTeam.rating = avgOvr;
         }
     }
-    
+
     // UI 업데이트 (스쿼드 피치 상단 및 매치 프리뷰 영역 동기화)
     const teamOvrValEl = document.getElementById('teamOvrVal');
     if (teamOvrValEl) {
@@ -234,14 +237,14 @@ function syncPlayerTeamOvr() {
     // 실시간 전술 완성 보너스 2종 달성 현황판 업데이트
     const bonusKeyStatusEl = document.getElementById('bonus-key-status');
     const bonusTeamStatusEl = document.getElementById('bonus-team-status');
-    
+
     if (bonusKeyStatusEl && bonusTeamStatusEl) {
         if (currentFormation === '4-4-2') {
             bonusKeyStatusEl.innerText = "해당 없음 ➖";
             bonusKeyStatusEl.style.background = "rgba(255, 255, 255, 0.05)";
             bonusKeyStatusEl.style.color = "#cbd5e1";
             bonusKeyStatusEl.style.borderColor = "rgba(255, 255, 255, 0.15)";
-            
+
             bonusTeamStatusEl.innerText = "해당 없음 ➖";
             bonusTeamStatusEl.style.background = "rgba(255, 255, 255, 0.05)";
             bonusTeamStatusEl.style.color = "#cbd5e1";
@@ -258,7 +261,7 @@ function syncPlayerTeamOvr() {
                 bonusKeyStatusEl.style.color = "#ff3e6c";
                 bonusKeyStatusEl.style.borderColor = "#ff3e6c";
             }
-            
+
             if (hasTeamTactic) {
                 bonusTeamStatusEl.innerText = "활성화 ⚡";
                 bonusTeamStatusEl.style.background = "rgba(0, 255, 135, 0.18)";
@@ -276,7 +279,7 @@ function syncPlayerTeamOvr() {
     // 실시간 세부 전술 달성 현황판 업데이트
     let detailedTacticName = "세부 전술 없음";
     let detailedTacticDesc = "해당 없음";
-    
+
     if (currentFormation === '4-3-3') {
         detailedTacticName = "타겟맨 (Target Man)";
         detailedTacticDesc = "ST 피지컬 80 이상";
@@ -294,14 +297,14 @@ function syncPlayerTeamOvr() {
     const detailedTacticNameEl = document.getElementById('detailed-tactic-name');
     const detailedTacticDescEl = document.getElementById('detailed-tactic-desc');
     const detailedTacticStatusEl = document.getElementById('detailed-tactic-status');
-    
+
     const detailedTactic = getPlayerDetailedTacticBonuses();
     const isDetailedActive = detailedTactic.detailedTacticBonus > 0;
-    
+
     if (detailedTacticNameEl && detailedTacticDescEl && detailedTacticStatusEl) {
         detailedTacticNameEl.innerText = detailedTacticName;
         detailedTacticDescEl.innerText = detailedTacticDesc;
-        
+
         if (currentFormation === '4-4-2') {
             detailedTacticStatusEl.innerText = "해당 없음 ➖";
             detailedTacticStatusEl.style.background = "rgba(255, 255, 255, 0.05)";
@@ -511,14 +514,14 @@ function getPlayerDetailedTacticBonuses(formation = currentFormation, squad = sq
 // 2c. 친선경기 상대(AI)의 포메이션 OVR 보너스 수치 계산
 function getOpponentFormationTacticStatus(opponentData) {
     if (!opponentData) return 0;
-    
+
     const formation = opponentData.squadFormation || {};
     const deck = opponentData.playerDeck || {};
     const currentFormation = opponentData.currentFormation || '4-4-2';
-    
+
     let hasKeyPlayer = false;
     let hasTeamTactic = false;
-    
+
     const getOpponentAwakenedCardLocal = (cardId) => {
         if (!cardId || !CARDS_DATABASE[cardId]) return null;
         const cardCopy = JSON.parse(JSON.stringify(CARDS_DATABASE[cardId]));
@@ -528,7 +531,7 @@ function getOpponentFormationTacticStatus(opponentData) {
         }
         return cardCopy;
     };
-    
+
     const getOpponentTeamAverageStatLocal = (statKey) => {
         let totalStat = 0;
         TACTICAL_POSITIONS.forEach(pos => {
@@ -542,7 +545,7 @@ function getOpponentFormationTacticStatus(opponentData) {
         });
         return Math.round(totalStat / 11);
     };
-    
+
     if (currentFormation === '4-3-3') {
         const cmCardId = formation['CM'];
         const cmCard = getOpponentAwakenedCardLocal(cmCardId);
@@ -571,13 +574,13 @@ function getOpponentFormationTacticStatus(opponentData) {
         const avgDri = getOpponentTeamAverageStatLocal('dri');
         hasTeamTactic = avgDri >= 70;
     }
-    
+
     let formationBonus = 0;
     if (currentFormation !== '4-4-2') {
         if (hasKeyPlayer) formationBonus += 1;
         if (hasTeamTactic) formationBonus += 1;
     }
-    
+
     return formationBonus;
 }
 
@@ -590,25 +593,25 @@ function getOpponentFormationTacticStatus(opponentData) {
  */
 function getFormationCompatibilityBonus(playerForm, oppForm) {
     if (!playerForm || !oppForm) return 0;
-    
+
     const pForm = playerForm.trim();
     const oForm = oppForm.trim();
-    
+
     if (pForm === oForm) return 0;
-    
+
     const compatibility = {
         '3-4-3': '4-3-3',
         '4-3-3': '5-4-1',
         '5-4-1': '4-2-3-1',
         '4-2-3-1': '3-4-3'
     };
-    
+
     if (compatibility[pForm] === oForm) {
         return 0.05; // 플레이어 우세 (+5% 찬스)
     } else if (compatibility[oForm] === pForm) {
         return -0.05; // 상대 우세 (-5% 찬스)
     }
-    
+
     return 0; // 상성 없음 (4-4-2 등)
 }
 
@@ -643,7 +646,7 @@ function calculateFinalMatchOvrs(venueType, isPlayerHome, opponentBaseOvr, isFri
         ? playerContext.playerOvr
         : getPlayerPureOvr();
     let opponentOvr = opponentBaseOvr;
-    
+
     // 리그 모드인 경우에만 상대팀 분위기 보정 적용
     if (venueType === 'league' && currentOpponentMood) {
         opponentOvr += currentOpponentMood.modifier;
@@ -652,13 +655,13 @@ function calculateFinalMatchOvrs(venueType, isPlayerHome, opponentBaseOvr, isFri
     } else {
         lastOpponentMood = null;
     }
-    
+
     // 포메이션 전술 완성 보너스 (+1~+2)는 리그/컵/친선경기 모든 모드에서 플레이어 팀에 일관되게 적용
     const formTactic = playerContext
         ? getPlayerFormationTacticBonuses(playerContext.formation, playerContext.squad, playerContext.deck)
         : getPlayerFormationTacticBonuses();
     playerOvr += formTactic.formationBonus;
-    
+
     if (venueType === 'league') {
         if (isPlayerHome) {
             playerOvr += 2;
@@ -666,10 +669,10 @@ function calculateFinalMatchOvrs(venueType, isPlayerHome, opponentBaseOvr, isFri
             opponentOvr += 2;
         }
     }
-    
+
     // 최종 매치 상대팀 OVR 최대 95 제한 제거 (top20ovr 자체에 최대 95 캡 적용)
     // opponentOvr = Math.min(opponentOvr, 95);
-    
+
     return { playerOvr, opponentOvr };
 }
 
@@ -686,30 +689,30 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
             effectiveCM = mfs[0].name;
         }
     }
-    
+
     let activeWingerStyles = customWingerStyles;
     if (!activeWingerStyles && typeof wingerStyles !== 'undefined') {
         activeWingerStyles = wingerStyles[formation] || wingerStyles;
     }
     if (!activeWingerStyles) activeWingerStyles = { LW: 'dribble', RW: 'sprint' };
     if (activeWingerStyles[formation]) activeWingerStyles = activeWingerStyles[formation];
-    
+
     const lwStyle = activeWingerStyles.LW || 'dribble';
     const rwStyle = activeWingerStyles.RW || 'sprint';
-    
+
     let activeStrikerStyles = customStrikerStyles;
     if (!activeStrikerStyles && typeof strikerStyles !== 'undefined') {
         activeStrikerStyles = strikerStyles[formation] || strikerStyles;
     }
     if (!activeStrikerStyles) activeStrikerStyles = { ST: 'targetman' };
     if (activeStrikerStyles[formation]) activeStrikerStyles = activeStrikerStyles[formation];
-    
+
     const stStyle = activeStrikerStyles.ST || 'targetman';
-    
+
     let eventDesc = "";
     let eventGoal = "";
     let eventFail = "";
-    
+
     // 윙어 스타일별 코멘터리 구성
     // 1) 드리블 돌파 스타일 (개인기 중심)
     const getDribbleTexts = (wingerName) => {
@@ -724,7 +727,7 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
             fail: `아아! 마지막 순간 상대 수비수의 육탄 방어에 가로막히며 코너킥으로 연결됩니다.`
         };
     };
-    
+
     // 2) 치고 달리기 스타일 (스프린트 및 킬패스 침투 중심)
     const getSprintTexts = (wingerName) => {
         return {
@@ -733,7 +736,7 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
             fail: `키퍼의 슈퍼세이브! 상대 수문장이 온몸으로 막아내며 아쉬운 득점 찬스가 무산됩니다.`
         };
     };
-    
+
     if (option === 0) {
         // LW 찬스
         if (lwStyle === 'dribble') {
@@ -785,7 +788,7 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
         eventGoal = `골!!! 에이스 ${effectiveCM}의 지휘 아래 그라운드를 완전히 지배하며 뽑아낸 아름다운 조직력의 승리골입니다! ⚽`;
         eventFail = `오프사이드 판정! 골망은 흔들었으나 간발의 차이로 선심의 깃발이 올라가며 아쉬운 간접 프리킥이 선언됩니다.`;
     }
-    
+
     if (isTacticActive && Math.random() < 0.5) {
         if (formation === '4-3-3') {
             if (option === 1) {
@@ -843,7 +846,7 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
             let passDefenderId = null;
             let passDefenderName = null;
             let maxPas = -1;
-            
+
             const defPositions = ["LB", "LCB", "CM", "RCB", "RB"];
             defPositions.forEach(pos => {
                 const cardId = squad[pos];
@@ -859,9 +862,9 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
                     }
                 }
             });
-            
+
             const defenderLabel = passDefenderName || "수비수";
- 
+
             if (option === 0 || option === 2) {
                 const activeWinger = option === 0 ? LW : RW;
                 const wingerPos = option === 0 ? "LW" : "RW";
@@ -891,7 +894,7 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
             if (option === 5 || option === 1) {
                 let scorerName = ST;
                 let scorerPos = "ST";
-                
+
                 if (option === 5) {
                     const rand = Math.random();
                     if (rand < 0.6) {
@@ -905,11 +908,11 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
                         scorerName = RW;
                     }
                 }
-                
+
                 eventDesc = `평균 패스 83 이상의 미드필더 삼총사가 좁은 공간에서 환상적인 삼각 패스와 극상의 원터치 연계로 상대를 유인한 후, 플레이메이커 ${CM}의 가랑이를 꿰뚫는 스루패스!`;
                 eventGoal = `골!!! 패스 마술사들의 완벽한 그라운드 지배! 촘촘히 엮어 짜낸 조직적인 패스 콤비네이션의 끝에 <strong>${scorerName}</strong>가 침착하게 밀어 넣으며 기어코 완벽한 작품 골을 빚어냅니다! ⚽`;
                 eventFail = `앗! 완벽한 패스워크의 끝에 마지막 슈팅이 상대 수비수의 필사적인 슬라이딩 태클에 굴절되며 아웃됩니다.`;
-                
+
                 lastTacticGoalData = {
                     option: option,
                     scorerId: squad[scorerPos] || null,
@@ -920,7 +923,7 @@ function getDetailedTacticCommentary(option, formation, isTacticActive, activePl
             }
         }
     }
-    
+
     return { eventDesc, eventGoal, eventFail };
 }
 
@@ -1067,13 +1070,13 @@ function simulateExtraTimeEngine(data) {
         opponentScorerName = null,
         opponentAssisterName = null
     } = data;
-    
+
     let etScore1 = score1;
     let etScore2 = score2;
     const etEvents = [];
-    
+
     etEvents.push({ min: "91'", type: "system", text: "연장 전반전이 킥오프됩니다. 체력의 한계를 넘어선 마지막 30분의 혈투가 시작됩니다!" });
-    
+
     const diff = rating1 - rating2;
     let prob1, prob2;
     if (isTeam1Jeonbuk) {
@@ -1083,10 +1086,10 @@ function simulateExtraTimeEngine(data) {
         prob1 = 0.30 + (diff * 0.01); // 상대방 (기본 30%)
         prob2 = 0.35 - (diff * 0.01); // 플레이어 (기본 35%)
     }
-    
+
     const p1Scored = Math.random() < Math.max(0.05, Math.min(prob1, 0.5));
     const p2Scored = Math.random() < Math.max(0.05, Math.min(prob2, 0.5));
-    
+
     // 상대팀 주요 선수 정보 획득
     let oppScorerName = opponentScorerName || (isTeam1Jeonbuk ? `${team2Name} 공격수` : `${team1Name} 공격수`);
     let oppAssisterName = opponentAssisterName || null;
@@ -1095,7 +1098,7 @@ function simulateExtraTimeEngine(data) {
         oppScorerName = oppGoalData.scorerName;
         oppAssisterName = oppGoalData.assisterName;
     }
-    
+
     const scorer1 = isTeam1Jeonbuk ? playerScorerName : oppScorerName;
     const scorer2 = !isTeam1Jeonbuk ? playerScorerName : oppScorerName;
 
@@ -1122,9 +1125,9 @@ function simulateExtraTimeEngine(data) {
             score2: etScore2
         });
     }
-    
+
     etEvents.push({ min: "105'", type: "system", text: "연장 전반전 종료. 코트 교대 후 곧바로 후반전으로 이어집니다." });
-    
+
     if (p2Scored) {
         etScore2++;
         const assisterText = (isTeam1Jeonbuk && oppAssisterName) ? ` (도움: <strong>${oppAssisterName}</strong>)` : (!isTeam1Jeonbuk && playerAssisterName ? ` (도움: <strong>${playerAssisterName}</strong>)` : "");
@@ -1148,9 +1151,9 @@ function simulateExtraTimeEngine(data) {
             score2: etScore2
         });
     }
-    
+
     etEvents.push({ min: "120'", type: "system", text: "연장전 120분이 종료되었습니다!" });
-    
+
     return {
         score1: etScore1,
         score2: etScore2,
@@ -1167,22 +1170,22 @@ function simulatePenaltyShootoutEngine(data) {
         rating2 = 70,
         isTeam1Jeonbuk = true
     } = data;
-    
+
     const pkEvents = [];
     pkEvents.push({ round: 0, type: "system", text: "승부차기(PK)가 시작됩니다! 골문 앞 키커와 골키퍼의 피 말리는 1대1 심리전이 펼쳐집니다." });
-    
+
     let pkScore1 = 0;
     let pkScore2 = 0;
     let rounds = 5;
-    
+
     // 일괄적으로 우리팀(전북 현대) 성공 확률 70%, 상대팀 성공 확률 60% 적용
     const prob1 = isTeam1Jeonbuk ? 0.70 : 0.60;
     const prob2 = isTeam1Jeonbuk ? 0.60 : 0.70;
-    
+
     for (let r = 1; r <= rounds; r++) {
         const success1 = Math.random() < prob1;
         const success2 = Math.random() < prob2;
-        
+
         if (success1) pkScore1++;
         pkEvents.push({
             round: r,
@@ -1192,7 +1195,7 @@ function simulatePenaltyShootoutEngine(data) {
             score2: pkScore2,
             text: success1 ? `[O] ${team1Name} ${r}번 키커: 깔끔하게 골대 구석으로 차 넣으며 성공시킵니다!` : `[X] ${team1Name} ${r}번 키커: 실축! 슈팅이 골키퍼 선방에 걸리고 맙니다!`
         });
-        
+
         if (success2) pkScore2++;
         pkEvents.push({
             round: r,
@@ -1203,12 +1206,12 @@ function simulatePenaltyShootoutEngine(data) {
             text: success2 ? `[O] ${team2Name} ${r}번 키커: 골키퍼의 타이밍을 빼앗으며 침착하게 밀어 넣습니다!` : `[X] ${team2Name} ${r}번 키커: 실축! 골대를 강타하며 실축합니다!`
         });
     }
-    
+
     let sdRound = 6;
     while (pkScore1 === pkScore2) {
         const success1 = Math.random() < prob1;
         const success2 = Math.random() < prob2;
-        
+
         if (success1) pkScore1++;
         pkEvents.push({
             round: sdRound,
@@ -1218,7 +1221,7 @@ function simulatePenaltyShootoutEngine(data) {
             score2: pkScore2,
             text: success1 ? `[O] ${team1Name} ${sdRound}번 키커: 성공! 침착함을 유지합니다.` : `[X] ${team1Name} ${sdRound}번 키커: 실축! 긴장한 기색이 역력했던 슛이 빗나갑니다.`
         });
-        
+
         if (success2) pkScore2++;
         pkEvents.push({
             round: sdRound,
@@ -1228,7 +1231,7 @@ function simulatePenaltyShootoutEngine(data) {
             score2: pkScore2,
             text: success2 ? `[O] ${team2Name} ${sdRound}번 키커: 성공! 골문 구석을 관통합니다.` : `[X] ${team2Name} ${sdRound}번 키커: 실축! 골키퍼의 기막힌 펀칭 세이브!`
         });
-        
+
         sdRound++;
         if (sdRound > 20) break; // 무한루프 방지 안전장치
     }
@@ -1247,7 +1250,7 @@ function simulatePenaltyShootoutEngine(data) {
             text: `[O] ${team1Wins ? team1Name : team2Name} 결정 킥 성공! 길었던 승부차기의 승자가 결정됩니다.`
         });
     }
-    
+
     return {
         pkScore1: pkScore1,
         pkScore2: pkScore2,
@@ -1312,7 +1315,7 @@ function determineScorerAndAssister(selectedOption, squad = squadFormation, form
     const activeST = (typeof squad !== 'undefined' && squad["ST"] && CARDS_DATABASE[squad["ST"]]) ? CARDS_DATABASE[squad["ST"]].name : "무명 스트라이커";
     const activeLW = (typeof squad !== 'undefined' && squad["LW"] && CARDS_DATABASE[squad["LW"]]) ? CARDS_DATABASE[squad["LW"]].name : "무명 윙어";
     const activeRW = (typeof squad !== 'undefined' && squad["RW"] && CARDS_DATABASE[squad["RW"]]) ? CARDS_DATABASE[squad["RW"]].name : "무명 윙백";
-    
+
     // 포메이션별 실제 미드필더 이름 추출 (5-4-1의 CB 김민재 배제)
     const currentForm = formation || ((typeof currentFormation !== 'undefined') ? currentFormation : '4-3-3');
     const realMfs = getFormationMidfielders(currentForm, squad, deck);
@@ -1470,7 +1473,7 @@ function determineOpponentScorerAndAssister(opponentTeamId) {
             if (config && config.playersPreset && Array.isArray(config.playersPreset) && config.playersPreset.length > 0) {
                 allOpponentPlayers = config.playersPreset;
             }
-        } catch(e) {}
+        } catch (e) { }
     }
 
     // 2. Fallback: currentLeagueId에 따른 전용 프리셋 조회
@@ -1487,7 +1490,7 @@ function determineOpponentScorerAndAssister(opponentTeamId) {
     } else if (allOpponentPlayers.length === 0 && typeof OTHER_TEAMS_PLAYERS_PRESET !== 'undefined') {
         allOpponentPlayers = OTHER_TEAMS_PLAYERS_PRESET;
     }
-    
+
     let squadPlayers = allOpponentPlayers.filter(p => p.teamId === normalizedTeamId);
 
     // 3. 챔스(UCL/ACL) 활성 프리셋 조회 (유럽 12대 명문 구단 및 해외 구단)
@@ -1497,7 +1500,7 @@ function determineOpponentScorerAndAssister(opponentTeamId) {
             if (Array.isArray(aclPlayers) && aclPlayers.length > 0) {
                 squadPlayers = aclPlayers.filter(p => p.teamId === normalizedTeamId);
             }
-        } catch(e) {}
+        } catch (e) { }
     }
 
     // 4. UCL 유럽 명문 구단 직접 프리셋 조회 (UCL_PLAYERS_PRESET_EPL)
@@ -1512,7 +1515,7 @@ function determineOpponentScorerAndAssister(opponentTeamId) {
             if (Array.isArray(cupPlayers) && cupPlayers.length > 0) {
                 squadPlayers = cupPlayers.filter(p => p.teamId === normalizedTeamId);
             }
-        } catch(e) {}
+        } catch (e) { }
     }
 
     // 6. 모든 타 리그 프리셋(Ligue 1, EPL, J리그, K리그) 전수 교차 탐색
@@ -1542,17 +1545,17 @@ function determineOpponentScorerAndAssister(opponentTeamId) {
             assisterName: null
         };
     }
-    
+
     const scorerIdx = Math.floor(Math.random() * squadPlayers.length);
     const scorer = squadPlayers[scorerIdx];
-    
+
     let assister = null;
     if (Math.random() < 0.50 && squadPlayers.length > 1) {
         const potentialAssisters = squadPlayers.filter((_, idx) => idx !== scorerIdx);
         const assisterIdx = Math.floor(Math.random() * potentialAssisters.length);
         assister = potentialAssisters[assisterIdx];
     }
-    
+
     return {
         scorerId: scorer.id,
         scorerName: scorer.name,
@@ -1571,7 +1574,7 @@ function calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentRating, 
         : ((typeof getStrikerStyleHiddenBonus === 'function') ? getStrikerStyleHiddenBonus() : 0.0);
     const calculated = 0.24 + (activeDiff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus + strikerHiddenBonus;
     const prob = Math.min(maxScoreProb, Math.max(minScoreProb, calculated));
-    
+
     console.log(`[시뮬레이션] 🟢 플레이어 슈팅 연산:
     - OVR 차이 보정: ${(activeDiff * 0.019 * 100).toFixed(1)}% (격차: ${activeDiff})
     - 슈팅 스탯 보정: ${(playerChanceBonus * 100).toFixed(1)}% (슈팅: ${chancePlayerStat} vs 수비: ${opponentRating})
@@ -1579,7 +1582,7 @@ function calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentRating, 
     - 전술 적합도 보정: ${(suitabilityBonus * 100).toFixed(1)}%
     - 스트라이커 히든 보너스: ${(strikerHiddenBonus * 100).toFixed(1)}%
     - 최종 계산 득점 확률: ${(prob * 100).toFixed(1)}% (보정 전: ${(calculated * 100).toFixed(1)}%)`);
-    
+
     return prob;
 }
 
@@ -1589,12 +1592,12 @@ function calculateOpponentScoreProb(activeDiff, opponentOvr, playerGkStat, forma
     const gkBonus = Math.max(0, (playerGkStat + 5 - opponentOvr) * 0.01);
     const calculated = 0.40 - (activeDiff * 0.026) - playerDefBonus - gkBonus;
     const prob = Math.min(0.50, Math.max(0.10, calculated));
-    
+
     console.log(`[시뮬레이션] 🔴 상대팀 슈팅 연산:
     - OVR 차이 보정: ${(-activeDiff * 0.026 * 100).toFixed(1)}% (격차: ${activeDiff})
     - 수비력(DEF) 보정: ${(-playerDefBonus * 100).toFixed(1)}% (평균수비: ${playerDef})
     - 골키퍼(GK) 보정: ${(-gkBonus * 100).toFixed(1)}% (GK수비: ${playerGkStat} vs 상대OVR: ${opponentOvr})
     - 최종 계산 실점 확률: ${(prob * 100).toFixed(1)}% (보정 전: ${(calculated * 100).toFixed(1)}%)`);
-    
+
     return prob;
 }

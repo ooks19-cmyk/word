@@ -1,4 +1,33 @@
 ## 현재 작업
+- 목표: 상대팀 OVR 설정 변수화·단일 JSON(`difficulty_config.json`) 중앙 관리, 난이도 조절 대시보드 구축 및 대시보드 원클릭 Git Push 기능 구현
+- 상태: 완료
+- 주요 변경 및 검증 결과:
+  1. **단일 난이도 설정 JSON 및 로더 (`difficulty_config.json`, `js/difficulty_config.js`)**:
+     - 관리 범위: 공통 `topOvrMaxCap`(99), 리그별 상한(K리그1 95 / J1 97 / 리그앙 98 / EPL 99), 챔스 상한(UCL 보스 101·강호 99·다크호스 97 / ACL 보스 100·강호 99·일반 97), 국제대회 OVR(아시아 엘리트 95~96·일반 88~94 / 세계 엘리트 97~100·일반 90~96).
+     - 입력값 스키마 검증·정규화(`sanitizeDifficultyConfig`), 비동기 로더(`loadDifficultyConfig`), 오프라인 폴백 기본값 지원.
+  2. **게임 엔진 5개 모듈 변수 연동 (`js/match_algorithm.js`, `js/league.js`, `js/cup.js`, `js/acl.js`, `js/national.js`)**:
+     - 리그 1년차 초기값은 유지하고 2년차 상한/topOvr 상한/챔스 상한/국대 OVR을 모두 `difficulty_config.json` 기반 헬퍼 함수 참조로 전환.
+  3. **HTML 및 PWA 캐시 동기화 (`index.html`, `app.js`, `sw.js`)**:
+     - `index.html`에 `js/difficulty_config.js?v=1.0` 로드 추가 및 수정 스크립트 `?v=` 버전 상향.
+     - `sw.js` `CACHE_NAME = 'fc-star-v491'` 상향 및 `difficulty_config.json`(Network-First 동작) 캐시 자산 등록.
+  4. **난이도 조절 대시보드 및 원클릭 Git Push 로컬 서버 (`difficulty_dashboard.html`, `css/difficulty_dashboard.css`, `js/difficulty_dashboard.js`, `difficulty_dashboard_server.py`, `난이도_대시보드_실행.bat`)**:
+     - Python 3 표준 라이브러리 전용(외부 의존성 0개) `127.0.0.1:4173` 로컬 관리 서버 구현.
+     - 보안: HttpOnly/SameSite=Strict 세션 쿠키 + X-CSRF-Token 검증, 엄격한 CSP/보안 헤더, GET/POST 허용 목록, 정적 파일 화이트리스트, `subprocess.run(..., shell=False)`로 `difficulty_config.json` 단일 파일만 안전 스테이징·커밋·푸시, 프론트엔드 unsafe DOM sink 및 native dialog 전면 배제.
+  5. **검증**: `python -m py_compile` PASS, `tests/test_difficulty_dashboard.py` 5/5 ALL PASS (스키마·클램핑·게임코드 연동·XSS 정적 점검·실제 HTTP 서버 보안/CSRF/Git Push 흐름), `git diff --check` 결함 0건.
+- 다음 단계: 완료 (origin/main 원격 브랜치 푸시 완료)
+
+## 이전 작업
+- 목표: 리그별 상대팀, 챔스 및 컵대회, 국제대회 오버롤 최대값 코드 위치 및 계산 로직 조사
+- 상태: 완료
+- 주요 조사 및 검증 결과:
+  1. 공통 기준: `js/match_algorithm.js`의 `getPlayerTop20Ovr(customCap)` (기본 상한 99, 상위 11장 평균) 및 `calculateFinalMatchOvrs()` (리그 원정 시 홈 어드밴티지 +2, 분위기 -1~+1 추가).
+  2. 리그별 상대팀 OVR 상한 (`js/league.js` `LEAGUE_CONFIGS.maxOvrCap`, `resetLeagueSeasonState`): 2년차(`leagueYear > 2026`)부터 K리그1 95 / J1리그 97 / 프랑스 리그앙 98 / 프리미어리그 99 제한 (1년차는 각 프리셋 고정: K1 80, J1 81, L1 89, EPL 95).
+  3. 컵대회 (`js/cup.js` `resetCupStateData`, `updatePlayerTeamOvr`): 1부 팀은 소속 리그 OVR 동기화(리그별 상한과 동일), K2/J2 초청 하부 4팀은 `Math.min(maxCap, Math.max(50, top20Ovr + (-10~-2)))`로 최대 `maxCap - 2` (K2 93 / J2 95).
+  4. 챔스 (`js/acl.js` `resetAclStateData`): `getPlayerTop20Ovr()`를 인자 없이 호출(상한 99) 후 보스 보정 적용(별도 최종 캡 없음). UCL 초강호(레알/뮌헨) 최대 `101`(`99+2`), ACL 서아시아 랜덤 보스 1팀 최대 `100`(`99+1`).
+  5. 국제대회 (`js/national.js` `nationalAiRating`, `js/national_data.js`): 고정 범위 난수. 아시안컵/아시안게임 엘리트 최대 `96`(일반 `94`), 월드컵/올림픽 엘리트 최대 `100`(일반 `96`).
+- 다음 단계: 조사 결과 보고 완료
+
+## 이전 작업
 - 목표: 명예의 전당 클럽 통산 누적 도움 기록(`playerAssists`) 누적·통합 및 대시보드 Top 3 랭킹 출력 추가
 - 상태: 완료
 - 주요 변경 및 검증 결과:

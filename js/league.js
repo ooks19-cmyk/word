@@ -37,7 +37,7 @@ const LEAGUE_CONFIGS = {
         themeColor: '#00ff87',
         accentColor: '#ffd700',
         strongTeams: ['ulsan', 'seoul', 'pohang', 'gimcheon'],
-        maxOvrCap: 95
+        get maxOvrCap() { return (typeof getLeagueMaxOvrCap === 'function') ? getLeagueMaxOvrCap('kleague1') : 95; }
     },
     epl: {
         id: 'epl',
@@ -54,7 +54,7 @@ const LEAGUE_CONFIGS = {
         themeColor: '#c8102e',
         accentColor: '#38003c',
         strongTeams: ['mancity', 'arsenal', 'chelsea', 'tottenham', 'manutd'],
-        maxOvrCap: 99
+        get maxOvrCap() { return (typeof getLeagueMaxOvrCap === 'function') ? getLeagueMaxOvrCap('epl') : 99; }
     },
     jleague: {
         id: 'jleague',
@@ -71,7 +71,7 @@ const LEAGUE_CONFIGS = {
         themeColor: '#001c58',
         accentColor: '#e60012',
         strongTeams: ['kobe', 'hiroshima', 'machida', 'marinos'],
-        maxOvrCap: 97
+        get maxOvrCap() { return (typeof getLeagueMaxOvrCap === 'function') ? getLeagueMaxOvrCap('jleague') : 97; }
     },
     ligue1: {
         id: 'ligue1',
@@ -88,7 +88,7 @@ const LEAGUE_CONFIGS = {
         themeColor: '#004170',
         accentColor: '#da291c',
         strongTeams: ['monaco', 'marseille', 'lille', 'lyon'],
-        maxOvrCap: 98
+        get maxOvrCap() { return (typeof getLeagueMaxOvrCap === 'function') ? getLeagueMaxOvrCap('ligue1') : 98; }
     }
 };
 

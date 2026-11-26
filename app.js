@@ -217,6 +217,9 @@ function switchMatchSubTab(tabId, isDevEntry = false) {
 
 // 10. INITIALIZATION
 document.addEventListener('DOMContentLoaded', () => {
+    if (typeof loadDifficultyConfig === 'function') {
+        loadDifficultyConfig();
+    }
     updateGlowTheme();
     updateTotalCardCount();
     renderSquadFormation(); // Initialize squad pitch rendering

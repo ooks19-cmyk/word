@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FC STAR CARD - 난이도 조절 대시보드</title>
+    <link rel="stylesheet" href="css/difficulty_dashboard.css">
+</head>
+<body>
+    <div class="dashboard-shell">
+        <!-- 상단 헤더 -->
+        <header class="dash-header">
+            <div class="dash-brand">
+                <div class="dash-logo-badge" aria-hidden="true">OVR</div>
+                <div>
+                    <h1>FC STAR 난이도 조절 대시보드</h1>
+                    <p class="dash-subtitle">단일 설정 파일(<code>difficulty_config.json</code>) 편집 및 즉시 Git Push</p>
+                </div>
+            </div>
+            <div class="dash-header-status">
+                <span id="serverStatusBadge" class="status-pill status-checking">서버 연결 확인 중...</span>
+                <span id="dirtyStatusBadge" class="status-pill status-clean">변경 사항 없음</span>
+            </div>
+        </header>
+
+        <!-- 오프라인 안내 배너 (로컬 서버 없이 열었을 때만 표시) -->
+        <section id="offlineBanner" class="offline-banner hidden" aria-live="polite">
+            <strong>로컬 서버 미연결 상태:</strong> 파일 직접 저장과 Git Push 기능은
+            <code>난이도_대시보드_실행.bat</code> (또는 <code>python difficulty_dashboard_server.py --open</code>) 실행 후
+            <code>http://127.0.0.1:4173</code>에서 이용할 수 있습니다. 현재 상태에서도 설정 편집 및 JSON 다운로드는 가능합니다.
+        </section>
+
+        <!-- 상단 액션 툴바 -->
+        <section class="toolbar-card">
+            <div class="toolbar-group">
+                <button type="button" id="btnShiftMinus" class="btn btn-ghost">전체 -1</button>
+                <button type="button" id="btnShiftPlus" class="btn btn-ghost">전체 +1</button>
+                <button type="button" id="btnResetDefaults" class="btn btn-ghost">기본값 복원</button>
+                <button type="button" id="btnReloadConfig" class="btn btn-ghost">파일 다시 읽기</button>
+                <button type="button" id="btnDownloadJson" class="btn btn-ghost">JSON 다운로드</button>
+            </div>
+            <div class="toolbar-group">
+                <button type="button" id="btnSaveOnly" class="btn btn-primary">설정 파일 저장</button>
+                <button type="button" id="btnOpenPushModal" class="btn btn-accent">저장 &amp; 바로 Git Push</button>
+            </div>
+        </section>
+
+        <!-- 4대 난이도 설정 그리드 -->
+        <main class="cards-grid">
+            <!-- 1. 공통 Top OVR 상한 -->
+            <section class="config-card">
+                <div class="card-head">
+                    <h2>1. 공통 Top OVR 최대값 상한</h2>
+                    <span class="card-tag">기준 스탯</span>
+                </div>
+                <p class="card-desc">
+                    리그 2년차 이후, 컵 하부팀, 챔스 상대 OVR 계산의 기준이 되는 플레이어 상위 11장 평균(<code>topOvr</code>)의 최대 상한입니다.
+                </p>
+                <div class="field-list" id="sectionTopOvr"></div>
+            </section>
+
+            <!-- 2. 리그별 OVR 상한 -->
+            <section class="config-card">
+                <div class="card-head">
+                    <h2>2. 리그별 OVR 상한</h2>
+                    <span class="card-tag">리그 &amp; 컵 연동</span>
+                </div>
+                <p class="card-desc">
+                    각 리그 2년차 이후 상대팀 최대 OVR 상한입니다. (1년차 초기값은 유지되며, 각 리그 FA컵/쿠프 드 프랑스 상한도 자동 연동됩니다.)
+                </p>
+                <div class="field-list" id="sectionLeagues"></div>
+            </section>
+
+            <!-- 3. 챔피언스리그별 OVR 상한 -->
+            <section class="config-card">
+                <div class="card-head">
+                    <h2>3. 챔피언스리그별 OVR 상한</h2>
+                    <span class="card-tag">UCL / ACL</span>
+                </div>
+                <p class="card-desc">
+                    유럽 챔스(EPL·리그앙)와 아시아 챔스(K리그1·J1리그)의 해외 상대팀 등급별 최대 OVR 상한입니다.
+                </p>
+                <div class="sub-group">
+                    <h3>유럽 챔피언스리그 (UCL)</h3>
+                    <div class="field-list" id="sectionUcl"></div>
+                </div>
+                <div class="sub-group">
+                    <h3>아시아 챔피언스리그 (ACL)</h3>
+                    <div class="field-list" id="sectionAcl"></div>
+                </div>
+            </section>
+
+            <!-- 4. 국제대회 (국가대표 모드) OVR -->
+            <section class="config-card">
+                <div class="card-head">
+                    <h2>4. 국제대회 (국가대표 모드) OVR</h2>
+                    <span class="card-tag">고정 범위 난수</span>
+                </div>
+                <p class="card-desc">
+                    아시안컵·아시안게임 및 월드컵·올림픽의 AI 상대 국가 OVR 최소~최대 범위입니다.
+                </p>
+                <div class="sub-group">
+                    <h3>아시안컵 / 아시안게임 (아시아)</h3>
+                    <div class="range-list" id="sectionNationalAsia"></div>
+                </div>
+                <div class="sub-group">
+                    <h3>월드컵 / 올림픽 (세계)</h3>
+                    <div class="range-list" id="sectionNationalWorld"></div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 하단 패널: Git 상태 & 변경 요약 / JSON 미리보기 -->
+        <section class="bottom-grid">
+            <section class="config-card">
+                <div class="card-head">
+                    <h2>Git 배포 상태 &amp; 바로 Push</h2>
+                    <button type="button" id="btnRefreshGit" class="btn btn-small btn-ghost">상태 새로고침</button>
+                </div>
+                <div class="git-meta-grid">
+                    <div class="git-meta-box">
+                        <span class="meta-label">현재 브랜치</span>
+                        <strong id="gitBranchText">-</strong>
+                    </div>
+                    <div class="git-meta-box">
+                        <span class="meta-label">설정 파일 상태</span>
+                        <strong id="gitFileStatusText">-</strong>
+                    </div>
+                    <div class="git-meta-box">
+                        <span class="meta-label">최근 저장 시각</span>
+                        <strong id="configUpdatedAtText">-</strong>
+                    </div>
+                </div>
+
+                <div class="commit-box">
+                    <label for="commitMessageInput" class="commit-label">커밋 메시지 (<code>difficulty_config.json</code> 단일 파일만 안전 스테이징)</label>
+                    <input type="text" id="commitMessageInput" maxlength="100" value="chore: 난이도 오버롤 설정 업데이트" autocomplete="off">
+                </div>
+
+                <div class="diff-summary-box">
+                    <h3>변경 사항 요약</h3>
+                    <ul id="diffList" class="diff-list"></ul>
+                </div>
+
+                <div class="git-log-box">
+                    <h3>최근 커밋 &amp; 실행 로그</h3>
+                    <pre id="gitOutputLog" class="code-preview">서버 연결 후 Git 상태를 불러옵니다.</pre>
+                </div>
+            </section>
+
+            <section class="config-card">
+                <div class="card-head">
+                    <h2>difficulty_config.json 실시간 미리보기</h2>
+                    <span class="card-tag">Schema v1.0</span>
+                </div>
+                <pre id="jsonPreview" class="code-preview json-preview"></pre>
+            </section>
+        </section>
+    </div>
+
+    <!-- 커스텀 Git Push 확인 모달 (native confirm 미사용) -->
+    <div id="pushConfirmModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pushModalTitle">
+        <div class="modal-box">
+            <h3 id="pushModalTitle">Git Push 확인</h3>
+            <p class="modal-desc">
+                현재 편집한 설정을 <code>difficulty_config.json</code>에 저장한 뒤,
+                오직 <code>difficulty_config.json</code> 파일만 커밋하여 원격 저장소(<strong id="modalBranchName">main</strong>)로 푸시합니다.
+            </p>
+            <div class="modal-summary">
+                <div><span>커밋 메시지:</span> <strong id="modalCommitPreview"></strong></div>
+                <div><span>변경 항목 수:</span> <strong id="modalDiffCount"></strong></div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" id="btnCancelPush" class="btn btn-ghost">취소</button>
+                <button type="button" id="btnConfirmPush" class="btn btn-accent">저장 후 Git Push 실행</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 토스트 알림 -->
+    <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+    <script src="js/difficulty_config.js"></script>
+    <script src="js/difficulty_dashboard.js"></script>
+</body>
+</html>
