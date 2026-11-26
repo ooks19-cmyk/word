@@ -1,0 +1,37 @@
+{
+  "version": "1.0.0",
+  "updatedAt": "2026-11-26T10:41:01+09:00",
+  "topOvrMaxCap": 101,
+  "leagues": {
+    "kleague1": 95,
+    "jleague": 97,
+    "ligue1": 99,
+    "epl": 99
+  },
+  "championsLeague": {
+    "ucl": {
+      "bossMaxOvrCap": 101,
+      "strongMaxOvrCap": 99,
+      "darkhorseMaxOvrCap": 97
+    },
+    "acl": {
+      "bossMaxOvrCap": 100,
+      "strongMaxOvrCap": 99,
+      "normalMaxOvrCap": 97
+    }
+  },
+  "national": {
+    "asia": {
+      "eliteMinOvr": 95,
+      "eliteMaxOvr": 96,
+      "normalMinOvr": 88,
+      "normalMaxOvr": 94
+    },
+    "world": {
+      "eliteMinOvr": 97,
+      "eliteMaxOvr": 100,
+      "normalMinOvr": 90,
+      "normalMaxOvr": 96
+    }
+  }
+}
