@@ -1,4 +1,35 @@
 ## 현재 작업
+- 목표: 신규 월드클래스 선수 '지단' (`zinedine_zidane`, OVR 94, AM) 등록, 이미지 WebP 최적화 및 DB/CSV/PWA 캐시 동기화
+- 상태: 완료
+- 주요 변경 및 검증 결과:
+  1. 이미지 최적화 교체: `player2/지단.jpg` (`457x671`, RGB, `32,504 bytes`) -> `player2/지단.webp` (`327x480`, `21,056 bytes`, **-35.2%**) 변환 후 원본 JPG 정리.
+  2. `player_data.js`: `zinedine_zidane` (지단, `worldclass`, OVR `94`, `AM`, `France`, `FRANCE`, `PAC 86, SHO 91, PAS 96, DRI 96, DEF 72, PHY 88`) 신규 등록.
+  3. `index.html` & `sw.js`: `player_data.js?v=2.11`, `CACHE_NAME = 'fc-star-v493'` 상향 (`IMAGE_CACHE_NAME` 유지).
+  4. `선수데이터.csv`: `convert_js_to_csv.py` 실행으로 119명(120행) 동기화 완료.
+  5. 검증: JS 구문 검사, 119장 전체 이미지 실재 검사(0건 누락), 통합/회귀 테스트 6종 ALL PASS, `git diff --check` 결함 0건.
+- 다음 단계: 완료 (origin/main 원격 브랜치 푸시 완료)
+
+## 이전 작업
+- 목표: `add-player-card` 스킬에 신규 선수 등록 시 지정 이미지 WebP 자동 최적화·원본 교체 표준 절차 반영
+- 상태: 완료
+- 주요 변경 및 검증 결과:
+  1. `.agents/skills/add-player-card/SKILL.md`:
+     - 이미지 최적화 표준(최대 변 480px, `WEBP` quality=82/method=6, RGBA 투명도 유지, 원본 PNG/JPG 정리, `.webp` 경로 등록) 및 실행 가능한 Pillow 변환 스크립트 추가.
+     - 기존 카드 이미지 교체 시 `IMAGE_CACHE_NAME` 영구 캐시 충돌 방지 지침 및 동일 선수 중복 클래스(`playerKey`/`recordName`) 등록 규칙, 최신 회귀 테스트 6종 검증 목록 반영.
+- 다음 단계: 완료 보고 (사용자 확인 및 깃 커밋·푸시 대기)
+
+## 이전 작업
+- 목표: 슈퍼 음바페(`super_mbappe`) 카드 이미지를 `player2/S음바페.png`에서 WebP로 최적화(`player2/S음바페.webp`) 후 교체 및 DB/CSV/PWA 캐시 동기화
+- 상태: 완료
+- 주요 변경 및 검증 결과:
+  1. 이미지 최적화 교체: `player2/S음바페.png` (`555x832`, RGBA, `867,454 bytes`) -> `player2/S음바페.webp` (`320x480`, RGBA, `30,444 bytes`, **-96.5%**) 변환 후 원본 PNG 제거.
+  2. `player_data.js`: `super_mbappe.image`를 `"player2/S음바페.webp"`로 교체.
+  3. `index.html` & `sw.js`: `player_data.js?v=2.10`, `CACHE_NAME = 'fc-star-v492'` 상향 (`IMAGE_CACHE_NAME` 유지).
+  4. `선수데이터.csv`: `convert_js_to_csv.py` 실행으로 118명(119행) 동기화 완료.
+  5. 검증: JS 구문 검사, 118장 전체 이미지 경로 실재 검사(0건 누락), 통합/회귀 테스트 6종 ALL PASS, `git diff --check` 결함 0건.
+- 다음 단계: 완료 보고 (사용자 확인 및 깃 커밋·푸시 대기)
+
+## 이전 작업
 - 목표: 상대팀 OVR 설정 변수화·단일 JSON(`difficulty_config.json`) 중앙 관리, 난이도 조절 대시보드 구축 및 대시보드 원클릭 Git Push 기능 구현
 - 상태: 완료
 - 주요 변경 및 검증 결과:

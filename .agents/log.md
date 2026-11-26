@@ -64,6 +64,75 @@ graph TD
 * **검증 결과**: 관련 JS 모듈 전수 열람 및 교차 확인 완료.
 * **최종 상태**: 완료
 
+### ⚽ 신규 선수 '지단' (`zinedine_zidane`, 월드클래스 OVR 94) 등록 및 이미지 WebP 최적화 (2026-11-26)
+* **날짜·시간**: 2026-11-26 17:31 (KST)
+* **요청 요약**:
+  - 신규 선수 '지단' (월드클래스, OVR 94) 추가 및 `player2/지단.jpg` 이미지 WebP 최적화 저장.
+* **수행 내용**:
+  1. **이미지 WebP 최적화 (`player2/지단.webp`)**:
+     - `player2/지단.jpg` (`457x671`, RGB, `32,504 bytes`) $\rightarrow$ `player2/지단.webp` (`327x480`, quality=82, method=6, `21,056 bytes`, **-35.2%**) 변환 후 원본 JPG 정리.
+  2. **신규 카드 등록 (`player_data.js`)**:
+     - ID: `zinedine_zidane`, 이름: `지단`, 등급: `worldclass`, OVR: `94`, 포지션: `AM`, 국적: `France`, 소속: `FRANCE`, 이미지: `player2/지단.webp`
+     - 6대 능력치: `PAC 86, SHO 91, PAS 96, DRI 96, DEF 72, PHY 88` (총합 529)
+     - 월드클래스 테마 프리셋 (`primary: "#000a20"`, `secondary: "#4facfe"`, `glow: "#00f2fe"`)
+  3. **PWA 캐시 및 CSV 동기화 (`index.html`, `sw.js`, `선수데이터.csv`)**:
+     - `index.html`: `player_data.js?v=2.11` 상향.
+     - `sw.js`: `CACHE_NAME = 'fc-star-v493'` 상향 (`IMAGE_CACHE_NAME` 유지).
+     - `선수데이터.csv`: `convert_js_to_csv.py` 실행으로 119명(120행) 동기화.
+* **변경 파일**: `player2/지단.webp`, `player_data.js`, `선수데이터.csv`, `index.html`, `sw.js`, `.agents/progress.md`, `.agents/log.md`
+* **검증 결과**:
+  - `node --check player_data.js sw.js` Syntax OK.
+  - `player_data.js` 119개 카드 이미지 경로 전수 실재 검증 PASS.
+  - 회귀 테스트 6종(`canonical_player_identity`, `cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `market_mode`, `quiz_subjective`) 100% ALL PASS.
+  - `git diff --check` 결함 0건.
+* **최종 상태**: 완료 (origin/main 원격 브랜치 푸시 완료)
+
+### 🛠️ `add-player-card` 스킬에 선수 이미지 WebP 자동 최적화 절차 반영 (2026-11-26)
+* **날짜·시간**: 2026-11-26 17:29 (KST)
+* **요청 요약**:
+  - 앞으로 신규 선수 추가 시 지정한 사진을 WebP로 최적화하여 저장하도록 `add-player-card` 스킬 수정.
+* **수행 내용**:
+  1. **`.agents/skills/add-player-card/SKILL.md` 개정**:
+     - 이미지 최적화 및 저장 원칙(최대 변 `480px`, `WEBP` `quality=82`/`method=6`, 알파 투명도 보존, 검증 후 원본 `.png`/`.jpg` 삭제, `player_data.js`에 `.webp` 경로 등록) 명문화.
+     - Step 1에 표준 Python Pillow 최적화 스니펫 추가.
+     - `sw.js` `IMAGE_CACHE_NAME` 유지 원칙, 동일 실존 선수 `playerKey`/`recordName` 규칙, 최신 회귀 테스트 6종 검증 절차 현행화.
+* **변경 파일**: `.agents/skills/add-player-card/SKILL.md`, `.agents/progress.md`, `.agents/log.md`
+* **검증 결과**: `git diff --check` 및 스킬 마크다운 구조 점검 예정.
+* **최종 상태**: 완료 (사용자 확인 및 깃 커밋·푸시 대기)
+
+### 🛠️ `add-player-card` 스킬에 선수 이미지 WebP 자동 최적화 절차 반영 (2026-11-26)
+* **날짜·시간**: 2026-11-26 17:29 (KST)
+* **요청 요약**:
+  - 앞으로 신규 선수 추가 시 지정한 사진을 WebP로 최적화하여 저장하도록 `add-player-card` 스킬 수정.
+* **수행 내용**:
+  1. **`.agents/skills/add-player-card/SKILL.md` 개정**:
+     - 이미지 최적화 및 저장 원칙(최대 변 `480px`, `WEBP` `quality=82`/`method=6`, 알파 투명도 보존, 검증 후 원본 `.png`/`.jpg` 삭제, `player_data.js`에 `.webp` 경로 등록) 명문화.
+     - Step 1에 표준 Python Pillow 최적화 스니펫 추가.
+     - `sw.js` `IMAGE_CACHE_NAME` 유지 원칙, 동일 실존 선수 `playerKey`/`recordName` 규칙, 최신 회귀 테스트 6종 검증 절차 현행화.
+* **변경 파일**: `.agents/skills/add-player-card/SKILL.md`, `.agents/progress.md`, `.agents/log.md`
+* **검증 결과**: `git diff --check` 및 스킬 마크다운 구조 점검 예정.
+* **최종 상태**: 완료 (사용자 확인 및 깃 커밋·푸시 대기)
+
+### 🖼️ 슈퍼 음바페(`super_mbappe`) 카드 이미지 최적화 및 교체 (2026-11-26)
+* **날짜·시간**: 2026-11-26 17:27 (KST)
+* **요청 요약**:
+  - `player2/S음바페.png` 이미지를 최적화한 뒤 슈퍼 음바페(`super_mbappe`) 카드 이미지로 교체.
+* **수행 내용**:
+  1. **이미지 WebP 최적화 및 원본 교체 (`player2/S음바페.webp`)**:
+     - `player2/S음바페.png` (`555x832`, RGBA, `867,454 bytes`) $\rightarrow$ 최대 변 480px(`320x480`), WebP(quality=82, method=6, 알파 투명도 유지) **`player2/S음바페.webp`** (`30,444 bytes`, **-96.5% 용량 절감**)로 변환 후 원본 PNG 제거.
+  2. **데이터·CSV·캐시 동기화 (`player_data.js`, `선수데이터.csv`, `index.html`, `sw.js`)**:
+     - `player_data.js`: `super_mbappe.image`를 `"player2/S음바페.webp"`로 변경 (신규 파일명으로 영구 이미지 캐시 충돌 없이 즉시 반영).
+     - `선수데이터.csv`: `convert_js_to_csv.py` 실행으로 118명(119행) 동기화.
+     - `index.html`: `player_data.js?v=2.10` 상향.
+     - `sw.js`: `CACHE_NAME = 'fc-star-v492'` 상향 (`IMAGE_CACHE_NAME = 'fc-star-images-v1'` 유지).
+* **변경 파일**: `player2/S음바페.webp`, `player_data.js`, `선수데이터.csv`, `index.html`, `sw.js`, `.agents/progress.md`, `.agents/log.md`
+* **검증 결과**:
+  - `node --check player_data.js sw.js` Syntax OK.
+  - `player_data.js` 118개 카드 이미지 경로 전수 실재 검증 PASS.
+  - 회귀 테스트 6종(`canonical_player_identity`, `cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `market_mode`, `quiz_subjective`) 100% ALL PASS.
+  - `git diff --check` 결함 0건.
+* **최종 상태**: 완료 (사용자 확인 및 깃 커밋·푸시 대기)
+
 ### ⭐ 명예의 전당 클럽 통산 누적 도움 랭킹(Top 3) 출력 추가 (2026-11-26)
 * **날짜·시간**: 2026-11-26 08:30 (KST)
 * **요청 요약**:

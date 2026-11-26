@@ -2340,7 +2340,7 @@ const CARDS_DATABASE = {
         nation: "France",
         nationFlag: "https://flagcdn.com/w40/fr.png",
         club: "REAL MADRID",
-        image: "player2/슈퍼 음바페.webp",
+        image: "player2/S음바페.webp",
         rarity: "super",
         description: "전설을 초월한 궁극의 스피드 스타, 슈퍼 킬리안 음바페(S음바페)입니다. 번개 같은 폭발적 가속도와 극한의 질주력, 골문 구석을 완벽하게 꿰뚫는 가공할 슈팅 결정력으로 상대 수비진을 완벽히 무너뜨리는 최강의 월드클래스 크랙입니다.",
         theme: {
@@ -3017,6 +3017,31 @@ const CARDS_DATABASE = {
             dri: 96,
             def: 49,
             phy: 82
+        }
+    },
+    "zinedine_zidane": {
+        id: "zinedine_zidane",
+        name: "지단",
+        rating: 94,
+        position: "AM",
+        nation: "France",
+        nationFlag: "https://flagcdn.com/w40/fr.png",
+        club: "FRANCE",
+        image: "player2/지단.webp",
+        rarity: "worldclass",
+        description: "그라운드 위의 영원한 마에스트로이자 1998 프랑스 월드컵 우승과 발롱도르를 거머쥔 축구 역사상 최고의 플레이메이커 지네딘 지단입니다. 우아한 마르세유 턴과 압도적인 볼 컨트롤, 경기 전체를 꿰뚫어 보는 신의 시야와 송곳 같은 킬패스, 그리고 큰 무대마다 터지는 결정적인 클러치 득점력으로 중원을 완벽히 지배하는 월드클래스 지휘관입니다.",
+        theme: {
+            primary: "#000a20",
+            secondary: "#4facfe",
+            glow: "#00f2fe"
+        },
+        stats: {
+            pac: 86,
+            sho: 91,
+            pas: 96,
+            dri: 96,
+            def: 72,
+            phy: 88
         }
     }
 };
