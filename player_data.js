@@ -3228,6 +3228,63 @@ function deduplicateSquadByPlayer(squadObj, deckObj, options = {}) {
     return result;
 }
 
+function deduplicateBenchWithSquad(startingObj, benchObj, deckObj, allowedPositionsBySlot) {
+    const result = { changed: false, removed: [] };
+    if (!benchObj || typeof benchObj !== 'object') return result;
+
+    const startingCanonIds = new Set();
+    if (startingObj && typeof startingObj === 'object') {
+        Object.values(startingObj).forEach(cardId => {
+            if (cardId && typeof cardId === 'string') {
+                startingCanonIds.add(getCanonicalPlayerId(cardId));
+            }
+        });
+    }
+
+    // 1. 선발과 중복되거나 슬롯 허용 포지션에 맞지 않는 후보 제거
+    Object.keys(benchObj).forEach(slot => {
+        const cardId = benchObj[slot];
+        if (!cardId || typeof cardId !== 'string') {
+            if (cardId !== undefined) {
+                delete benchObj[slot];
+                result.changed = true;
+            }
+            return;
+        }
+        const card = (typeof CARDS_DATABASE !== 'undefined' && CARDS_DATABASE) ? CARDS_DATABASE[cardId] : null;
+        if (!card) {
+            delete benchObj[slot];
+            result.changed = true;
+            result.removed.push({ slot, cardId, reason: 'invalid_card' });
+            return;
+        }
+        if (allowedPositionsBySlot && allowedPositionsBySlot[slot]) {
+            const allowed = allowedPositionsBySlot[slot];
+            if (!allowed.includes(card.position)) {
+                delete benchObj[slot];
+                result.changed = true;
+                result.removed.push({ slot, cardId, reason: 'position_mismatch' });
+                return;
+            }
+        }
+        const cid = getCanonicalPlayerId(cardId);
+        if (startingCanonIds.has(cid)) {
+            delete benchObj[slot];
+            result.changed = true;
+            result.removed.push({ slot, cardId, reason: 'duplicate_with_starting', canonicalId: cid });
+        }
+    });
+
+    // 2. 벤치 내부 동일 선수 중복 시 최고 OVR 1장만 유지
+    const benchDedup = deduplicateSquadByPlayer(benchObj, deckObj);
+    if (benchDedup.changed) {
+        result.changed = true;
+        result.removed.push(...benchDedup.removed);
+    }
+
+    return result;
+}
+
 function mergePlayerGoalsMap(goalsMap) {
     const merged = {};
     let changed = false;

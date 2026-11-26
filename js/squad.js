@@ -1,6 +1,33 @@
 // js/squad.js - 포메이션 & 비밀 작전 보드 모듈
 
-// 9. SQUAD FORMATION BOARD LOGIC
+// 9. SQUAD FORMATION & BENCH BOARD LOGIC
+const BENCH_POSITIONS = ['SUB_ATK1', 'SUB_ATK2', 'SUB_DEF1', 'SUB_DEF2', 'SUB_GK'];
+const BENCH_SLOT_META = {
+    SUB_ATK1: { role: 'attack', label: '공격 1', posHint: 'AM·W·ST', allowed: ['AM', 'CAM', 'LW', 'RW', 'ST'], accent: '#ff3e6c' },
+    SUB_ATK2: { role: 'attack', label: '공격 2', posHint: 'AM·W·ST', allowed: ['AM', 'CAM', 'LW', 'RW', 'ST'], accent: '#ff9f43' },
+    SUB_DEF1: { role: 'defense', label: '수비 1', posHint: 'CM·CB·LB·RB', allowed: ['CM', 'CB', 'LB', 'RB'], accent: '#00d2fc' },
+    SUB_DEF2: { role: 'defense', label: '수비 2', posHint: 'CM·CB·LB·RB', allowed: ['CM', 'CB', 'LB', 'RB'], accent: '#00ff87' },
+    SUB_GK:   { role: 'gk', label: '골키퍼', posHint: 'GK', allowed: ['GK'], accent: '#ffd700' }
+};
+
+function isBenchSlot(slot) {
+    return !!(slot && BENCH_SLOT_META[slot]);
+}
+
+function getBenchAllowedPositionsMap() {
+    const map = {};
+    BENCH_POSITIONS.forEach(slot => {
+        map[slot] = BENCH_SLOT_META[slot].allowed;
+    });
+    return map;
+}
+
+function isBenchSlotCompatible(benchSlot, cardPos) {
+    const meta = BENCH_SLOT_META[benchSlot];
+    if (!meta || !cardPos) return false;
+    return meta.allowed.includes(cardPos);
+}
+
 let squadFormations = {
     '4-4-2': {},
     '4-3-3': {},
@@ -9,6 +36,14 @@ let squadFormations = {
     '4-2-3-1': {}
 };
 let squadFormation = {};
+let squadBenches = {
+    '4-4-2': {},
+    '4-3-3': {},
+    '3-4-3': {},
+    '5-4-1': {},
+    '4-2-3-1': {}
+};
+let squadBench = {};
 let activeSelectorPosition = null;
 
 try {
@@ -35,12 +70,40 @@ try {
     console.warn("Error loading squadFormations, fallback to defaults.", e);
 }
 
+try {
+    const savedBenches = localStorage.getItem('fc_star_squad_benches');
+    if (savedBenches) {
+        squadBenches = JSON.parse(savedBenches);
+        ['4-4-2', '4-3-3', '3-4-3', '5-4-1', '4-2-3-1'].forEach(f => {
+            if (!squadBenches[f] || typeof squadBenches[f] !== 'object') {
+                squadBenches[f] = {};
+            }
+        });
+    } else {
+        const savedSingleBench = localStorage.getItem('fc_star_squad_bench');
+        if (savedSingleBench) {
+            const parsedBench = JSON.parse(savedSingleBench);
+            if (parsedBench && typeof parsedBench === 'object') {
+                squadBenches[currentFormation] = parsedBench;
+            }
+        }
+    }
+} catch (e) {
+    console.warn("Error loading squadBenches, fallback to defaults.", e);
+}
+
 if (typeof deduplicateSquadByPlayer === 'function') {
     let squadDedupChanged = false;
+    let benchDedupChanged = false;
+    const allowedMap = getBenchAllowedPositionsMap();
     ['4-4-2', '4-3-3', '3-4-3', '5-4-1', '4-2-3-1'].forEach(f => {
         if (squadFormations[f] && typeof squadFormations[f] === 'object') {
             const res = deduplicateSquadByPlayer(squadFormations[f], typeof playerDeck !== 'undefined' ? playerDeck : null);
             if (res.changed) squadDedupChanged = true;
+        }
+        if (squadBenches[f] && typeof squadBenches[f] === 'object' && typeof deduplicateBenchWithSquad === 'function') {
+            const bRes = deduplicateBenchWithSquad(squadFormations[f], squadBenches[f], typeof playerDeck !== 'undefined' ? playerDeck : null, allowedMap);
+            if (bRes.changed) benchDedupChanged = true;
         }
     });
     if (squadDedupChanged) {
@@ -49,9 +112,16 @@ if (typeof deduplicateSquadByPlayer === 'function') {
             localStorage.setItem('fc_star_squad_formation', JSON.stringify(squadFormations[currentFormation] || {}));
         } catch (e) {}
     }
+    if (benchDedupChanged) {
+        try {
+            localStorage.setItem('fc_star_squad_benches', JSON.stringify(squadBenches));
+            localStorage.setItem('fc_star_squad_bench', JSON.stringify(squadBenches[currentFormation] || {}));
+        } catch (e) {}
+    }
 }
 
 squadFormation = squadFormations[currentFormation];
+squadBench = squadBenches[currentFormation];
 
 // 11 Key tactical board positions
 const TACTICAL_POSITIONS = ["GK", "LB", "LCB", "RCB", "RB", "LCM", "CM", "RCM", "LW", "ST", "RW"];
@@ -357,6 +427,103 @@ function renderSquadFormation() {
     if (typeof updateCaptainSelectorUI === 'function') {
         updateCaptainSelectorUI();
     }
+
+    // 7. 교체 선수 벤치 (후보 5명) 렌더링 동기화
+    renderSquadBench();
+}
+
+function renderSquadBench() {
+    if (!squadBenches[currentFormation] || typeof squadBenches[currentFormation] !== 'object') {
+        squadBenches[currentFormation] = {};
+    }
+    squadBench = squadBenches[currentFormation];
+
+    if (typeof deduplicateBenchWithSquad === 'function') {
+        const dedupRes = deduplicateBenchWithSquad(
+            squadFormation,
+            squadBench,
+            typeof playerDeck !== 'undefined' ? playerDeck : null,
+            getBenchAllowedPositionsMap()
+        );
+        if (dedupRes.changed) {
+            try {
+                localStorage.setItem('fc_star_squad_benches', JSON.stringify(squadBenches));
+                localStorage.setItem('fc_star_squad_bench', JSON.stringify(squadBench));
+            } catch (e) {}
+        }
+    }
+
+    let filledCount = 0;
+    const isTomy = (typeof isTomy0304 === 'function' && isTomy0304());
+
+    BENCH_POSITIONS.forEach(slot => {
+        const slotEl = document.getElementById(`slot-${slot}`);
+        const meta = BENCH_SLOT_META[slot];
+        const cardId = squadBench[slot];
+        let cardData = null;
+
+        if (cardId && CARDS_DATABASE[cardId] && typeof playerDeck !== 'undefined' && playerDeck[cardId] && !playerDeck[cardId].isStored) {
+            cardData = getAwakenedCard(cardId);
+        }
+
+        if (cardData) filledCount++;
+        if (!slotEl || !meta) return;
+
+        if (cardData) {
+            let conditionArrow = '';
+            if (!isTomy && typeof cardData.condition === 'number') {
+                const cond = cardData.condition;
+                if (cond === 2) {
+                    conditionArrow = `<span style="font-size: 0.7rem; color: #00ff87; margin-left: 2px; vertical-align: middle;" title="컨디션 최상 (OVR +2)">↗️</span>`;
+                } else if (cond === -2) {
+                    conditionArrow = `<span style="font-size: 0.7rem; color: #ff3e6c; margin-left: 2px; vertical-align: middle;" title="컨디션 저조 (OVR -2)">↘️</span>`;
+                } else {
+                    conditionArrow = `<span style="font-size: 0.7rem; color: #ffd700; margin-left: 2px; vertical-align: middle;" title="컨디션 보통 (OVR +0)">➡️</span>`;
+                }
+            }
+            const baseWithAwk = cardData.rating - (isTomy ? 0 : (cardData.condition || 0));
+            const condVal = isTomy ? 0 : (cardData.condition || 0);
+            let ovrDisplay = `${baseWithAwk}`;
+            if (condVal > 0) {
+                ovrDisplay += `<span style="font-size: 0.6rem; color: #00ff87; font-weight: 800; margin-left: 1px; vertical-align: super;">+${condVal}</span>`;
+            } else if (condVal < 0) {
+                ovrDisplay += `<span style="font-size: 0.6rem; color: #ff3e6c; font-weight: 800; margin-left: 1px; vertical-align: super;">${condVal}</span>`;
+            }
+            const posLabel = (typeof formatCardPosition === 'function') ? formatCardPosition(cardData.position) : (cardData.position === 'CAM' ? 'AM' : cardData.position);
+
+            slotEl.innerHTML = `
+                <div class="mini-player-card active-placed bench-placed-card" style="border-color: ${meta.accent}; box-shadow: 0 6px 16px ${meta.accent}33;">
+                    <div class="mini-card-ovr-badge">${ovrDisplay}</div>
+                    <div class="mini-card-position-badge" style="color: ${meta.accent}; border: 1px solid ${meta.accent}55;">${posLabel}</div>
+                    <div class="mini-card-portrait">
+                        <img src="${cardData.image}" alt="${cardData.name}" loading="lazy" decoding="async" onerror="this.src='https://placehold.co/80x80/005a3c/ffd700?text=${encodeURIComponent(cardData.name)}'">
+                    </div>
+                    <div class="mini-card-name">${cardData.name}${conditionArrow}</div>
+                </div>
+                <div class="bench-slot-role-label" style="border-color: ${meta.accent}66;">
+                    <span class="bench-role-name" style="color: ${meta.accent};">${meta.label}</span>
+                    <span class="bench-role-hint">${meta.posHint}</span>
+                </div>
+            `;
+        } else {
+            slotEl.innerHTML = `
+                <div class="mini-player-card anonymous bench-empty-card" style="border-color: ${meta.accent}44;">
+                    <div class="bench-empty-role-badge" style="color: ${meta.accent}; border-color: ${meta.accent}55; background: ${meta.accent}18;">${meta.label}</div>
+                    <div class="bench-empty-plus" style="color: ${meta.accent};"><i class="fa-solid fa-plus"></i></div>
+                    <div class="bench-empty-pos-hint">${meta.posHint}</div>
+                </div>
+                <div class="bench-slot-role-label" style="border-color: rgba(255,255,255,0.12);">
+                    <span class="bench-role-name" style="color: ${meta.accent};">${meta.label}</span>
+                    <span class="bench-role-hint">${meta.posHint}</span>
+                </div>
+            `;
+        }
+    });
+
+    const countEl = document.getElementById('benchFilledCount');
+    if (countEl) {
+        countEl.innerText = `${filledCount} / 5`;
+    }
 }
 
 // 포지션별 실제 카드 포지션 배치 제한 검사 함수
@@ -384,21 +551,49 @@ function isPositionCompatible(displayPos, cardPos) {
 
 function openCardSelector(position) {
     activeSelectorPosition = position;
+    const isBench = isBenchSlot(position);
+    const benchMeta = isBench ? BENCH_SLOT_META[position] : null;
     
     const overlay = document.getElementById('drawerOverlay');
     const title = document.getElementById('drawerPositionTitle');
     const content = document.getElementById('drawerContent');
     
-    const displayTitle = getFormationDisplayPosition(position);
+    const displayTitle = isBench ? `${benchMeta.label} (${benchMeta.posHint})` : getFormationDisplayPosition(position);
     title.innerText = displayTitle;
     overlay.classList.add('active');
     
     // Clear and render choices
     content.innerHTML = '';
     
-    // 핵심 포지션 가이드 배너 추가
+    // 핵심 포지션 / 후보 벤치 가이드 배너 추가
     let bannerHtml = '';
-    if (currentFormation === '4-3-3' && position === 'CM') {
+    if (isBench) {
+        if (benchMeta.role === 'attack') {
+            bannerHtml = `
+                <div style="background: rgba(255, 62, 108, 0.1); border: 1.5px solid rgba(255, 62, 108, 0.35); padding: 0.8rem 1rem; border-radius: 12px; font-size: 0.8rem; color: #ff85a2; line-height: 1.45; font-weight: bold; margin-bottom: 1rem; text-align: left; word-break: keep-all;">
+                    <i class="fa-solid fa-fire" style="margin-right: 4px; color: #ff3e6c;"></i>
+                    <strong>[공격 후보 · ${benchMeta.label} (${benchMeta.posHint})]</strong><br>
+                    후반 <strong>63' · 82'</strong> 동점 또는 열세 상황에서 자동 교체 투입되며, 남은 후반 동안 <strong>득점 확률 +2.5% 조커 보너스</strong>(최대 2명 +5.0%)와 실제 득점·도움 기록이 반영됩니다!
+                </div>
+            `;
+        } else if (benchMeta.role === 'defense') {
+            bannerHtml = `
+                <div style="background: rgba(0, 210, 252, 0.1); border: 1.5px solid rgba(0, 210, 252, 0.35); padding: 0.8rem 1rem; border-radius: 12px; font-size: 0.8rem; color: #7ce8ff; line-height: 1.45; font-weight: bold; margin-bottom: 1rem; text-align: left; word-break: keep-all;">
+                    <i class="fa-solid fa-shield-halved" style="margin-right: 4px; color: #00d2fc;"></i>
+                    <strong>[수비 후보 · ${benchMeta.label} (${benchMeta.posHint})]</strong><br>
+                    후반 <strong>63' · 82'</strong> 리드 상황에서 자동 교체 투입되어 승리를 굳히며, 남은 후반 동안 <strong>상대 득점 확률 -2.5%</strong>(최대 2명 -5.0%) 방어 보너스가 적용됩니다!
+                </div>
+            `;
+        } else {
+            bannerHtml = `
+                <div style="background: rgba(255, 215, 0, 0.1); border: 1.5px solid rgba(255, 215, 0, 0.35); padding: 0.8rem 1rem; border-radius: 12px; font-size: 0.8rem; color: #ffe066; line-height: 1.45; font-weight: bold; margin-bottom: 1rem; text-align: left; word-break: keep-all;">
+                    <i class="fa-solid fa-hands" style="margin-right: 4px; color: #ffd700;"></i>
+                    <strong>[골키퍼 후보 · ${benchMeta.label} (${benchMeta.posHint})]</strong><br>
+                    후반 <strong>82'</strong> 실점 위기·주전 컨디션 저조·리드 굳히기 또는 토너먼트 연장·승부차기 진입 시 자동 투입되어 <strong>상대 득점 확률 -3.0%</strong> 수문장 보너스를 발동합니다!
+                </div>
+            `;
+        }
+    } else if (currentFormation === '4-3-3' && position === 'CM') {
         bannerHtml = `
             <div style="background: rgba(255, 215, 0, 0.1); border: 1.5px solid rgba(255, 215, 0, 0.3); padding: 0.8rem 1rem; border-radius: 12px; font-size: 0.8rem; color: #ffd700; line-height: 1.45; font-weight: bold; margin-bottom: 1rem; text-align: left; word-break: keep-all;">
                 <i class="fa-solid fa-star" style="margin-right: 4px; animation: keyPlayerLabelPulse 1.5s infinite alternate;"></i> 
@@ -439,8 +634,8 @@ function openCardSelector(position) {
         content.appendChild(bannerContainer);
     }
     
-    // 내부 슬롯 키 대신 실제 표시 포지션에 맞는 플레이스타일 위젯을 제공한다.
-    if (['LW', 'RW', 'LM', 'RM'].includes(displayTitle)) {
+    // 내부 슬롯 키 대신 실제 표시 포지션에 맞는 플레이스타일 위젯을 제공한다. (후보 슬롯은 제외)
+    if (!isBench && ['LW', 'RW', 'LM', 'RM'].includes(displayTitle)) {
         const styleContainer = document.createElement('div');
         styleContainer.className = 'winger-style-toggle-container';
         styleContainer.style.cssText = `
@@ -474,7 +669,7 @@ function openCardSelector(position) {
             </div>
         `;
         content.appendChild(styleContainer);
-    } else if (displayTitle === 'ST') {
+    } else if (!isBench && displayTitle === 'ST') {
         const styleContainer = document.createElement('div');
         styleContainer.className = 'striker-style-toggle-container';
         styleContainer.style.cssText = `
@@ -511,7 +706,7 @@ function openCardSelector(position) {
     }
     
     // If a player is already assigned, show the Release button first
-    const assignedPlayerId = squadFormation[position];
+    const assignedPlayerId = isBench ? squadBench[position] : squadFormation[position];
     if (assignedPlayerId) {
         const releaseBtn = document.createElement('button');
         releaseBtn.className = 'btn-release-player';
@@ -527,8 +722,8 @@ function openCardSelector(position) {
             const cardA = getAwakenedCard(a);
             const cardB = getAwakenedCard(b);
             
-            const isCompA = cardA ? isPositionCompatible(displayTitle, cardA.position) : false;
-            const isCompB = cardB ? isPositionCompatible(displayTitle, cardB.position) : false;
+            const isCompA = cardA ? (isBench ? isBenchSlotCompatible(position, cardA.position) : isPositionCompatible(displayTitle, cardA.position)) : false;
+            const isCompB = cardB ? (isBench ? isBenchSlotCompatible(position, cardB.position) : isPositionCompatible(displayTitle, cardB.position)) : false;
             
             // 배치 가능한 선수를 항상 우선하여 최상단 정렬
             if (isCompA && !isCompB) return -1;
@@ -555,22 +750,31 @@ function openCardSelector(position) {
         const item = playerDeck[key];
         const card = getAwakenedCard(key); // 각성된 카드 능력치/스펙 동적 계산 반영
         
-        // Check if this card or another class of the same player is already placed in the formation
+        // Check if this card or another class of the same player is already placed in the starting 11 or bench 5
         const isCurrentSlot = assignedPlayerId === key;
-        const isSamePlayerElsewhere = Object.keys(squadFormation).some(p =>
-            p !== position &&
+        const isSamePlayerInStarting = Object.keys(squadFormation).some(p =>
+            (isBench || p !== position) &&
             squadFormation[p] &&
             (typeof isSamePlayer === 'function' ? isSamePlayer(squadFormation[p], key) : squadFormation[p] === key)
         );
+        const isSamePlayerInBench = Object.keys(squadBench || {}).some(b =>
+            (!isBench || b !== position) &&
+            squadBench[b] &&
+            (typeof isSamePlayer === 'function' ? isSamePlayer(squadBench[b], key) : squadBench[b] === key)
+        );
+        const isSamePlayerElsewhere = isSamePlayerInStarting || isSamePlayerInBench;
         const isSamePlayerCurrentSlot = !isCurrentSlot && !!assignedPlayerId && (typeof isSamePlayer === 'function' && isSamePlayer(assignedPlayerId, key));
         let placedCount = 0;
         Object.keys(squadFormation).forEach(p => {
             if (squadFormation[p] === key) placedCount++;
         });
+        Object.keys(squadBench || {}).forEach(b => {
+            if (squadBench[b] === key) placedCount++;
+        });
         
         const availableCount = item.quantity - placedCount;
         
-        const isCompatible = isPositionCompatible(displayTitle, card.position);
+        const isCompatible = isBench ? isBenchSlotCompatible(position, card.position) : isPositionCompatible(displayTitle, card.position);
         
         // Render item row
         const row = document.createElement('div');
@@ -624,8 +828,10 @@ function openCardSelector(position) {
         
         const awkLabel = card.awakening > 0 ? `<span style="color: #ffd700; font-weight: 800; font-size: 0.8rem; margin-left: 5px;">★ ${card.awakening}</span>` : '';
         let statusText = `<span style="color: #00ff87; font-weight: 600;">기용 가능</span>`;
-        if (isSamePlayerElsewhere) {
-            statusText = `<span style="color: #ff9f43; font-weight: 600;">동일 선수 다른 자리에 배치됨</span>`;
+        if (isSamePlayerInStarting) {
+            statusText = `<span style="color: #ff9f43; font-weight: 600;">동일 선수 선발에 배치됨</span>`;
+        } else if (isSamePlayerInBench) {
+            statusText = `<span style="color: #00d2fc; font-weight: 600;">동일 선수 후보에 배치됨</span>`;
         } else if (isSamePlayerCurrentSlot) {
             statusText = `<span style="color: #00d2fc; font-weight: 600;">교체 가능 (동일 선수)</span>`;
         } else if (!isCurrentSlot && availableCount <= 0) {
@@ -690,35 +896,60 @@ function selectPlayerForPosition(cardId) {
     
     const card = CARDS_DATABASE[cardId];
     if (!card) return;
-    
-    // Get active slot's display position
-    const displayTitle = getFormationDisplayPosition(activeSelectorPosition);
-    
-    if (!isPositionCompatible(displayTitle, card.position)) {
+
+    const isBench = isBenchSlot(activeSelectorPosition);
+    const benchMeta = isBench ? BENCH_SLOT_META[activeSelectorPosition] : null;
+    const displayTitle = isBench ? `${benchMeta.label} (${benchMeta.posHint})` : getFormationDisplayPosition(activeSelectorPosition);
+    if (isBench) {
+        if (!isBenchSlotCompatible(activeSelectorPosition, card.position)) {
+            showToast(`❌ 후보 [${benchMeta.label}] 자리(${benchMeta.posHint})에는 ${typeof formatCardPosition === 'function' ? formatCardPosition(card.position) : (card.position === 'CAM' ? 'AM' : card.position)} 선수를 배치할 수 없습니다!`);
+            return;
+        }
+    } else if (!isPositionCompatible(displayTitle, card.position)) {
         showToast(`❌ 이 포지션(${displayTitle})에는 ${typeof formatCardPosition === 'function' ? formatCardPosition(card.position) : (card.position === 'CAM' ? 'AM' : card.position)} 선수를 배치할 수 없습니다!`);
         return;
     }
 
-    // 동일 선수(다른 클래스 포함) 라인업 중복 배치 차단 (동일 슬롯 업그레이드/교체는 허용)
-    const duplicateSlot = Object.keys(squadFormation).find(p =>
-        p !== activeSelectorPosition &&
+    // 동일 선수(다른 클래스 포함) 선발 11명 + 후보 5명 전체 중복 배치 차단 (동일 슬롯 업그레이드/교체는 허용)
+    const duplicateStartingSlot = Object.keys(squadFormation).find(p =>
+        (isBench || p !== activeSelectorPosition) &&
         squadFormation[p] &&
         (typeof isSamePlayer === 'function' ? isSamePlayer(squadFormation[p], cardId) : squadFormation[p] === cardId)
     );
-    if (duplicateSlot) {
+    if (duplicateStartingSlot) {
         const canonicalName = (typeof getCanonicalPlayerName === 'function') ? getCanonicalPlayerName(cardId, card.name) : card.name;
-        const dupDisplayPos = getFormationDisplayPosition(duplicateSlot);
-        showToast(`❌ 같은 선수(${canonicalName})는 라인업에 중복 배치할 수 없습니다! (${dupDisplayPos} 자리에 배치됨)`);
+        const dupDisplayPos = getFormationDisplayPosition(duplicateStartingSlot);
+        showToast(`❌ 같은 선수(${canonicalName})는 라인업에 중복 배치할 수 없습니다! (선발 ${dupDisplayPos} 자리에 배치됨)`);
+        return;
+    }
+
+    const duplicateBenchSlot = Object.keys(squadBench || {}).find(b =>
+        (!isBench || b !== activeSelectorPosition) &&
+        squadBench[b] &&
+        (typeof isSamePlayer === 'function' ? isSamePlayer(squadBench[b], cardId) : squadBench[b] === cardId)
+    );
+    if (duplicateBenchSlot) {
+        const canonicalName = (typeof getCanonicalPlayerName === 'function') ? getCanonicalPlayerName(cardId, card.name) : card.name;
+        const dupBenchLabel = BENCH_SLOT_META[duplicateBenchSlot] ? BENCH_SLOT_META[duplicateBenchSlot].label : duplicateBenchSlot;
+        showToast(`❌ 같은 선수(${canonicalName})는 라인업에 중복 배치할 수 없습니다! (후보 ${dupBenchLabel} 자리에 배치됨)`);
         return;
     }
     
     // Assign player
-    squadFormation[activeSelectorPosition] = cardId;
+    if (isBench) {
+        if (!squadBenches[currentFormation]) squadBenches[currentFormation] = {};
+        squadBench = squadBenches[currentFormation];
+        squadBench[activeSelectorPosition] = cardId;
+    } else {
+        squadFormation[activeSelectorPosition] = cardId;
+    }
     
     // Save to localStorage
     try {
         localStorage.setItem('fc_star_squad_formations', JSON.stringify(squadFormations));
         localStorage.setItem('fc_star_squad_formation', JSON.stringify(squadFormation));
+        localStorage.setItem('fc_star_squad_benches', JSON.stringify(squadBenches));
+        localStorage.setItem('fc_star_squad_bench', JSON.stringify(squadBench));
     } catch(e) {
         console.warn("Saving squad formation failed:", e);
     }
@@ -727,7 +958,7 @@ function selectPlayerForPosition(cardId) {
     renderSquadFormation();
     
     const cardName = CARDS_DATABASE[cardId].name;
-    showToast(`${displayTitle} 자리에 ${cardName} 선수를 배치했습니다!`);
+    showToast(isBench ? `후보 [${benchMeta.label}] 자리에 ${cardName} 선수를 배치했습니다!` : `${displayTitle} 자리에 ${cardName} 선수를 배치했습니다!`);
     
     // 포지션 배치는 포인트·카드 보유 변화가 아니므로 60초 지연 저장을 사용한다.
     saveUserProgress(false);
@@ -735,24 +966,30 @@ function selectPlayerForPosition(cardId) {
 
 function releasePlayerFromPosition() {
     if (!activeSelectorPosition) return;
-    
-    const assignedPlayerId = squadFormation[activeSelectorPosition];
-    const cardName = assignedPlayerId ? CARDS_DATABASE[assignedPlayerId].name : "무명";
+
+    const isBench = isBenchSlot(activeSelectorPosition);
+    const benchMeta = isBench ? BENCH_SLOT_META[activeSelectorPosition] : null;
     
     // Remove player
-    delete squadFormation[activeSelectorPosition];
+    if (isBench) {
+        if (squadBench) delete squadBench[activeSelectorPosition];
+    } else {
+        delete squadFormation[activeSelectorPosition];
+    }
     
     // Save to localStorage
     try {
         localStorage.setItem('fc_star_squad_formations', JSON.stringify(squadFormations));
         localStorage.setItem('fc_star_squad_formation', JSON.stringify(squadFormation));
+        localStorage.setItem('fc_star_squad_benches', JSON.stringify(squadBenches));
+        localStorage.setItem('fc_star_squad_bench', JSON.stringify(squadBench));
     } catch(e) {
         console.warn("Saving squad formation failed:", e);
     }
     
     closeDrawer();
     renderSquadFormation();
-    showToast(`${activeSelectorPosition} 자리의 선수를 배치 해제하였습니다.`);
+    showToast(isBench ? `후보 [${benchMeta.label}] 자리의 선수를 배치 해제하였습니다.` : `${activeSelectorPosition} 자리의 선수를 배치 해제하였습니다.`);
     
     // 포지션 배치는 포인트·카드 보유 변화가 아니므로 60초 지연 저장을 사용한다.
     saveUserProgress(false);
@@ -883,8 +1120,11 @@ function changeFormation(type) {
         localStorage.setItem('fc_star_current_formation', type);
     } catch (e) {}
     
-    // Update active formation squad reference
+    // Update active formation squad & bench references
+    if (!squadFormations[currentFormation]) squadFormations[currentFormation] = {};
+    if (!squadBenches[currentFormation]) squadBenches[currentFormation] = {};
     squadFormation = squadFormations[currentFormation];
+    squadBench = squadBenches[currentFormation];
     
     closeFormationModal();
     renderSquadFormation();

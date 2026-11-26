@@ -1,4 +1,21 @@
 ## 현재 작업
+- 목표: 클럽 포메이션 후보(벤치) 5명 배치 시스템(공격 2 · 수비 2 · 골키퍼 1) 및 후반전 자동 전술 교체(안 A) 구현
+- 상태: 완료
+- 주요 변경 및 검증 결과:
+  1. **후보 5슬롯 구조·UI·배치 규칙 (`index.html`, `css/squad.css`, `js/squad.js`, `player_data.js`)**:
+     - 포메이션 피치 하단에 후보 5슬롯(`SUB_ATK1` 공격 1 AM·W·ST, `SUB_ATK2` 공격 2 AM·W·ST, `SUB_DEF1` 수비 1 CM·CB·LB·RB, `SUB_DEF2` 수비 2 CM·CB·LB·RB, `SUB_GK` 골키퍼 GK) UI 추가 및 각 슬롯 역할·허용 포지션 글자 표시.
+     - 포메이션별 후보 저장(`squadBenches` / `squadBench`), 역할별 포지션 배치 제한, 선발 11명 + 후보 5명(총 16인) 동일 선수 중복 배치 차단 및 자동 정리(`deduplicateBenchWithSquad`).
+  2. **저장·방출·보관함·어려움 모드 연동 (`db.js`, `js/state.js`, `js/auth.js`, `js/market.js`, `js/deck.js`, `app.js`)**:
+     - 로컬/Firestore 통합 문서 저장·복원 연동(하위 호환 유지), 방출·보관함 이동·어려움 모드 진입 시 후보 슬롯 자동 해제.
+  3. **후반 자동 전술 교체 엔진 및 클럽 전 경기 연동 (`js/match_algorithm.js`, `js/league.js`, `js/cup.js`, `js/acl.js`, `js/friendly.js`)**:
+     - 원본 선발 스쿼드 불변 사본(`createMatchBenchContext`) 기반으로 후반 `63'`·`82'` 자동 교체 투입(열세/동점 시 공격 조커 투입 + 후반 득점 확률 회당 `+2.5%` 최대 `+5.0%`, 리드 시 수비 굳히기 투입 + 상대 득점 확률 회당 `-2.5%`, 후반 `82'` 실점 위기/컨디션 저조/수비 소진 또는 토너먼트 연장·PK 진입 시 GK 후보 투입 + 상대 득점 확률 `-3.0%`).
+     - 교체 투입된 후보 선수의 실제 능력치로 찬스 계산 및 득점·도움 기록 정상 적립.
+  4. **캐시 갱신 및 검증 (`index.html`, `sw.js`, `tests/squad_bench.test.cjs`)**:
+     - `sw.js` `CACHE_NAME = 'fc-star-v494'`, `index.html` CSS/스크립트 버전 상향.
+     - 14개 JS 구문 검사 PASS, 신규 단위 테스트(`tests/squad_bench.test.cjs`) + 기존 회귀 테스트 6종 100% ALL PASS, `git diff --check` 결함 0건.
+- 다음 단계: 완료 보고 (사용자 확인 및 깃 커밋·푸시 대기; 국대 모드 후보 벤치는 추후 적용)
+
+## 이전 작업
 - 목표: 신규 월드클래스 선수 '지단' (`zinedine_zidane`, OVR 94, AM) 등록, 이미지 WebP 최적화 및 DB/CSV/PWA 캐시 동기화
 - 상태: 완료
 - 주요 변경 및 검증 결과:

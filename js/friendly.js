@@ -860,6 +860,18 @@ function startChallengeMatchSimulation(isRetry = false) {
         }
     }
 
+    const benchCtx = (typeof createMatchBenchContext === 'function')
+        ? createMatchBenchContext(currentFormation, squadFormation, typeof squadBench !== 'undefined' ? squadBench : {}, playerDeck)
+        : null;
+    const activeSquad = benchCtx ? benchCtx.matchSquad : squadFormation;
+    const getLiveChallengePlayers = () => benchCtx ? benchCtx.getActivePlayers() : {
+        ST: playerScorerName,
+        LW: playerLwName(),
+        RW: playerRwName(),
+        CM: playerAssisterName,
+        GK: playerGkName()
+    };
+
     const matchMinutes = [0, 15, 30, 45, 52, 63, 74, 82, 88, 90];
     const eventMins = [15, 45, 63, 82, 88];
 
@@ -998,6 +1010,13 @@ function startChallengeMatchSimulation(isRetry = false) {
         commentaryData.opponentScoreVal = opponentScoreVal;
 
         if (isDraw) {
+            if (benchCtx && typeof applyKnockoutGkSubstitution === 'function') {
+                const gkSub = applyKnockoutGkSubstitution(benchCtx);
+                if (gkSub) {
+                    addCommentary('SYSTEM', gkSub.commentary, 'system');
+                    commentaryData.activeGk = gkSub.inName;
+                }
+            }
             addCommentary('SYSTEM', "⚖️ 정규시간 90분 혈투 끝 무승부! 다음 스테이지 진출을 가리기 위한 운명의 승부차기(PK)로 돌입합니다.", "system");
             setTimeout(() => {
                 runChallengePenaltyShootout(playerScoreVal, opponentScoreVal);
@@ -1017,8 +1036,18 @@ function startChallengeMatchSimulation(isRetry = false) {
                 addCommentary(0, `⚽ 주심의 휘슬과 함께 ${userTeamName} vs ${opponent.name} 경기가 킥오프되었습니다!`, 'normal');
             }
         } else if (eventMins.includes(currentMin)) {
+            if (benchCtx && typeof applySecondHalfBenchSubstitution === 'function') {
+                const subEvent = applySecondHalfBenchSubstitution(benchCtx, currentMin, playerScoreVal, opponentScoreVal);
+                if (subEvent) {
+                    addCommentary(currentMin, subEvent.commentary, 'system');
+                    const updatedP = getLiveChallengePlayers();
+                    playerScorerName = updatedP.ST;
+                    playerAssisterName = updatedP.CM;
+                    commentaryData.activeGk = updatedP.GK;
+                }
+            }
             // 돌발 변수 체크 (PK, 레드카드 등)
-            const activePlayers = { ST: playerScorerName, LW: playerLwName(), RW: playerRwName(), CM: playerAssisterName, GK: playerGkName() };
+            const activePlayers = getLiveChallengePlayers();
             const specialEvent = (typeof rollSpecialMatchEvent === 'function') ? rollSpecialMatchEvent(activePlayers, opponent.name) : null;
 
             if (specialEvent) {
@@ -1068,25 +1097,26 @@ function startChallengeMatchSimulation(isRetry = false) {
                     }
 
                     let chancePlayerStat = 75;
+                    const chanceSquad = (typeof activeSquad !== 'undefined' && activeSquad) ? activeSquad : squadFormation;
 
                     if (selectedOption === 0) {
-                        const lwCardId = squadFormation['LW'];
+                        const lwCardId = chanceSquad['LW'];
                         if (lwCardId && CARDS_DATABASE[lwCardId] && typeof getWingerChanceStat === 'function') {
                             chancePlayerStat = getWingerChanceStat('LW', (typeof getAwakenedCard === 'function') ? getAwakenedCard(lwCardId) : CARDS_DATABASE[lwCardId]);
                         }
                     } else if (selectedOption === 1) {
-                        const stCardId = squadFormation['ST'];
+                        const stCardId = chanceSquad['ST'];
                         if (stCardId && CARDS_DATABASE[stCardId] && typeof getStrikerChanceStat === 'function') {
                             chancePlayerStat = getStrikerChanceStat('ST', (typeof getAwakenedCard === 'function') ? getAwakenedCard(stCardId) : CARDS_DATABASE[stCardId], (typeof strikerStyles !== 'undefined') ? strikerStyles : {});
                         }
                     } else if (selectedOption === 2) {
-                        const rwCardId = squadFormation['RW'];
+                        const rwCardId = chanceSquad['RW'];
                         if (rwCardId && CARDS_DATABASE[rwCardId] && typeof getWingerChanceStat === 'function') {
                             chancePlayerStat = getWingerChanceStat('RW', (typeof getAwakenedCard === 'function') ? getAwakenedCard(rwCardId) : CARDS_DATABASE[rwCardId]);
                         }
                     } else if (selectedOption === 3) {
                         const mfList = (typeof getFormationMidfielders === 'function')
-                            ? getFormationMidfielders(currentFormation, squadFormation, playerDeck)
+                            ? getFormationMidfielders(currentFormation, chanceSquad, playerDeck)
                             : [];
                         if (mfList.length > 0) {
                             chancePlayerStat = Math.max(...mfList.map(m => m.sho + getPositionMatchGoalBonus(m.slot, m.card)));
@@ -1094,7 +1124,7 @@ function startChallengeMatchSimulation(isRetry = false) {
                             chancePlayerStat = 75;
                         }
                     } else if (selectedOption === 5) {
-                        const cmCardId = squadFormation['CM'];
+                        const cmCardId = chanceSquad['CM'];
                         if (cmCardId && CARDS_DATABASE[cmCardId]) {
                             const awakened = (typeof getAwakenedCard === 'function') ? getAwakenedCard(cmCardId) : CARDS_DATABASE[cmCardId];
                             chancePlayerStat = getGoalCalculationStat('CM', awakened, 'dri');
@@ -1102,14 +1132,14 @@ function startChallengeMatchSimulation(isRetry = false) {
                     }
 
                     const scoreProb = (typeof calculatePlayerScoreProb === 'function')
-                        ? calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentOvr, formationScoreBoost, suitabilityBonus)
+                        ? calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentOvr, formationScoreBoost, suitabilityBonus, null, benchCtx ? benchCtx.jokerScoreBonus : 0)
                         : (0.45 + (activeDiff * 0.01));
                     
                     const isGoal = (window.forceChallengeWin === true) ? true : (Math.random() < scoreProb);
 
                     if (typeof getDetailedTacticCommentary === 'function') {
                         const isTacticActive = detailedTacticBonus > 0;
-                        const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers, squadFormation, playerDeck, (typeof wingerStyles !== 'undefined' ? wingerStyles : {}), (typeof strikerStyles !== 'undefined' ? strikerStyles : {}));
+                        const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers, activeSquad, playerDeck, (typeof wingerStyles !== 'undefined' ? wingerStyles : {}), (typeof strikerStyles !== 'undefined' ? strikerStyles : {}));
                         
                         addCommentary(currentMin, eventDesc, 'attack');
                         if (isGoal) {
@@ -1132,14 +1162,14 @@ function startChallengeMatchSimulation(isRetry = false) {
                     }
                 } else {
                     let playerGkStat = 70;
-                    const gkCardId = squadFormation['GK'];
+                    const gkCardId = activeSquad['GK'];
                     if (gkCardId && CARDS_DATABASE[gkCardId]) {
                         const awakened = (typeof getAwakenedCard === 'function') ? getAwakenedCard(gkCardId) : CARDS_DATABASE[gkCardId];
                         playerGkStat = getGoalCalculationStat('GK', awakened, 'def', currentFormation, awakened.rating || 70);
                     }
 
                     const oppScoreProb = (typeof calculateOpponentScoreProb === 'function')
-                        ? calculateOpponentScoreProb(activeDiff, opponentOvr, playerGkStat)
+                        ? calculateOpponentScoreProb(activeDiff, opponentOvr, playerGkStat, currentFormation, activeSquad, playerDeck, benchCtx ? benchCtx.lockdownDefenseBonus : 0)
                         : (0.35 - (activeDiff * 0.01));
                     
                     const isGoal = (window.forceChallengeWin === true) ? false : (Math.random() < oppScoreProb);

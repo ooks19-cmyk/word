@@ -311,6 +311,30 @@ function applyUserDataToState(userData) {
         }
     });
     squadFormation = squadFormations[currentFormation] || {};
+
+    if (typeof squadBenches !== 'undefined') {
+        squadBenches = (userData.squadBenches && typeof userData.squadBenches === 'object') ? userData.squadBenches : {
+            '4-4-2': {},
+            '4-3-3': {},
+            '3-4-3': {},
+            '5-4-1': {},
+            '4-2-3-1': {}
+        };
+        if (!userData.squadBenches && userData.squadBench && typeof userData.squadBench === 'object') {
+            squadBenches[currentFormation] = userData.squadBench;
+        }
+        const allowedMap = (typeof getBenchAllowedPositionsMap === 'function') ? getBenchAllowedPositionsMap() : null;
+        ['4-4-2', '4-3-3', '3-4-3', '5-4-1', '4-2-3-1'].forEach(f => {
+            if (!squadBenches[f] || typeof squadBenches[f] !== 'object') {
+                squadBenches[f] = {};
+            } else if (typeof deduplicateBenchWithSquad === 'function') {
+                deduplicateBenchWithSquad(squadFormations[f], squadBenches[f], playerDeck, allowedMap);
+            }
+        });
+        if (typeof squadBench !== 'undefined') {
+            squadBench = squadBenches[currentFormation] || {};
+        }
+    }
     squadCaptain = userData.squadCaptain || null;
     
     // 등번호 복원
@@ -601,6 +625,8 @@ function collectCurrentUserProgressData(targetUserId) {
         })(),
         squadFormation: typeof squadFormation !== 'undefined' ? squadFormation : {},
         squadFormations: typeof squadFormations !== 'undefined' ? squadFormations : { '4-4-2': {}, '4-3-3': {}, '3-4-3': {}, '5-4-1': {}, '4-2-3-1': {} },
+        squadBench: typeof squadBench !== 'undefined' ? squadBench : {},
+        squadBenches: typeof squadBenches !== 'undefined' ? squadBenches : { '4-4-2': {}, '4-3-3': {}, '3-4-3': {}, '5-4-1': {}, '4-2-3-1': {} },
         currentFormation: typeof currentFormation !== 'undefined' ? currentFormation : '4-4-2',
         currentLeagueId: typeof currentLeagueId !== 'undefined' ? currentLeagueId : 'kleague1',
         squadNumbers: typeof squadNumbers !== 'undefined' ? squadNumbers : {},
@@ -803,6 +829,18 @@ function buildLegacyProgressFromLocalStorage(targetUserId) {
         if (sq) singleSquad = JSON.parse(sq);
     } catch(e) {}
 
+    let benchForms = { '4-4-2': {}, '4-3-3': {}, '3-4-3': {}, '5-4-1': {}, '4-2-3-1': {} };
+    try {
+        const sb = localStorage.getItem('fc_star_squad_benches');
+        if (sb) benchForms = JSON.parse(sb);
+    } catch(e) {}
+
+    let singleBench = {};
+    try {
+        const sbo = localStorage.getItem('fc_star_squad_bench');
+        if (sbo) singleBench = JSON.parse(sbo);
+    } catch(e) {}
+
     let curFormation = localStorage.getItem('fc_star_current_formation') || '4-4-2';
     let curLeague = localStorage.getItem('fc_star_current_league') || 'kleague1';
 
@@ -920,6 +958,8 @@ function buildLegacyProgressFromLocalStorage(targetUserId) {
         playerDeck: deck,
         squadFormation: singleSquad,
         squadFormations: squadForms,
+        squadBench: singleBench,
+        squadBenches: benchForms,
         currentFormation: curFormation,
         currentLeagueId: curLeague,
         squadNumbers: sqNumbers,
@@ -1021,6 +1061,8 @@ function saveAllToLocalStorage(targetUserId) {
         if (typeof playerDeck !== 'undefined') localStorage.setItem('fc_star_player_deck', JSON.stringify(playerDeck));
         if (typeof squadFormations !== 'undefined') localStorage.setItem('fc_star_squad_formations', JSON.stringify(squadFormations));
         if (typeof squadFormation !== 'undefined') localStorage.setItem('fc_star_squad_formation', JSON.stringify(squadFormation));
+        if (typeof squadBenches !== 'undefined') localStorage.setItem('fc_star_squad_benches', JSON.stringify(squadBenches));
+        if (typeof squadBench !== 'undefined') localStorage.setItem('fc_star_squad_bench', JSON.stringify(squadBench));
         if (typeof currentFormation !== 'undefined') localStorage.setItem('fc_star_current_formation', currentFormation);
         const activeLeague = (typeof currentLeagueId !== 'undefined' && typeof LEAGUE_CONFIGS !== 'undefined' && LEAGUE_CONFIGS[currentLeagueId]) ? currentLeagueId : ((typeof currentLeagueId !== 'undefined' && (currentLeagueId === 'epl' || currentLeagueId === 'jleague' || currentLeagueId === 'kleague1')) ? currentLeagueId : 'kleague1');
         localStorage.setItem('fc_star_current_league', activeLeague);

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FC STAR CARD - 축구 카드 수집 게임</title>
     <link rel="stylesheet" href="css/global.css?v=3.2">
-    <link rel="stylesheet" href="style.css?v=2.4">
+    <link rel="stylesheet" href="style.css?v=2.5">
     <link rel="stylesheet" href="css/market.css?v=1.1">
     <link rel="stylesheet" href="css/friend.css?v=1.3">
     <link rel="stylesheet" href="css/realtime.css?v=1.0">
@@ -342,6 +342,24 @@
                         
                         <!-- Goalkeeper -->
                         <div class="pitch-slot" id="slot-GK" onclick="openCardSelector('GK')" style="top: 90%; left: 50%;"></div>
+                    </div>
+                </div>
+
+                <!-- 교체 선수 벤치 (후보 5명: 공격 2 · 수비 2 · 골키퍼 1) -->
+                <div class="bench-panel-wrapper" id="squadBenchPanel">
+                    <div class="bench-panel-header">
+                        <div class="bench-panel-title-wrap">
+                            <h4><i class="fa-solid fa-arrows-rotate" style="color: #00d2fc;"></i> 교체 선수 벤치 (SUB)</h4>
+                            <span class="bench-panel-subdesc">후반 63'·82' 경기 상황에 맞춰 자동 교체 투입 (조커·굳히기·수문장)</span>
+                        </div>
+                        <span class="bench-count-badge" id="benchFilledCount">0 / 5</span>
+                    </div>
+                    <div class="bench-slots-grid">
+                        <div class="bench-slot" id="slot-SUB_ATK1" data-role="attack" onclick="openCardSelector('SUB_ATK1')"></div>
+                        <div class="bench-slot" id="slot-SUB_ATK2" data-role="attack" onclick="openCardSelector('SUB_ATK2')"></div>
+                        <div class="bench-slot" id="slot-SUB_DEF1" data-role="defense" onclick="openCardSelector('SUB_DEF1')"></div>
+                        <div class="bench-slot" id="slot-SUB_DEF2" data-role="defense" onclick="openCardSelector('SUB_DEF2')"></div>
+                        <div class="bench-slot" id="slot-SUB_GK" data-role="gk" onclick="openCardSelector('SUB_GK')"></div>
                     </div>
                 </div>
 
@@ -1967,28 +1985,28 @@
         </div>
     </div>
 
-    <script src="player_data.js?v=2.11"></script>
+    <script src="player_data.js?v=2.12"></script>
     <script src="quiz_data.js?v=2.2"></script>
     <script src="other_teams_data.js?v=1.6"></script>
     <script src="other_teams_data_epl.js?v=1.3"></script>
     <script src="other_teams_data_jleague.js?v=1.1"></script>
     <script src="other_teams_data_ligue1.js?v=1.0"></script>
-    <script src="db.js?v=2.7"></script>
+    <script src="db.js?v=2.8"></script>
     <script src="sound.js?v=1.2"></script>
-    <script src="js/state.js?v=4.0"></script>
+    <script src="js/state.js?v=4.1"></script>
     <script src="js/utils.js?v=1.3"></script>
     <script src="js/card.js?v=2.6"></script>
     <script src="quiz.js?v=1.9"></script>
     <script src="js/pack.js?v=2.5"></script>
-    <script src="js/market.js?v=1.5"></script>
-    <script src="js/deck.js?v=3.1"></script>
-    <script src="js/squad.js?v=3.4"></script>
+    <script src="js/market.js?v=1.6"></script>
+    <script src="js/deck.js?v=3.2"></script>
+    <script src="js/squad.js?v=3.5"></script>
     <script src="js/difficulty_config.js?v=1.0"></script>
-    <script src="js/match_algorithm.js?v=4.1"></script>
-    <script src="js/league.js?v=5.8"></script>
-    <script src="js/cup.js?v=3.9"></script>
-    <script src="js/acl.js?v=4.3"></script>
-    <script src="js/friendly.js?v=4.8"></script>
+    <script src="js/match_algorithm.js?v=4.2"></script>
+    <script src="js/league.js?v=5.9"></script>
+    <script src="js/cup.js?v=4.0"></script>
+    <script src="js/acl.js?v=4.4"></script>
+    <script src="js/friendly.js?v=4.9"></script>
     <script src="js/national_data.js?v=1.3"></script>
     <script src="js/national_squad.js?v=2.9"></script>
     <script src="js/national.js?v=3.17"></script>
@@ -2108,10 +2126,10 @@
 
     <script src="js/update_data.js?v=2.85"></script>
     <script src="js/friend.js?v=1.4"></script>
-    <script src="js/auth.js?v=2.87"></script>
+    <script src="js/auth.js?v=2.88"></script>
     <script src="js/realtime.js?v=2.4"></script>
     <script src="js/coach_advisor.js?v=1.3"></script>
-    <script src="app.js?v=4.4"></script>
+    <script src="app.js?v=4.5"></script>
     <script>
         if (typeof updateGlowTheme === 'function') {
             updateGlowTheme();

@@ -64,6 +64,30 @@ graph TD
 * **검증 결과**: 관련 JS 모듈 전수 열람 및 교차 확인 완료.
 * **최종 상태**: 완료
 
+### 🔄 포메이션 후보(벤치) 5명 배치 시스템 및 후반 자동 전술 교체(안 A) 구현 (2026-11-27)
+* **날짜·시간**: 2026-11-27 07:42 (KST)
+* **요청 요약**:
+  - 클럽 포메이션에 후보 5명(공격 2명 `AM/W/ST`, 수비 2명 `CM/CB/LB/RB`, 골키퍼 1명 `GK`, 슬롯에 역할·포지션 글자 표시)을 포메이션별로 배치할 수 있게 하고, 후반 자동 전술 교체(안 A)가 클럽 경기(리그·FA컵·챔스·도전모드)에 반영되도록 구현 (국대 모드는 추후 적용).
+* **수행 내용**:
+  1. **후보 5슬롯 UI 및 배치/중복 차단 로직 (`index.html`, `css/squad.css`, `js/squad.js`, `player_data.js`)**:
+     - 피치 하단에 교체 선수 벤치(`#squadBenchPanel`) 5슬롯(`SUB_ATK1`, `SUB_ATK2`, `SUB_DEF1`, `SUB_DEF2`, `SUB_GK`) 배치 및 역할명(`공격 1`, `공격 2`, `수비 1`, `수비 2`, `골키퍼`) + 허용 포지션(`AM·W·ST`, `CM·CB·LB·RB`, `GK`) 표기.
+     - 역할별 포지션 배치 검증, 선발 11명 + 후보 5명 전체 16인 동일 선수(`isSamePlayer`) 중복 배치 차단, `deduplicateBenchWithSquad()` 자동 정리 추가.
+  2. **데이터 저장·동기화 및 카드 해제 연동 (`db.js`, `js/state.js`, `js/auth.js`, `js/market.js`, `js/deck.js`, `app.js`)**:
+     - 포메이션별 후보 데이터(`squadBenches` / `squadBench`)의 로컬·Firestore 저장/복원 및 리셋 연동.
+     - 카드 방출, 보관함 이동, 어려움 모드 진입 시 후보 슬롯 자동 해제 및 이적시장 `후보` 배지 표기.
+  3. **후반 자동 전술 교체 엔진 및 클럽 경기 연동 (`js/match_algorithm.js`, `js/league.js`, `js/cup.js`, `js/acl.js`, `js/friendly.js`)**:
+     - `createMatchBenchContext`, `applySecondHalfBenchSubstitution`, `applyKnockoutGkSubstitution` 신설 (원본 `squadFormation` 불변 유지).
+     - 후반 `63'`·`82'` 스코어 분기 자동 교체: 동점/열세 시 공격 조커 투입(후반 득점 확률 회당 `+2.5%`, 최대 `+5.0%`), 리드 시 수비 굳히기 투입(상대 득점 확률 회당 `-2.5%`), 후반 `82'` 실점 위기·주전 GK 컨디션 저조·수비 후보 소진 또는 연장/PK 진입 시 GK 후보 투입(상대 득점 확률 `-3.0%`).
+     - 교체 투입된 후보의 능력치·이름으로 후반 찬스 계산 및 득점·도움 기록 정상 적립.
+  4. **PWA 캐시 갱신 (`index.html`, `sw.js`)**:
+     - `index.html` CSS(`style.css?v=2.5`) 및 수정 스크립트 13종 `?v=` 상향, `sw.js` `CACHE_NAME = 'fc-star-v494'` 상향.
+* **변경 파일**: `index.html`, `css/squad.css`, `player_data.js`, `db.js`, `app.js`, `sw.js`, `js/state.js`, `js/auth.js`, `js/market.js`, `js/deck.js`, `js/squad.js`, `js/match_algorithm.js`, `js/league.js`, `js/cup.js`, `js/acl.js`, `js/friendly.js`, `tests/squad_bench.test.cjs`, `.agents/progress.md`, `.agents/log.md`
+* **검증 결과**:
+  - 수정된 JS 14종 `node --check` Syntax OK.
+  - 신규 단위 테스트 `tests/squad_bench.test.cjs` PASS + 기존 회귀 테스트 6종(`canonical_player_identity`, `cloud_save_throttle`, `achievements_reconciliation`, `position_match_goal_bonus`, `market_mode`, `quiz_subjective`) 100% ALL PASS.
+  - `git diff --check` 결함 0건.
+* **최종 상태**: 완료 (origin/main 원격 브랜치 푸시 완료)
+
 ### ⚽ 신규 선수 '지단' (`zinedine_zidane`, 월드클래스 OVR 94) 등록 및 이미지 WebP 최적화 (2026-11-26)
 * **날짜·시간**: 2026-11-26 17:31 (KST)
 * **요청 요약**:

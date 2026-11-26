@@ -658,6 +658,24 @@ function submitHardModeEntry() {
         });
     }
     
+    // squadBenches의 모든 포메이션 후보도 동일하게 3명 제외하고 제거 처리
+    if (typeof squadBenches === 'object' && squadBenches) {
+        Object.keys(squadBenches).forEach(fKey => {
+            const bench = squadBenches[fKey];
+            if (bench && typeof bench === 'object') {
+                Object.keys(bench).forEach(slot => {
+                    const id = bench[slot];
+                    if (id && !selectedIds.includes(id)) {
+                        delete bench[slot];
+                    }
+                });
+            }
+        });
+        if (typeof squadBench !== 'undefined' && typeof currentFormation !== 'undefined') {
+            squadBench = squadBenches[currentFormation] || {};
+        }
+    }
+
     // 4. 모드 전환 및 진입 선물 10 FP 지급
     isHardMode = true;
     if (typeof userPoints !== 'undefined') {

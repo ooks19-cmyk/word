@@ -1565,14 +1565,15 @@ function determineOpponentScorerAndAssister(opponentTeamId) {
 }
 
 // 10. 공통 슛 득점 확률 계산 함수 (플레이어 및 상대팀)
-function calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentRating, formationScoreBoost, suitabilityBonus, customStrikerBonus = null) {
+function calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentRating, formationScoreBoost, suitabilityBonus, customStrikerBonus = null, extraBenchScoreBonus = 0) {
     const playerChanceBonus = Math.max(0, (chancePlayerStat - opponentRating) * 0.01);
     const maxScoreProb = 0.50;
     const minScoreProb = 0.10;
     const strikerHiddenBonus = (customStrikerBonus !== null)
         ? customStrikerBonus
         : ((typeof getStrikerStyleHiddenBonus === 'function') ? getStrikerStyleHiddenBonus() : 0.0);
-    const calculated = 0.24 + (activeDiff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus + strikerHiddenBonus;
+    const benchBonus = Number(extraBenchScoreBonus) || 0;
+    const calculated = 0.24 + (activeDiff * 0.019) + formationScoreBoost + playerChanceBonus + suitabilityBonus + strikerHiddenBonus + benchBonus;
     const prob = Math.min(maxScoreProb, Math.max(minScoreProb, calculated));
 
     console.log(`[시뮬레이션] 🟢 플레이어 슈팅 연산:
@@ -1581,23 +1582,203 @@ function calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentRating, 
     - 전술/포메이션 보정: ${(formationScoreBoost * 100).toFixed(1)}%
     - 전술 적합도 보정: ${(suitabilityBonus * 100).toFixed(1)}%
     - 스트라이커 히든 보너스: ${(strikerHiddenBonus * 100).toFixed(1)}%
+    - 후보 조커 보너스: ${(benchBonus * 100).toFixed(1)}%
     - 최종 계산 득점 확률: ${(prob * 100).toFixed(1)}% (보정 전: ${(calculated * 100).toFixed(1)}%)`);
 
     return prob;
 }
 
-function calculateOpponentScoreProb(activeDiff, opponentOvr, playerGkStat, formation = currentFormation, squad = squadFormation, deck = playerDeck) {
+function calculateOpponentScoreProb(activeDiff, opponentOvr, playerGkStat, formation = currentFormation, squad = squadFormation, deck = playerDeck, extraBenchDefenseReduction = 0) {
     const playerDef = getGoalTeamAverageStat('def', formation, squad, deck);
     const playerDefBonus = Math.max(0, (playerDef - 70) * 0.01);
     const gkBonus = Math.max(0, (playerGkStat + 5 - opponentOvr) * 0.01);
-    const calculated = 0.40 - (activeDiff * 0.026) - playerDefBonus - gkBonus;
+    const benchReduction = Number(extraBenchDefenseReduction) || 0;
+    const calculated = 0.40 - (activeDiff * 0.026) - playerDefBonus - gkBonus - benchReduction;
     const prob = Math.min(0.50, Math.max(0.10, calculated));
 
     console.log(`[시뮬레이션] 🔴 상대팀 슈팅 연산:
     - OVR 차이 보정: ${(-activeDiff * 0.026 * 100).toFixed(1)}% (격차: ${activeDiff})
     - 수비력(DEF) 보정: ${(-playerDefBonus * 100).toFixed(1)}% (평균수비: ${playerDef})
     - 골키퍼(GK) 보정: ${(-gkBonus * 100).toFixed(1)}% (GK수비: ${playerGkStat} vs 상대OVR: ${opponentOvr})
+    - 후보 굳히기/수문장 보정: ${(-benchReduction * 100).toFixed(1)}%
     - 최종 계산 실점 확률: ${(prob * 100).toFixed(1)}% (보정 전: ${(calculated * 100).toFixed(1)}%)`);
 
     return prob;
+}
+
+// 11. 후보 벤치 후반 자동 전술 교체(슈퍼서브) 엔진 (안 A)
+function createMatchBenchContext(formation = currentFormation, startingSquad = squadFormation, benchObj = null, deck = playerDeck) {
+    const activeBench = benchObj || (typeof squadBench !== 'undefined' && squadBench ? squadBench : {});
+    const matchSquad = { ...(startingSquad || {}) };
+    const bench = { ...activeBench };
+    const ctx = {
+        formation: formation || '4-4-2',
+        matchSquad,
+        bench,
+        deck: deck || {},
+        usedBenchSlots: new Set(),
+        replacedStartingSlots: new Set(),
+        jokerScoreBonus: 0,
+        lockdownDefenseBonus: 0,
+        substitutions: []
+    };
+
+    ctx.getActivePlayers = () => {
+        const sq = ctx.matchSquad;
+        const mfs = (typeof getFormationMidfielders === 'function')
+            ? getFormationMidfielders(ctx.formation, sq, ctx.deck)
+            : [];
+        return {
+            ST: (sq.ST && CARDS_DATABASE[sq.ST]) ? CARDS_DATABASE[sq.ST].name : "무명 스트라이커",
+            LW: (sq.LW && CARDS_DATABASE[sq.LW]) ? CARDS_DATABASE[sq.LW].name : "무명 윙어",
+            RW: (sq.RW && CARDS_DATABASE[sq.RW]) ? CARDS_DATABASE[sq.RW].name : "무명 윙백",
+            CM: mfs.length > 0 ? mfs[0].name : ((sq.CM && CARDS_DATABASE[sq.CM]) ? CARDS_DATABASE[sq.CM].name : "무명 미드필더"),
+            GK: (sq.GK && CARDS_DATABASE[sq.GK]) ? CARDS_DATABASE[sq.GK].name : "무명 골키퍼"
+        };
+    };
+
+    return ctx;
+}
+
+function getValidBenchCandidatesByRole(ctx, role) {
+    if (!ctx || !ctx.bench || typeof CARDS_DATABASE === 'undefined') return [];
+    const slotOrder = role === 'attack'
+        ? ['SUB_ATK1', 'SUB_ATK2']
+        : (role === 'defense' ? ['SUB_DEF1', 'SUB_DEF2'] : ['SUB_GK']);
+    const allowedMap = {
+        attack: ['AM', 'CAM', 'LW', 'RW', 'ST'],
+        defense: ['CM', 'CB', 'LB', 'RB'],
+        gk: ['GK']
+    };
+    const allowed = allowedMap[role] || [];
+    const list = [];
+
+    slotOrder.forEach(slot => {
+        if (ctx.usedBenchSlots.has(slot)) return;
+        const cardId = ctx.bench[slot];
+        if (!cardId || !CARDS_DATABASE[cardId]) return;
+        if (ctx.deck && ctx.deck[cardId] && ctx.deck[cardId].isStored) return;
+        const card = (typeof getAwakenedCard === 'function') ? getAwakenedCard(cardId, ctx.deck) : CARDS_DATABASE[cardId];
+        if (!card || !allowed.includes(card.position)) return;
+        list.push({ slot, cardId, card, rating: Number(card.rating) || 70 });
+    });
+
+    list.sort((a, b) => b.rating - a.rating);
+    return list;
+}
+
+function pickStartingSlotForBenchSub(ctx, subCard, role) {
+    if (role === 'gk') return 'GK';
+
+    const candidateSlots = role === 'attack'
+        ? ['ST', 'LW', 'RW', 'CM']
+        : ['LCM', 'RCM', 'CM', 'LCB', 'RCB', 'LB', 'RB'];
+
+    const compatibleSlots = candidateSlots.filter(slot => {
+        if (typeof isPositionCompatible === 'function' && typeof getFormationDisplayPosition === 'function') {
+            return isPositionCompatible(getFormationDisplayPosition(slot, ctx.formation), subCard.position);
+        }
+        return true;
+    });
+
+    const pool = compatibleSlots.length > 0 ? compatibleSlots : (role === 'attack' ? ['ST', 'LW', 'RW'] : ['LCM', 'RCM', 'LCB', 'RCB']);
+    const freshPool = pool.filter(slot => !ctx.replacedStartingSlots.has(slot));
+    const targetPool = freshPool.length > 0 ? freshPool : pool;
+
+    targetPool.sort((slotA, slotB) => {
+        const idA = ctx.matchSquad[slotA];
+        const idB = ctx.matchSquad[slotB];
+        const cardA = (idA && CARDS_DATABASE[idA]) ? ((typeof getAwakenedCard === 'function') ? getAwakenedCard(idA, ctx.deck) : CARDS_DATABASE[idA]) : null;
+        const cardB = (idB && CARDS_DATABASE[idB]) ? ((typeof getAwakenedCard === 'function') ? getAwakenedCard(idB, ctx.deck) : CARDS_DATABASE[idB]) : null;
+        // 빈 슬롯(무명) 최우선, 그 다음 컨디션 저조(-2) 우선, 그 다음 낮은 OVR 우선
+        const condA = cardA ? (Number(cardA.condition) || 0) : -99;
+        const condB = cardB ? (Number(cardB.condition) || 0) : -99;
+        if (condA !== condB) return condA - condB;
+        const ovrA = cardA ? (Number(cardA.rating) || 70) : 0;
+        const ovrB = cardB ? (Number(cardB.rating) || 70) : 0;
+        return ovrA - ovrB;
+    });
+
+    return targetPool[0];
+}
+
+function executeMatchSubstitution(ctx, chosen, role, currentMin, reasonTag) {
+    const targetSlot = pickStartingSlotForBenchSub(ctx, chosen.card, role);
+    const outCardId = ctx.matchSquad[targetSlot] || null;
+    const outName = (outCardId && CARDS_DATABASE[outCardId]) ? CARDS_DATABASE[outCardId].name : '무명 선수';
+    const inName = chosen.card.name;
+    const inOvr = chosen.card.rating;
+
+    ctx.matchSquad[targetSlot] = chosen.cardId;
+    ctx.usedBenchSlots.add(chosen.slot);
+    ctx.replacedStartingSlots.add(targetSlot);
+
+    let commentary = '';
+    if (role === 'attack') {
+        ctx.jokerScoreBonus = Math.min(0.05, Number((ctx.jokerScoreBonus + 0.025).toFixed(4)));
+        commentary = `🔄 <strong>[전술 교체 · 조커 투입]</strong> ${outName} 대신 공격 조커 <strong>${inName}</strong>(OVR ${inOvr})이(가) 투입됩니다! (후반 득점 확률 +2.5% ⚡)`;
+    } else if (role === 'defense') {
+        ctx.lockdownDefenseBonus = Math.min(0.08, Number((ctx.lockdownDefenseBonus + 0.025).toFixed(4)));
+        commentary = `🛡️ <strong>[전술 교체 · 굳히기]</strong> ${outName} 대신 수비 자원 <strong>${inName}</strong>(OVR ${inOvr})이(가) 투입됩니다! (상대 득점 확률 -2.5% 🔒)`;
+    } else {
+        ctx.lockdownDefenseBonus = Math.min(0.08, Number((ctx.lockdownDefenseBonus + 0.03).toFixed(4)));
+        commentary = reasonTag === 'knockout'
+            ? `🧤 <strong>[승부처 교체 · 수문장 투입]</strong> 연장·승부차기를 앞두고 ${outName} 대신 수문장 <strong>${inName}</strong>(OVR ${inOvr})이(가) 골문을 지킵니다! (방어력 강화 🛡️)`
+            : `🧤 <strong>[전술 교체 · 수문장 교체]</strong> 골문을 굳건히 잠그기 위해 ${outName} 대신 <strong>${inName}</strong>(OVR ${inOvr})이(가) 투입됩니다! (상대 득점 확률 -3.0% 🛡️)`;
+    }
+
+    const event = {
+        min: currentMin,
+        benchSlot: chosen.slot,
+        targetSlot,
+        role,
+        inCardId: chosen.cardId,
+        inName,
+        outCardId,
+        outName,
+        commentary
+    };
+    ctx.substitutions.push(event);
+    return event;
+}
+
+function applySecondHalfBenchSubstitution(ctx, currentMin, playerScore, opponentScore) {
+    if (!ctx || (currentMin !== 63 && currentMin !== 82)) return null;
+
+    const atkCandidates = getValidBenchCandidatesByRole(ctx, 'attack');
+    const defCandidates = getValidBenchCandidatesByRole(ctx, 'defense');
+    const gkCandidates = getValidBenchCandidatesByRole(ctx, 'gk');
+
+    const gkId = ctx.matchSquad['GK'];
+    const gkCard = (gkId && CARDS_DATABASE[gkId]) ? ((typeof getAwakenedCard === 'function') ? getAwakenedCard(gkId, ctx.deck) : CARDS_DATABASE[gkId]) : null;
+    const isGkLowCondition = gkCard && Number(gkCard.condition) <= -2;
+
+    if (playerScore <= opponentScore) {
+        // 열세 또는 동점: 공격 조커 최우선 투입
+        if (atkCandidates.length > 0) {
+            return executeMatchSubstitution(ctx, atkCandidates[0], 'attack', currentMin, 'attack_joker');
+        }
+        // 공격 후보가 없고 82분 위기 상황이면 GK 수문장 투입
+        if (currentMin === 82 && gkCandidates.length > 0 && (opponentScore >= 2 || isGkLowCondition)) {
+            return executeMatchSubstitution(ctx, gkCandidates[0], 'gk', currentMin, 'crisis_gk');
+        }
+        return null;
+    } else {
+        // 리드 중: 82분 수문장 교체 조건(2실점 이상 / 주전 GK 컨디션 저조 / 수비 후보 소진)
+        if (currentMin === 82 && gkCandidates.length > 0 && (opponentScore >= 2 || isGkLowCondition || defCandidates.length === 0)) {
+            return executeMatchSubstitution(ctx, gkCandidates[0], 'gk', currentMin, 'lockdown_gk');
+        }
+        // 수비 후보 투입으로 리드 굳히기
+        if (defCandidates.length > 0) {
+            return executeMatchSubstitution(ctx, defCandidates[0], 'defense', currentMin, 'lockdown_def');
+        }
+        return null;
+    }
+}
+
+function applyKnockoutGkSubstitution(ctx) {
+    if (!ctx) return null;
+    const gkCandidates = getValidBenchCandidatesByRole(ctx, 'gk');
+    if (gkCandidates.length === 0) return null;
+    return executeMatchSubstitution(ctx, gkCandidates[0], 'gk', 90, 'knockout');
 }

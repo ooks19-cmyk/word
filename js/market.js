@@ -260,8 +260,9 @@ function renderMarketSellList(grid, countBadge) {
         const currentAwk = deckItem.awakening || 0;
         const sellPrice = calculatePlayerMarketPrice(baseRating, currentAwk);
 
-        // 선발 출전 및 주장 여부
+        // 선발/후보 출전 및 주장 여부
         const isStarting = (typeof squadFormation !== 'undefined') && Object.values(squadFormation).includes(k);
+        const isBench = (typeof squadBench !== 'undefined') && Object.values(squadBench).includes(k);
         const isCaptain = (typeof squadCaptainId !== 'undefined') && squadCaptainId === k;
 
         const cardEl = document.createElement('div');
@@ -269,7 +270,7 @@ function renderMarketSellList(grid, countBadge) {
 
         const stats = card.stats || { pac: 70, sho: 70, pas: 70, dri: 70, def: 70, phy: 70 };
         const awkBadge = currentAwk > 0 ? `<span style="color: #ffd700; font-weight: 800; font-size: 0.8rem; margin-left: 4px;">★+${currentAwk}</span>` : '';
-        const startingBadge = isStarting ? `<span style="background: rgba(0, 255, 135, 0.15); border: 1px solid #00ff87; color: #00ff87; font-size: 0.65rem; padding: 1px 5px; border-radius: 4px; font-weight: 800;">선발</span>` : '';
+        const startingBadge = isStarting ? `<span style="background: rgba(0, 255, 135, 0.15); border: 1px solid #00ff87; color: #00ff87; font-size: 0.65rem; padding: 1px 5px; border-radius: 4px; font-weight: 800;">선발</span>` : (isBench ? `<span style="background: rgba(0, 210, 252, 0.15); border: 1px solid #00d2fc; color: #00d2fc; font-size: 0.65rem; padding: 1px 5px; border-radius: 4px; font-weight: 800;">후보</span>` : '');
         const captainBadge = isCaptain ? `<span style="background: rgba(255, 215, 0, 0.2); border: 1px solid #ffd700; color: #ffd700; font-size: 0.65rem; padding: 1px 5px; border-radius: 4px; font-weight: 800;">주장</span>` : '';
 
         cardEl.innerHTML = `
@@ -433,13 +434,16 @@ function sellPlayer(cardId) {
         const currentAwk = deckItem.awakening || 0;
         const price = calculatePlayerMarketPrice(card.rating, currentAwk);
 
-        // 선발 출전 및 주장 여부 확인
+        // 선발/후보 출전 및 주장 여부 확인
         const isStarting = (typeof squadFormation !== 'undefined') && Object.values(squadFormation).includes(cardId);
+        const isBench = (typeof squadBenches !== 'undefined')
+            ? Object.values(squadBenches).some(b => b && Object.values(b).includes(cardId))
+            : ((typeof squadBench !== 'undefined') && Object.values(squadBench).includes(cardId));
         const isCaptain = (typeof squadCaptainId !== 'undefined') && squadCaptainId === cardId;
 
-        if (isStarting || isCaptain) {
-            const roleDesc = isCaptain ? "선발 라인업 및 구단 주장" : "선발 라인업";
-            const confirmRelease = confirm(`⚠️ '${card.name}' 선수는 현재 [${roleDesc}]에 등록되어 있습니다.\n선발/주장에서 해제하고 ${price} FP에 방출하시겠습니까?`);
+        if (isStarting || isBench || isCaptain) {
+            const roleDesc = isCaptain ? "선발 라인업 및 구단 주장" : (isStarting ? "선발 라인업" : "후보 벤치");
+            const confirmRelease = confirm(`⚠️ '${card.name}' 선수는 현재 [${roleDesc}]에 등록되어 있습니다.\n라인업/주장에서 해제하고 ${price} FP에 방출하시겠습니까?`);
             if (!confirmRelease) return;
 
             // 선발 포메이션에서 해제
@@ -448,6 +452,30 @@ function sellPlayer(cardId) {
                     if (squadFormation[pos] === cardId) {
                         squadFormation[pos] = null;
                     }
+                });
+            }
+            if (typeof squadFormations !== 'undefined') {
+                Object.keys(squadFormations).forEach(f => {
+                    if (squadFormations[f]) {
+                        Object.keys(squadFormations[f]).forEach(pos => {
+                            if (squadFormations[f][pos] === cardId) delete squadFormations[f][pos];
+                        });
+                    }
+                });
+            }
+            // 후보 벤치에서 해제
+            if (typeof squadBenches !== 'undefined') {
+                Object.keys(squadBenches).forEach(f => {
+                    if (squadBenches[f]) {
+                        Object.keys(squadBenches[f]).forEach(slot => {
+                            if (squadBenches[f][slot] === cardId) delete squadBenches[f][slot];
+                        });
+                    }
+                });
+            }
+            if (typeof squadBench !== 'undefined') {
+                Object.keys(squadBench).forEach(slot => {
+                    if (squadBench[slot] === cardId) delete squadBench[slot];
                 });
             }
             // 주장 해제
@@ -469,8 +497,17 @@ function sellPlayer(cardId) {
         try {
             localStorage.setItem('fc_star_user_points', userPoints.toString());
             localStorage.setItem('fc_star_player_deck', JSON.stringify(playerDeck));
+            if (typeof squadFormations !== 'undefined') {
+                localStorage.setItem('fc_star_squad_formations', JSON.stringify(squadFormations));
+            }
             if (typeof squadFormation !== 'undefined') {
                 localStorage.setItem('fc_star_squad_formation', JSON.stringify(squadFormation));
+            }
+            if (typeof squadBenches !== 'undefined') {
+                localStorage.setItem('fc_star_squad_benches', JSON.stringify(squadBenches));
+            }
+            if (typeof squadBench !== 'undefined') {
+                localStorage.setItem('fc_star_squad_bench', JSON.stringify(squadBench));
             }
         } catch(e) {}
 

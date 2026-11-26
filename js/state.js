@@ -546,6 +546,16 @@ function resetStateToDefault() {
         '5-4-1': {},
         '4-2-3-1': {}
     };
+    if (typeof squadBench !== 'undefined') squadBench = {};
+    if (typeof squadBenches !== 'undefined') {
+        squadBenches = {
+            '4-4-2': {},
+            '4-3-3': {},
+            '3-4-3': {},
+            '5-4-1': {},
+            '4-2-3-1': {}
+        };
+    }
     squadCaptain = null;
     squadNumbers = {};
     for (let i = 1; i <= 90; i++) {

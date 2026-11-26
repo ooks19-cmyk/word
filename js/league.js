@@ -1266,13 +1266,11 @@ function startLeagueAutoSimulation() {
         const detailedTactic = getPlayerDetailedTacticBonuses();
         const detailedTacticBonus = detailedTactic.detailedTacticBonus;
         const suitabilityBonus = detailedTactic.suitabilityBonus;
-        
-        const activeAttacker = squadFormation["ST"] ? CARDS_DATABASE[squadFormation["ST"]].name : "무명 스트라이커";
-        const activeLw = squadFormation["LW"] ? CARDS_DATABASE[squadFormation["LW"]].name : "무명 윙어";
-        const activeRw = squadFormation["RW"] ? CARDS_DATABASE[squadFormation["RW"]].name : "무명 윙백";
-        const activeMfs = (typeof getFormationMidfielders === 'function') ? getFormationMidfielders(currentFormation, squadFormation, playerDeck) : [];
-        const activeCm = activeMfs.length > 0 ? activeMfs[0].name : (squadFormation["CM"] ? CARDS_DATABASE[squadFormation["CM"]].name : "무명 미드필더");
-        const activeGk = squadFormation["GK"] ? CARDS_DATABASE[squadFormation["GK"]].name : "무명 골키퍼";
+
+        const benchCtx = (typeof createMatchBenchContext === 'function')
+            ? createMatchBenchContext(currentFormation, squadFormation, typeof squadBench !== 'undefined' ? squadBench : {}, playerDeck)
+            : null;
+        const activeSquad = benchCtx ? benchCtx.matchSquad : squadFormation;
         
         const maxProb = 0.80;
         const minProb = 0.20;
@@ -1285,14 +1283,23 @@ function startLeagueAutoSimulation() {
         const eventMins = [15, 45, 63, 82, 88];
         
         eventMins.forEach(currentMin => {
-            const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm, GK: activeGk };
+            if (benchCtx && typeof applySecondHalfBenchSubstitution === 'function') {
+                applySecondHalfBenchSubstitution(benchCtx, currentMin, playerScoreVal, opponentScoreVal);
+            }
+            const activePlayers = benchCtx ? benchCtx.getActivePlayers() : {
+                ST: activeSquad["ST"] ? CARDS_DATABASE[activeSquad["ST"]].name : "무명 스트라이커",
+                LW: activeSquad["LW"] ? CARDS_DATABASE[activeSquad["LW"]].name : "무명 윙어",
+                RW: activeSquad["RW"] ? CARDS_DATABASE[activeSquad["RW"]].name : "무명 윙백",
+                CM: activeSquad["CM"] ? CARDS_DATABASE[activeSquad["CM"]].name : "무명 미드필더",
+                GK: activeSquad["GK"] ? CARDS_DATABASE[activeSquad["GK"]].name : "무명 골키퍼"
+            };
             const specialEvent = rollSpecialMatchEvent(activePlayers, opponent.name);
             
             if (specialEvent) {
                 if (specialEvent.type === "pk_player") {
                     if (specialEvent.isGoal) {
                         playerScoreVal++;
-                        const goalData = determineScorerAndAssister(1);
+                        const goalData = determineScorerAndAssister(1, activeSquad);
                         processPlayerGoal(goalData);
                     }
                 } else if (specialEvent.type === "pk_opponent") {
@@ -1325,28 +1332,29 @@ function startLeagueAutoSimulation() {
                         selectedOption = attackOptions[Math.floor(Math.random() * attackOptions.length)];
                     }
                     let chancePlayerStat = 75;
+                    const chanceSquad = (typeof activeSquad !== 'undefined' && activeSquad) ? activeSquad : squadFormation;
                     
                     if (selectedOption === 0) {
-                        const lwCardId = squadFormation['LW'];
+                        const lwCardId = chanceSquad['LW'];
                         if (lwCardId && CARDS_DATABASE[lwCardId]) {
                             const card = getAwakenedCard(lwCardId);
                             chancePlayerStat = getWingerChanceStat('LW', card);
                         }
                     } else if (selectedOption === 1) {
-                        const stCardId = squadFormation['ST'];
+                        const stCardId = chanceSquad['ST'];
                         if (stCardId && CARDS_DATABASE[stCardId]) {
                             const card = getAwakenedCard(stCardId);
                             chancePlayerStat = getStrikerChanceStat('ST', card, strikerStyles);
                         }
                     } else if (selectedOption === 2) {
-                        const rwCardId = squadFormation['RW'];
+                        const rwCardId = chanceSquad['RW'];
                         if (rwCardId && CARDS_DATABASE[rwCardId]) {
                             const card = getAwakenedCard(rwCardId);
                             chancePlayerStat = getWingerChanceStat('RW', card);
                         }
                     } else if (selectedOption === 3) {
                         const mfList = (typeof getFormationMidfielders === 'function')
-                            ? getFormationMidfielders(currentFormation, squadFormation, playerDeck)
+                            ? getFormationMidfielders(currentFormation, chanceSquad, playerDeck)
                             : [];
                         if (mfList.length > 0) {
                             chancePlayerStat = Math.max(...mfList.map(m => m.sho + getPositionMatchGoalBonus(m.slot, m.card)));
@@ -1354,29 +1362,29 @@ function startLeagueAutoSimulation() {
                             chancePlayerStat = 75;
                         }
                     } else if (selectedOption === 5) {
-                        const cmCardId = squadFormation['CM'];
+                        const cmCardId = chanceSquad['CM'];
                         if (cmCardId && CARDS_DATABASE[cmCardId]) {
                             const card = getAwakenedCard(cmCardId);
                             chancePlayerStat = getGoalCalculationStat('CM', card, 'dri');
                         }
                     }
                     
-                    const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentOvr, formationScoreBoost, suitabilityBonus);
+                    const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentOvr, formationScoreBoost, suitabilityBonus, null, benchCtx ? benchCtx.jokerScoreBonus : 0);
                     const isGoal = Math.random() < scoreProb;
                     if (isGoal) {
                         playerScoreVal++;
-                        const goalData = determineScorerAndAssister(selectedOption);
+                        const goalData = determineScorerAndAssister(selectedOption, activeSquad);
                         processPlayerGoal(goalData);
                     }
                 } else {
                     let playerGkStat = 70;
-                    const gkCardId = squadFormation['GK'];
+                    const gkCardId = activeSquad['GK'];
                     if (gkCardId && CARDS_DATABASE[gkCardId]) {
                         const card = getAwakenedCard(gkCardId);
                         playerGkStat = getGoalCalculationStat('GK', card, 'def', currentFormation, card.rating || 70);
                     }
                     
-                    const oppScoreProb = calculateOpponentScoreProb(activeDiff, opponentOvr, playerGkStat);
+                    const oppScoreProb = calculateOpponentScoreProb(activeDiff, opponentOvr, playerGkStat, currentFormation, activeSquad, playerDeck, benchCtx ? benchCtx.lockdownDefenseBonus : 0);
                     const isGoal = Math.random() < oppScoreProb;
                     if (isGoal) {
                         opponentScoreVal++;
@@ -1645,6 +1653,14 @@ function startMatchSimulation() {
     if (detailedTacticLabel || suitabilityLabel) {
         addCommentary('SYSTEM', getMatchEventCommentary('TACTIC_ANALYZE', commentaryData, false), 'attack');
     }
+
+    const benchCtx = (typeof createMatchBenchContext === 'function')
+        ? createMatchBenchContext(currentFormation, squadFormation, typeof squadBench !== 'undefined' ? squadBench : {}, playerDeck)
+        : null;
+    const activeSquad = benchCtx ? benchCtx.matchSquad : squadFormation;
+    const getLiveLeaguePlayers = () => benchCtx ? benchCtx.getActivePlayers() : {
+        ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm, GK: activeGk
+    };
     
     // 개발자 모드: 대기 없이 즉시 시뮬레이션 결과 연산 및 출력
     if (isDeveloperMode) {
@@ -1655,8 +1671,15 @@ function startMatchSimulation() {
             if (currentMin === 0) {
                 addCommentary(0, getMatchEventCommentary('KICKOFF', commentaryData, false, true), 'normal');
             } else if (eventMins.includes(currentMin)) {
+                if (benchCtx && typeof applySecondHalfBenchSubstitution === 'function') {
+                    const subEvent = applySecondHalfBenchSubstitution(benchCtx, currentMin, playerScoreVal, opponentScoreVal);
+                    if (subEvent) {
+                        addCommentary(currentMin, subEvent.commentary, 'system');
+                        commentaryData.activeGk = getLiveLeaguePlayers().GK;
+                    }
+                }
                 // 특별 돌발 변수 체크
-                const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm, GK: activeGk };
+                const activePlayers = getLiveLeaguePlayers();
                 const specialEvent = rollSpecialMatchEvent(activePlayers, opponent.name);
                 
                 if (specialEvent) {
@@ -1664,7 +1687,7 @@ function startMatchSimulation() {
                     if (specialEvent.type === "pk_player") {
                         if (specialEvent.isGoal) {
                             playerScoreVal++;
-                            const goalData = determineScorerAndAssister(1); // PK는 보통 ST가 키커
+                            const goalData = determineScorerAndAssister(1, activeSquad); // PK는 보통 ST가 키커
                             processPlayerGoal(goalData);
                             addCommentary(currentMin, specialEvent.eventGoal, 'goal');
                         } else {
@@ -1711,28 +1734,29 @@ function startMatchSimulation() {
                         }
                         
                         let chancePlayerStat = 75;
+                        const chanceSquad = (typeof activeSquad !== 'undefined' && activeSquad) ? activeSquad : squadFormation;
                         
                         if (selectedOption === 0) {
-                            const lwCardId = squadFormation['LW'];
+                            const lwCardId = chanceSquad['LW'];
                             if (lwCardId && CARDS_DATABASE[lwCardId]) {
                                 const card = getAwakenedCard(lwCardId);
                                 chancePlayerStat = getWingerChanceStat('LW', card);
                             }
                         } else if (selectedOption === 1) {
-                            const stCardId = squadFormation['ST'];
+                            const stCardId = chanceSquad['ST'];
                             if (stCardId && CARDS_DATABASE[stCardId]) {
                                  const card = getAwakenedCard(stCardId);
                                  chancePlayerStat = getStrikerChanceStat('ST', card, strikerStyles);
                             }
                         } else if (selectedOption === 2) {
-                            const rwCardId = squadFormation['RW'];
+                            const rwCardId = chanceSquad['RW'];
                             if (rwCardId && CARDS_DATABASE[rwCardId]) {
                                 const card = getAwakenedCard(rwCardId);
                                 chancePlayerStat = getWingerChanceStat('RW', card);
                             }
                         } else if (selectedOption === 3) {
                             const mfList = (typeof getFormationMidfielders === 'function')
-                                ? getFormationMidfielders(currentFormation, squadFormation, playerDeck)
+                                ? getFormationMidfielders(currentFormation, chanceSquad, playerDeck)
                                 : [];
                             if (mfList.length > 0) {
                                 chancePlayerStat = Math.max(...mfList.map(m => m.sho + getPositionMatchGoalBonus(m.slot, m.card)));
@@ -1740,23 +1764,22 @@ function startMatchSimulation() {
                                 chancePlayerStat = 75;
                             }
                         } else if (selectedOption === 5) { // 4-2-3-1 점유율 연출 (CM 드리블 비례)
-                            const cmCardId = squadFormation['CM'];
+                            const cmCardId = chanceSquad['CM'];
                             if (cmCardId && CARDS_DATABASE[cmCardId]) {
                                 const card = getAwakenedCard(cmCardId);
                                 chancePlayerStat = getGoalCalculationStat('CM', card, 'dri');
                             }
                         }
                         
-                        const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentOvr, formationScoreBoost, suitabilityBonus);
+                        const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentOvr, formationScoreBoost, suitabilityBonus, null, benchCtx ? benchCtx.jokerScoreBonus : 0);
                         const isGoal = Math.random() < scoreProb;
-                        const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm };
                         const isTacticActive = detailedTacticBonus > 0;
-                        const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers, squadFormation, playerDeck, wingerStyles, strikerStyles);
+                        const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers, activeSquad, playerDeck, wingerStyles, strikerStyles);
                         
                         addCommentary(currentMin, eventDesc, 'attack');
                         if (isGoal) {
                             playerScoreVal++;
-                            const goalData = determineScorerAndAssister(selectedOption);
+                            const goalData = determineScorerAndAssister(selectedOption, activeSquad);
                             processPlayerGoal(goalData);
                             addCommentary(currentMin, eventGoal, 'goal');
                         } else {
@@ -1764,13 +1787,13 @@ function startMatchSimulation() {
                         }
                     } else {
                         let playerGkStat = 70;
-                        const gkCardId = squadFormation['GK'];
+                        const gkCardId = activeSquad['GK'];
                         if (gkCardId && CARDS_DATABASE[gkCardId]) {
                             const card = getAwakenedCard(gkCardId);
                             playerGkStat = getGoalCalculationStat('GK', card, 'def', currentFormation, card.rating || 70);
                         }
                         
-                        const oppScoreProb = calculateOpponentScoreProb(activeDiff, opponentOvr, playerGkStat);
+                        const oppScoreProb = calculateOpponentScoreProb(activeDiff, opponentOvr, playerGkStat, currentFormation, activeSquad, playerDeck, benchCtx ? benchCtx.lockdownDefenseBonus : 0);
                         const isGoal = Math.random() < oppScoreProb;
                         
                         addCommentary(currentMin, getMatchEventCommentary('OPP_ATTACK', commentaryData, false), 'attack');
@@ -1897,8 +1920,15 @@ function startMatchSimulation() {
         if (currentMin === 0) {
             addCommentary(0, getMatchEventCommentary('KICKOFF', commentaryData, false, false), 'normal');
         } else if (eventMins.includes(currentMin)) {
+            if (benchCtx && typeof applySecondHalfBenchSubstitution === 'function') {
+                const subEvent = applySecondHalfBenchSubstitution(benchCtx, currentMin, playerScoreVal, opponentScoreVal);
+                if (subEvent) {
+                    addCommentary(currentMin, subEvent.commentary, 'system');
+                    commentaryData.activeGk = getLiveLeaguePlayers().GK;
+                }
+            }
             // 특별 돌발 변수 체크
-            const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm, GK: activeGk };
+            const activePlayers = getLiveLeaguePlayers();
             const specialEvent = rollSpecialMatchEvent(activePlayers, opponent.name);
             
             if (specialEvent) {
@@ -1907,7 +1937,7 @@ function startMatchSimulation() {
                     const isGoal = specialEvent.isGoal;
                     if (isGoal) {
                         playerScoreVal++;
-                        const goalData = determineScorerAndAssister(1); // PK는 보통 ST가 키커
+                        const goalData = determineScorerAndAssister(1, activeSquad); // PK는 보통 ST가 키커
                         processPlayerGoal(goalData);
                         playSound('reveal');
                         
@@ -1986,28 +2016,29 @@ function startMatchSimulation() {
                     }
                     
                     let chancePlayerStat = 75;
+                    const chanceSquad = (typeof activeSquad !== 'undefined' && activeSquad) ? activeSquad : squadFormation;
                     
                     if (selectedOption === 0) {
-                        const lwCardId = squadFormation['LW'];
+                        const lwCardId = chanceSquad['LW'];
                         if (lwCardId && CARDS_DATABASE[lwCardId]) {
                             const card = getAwakenedCard(lwCardId);
                             chancePlayerStat = getWingerChanceStat('LW', card);
                         }
                     } else if (selectedOption === 1) {
-                        const stCardId = squadFormation['ST'];
+                        const stCardId = chanceSquad['ST'];
                         if (stCardId && CARDS_DATABASE[stCardId]) {
                             const card = getAwakenedCard(stCardId);
                             chancePlayerStat = getStrikerChanceStat('ST', card, strikerStyles);
                         }
                     } else if (selectedOption === 2) {
-                        const rwCardId = squadFormation['RW'];
+                        const rwCardId = chanceSquad['RW'];
                         if (rwCardId && CARDS_DATABASE[rwCardId]) {
                             const card = getAwakenedCard(rwCardId);
                             chancePlayerStat = getWingerChanceStat('RW', card);
                         }
                     } else if (selectedOption === 3) {
                         const mfList = (typeof getFormationMidfielders === 'function')
-                            ? getFormationMidfielders(currentFormation, squadFormation, playerDeck)
+                            ? getFormationMidfielders(currentFormation, chanceSquad, playerDeck)
                             : [];
                         if (mfList.length > 0) {
                             chancePlayerStat = Math.max(...mfList.map(m => m.sho + getPositionMatchGoalBonus(m.slot, m.card)));
@@ -2015,24 +2046,23 @@ function startMatchSimulation() {
                             chancePlayerStat = 75;
                         }
                     } else if (selectedOption === 5) { // 4-2-3-1 점유율 연출 (CM 드리블 비례)
-                        const cmCardId = squadFormation['CM'];
+                        const cmCardId = chanceSquad['CM'];
                         if (cmCardId && CARDS_DATABASE[cmCardId]) {
                             const card = getAwakenedCard(cmCardId);
                             chancePlayerStat = getGoalCalculationStat('CM', card, 'dri');
                         }
                     }
                     
-                    const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentOvr, formationScoreBoost, suitabilityBonus);
+                    const scoreProb = calculatePlayerScoreProb(activeDiff, chancePlayerStat, opponentOvr, formationScoreBoost, suitabilityBonus, null, benchCtx ? benchCtx.jokerScoreBonus : 0);
                     const isGoal = Math.random() < scoreProb;
-                    const activePlayers = { ST: activeAttacker, LW: activeLw, RW: activeRw, CM: activeCm };
                     const isTacticActive = detailedTacticBonus > 0;
-                    const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers, squadFormation, playerDeck, wingerStyles, strikerStyles);
+                    const { eventDesc, eventGoal, eventFail } = getDetailedTacticCommentary(selectedOption, currentFormation, isTacticActive, activePlayers, activeSquad, playerDeck, wingerStyles, strikerStyles);
                     
                     addCommentary(currentMin, eventDesc, 'attack');
                     
                     if (isGoal) {
                         playerScoreVal++;
-                        const goalData = determineScorerAndAssister(selectedOption);
+                        const goalData = determineScorerAndAssister(selectedOption, activeSquad);
                         processPlayerGoal(goalData);
                         playSound('reveal');
                         
@@ -2052,13 +2082,13 @@ function startMatchSimulation() {
                     }
                 } else {
                     let playerGkStat = 70;
-                    const gkCardId = squadFormation['GK'];
+                    const gkCardId = activeSquad['GK'];
                     if (gkCardId && CARDS_DATABASE[gkCardId]) {
                         const card = getAwakenedCard(gkCardId);
                         playerGkStat = getGoalCalculationStat('GK', card, 'def', currentFormation, card.rating || 70);
                     }
                     
-                    const oppScoreProb = calculateOpponentScoreProb(activeDiff, opponentOvr, playerGkStat);
+                    const oppScoreProb = calculateOpponentScoreProb(activeDiff, opponentOvr, playerGkStat, currentFormation, activeSquad, playerDeck, benchCtx ? benchCtx.lockdownDefenseBonus : 0);
                     const isGoal = Math.random() < oppScoreProb;
                     
                     addCommentary(currentMin, getMatchEventCommentary('OPP_ATTACK', commentaryData, false), 'attack');

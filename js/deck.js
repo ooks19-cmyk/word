@@ -466,7 +466,7 @@ function moveToStorage(cardId) {
 
     const cardName = cardObj.card ? cardObj.card.name : '선수';
 
-    // 현재 포메이션에 배치되어 있는지 검사
+    // 현재 포메이션(선발/후보)에 배치되어 있는지 검사
     let isPlacedInSquad = false;
     ['4-4-2', '4-3-3', '3-4-3', '5-4-1', '4-2-3-1'].forEach(f => {
         if (typeof squadFormations !== 'undefined' && squadFormations[f]) {
@@ -476,13 +476,20 @@ function moveToStorage(cardId) {
                 }
             });
         }
+        if (typeof squadBenches !== 'undefined' && squadBenches[f]) {
+            Object.keys(squadBenches[f]).forEach(slot => {
+                if (squadBenches[f][slot] === cardId) {
+                    isPlacedInSquad = true;
+                }
+            });
+        }
     });
 
     if (isPlacedInSquad) {
-        const confirmStorage = confirm(`'${cardName}' 선수는 현재 선발 포메이션에 등록되어 있습니다.\n포메이션에서 제외하고 보관함으로 이동하시겠습니까?`);
+        const confirmStorage = confirm(`'${cardName}' 선수는 현재 선발/후보 포메이션에 등록되어 있습니다.\n포메이션에서 제외하고 보관함으로 이동하시겠습니까?`);
         if (!confirmStorage) return;
 
-        // 모든 포메이션 슬롯에서 해당 카드 안전하게 제외
+        // 모든 포메이션(선발/후보) 슬롯에서 해당 카드 안전하게 제외
         ['4-4-2', '4-3-3', '3-4-3', '5-4-1', '4-2-3-1'].forEach(f => {
             if (typeof squadFormations !== 'undefined' && squadFormations[f]) {
                 Object.keys(squadFormations[f]).forEach(pos => {
@@ -491,9 +498,19 @@ function moveToStorage(cardId) {
                     }
                 });
             }
+            if (typeof squadBenches !== 'undefined' && squadBenches[f]) {
+                Object.keys(squadBenches[f]).forEach(slot => {
+                    if (squadBenches[f][slot] === cardId) {
+                        delete squadBenches[f][slot];
+                    }
+                });
+            }
         });
         if (typeof squadFormations !== 'undefined' && typeof currentFormation !== 'undefined') {
             squadFormation = squadFormations[currentFormation];
+        }
+        if (typeof squadBenches !== 'undefined' && typeof currentFormation !== 'undefined') {
+            squadBench = squadBenches[currentFormation];
         }
     }
 
@@ -527,6 +544,12 @@ function moveToStorage(cardId) {
         localStorage.setItem('fc_star_player_deck', JSON.stringify(playerDeck));
         if (typeof squadFormations !== 'undefined') {
             localStorage.setItem('fc_star_squad_formations', JSON.stringify(squadFormations));
+        }
+        if (typeof squadBenches !== 'undefined') {
+            localStorage.setItem('fc_star_squad_benches', JSON.stringify(squadBenches));
+        }
+        if (typeof squadBench !== 'undefined') {
+            localStorage.setItem('fc_star_squad_bench', JSON.stringify(squadBench));
         }
         if (typeof nationalModeState !== 'undefined' && nationalModeState) {
             localStorage.setItem('fc_star_national_mode_state', JSON.stringify(nationalModeState));

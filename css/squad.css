@@ -993,3 +993,172 @@
     }
 }
 
+/* ==========================================================================
+   SUBSTITUTE BENCH (후보 5명: 공격 2 · 수비 2 · 골키퍼 1)
+   ========================================================================== */
+.bench-panel-wrapper {
+    width: 100%;
+    max-width: 760px;
+    margin: 1rem auto 0 auto;
+    background: rgba(10, 14, 26, 0.5);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 1.15rem 1.2rem 1.25rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.42);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+
+.bench-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.bench-panel-title-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.bench-panel-title-wrap h4 {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.bench-panel-subdesc {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.bench-count-badge {
+    font-size: 0.78rem;
+    font-weight: 900;
+    color: #00d2fc;
+    background: rgba(0, 210, 252, 0.12);
+    border: 1px solid rgba(0, 210, 252, 0.35);
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+}
+
+.bench-slots-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+    align-items: start;
+}
+
+.bench-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: transform 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.bench-slot:hover {
+    transform: translateY(-4px) scale(1.03);
+}
+
+.bench-slot .mini-player-card {
+    width: 100%;
+    max-width: 112px;
+    height: 120px;
+}
+
+.bench-empty-card {
+    justify-content: center !important;
+    gap: 6px;
+    padding: 0.5rem 0.25rem !important;
+    border-style: dashed !important;
+    background: linear-gradient(145deg, rgba(16, 22, 38, 0.85), rgba(8, 11, 20, 0.9)) !important;
+}
+
+.bench-empty-role-badge {
+    font-size: 0.66rem;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    white-space: nowrap;
+}
+
+.bench-empty-plus {
+    font-size: 1.25rem;
+    opacity: 0.85;
+}
+
+.bench-empty-pos-hint {
+    font-size: 0.62rem;
+    font-weight: 800;
+    color: #cbd5e1;
+    letter-spacing: 0.02em;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.bench-slot-role-label {
+    width: 100%;
+    max-width: 112px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    padding: 3px 4px;
+    border-radius: 8px;
+    background: rgba(8, 10, 16, 0.78);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    text-align: center;
+}
+
+.bench-role-name {
+    font-size: 0.7rem;
+    font-weight: 900;
+    line-height: 1.15;
+}
+
+.bench-role-hint {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: #94a3b8;
+    line-height: 1.15;
+    white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+    .bench-panel-wrapper {
+        padding: 0.9rem 0.75rem 1rem;
+    }
+    .bench-slots-grid {
+        gap: 6px;
+    }
+    .bench-slot .mini-player-card {
+        height: 102px;
+    }
+    .bench-role-name {
+        font-size: 0.62rem;
+    }
+    .bench-role-hint {
+        font-size: 0.52rem;
+        letter-spacing: -0.02em;
+    }
+    .bench-empty-role-badge {
+        font-size: 0.58rem;
+        padding: 1px 5px;
+    }
+    .bench-empty-pos-hint {
+        font-size: 0.54rem;
+    }
+}
+
